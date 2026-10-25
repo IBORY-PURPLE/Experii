@@ -1,0 +1,1188 @@
+<title>Experii MVP 데모</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: a learning-loop pipeline on top doubles as navigation; below it, one stage at a time, each mimicking its real surface (terminal, agent, map, phone) */
+:root {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --surface-2: #f1efe9;
+  --ink: #1d1d1b;
+  --ink-2: #4f4d48;
+  --ink-3: #85827a;
+  --line: #e4e1d9;
+  --accent: #2f6f5e;
+  --accent-ink: #ffffff;
+  --accent-soft: #e4efea;
+  --me: #3d5a99;
+  --me-soft: #e8edf7;
+  --exp: #9a5b13;
+  --exp-soft: #f6ecdf;
+  --warn: #a8620f;
+  --warn-soft: #fbefdc;
+  --hl: #fff0bf;
+  --hl-line: #d9ac34;
+  --term-bg: #1a1c1b;
+  --term-bar: #232624;
+  --term-line: #2e322f;
+  --term-fg: #e7e5de;
+  --term-dim: #8e8b83;
+  --term-user: #a9bbe8;
+  --term-acc: #86d1b4;
+  --term-warn: #e9b277;
+  --phone-frame: #1d1d1b;
+  --phone-bg: #e6eae6;
+  --shadow: 0 1px 2px rgba(29, 29, 27, .05), 0 6px 20px rgba(29, 29, 27, .05);
+  --font-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "D2Coding", Consolas, "Malgun Gothic", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141413;
+    --surface: #1c1c1a;
+    --surface-2: #242421;
+    --ink: #ecebe6;
+    --ink-2: #bdbab1;
+    --ink-3: #8a877f;
+    --line: #2f2e2b;
+    --accent: #72c4a8;
+    --accent-ink: #0f201b;
+    --accent-soft: #1d2d28;
+    --me: #93abe3;
+    --me-soft: #1e2433;
+    --exp: #e2a862;
+    --exp-soft: #2e2418;
+    --warn: #e9b277;
+    --warn-soft: #2d2216;
+    --hl: #3a3118;
+    --hl-line: #c9a443;
+    --term-bg: #0f1110;
+    --term-bar: #181b19;
+    --term-line: #2a2e2b;
+    --phone-frame: #3a3936;
+    --phone-bg: #101312;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141413;
+  --surface: #1c1c1a;
+  --surface-2: #242421;
+  --ink: #ecebe6;
+  --ink-2: #bdbab1;
+  --ink-3: #8a877f;
+  --line: #2f2e2b;
+  --accent: #72c4a8;
+  --accent-ink: #0f201b;
+  --accent-soft: #1d2d28;
+  --me: #93abe3;
+  --me-soft: #1e2433;
+  --exp: #e2a862;
+  --exp-soft: #2e2418;
+  --warn: #e9b277;
+  --warn-soft: #2d2216;
+  --hl: #3a3118;
+  --hl-line: #c9a443;
+  --term-bg: #0f1110;
+  --term-bar: #181b19;
+  --term-line: #2a2e2b;
+  --phone-frame: #3a3936;
+  --phone-bg: #101312;
+  --shadow: none;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 64px;
+}
+h1, h2, h3, h4 { margin: 0; line-height: 1.35; text-wrap: balance; }
+p { margin: 0; }
+code, pre, .mono { font-family: var(--font-mono); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; }
+.brand .ver { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+.thesis { margin-top: 6px; font-size: 17px; font-weight: 500; max-width: 700px; }
+.thesis-sub { margin-top: 2px; font-size: 14px; color: var(--ink-2); max-width: 700px; }
+.persona { font-size: 13px; color: var(--ink-3); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.persona b { color: var(--ink-2); font-weight: 600; }
+.btn-ghost {
+  background: none; border: 1px solid var(--line); border-radius: 8px; padding: 5px 12px;
+  font-size: 13px; color: var(--ink-2); cursor: pointer;
+}
+.btn-ghost:hover { color: var(--ink); border-color: var(--ink-3); }
+.btn-primary {
+  background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 9px; padding: 9px 16px;
+  font-weight: 600; cursor: pointer;
+}
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-primary:disabled { opacity: .5; cursor: default; filter: none; }
+.linkish { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-size: 13px; }
+
+/* pipeline */
+.pipe-card { margin-top: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 18px 20px 14px; }
+.pipe-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; font-size: 12.5px; color: var(--ink-3); margin-bottom: 14px; }
+.pipe-legend .who { display: inline-flex; align-items: center; gap: 6px; }
+.pipe-legend .who i { width: 10px; height: 10px; border-radius: 3px; display: block; }
+.pipe-legend .sp { flex: 1; }
+.pipe { display: grid; grid-template-columns: minmax(0, 4fr) 44px minmax(0, 1fr); align-items: start; }
+.loop { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 30px; padding-bottom: 54px; }
+.node {
+  position: relative; text-align: left; cursor: pointer; background: var(--surface); border: 1.5px solid var(--line);
+  border-radius: 14px; padding: 11px 12px 10px; display: grid; gap: 3px; min-width: 0; transition: border-color .15s, background .15s, transform .15s;
+}
+.node:hover { border-color: var(--ink-3); }
+.node[aria-current="step"] { background: var(--surface-2); border-color: var(--ink); }
+.node .v { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.node .v b { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+.actor { font-size: 11px; font-weight: 600; border-radius: 99px; padding: 0 7px; white-space: nowrap; line-height: 1.7; }
+.actor.me { color: var(--me); background: var(--me-soft); }
+.actor.ag { color: var(--accent); background: var(--accent-soft); }
+.actor.ex { color: var(--exp); background: var(--exp-soft); }
+.node .d { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+.node .o { font-size: 12px; color: var(--ink-3); line-height: 1.45; }
+.node .o::before { content: "→ "; }
+.node .c { margin-top: 4px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); border-top: 1px dashed var(--line); padding-top: 5px; font-variant-numeric: tabular-nums; }
+.node.me { border-left: 4px solid var(--me); }
+.node.ag { border-left: 4px solid var(--accent); }
+.node.ex { border-left: 4px solid var(--exp); background: var(--exp-soft); }
+.node.ex[aria-current="step"] { border-color: var(--exp); }
+.arr { position: absolute; top: 30px; right: -27px; width: 24px; height: 10px; pointer-events: none; }
+.arr::before {
+  content: ""; position: absolute; left: 0; right: 6px; top: 4px; height: 2px;
+  background: repeating-linear-gradient(90deg, var(--ink-3) 0 4px, transparent 4px 7px); background-size: 7px 2px;
+  animation: flow .7s linear infinite;
+}
+.arr::after { content: ""; position: absolute; right: 0; top: 0; border-left: 7px solid var(--ink-3); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+@keyframes flow { from { background-position: 0 0; } to { background-position: 7px 0; } }
+.back {
+  position: absolute; left: calc((100% - 90px) / 8); right: calc((100% - 90px) / 8); bottom: 16px; height: 30px;
+  border: 2px dashed var(--ink-3); border-top: 0; border-radius: 0 0 20px 20px; pointer-events: none;
+}
+.back::before { content: ""; position: absolute; left: -7px; top: -9px; border-bottom: 9px solid var(--ink-3); border-left: 6px solid transparent; border-right: 6px solid transparent; }
+.back span {
+  position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); white-space: nowrap;
+  background: var(--surface); padding: 0 10px; font-size: 13px; font-weight: 600; color: var(--ink);
+}
+.back span em { font-style: normal; color: var(--accent); }
+.back span small { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--ink-3); margin-left: 6px; }
+.out-arr { position: relative; height: 100%; }
+.out-arr::before {
+  content: ""; position: absolute; left: 6px; right: 8px; top: 34px; height: 2px;
+  background: repeating-linear-gradient(90deg, var(--exp) 0 4px, transparent 4px 7px); background-size: 7px 2px; animation: flow .7s linear infinite;
+}
+.out-arr::after { content: ""; position: absolute; right: 2px; top: 30px; border-left: 7px solid var(--exp); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.out-arr span { position: absolute; top: 44px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--exp); line-height: 1.3; }
+.loop-line { display: none; font-size: 12.5px; color: var(--ink-2); margin-top: 10px; }
+.loop-line b { color: var(--accent); }
+
+/* scene */
+.scene { margin-top: 26px; }
+.scene-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 20px; margin-bottom: 18px; }
+.scene-head .eyebrow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-3); margin-bottom: 4px; }
+.scene-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+.scene-head .lede { margin-top: 6px; color: var(--ink-2); max-width: 700px; }
+.tag { font-size: 12px; font-weight: 600; color: var(--warn); background: var(--warn-soft); border-radius: 99px; padding: 3px 10px; white-space: nowrap; }
+.tag code { font-size: 11.5px; }
+
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.stack { display: grid; gap: 14px; min-width: 0; align-content: start; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); min-width: 0; }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 11px 16px; border-bottom: 1px solid var(--line); }
+.card-head h3 { font-size: 14px; font-weight: 600; }
+.surface-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--ink-3); }
+.card-body { padding: 14px 16px; }
+.note { font-size: 13px; color: var(--ink-3); }
+.note b { color: var(--ink-2); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+button.chip { cursor: pointer; }
+button.chip:hover { border-color: var(--ink-3); color: var(--ink); }
+.pill { font-size: 11.5px; font-weight: 600; border-radius: 99px; padding: 1px 8px; white-space: nowrap; }
+.pill.ok { color: var(--accent); background: var(--accent-soft); }
+.pill.shaky { color: var(--warn); background: var(--warn-soft); }
+.pill.new { color: var(--ink-2); background: var(--surface-2); border: 1px dashed var(--ink-3); }
+.fade-in { animation: fadein .35s ease-out both; }
+@keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.pop { animation: pop .4s ease-out; }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+/* terminal */
+.term { background: var(--term-bg); color: var(--term-fg); border: 1px solid var(--term-line); border-radius: 14px; overflow: hidden; min-width: 0; }
+.term-bar { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--term-bar); border-bottom: 1px solid var(--term-line); font-family: var(--font-mono); font-size: 12px; color: var(--term-dim); }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--term-line); display: block; }
+.term-body { padding: 14px 16px 16px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7; display: grid; gap: 12px; min-width: 0; }
+.t-sys { border: 1px dashed var(--term-line); border-radius: 8px; padding: 8px 10px; color: var(--term-dim); font-size: 12.5px; }
+.t-sys .lbl { color: var(--term-warn); }
+.t-sys .val { color: var(--term-fg); }
+.t-sys.loop2 { border-color: var(--term-warn); }
+.t-user { color: var(--term-user); display: grid; grid-template-columns: auto 1fr; gap: 8px; }
+.t-user::before { content: ">"; color: var(--term-dim); }
+.t-ai { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; }
+.t-ai::before { content: "●"; color: var(--term-acc); font-size: 11px; line-height: 2.1; }
+.t-ai > div { display: grid; gap: 8px; min-width: 0; }
+.t-ai code { color: var(--term-acc); }
+.t-table { overflow-x: auto; }
+.t-table table { border-collapse: collapse; font-size: 12.5px; line-height: 1.7; color: var(--term-fg); font-variant-numeric: tabular-nums; }
+.t-table th, .t-table td { border: 1px solid var(--term-line); padding: 2px 10px; text-align: left; white-space: nowrap; }
+.t-table th { color: var(--term-dim); font-weight: 500; }
+.t-table td.hot { color: var(--term-warn); }
+.t-code { margin: 0; padding: 8px 10px; background: rgba(255, 255, 255, .04); border-radius: 6px; overflow-x: auto; white-space: pre; font-size: 12.5px; color: var(--term-fg); }
+.t-input { display: grid; grid-template-columns: auto 1fr; gap: 8px; border-top: 1px solid var(--term-line); padding-top: 12px; }
+.t-input::before { content: ">"; color: var(--term-dim); }
+.caret { display: inline-block; width: 8px; height: 1.1em; background: var(--term-fg); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 12px; }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* local logs */
+.logs { list-style: none; margin: 0; padding: 0; }
+.logs li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 9px 16px; border-top: 1px solid var(--line); align-items: center; }
+.logs li:first-child { border-top: 0; }
+.logs .t { font-size: 13.5px; font-weight: 500; }
+.logs .m { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); grid-column: 1; }
+.logs .st { grid-row: 1 / span 2; grid-column: 2; font-size: 12px; }
+.logs li.reading { background: var(--hl); }
+.cat-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+
+/* collect */
+.collect { display: grid; grid-template-columns: minmax(0, 1fr) 140px minmax(0, 1fr); gap: 14px; align-items: center; }
+.agent { display: grid; justify-items: center; gap: 10px; text-align: center; }
+.agent-orb { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); border: 1.5px solid var(--accent); }
+.agent-orb svg { width: 30px; height: 30px; }
+.agent-orb.busy { animation: spin 1.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.agent .sub { font-size: 12px; color: var(--ink-3); }
+.bins { display: grid; gap: 10px; }
+.bin { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--surface); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; }
+.bin h4 { font-size: 14px; font-weight: 600; }
+.bin .n { font-family: var(--font-mono); font-size: 20px; font-weight: 600; grid-row: 1 / span 2; grid-column: 2; font-variant-numeric: tabular-nums; text-align: right; line-height: 1.1; }
+.bin .n small { display: block; font-family: var(--font-sans); font-size: 11px; font-weight: 400; color: var(--ink-3); }
+.bin .chips { grid-column: 1; }
+
+.extract { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 0; }
+.raw-list { display: grid; gap: 6px; padding: 12px 14px 14px; border-right: 1px solid var(--line); align-content: start; }
+.raw { font-size: 12.5px; line-height: 1.55; padding: 5px 8px; border-radius: 6px; border: 1px solid transparent; color: var(--ink-2); transition: background .15s, border-color .15s; }
+.raw .who { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-right: 6px; }
+.raw.sys { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); border: 1px dashed var(--line); }
+.raw.lit { background: var(--hl); border-color: var(--hl-line); color: var(--ink); }
+.rec { display: grid; align-content: start; }
+.rec-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; padding: 9px 16px; border-top: 1px solid var(--line); font-size: 13.5px; transition: background .15s; }
+.rec-row:first-child { border-top: 0; }
+.rec-row > span:first-child { font-size: 12px; color: var(--ink-3); padding-top: 1px; }
+.rec-row[data-src] { cursor: help; }
+.rec-row[data-src]:hover, .rec-row[data-src]:focus-visible { background: var(--hl); }
+.rec-row .sub { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.empty { padding: 30px 18px; text-align: center; color: var(--ink-3); font-size: 13.5px; }
+.principle { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+.principle b { font-weight: 600; color: var(--ink); }
+
+/* structure */
+.seg-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.seg-tabs button { background: none; border: 0; border-radius: 7px; padding: 4px 12px; font-size: 13px; cursor: pointer; color: var(--ink-2); }
+.seg-tabs button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: var(--shadow); }
+.map-wrap { overflow-x: auto; }
+.map { display: block; width: 100%; min-width: 560px; height: auto; }
+.map .zone { fill: var(--surface-2); }
+.map .zone-l { font-family: var(--font-sans); font-size: 12px; font-weight: 600; fill: var(--ink-3); }
+.map .edge { stroke: var(--ink-3); stroke-width: 1.4; opacity: .55; fill: none; }
+.map .edge.confuse { stroke: var(--warn); stroke-dasharray: 5 4; opacity: 1; stroke-width: 1.8; }
+.map .edge.cross { stroke: var(--me); stroke-dasharray: 5 4; opacity: 1; stroke-width: 1.8; }
+.map .edge-l { font-family: var(--font-sans); font-size: 11px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+.map .edge-l.confuse { fill: var(--warn); }
+.map .edge-l.cross { fill: var(--me); }
+.map .nd { cursor: pointer; outline: none; }
+.map .nd circle.c { stroke-width: 1.8; transition: r .2s; }
+.map .nd.ok circle.c { fill: var(--accent); stroke: var(--accent); }
+.map .nd.shaky circle.c { fill: var(--warn-soft); stroke: var(--warn); }
+.map .nd.new circle.c { fill: var(--surface); stroke: var(--ink-3); stroke-dasharray: 3 3; }
+.map .nd circle.ring { fill: none; stroke: var(--me); stroke-width: 2.4; }
+.map .nd circle.sel { fill: none; stroke: var(--ink); stroke-width: 2; opacity: 0; }
+.map .nd.selected circle.sel, .map .nd:focus-visible circle.sel { opacity: 1; }
+.map .nd text { font-family: var(--font-sans); font-size: 12.5px; fill: var(--ink-2); text-anchor: middle; paint-order: stroke; stroke: var(--surface-2); stroke-width: 4px; stroke-linejoin: round; }
+.map .nd.selected text { fill: var(--ink); font-weight: 700; }
+.map .nd text.cnt { font-family: var(--font-mono); font-size: 11px; font-weight: 600; stroke: none; }
+.map .nd.ok text.cnt { fill: var(--accent-ink); }
+.map .nd.shaky text.cnt { fill: var(--warn); }
+.map .nd.new text.cnt { fill: var(--ink-3); }
+.map .dim { opacity: .14; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 10px 16px 12px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: block; width: 12px; height: 12px; border-radius: 50%; }
+.legend i.ok { background: var(--accent); }
+.legend i.shaky { background: var(--warn-soft); border: 1.5px solid var(--warn); }
+.legend i.new { border: 1.5px dashed var(--ink-3); }
+.legend i.ring { border: 2.4px solid var(--me); }
+.legend i.l-confuse { width: 18px; height: 0; border-radius: 0; border-top: 2px dashed var(--warn); }
+.legend i.l-cross { width: 18px; height: 0; border-radius: 0; border-top: 2px dashed var(--me); }
+
+.insights { display: grid; gap: 8px; }
+.ins { text-align: left; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: grid; gap: 2px; }
+.ins:hover { border-color: var(--ink-3); }
+.ins h4 { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.ins p { font-size: 13px; color: var(--ink-2); }
+.ins .k { width: 8px; height: 8px; border-radius: 50%; display: block; flex: none; }
+.detail h4 { font-size: 17px; font-weight: 700; }
+.detail .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.detail h5 { margin: 14px 0 6px; font-size: 12px; font-weight: 600; color: var(--ink-3); letter-spacing: .04em; }
+.trail { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--line); display: grid; gap: 8px; }
+.trail li { position: relative; font-size: 13px; }
+.trail li::before { content: ""; position: absolute; left: -19px; top: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+.trail li.rv::before { background: var(--me); }
+.trail .dt { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); margin-right: 6px; }
+.trail .st { display: block; font-size: 12.5px; color: var(--warn); }
+.trail .st.ok { color: var(--accent); }
+
+/* review / phone */
+.review { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 24px; align-items: start; }
+.phone { width: 300px; max-width: 100%; margin: 0 auto; border: 10px solid var(--phone-frame); border-radius: 38px; background: var(--phone-bg); min-height: 590px; padding: 12px 14px 18px; display: flex; flex-direction: column; gap: 12px; }
+.ph-status { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-2); padding: 0 6px; }
+.ph-lock { text-align: center; margin: 26px 0 12px; }
+.ph-lock .time { font-size: 52px; font-weight: 300; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+.ph-lock .date { margin-top: 6px; font-size: 13px; color: var(--ink-2); }
+.notif { text-align: left; cursor: pointer; background: var(--surface); border: 0; border-radius: 16px; padding: 10px 12px; box-shadow: var(--shadow); display: grid; gap: 2px; }
+.notif .hd { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-3); }
+.notif .hd b { color: var(--accent); font-weight: 700; }
+.notif .tt { font-size: 14px; font-weight: 600; }
+.notif .bd { font-size: 13px; color: var(--ink-2); }
+.ph-hint { margin-top: auto; text-align: center; font-size: 12px; color: var(--ink-3); }
+.ph-card { background: var(--surface); border-radius: 18px; padding: 14px; display: grid; gap: 10px; box-shadow: var(--shadow); flex: 1; align-content: start; }
+.ph-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--ink-3); }
+.ph-prog { display: flex; gap: 4px; }
+.ph-prog i { width: 18px; height: 4px; border-radius: 2px; background: var(--line); display: block; }
+.ph-prog i.on { background: var(--accent); }
+.ph-concept { font-size: 18px; font-weight: 700; }
+.ph-q { font-size: 14.5px; line-height: 1.6; }
+.ph-a { font-size: 13.5px; line-height: 1.6; background: var(--accent-soft); border-radius: 10px; padding: 9px 11px; }
+.ph-mine { font-size: 12.5px; color: var(--ink-2); border-left: 3px solid var(--me); padding: 2px 0 2px 9px; }
+.ph-mine b { display: block; font-size: 11.5px; color: var(--me); font-weight: 600; }
+.rate { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: auto; }
+.rate button { border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 4px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.rate button:hover { border-color: var(--ink-3); }
+.rate button.know { color: var(--accent); }
+.rate button.unsure { color: var(--warn); }
+.ph-done { display: grid; gap: 8px; }
+.ph-done h4 { font-size: 18px; }
+.res { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.res li { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; align-items: center; }
+.changes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.changes li { font-size: 13.5px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.changes .arrow { color: var(--ink-3); }
+.memo { font-family: var(--font-mono); font-size: 12.5px; background: var(--term-bg); color: var(--term-fg); border-radius: 10px; padding: 10px 12px; line-height: 1.6; }
+.memo .lbl { color: var(--term-warn); }
+.why { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; }
+.why h4 { font-size: 14px; }
+.why p { font-size: 13.5px; color: var(--ink-2); margin-top: 2px; }
+
+/* experience */
+.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; border-bottom: 1px solid var(--line); }
+.stat { padding: 12px 16px; border-left: 1px solid var(--line); }
+.stat:first-child { border-left: 0; }
+.stat b { display: block; font-family: var(--font-mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.stat span { font-size: 12px; color: var(--ink-3); }
+.exp-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.exp-body > div { padding: 16px; min-width: 0; }
+.exp-body > div + div { border-left: 1px solid var(--line); }
+.exp-body h4 { font-size: 13px; font-weight: 600; color: var(--ink-3); margin-bottom: 10px; }
+.story { font-size: 15px; line-height: 1.75; background: var(--exp-soft); border-radius: 12px; padding: 14px 16px; }
+.evid { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--ink-3); }
+
+/* bottom nav */
+.pager { margin-top: 28px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.pager .kbd { font-size: 12px; color: var(--ink-3); }
+.pager button { min-width: 96px; }
+.foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); display: grid; gap: 4px; }
+
+@media (max-width: 1000px) {
+  .grid-map { grid-template-columns: minmax(0, 1fr); }
+  .grid-map .insights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 960px) {
+  .pipe { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .loop { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-bottom: 0; }
+  .arr, .back, .out-arr { display: none; }
+  .loop-line { display: block; }
+  .collect { grid-template-columns: minmax(0, 1fr); }
+  .agent { grid-template-columns: auto auto; justify-content: center; align-items: center; text-align: left; }
+  .review { grid-template-columns: minmax(0, 1fr); }
+  .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stat:nth-child(4) { border-left: 0; }
+  .stat:nth-child(n+4) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 760px) {
+  .grid-2, .extract, .exp-body, .grid-map .insights { grid-template-columns: minmax(0, 1fr); }
+  .raw-list { border-right: 0; border-bottom: 1px solid var(--line); }
+  .exp-body > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .pager .kbd { display: none; }
+}
+@media (max-width: 460px) {
+  .rec-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .node .o { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand"><h1>Experii</h1><span class="ver">MVP 데모</span></div>
+      <p class="thesis">AI와 공부한 과정을 과목별 경험으로 쌓고, 잊을 때쯤 다시 꺼내 줘서 몸에 남게 합니다.</p>
+      <p class="thesis-sub">나는 공부하고 확인만 합니다. 모으고, 엮고, 다시 띄우는 일은 Experii 에이전트가 합니다.</p>
+    </div>
+    <div class="persona">
+      <span><b>예시 사용자</b> SQLD를 준비하며 데이터베이스·네트워크 수업을 듣는 3학년</span>
+      <button class="btn-ghost" id="reset" type="button">처음부터 다시</button>
+    </div>
+  </header>
+
+  <nav class="pipe-card" aria-label="Experii 학습 루프">
+    <div class="pipe-legend">
+      <span class="who"><i style="background:var(--me)"></i>내가 하는 일</span>
+      <span class="who"><i style="background:var(--accent)"></i>에이전트가 하는 일</span>
+      <span class="who"><i style="background:var(--exp)"></i>쌓여서 남는 것</span>
+      <span class="sp"></span>
+      <span>단계를 눌러 각 장면을 봅니다</span>
+    </div>
+    <div class="pipe">
+      <div class="loop">
+        <button class="node me" type="button" data-view="0"><span class="v"><b>공부</b><span class="actor me">나</span></span><span class="d">AI와 평소처럼 대화</span><span class="o">대화 기록 · 내 컴퓨터</span><span class="c" id="cnt-0"></span><span class="arr" aria-hidden="true"></span></button>
+        <button class="node ag" type="button" data-view="1"><span class="v"><b>수집</b><span class="actor ag">에이전트</span></span><span class="d">과목별로 모으기</span><span class="o">학습 데이터</span><span class="c" id="cnt-1"></span><span class="arr" aria-hidden="true"></span></button>
+        <button class="node ag" type="button" data-view="2"><span class="v"><b>구조화</b><span class="actor ag">에이전트</span></span><span class="d">나에게 맞게 엮기</span><span class="o">개념 지도 · 약점</span><span class="c" id="cnt-2"></span><span class="arr" aria-hidden="true"></span></button>
+        <button class="node me" type="button" data-view="3"><span class="v"><b>다시 보기</b><span class="actor me">나 · 폰</span></span><span class="d">잊을 때쯤 다시</span><span class="o">복습 카드</span><span class="c" id="cnt-3"></span></button>
+        <div class="back" aria-hidden="true"><span>답한 결과가 다음 공부로 · <em>반복할수록 체화</em><small id="loop-n"></small></span></div>
+      </div>
+      <div class="out-arr" aria-hidden="true"><span>쌓이면</span></div>
+      <button class="node ex" type="button" data-view="4"><span class="v"><b>경험</b><span class="actor ex">쌓인 결과</span></span><span class="d">면접 · AI 역량 평가</span><span class="o">배운 과정까지 남은 기록</span><span class="c" id="cnt-4"></span></button>
+    </div>
+    <p class="loop-line">공부 → 수집 → 구조화 → 다시 보기 → 다시 공부. <b>반복할수록 체화</b>되고, 쌓인 과정은 경험으로 남습니다.</p>
+  </nav>
+
+  <!-- study -->
+  <section class="scene" id="scene-0" aria-labelledby="h-0">
+    <div class="scene-head">
+      <div>
+        <div class="eyebrow"><span class="actor me">나</span>공부할 때마다</div>
+        <h2 id="h-0">AI와 평소처럼 대화하며 공부합니다</h2>
+        <p class="lede">과목마다 노트를 따로 정리하지 않아도 됩니다. Claude와 묻고 답한 대화는 내 컴퓨터에 그대로 남고, 지난번에 배운 것은 Experii가 세션 시작 때 Claude에게 넘겨 줍니다.</p>
+      </div>
+      <span class="tag">시연용으로 줄인 대화</span>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="term">
+          <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span><span>claude · ~/study/sqld</span></div>
+          <div class="term-body" id="study-term"></div>
+        </div>
+        <div class="controls">
+          <button class="btn-primary" id="next-msg" type="button">다음 대화</button>
+          <button class="linkish" id="all-msg" type="button">한 번에 보기</button>
+          <span class="count" id="msg-count"></span>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <div class="card-head"><h3>내 컴퓨터에 남은 최근 대화</h3><span class="surface-label">~/.claude/projects</span></div>
+          <ul class="logs" id="recent-logs"></ul>
+        </div>
+        <p class="note">과목이 달라도 공부 방식은 같습니다. SQLD는 혼자, 데이터베이스와 네트워크는 수업 과제로 각자 다른 폴더에서 Claude와 공부했습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- collect -->
+  <section class="scene" id="scene-1" aria-labelledby="h-1" hidden>
+    <div class="scene-head">
+      <div>
+        <div class="eyebrow"><span class="actor ag">에이전트</span>세션이 끝나면</div>
+        <h2 id="h-1">에이전트가 흩어진 대화를 과목별로 모읍니다</h2>
+        <p class="lede">에이전트가 내 컴퓨터에 새로 생긴 대화를 읽고 어느 과목의 공부인지 나눕니다. 요약 한 줄이 아니라 개념, 내가 한 질문, 막힌 지점 같은 학습 데이터를 뽑아 과목에 쌓습니다.</p>
+      </div>
+      <span class="tag">MVP에서는 세션을 마칠 때 <code>/mcp__experi__log</code> 한 번으로 시작</span>
+    </div>
+
+    <div class="collect">
+      <div class="card">
+        <div class="card-head"><h3>새로 생긴 대화</h3><span class="surface-label">내 컴퓨터</span></div>
+        <ul class="logs" id="new-logs"></ul>
+      </div>
+      <div class="agent">
+        <div class="agent-orb" id="orb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M4 12h7M4 17h10"/><path d="M15 9l4 3-4 3"/></svg></div>
+        <div>
+          <button class="btn-primary" id="run-collect" type="button">에이전트 실행</button>
+          <p class="sub" id="collect-sub">대화 4개를 읽고 과목을 나눕니다</p>
+        </div>
+      </div>
+      <div class="bins" id="bins"></div>
+    </div>
+
+    <div class="card extract">
+      <div class="raw-list" id="compact"></div>
+      <div>
+        <div class="card-head"><h3>오늘 SQL 대화에서 뽑은 학습 데이터</h3><span class="surface-label" id="extract-hint">항목을 가리키면 대화의 출처가 표시됩니다</span></div>
+        <div id="extract"></div>
+      </div>
+    </div>
+    <p class="principle"><span><b>대화 원문</b>은 내 컴퓨터에 둡니다.</span><span><b>쌓이는 것</b>은 과목별 학습 데이터입니다.</span></p>
+  </section>
+
+  <!-- structure -->
+  <section class="scene" id="scene-2" aria-labelledby="h-2" hidden>
+    <div class="scene-head">
+      <div>
+        <div class="eyebrow"><span class="actor ag">에이전트</span>쌓일 때마다</div>
+        <h2 id="h-2">쌓인 데이터를 나에게 맞는 구조로 엮습니다</h2>
+        <p class="lede">과목별 경험을 하나의 개념 지도로 잇고, 내가 자주 헷갈리는 곳과 과목 사이의 연결을 찾아 줍니다. 개념을 누르면 그 개념을 배워 온 과정이 나옵니다.</p>
+      </div>
+    </div>
+    <div class="grid-2 grid-map">
+      <div class="card">
+        <div class="seg-tabs" id="map-tabs"></div>
+        <div class="map-wrap"><svg class="map" id="map" viewBox="0 0 720 400" role="group" aria-label="개념 지도"></svg></div>
+        <div class="legend">
+          <span><i class="ok"></i>익숙함</span>
+          <span><i class="shaky"></i>흔들림</span>
+          <span><i class="new"></i>새로 배움</span>
+          <span><i class="ring"></i>두 과목에 걸친 개념</span>
+          <span><i class="l-confuse"></i>헷갈린 짝</span>
+          <span><i class="l-cross"></i>과목을 넘는 연결</span>
+          <span>원 크기 = 다룬 세션 수</span>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="insights" id="insights"></div>
+        <div class="card"><div class="card-body detail" id="detail"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- review -->
+  <section class="scene" id="scene-3" aria-labelledby="h-3" hidden>
+    <div class="scene-head">
+      <div>
+        <div class="eyebrow"><span class="actor me">나 · 폰</span>다음 날 아침</div>
+        <h2 id="h-3">정리된 것이 폰으로 다시 찾아옵니다</h2>
+        <p class="lede">에이전트가 흔들리는 개념을 골라 몇 장씩 보내 줍니다. 문제는 일반 문제집이 아니라 내 대화에서 나오고, 답한 결과는 개념 지도와 다음 공부에 반영됩니다.</p>
+      </div>
+    </div>
+    <div class="review">
+      <div class="phone" id="phone"></div>
+      <div class="stack" id="review-side"></div>
+    </div>
+  </section>
+
+  <!-- experience -->
+  <section class="scene" id="scene-4" aria-labelledby="h-4" hidden>
+    <div class="scene-head">
+      <div>
+        <div class="eyebrow"><span class="actor ex">쌓인 결과</span>필요할 때</div>
+        <h2 id="h-4">결과물만이 아니라 배운 과정이 남습니다</h2>
+        <p class="lede">면접이나 AI 역량 평가에서 만든 것만 말하는 대신, 어떻게 배워서 거기까지 왔는지를 날짜와 근거가 붙은 기록으로 보여 줄 수 있습니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="seg-tabs" id="exp-tabs"></div>
+      <div class="stats" id="exp-stats"></div>
+      <div class="exp-body">
+        <div><h4>배운 과정</h4><ul class="trail" id="exp-trail"></ul></div>
+        <div>
+          <h4>면접에서 꺼내 쓰는 경험 · 에이전트 초안</h4>
+          <p class="story" id="exp-story"></p>
+          <div class="evid" id="exp-evid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pager">
+    <button class="btn-ghost" id="prev" type="button">이전</button>
+    <span class="kbd">← → 키로도 넘길 수 있습니다</span>
+    <button class="btn-primary" id="next" type="button">다음</button>
+  </div>
+
+  <div class="foot">
+    <p>과목, 대화, 날짜, 수치는 모두 시연용 예시이고, 이 페이지에서 누른 결과는 어디에도 저장되지 않습니다.</p>
+    <p>MVP V1은 세션을 마칠 때 명령 한 번으로 수집합니다. 개념 지도, 폰 복습 카드, 경험 초안은 이 루프가 완성됐을 때의 모습입니다.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const VIEWS = ['study', 'collect', 'structure', 'review', 'experience'];
+  const TODAY = new Date();
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
+  const $ = (id) => document.getElementById(id);
+  const dateAt = (off) => { const d = new Date(TODAY); d.setDate(d.getDate() + off); return d; };
+  const md = (off) => { const d = dateAt(off); return `${d.getMonth() + 1}/${d.getDate()}`; };
+  const SVGNS = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    setAttrs(n, attrs);
+    for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(k));
+    return n;
+  }
+  function sv(tag, attrs, ...kids) {
+    const n = document.createElementNS(SVGNS, tag);
+    setAttrs(n, attrs);
+    for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(k));
+    return n;
+  }
+  function setAttrs(n, attrs) {
+    if (!attrs) return;
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === 'class') n.setAttribute('class', v);
+      else if (k === 'text') n.textContent = v;
+      else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v === true ? '' : v);
+    }
+  }
+
+  const CATS = {
+    sql: { name: 'SQL · SQLD 자격증', short: 'SQL', color: 'var(--me)', folder: '~/study/sqld' },
+    db: { name: '데이터베이스 수업', short: '데이터베이스', color: 'var(--accent)', folder: '~/univ/database' },
+    net: { name: '네트워크 수업', short: '네트워크', color: 'var(--exp)', folder: '~/univ/network' },
+  };
+
+  // sc = concepts the struggle is about; ok = resolved within the session
+  const SESSIONS = [
+    { id: 'sql-1', cat: 'sql', off: -13, at: '20:30', msgs: 10, q: 5, title: '데이터 모델링과 식별자', topics: ['식별자'] },
+    { id: 'db-1', cat: 'db', off: -12, at: '14:10', msgs: 10, q: 5, title: '트랜잭션과 ACID', topics: ['트랜잭션'] },
+    { id: 'sql-2', cat: 'sql', off: -11, at: '21:00', msgs: 14, q: 7, title: '정규화 1NF~3NF와 반정규화', topics: ['정규화', 'JOIN'],
+      struggle: { t: '부분 함수 종속과 이행 함수 종속 구분', sc: ['정규화'], ok: true } },
+    { id: 'net-1', cat: 'net', off: -10, at: '16:20', msgs: 8, q: 4, title: 'OSI 7계층과 TCP/IP', topics: ['OSI 7계층'] },
+    { id: 'sql-3', cat: 'sql', off: -9, at: '22:05', msgs: 12, q: 6, title: 'OUTER JOIN 결과 비교', topics: ['JOIN', 'NULL'],
+      struggle: { t: 'LEFT JOIN 뒤 WHERE 조건이 INNER JOIN처럼 동작하는 이유', sc: ['JOIN', 'NULL'], ok: true } },
+    { id: 'db-2', cat: 'db', off: -8, at: '15:30', msgs: 16, q: 8, title: '정규화 과제: 이상 현상 찾기', topics: ['정규화', '이상 현상'] },
+    { id: 'sql-4', cat: 'sql', off: -6, at: '21:40', msgs: 8, q: 4, title: 'GROUP BY와 HAVING', topics: ['GROUP BY'],
+      struggle: { t: 'WHERE와 HAVING이 걸리는 순서', sc: ['GROUP BY'], ok: true } },
+    { id: 'db-3', cat: 'db', off: -5, at: '13:50', msgs: 12, q: 6, title: '인덱스와 B-Tree', topics: ['인덱스'],
+      struggle: { t: '복합 인덱스에서 컬럼 순서가 왜 중요한지', sc: ['인덱스'], ok: false } },
+    { id: 'net-2', cat: 'net', off: -3, at: '17:15', msgs: 14, q: 7, title: 'TCP 연결 수립과 종료', topics: ['TCP 연결 수립', 'TCP 연결 종료'], fresh: true,
+      struggle: { t: '연결을 끊은 뒤 TIME_WAIT을 두는 이유', sc: ['TCP 연결 종료'], ok: false } },
+    { id: 'sql-5', cat: 'sql', off: -2, at: '22:20', msgs: 12, q: 6, title: 'NOT EXISTS로 차집합 구하기', topics: ['서브쿼리', 'NOT EXISTS', 'NULL'], fresh: true,
+      struggle: { t: 'NOT IN이 NULL을 만나면 결과가 비는 이유', sc: ['NOT EXISTS', 'NULL'], ok: false } },
+    { id: 'db-4', cat: 'db', off: -1, at: '14:00', msgs: 18, q: 9, title: '트랜잭션 격리 수준', topics: ['격리 수준', '트랜잭션'], fresh: true,
+      struggle: { t: 'Repeatable Read에서도 팬텀 리드가 생기는 이유', sc: ['격리 수준'], ok: false } },
+    { id: 'sql-6', cat: 'sql', off: 0, at: '21:10', msgs: 8, q: 3, title: '윈도우 함수 RANK·DENSE_RANK', topics: ['윈도우 함수', 'PARTITION BY', 'GROUP BY'], fresh: true, today: true,
+      struggle: { t: 'PARTITION BY도 GROUP BY처럼 행을 묶는 줄 앎', sc: ['PARTITION BY', 'GROUP BY'], ok: true } },
+  ];
+
+  const NODES = {
+    '식별자': { x: 78, y: 92 },
+    'JOIN': { x: 200, y: 160 },
+    'NULL': { x: 92, y: 262 },
+    'NOT EXISTS': { x: 205, y: 335 },
+    '서브쿼리': { x: 305, y: 262 },
+    'GROUP BY': { x: 300, y: 70 },
+    'PARTITION BY': { x: 405, y: 190 },
+    '윈도우 함수': { x: 395, y: 318 },
+    '정규화': { x: 468, y: 70 },
+    '이상 현상': { x: 560, y: 78 },
+    '트랜잭션': { x: 652, y: 78 },
+    '인덱스': { x: 560, y: 158 },
+    '격리 수준': { x: 652, y: 158 },
+    'OSI 7계층': { x: 556, y: 278 },
+    'TCP 연결 수립': { x: 650, y: 278, top: true },
+    'TCP 연결 종료': { x: 603, y: 345 },
+  };
+  const EDGES = [
+    ['식별자', 'JOIN'], ['정규화', 'JOIN'], ['정규화', '이상 현상'], ['JOIN', 'NULL'], ['NULL', 'NOT EXISTS'],
+    ['서브쿼리', 'NOT EXISTS'], ['JOIN', '서브쿼리'], ['PARTITION BY', '윈도우 함수'], ['트랜잭션', '격리 수준'],
+    ['OSI 7계층', 'TCP 연결 수립'], ['TCP 연결 수립', 'TCP 연결 종료'],
+    ['GROUP BY', 'PARTITION BY', 'confuse', '헷갈림'], ['인덱스', 'JOIN', 'cross', 'JOIN 성능'],
+  ];
+  const INITIAL_STATE = {
+    '식별자': 'ok', 'JOIN': 'ok', 'NULL': 'shaky', 'NOT EXISTS': 'shaky', '서브쿼리': 'ok', 'GROUP BY': 'shaky',
+    'PARTITION BY': 'shaky', '윈도우 함수': 'new', '정규화': 'ok', '이상 현상': 'ok', '트랜잭션': 'ok', '인덱스': 'shaky',
+    '격리 수준': 'shaky', 'OSI 7계층': 'ok', 'TCP 연결 수립': 'new', 'TCP 연결 종료': 'shaky',
+  };
+  const STATE_LABEL = { ok: '익숙함', shaky: '흔들림', new: '새로 배움' };
+
+  // Static, author-written conversation. Only this array is rendered with innerHTML.
+  const CONVO = [
+    { id: 'u1', who: 'user', plain: 'RANK랑 DENSE_RANK 차이를 예제로 보여줘' },
+    { id: 'c1', who: 'ai', html: `<p>같은 점수표에 세 함수를 같이 걸어 보면 바로 보여요.</p>
+<div class="t-table"><table><thead><tr><th>이름</th><th>점수</th><th>RANK</th><th>DENSE_RANK</th><th>ROW_NUMBER</th></tr></thead>
+<tbody><tr><td>민지</td><td>95</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>서준</td><td>95</td><td>1</td><td>1</td><td>2</td></tr>
+<tr><td>하은</td><td>90</td><td class="hot">3</td><td class="hot">2</td><td>3</td></tr>
+<tr><td>도윤</td><td>85</td><td>4</td><td>3</td><td>4</td></tr></tbody></table></div>
+<p>95점 동점이 두 명이면 RANK는 다음 순위를 3으로 건너뛰고, DENSE_RANK는 2로 이어 갑니다. ROW_NUMBER는 동점이어도 1, 2처럼 고유 번호를 붙여요.</p>`,
+      plain: '같은 점수표에 세 함수를 걸어 볼게요. 95점 동점이 둘이면 RANK는 1, 1, 3, DENSE_RANK는 1, 1, 2, ROW_NUMBER는 1, 2, 3. [점수표 4행]' },
+    { id: 'u2', who: 'user', plain: '반별로 등수를 매기려면?' },
+    { id: 'c2', who: 'ai', html: `<p><code>PARTITION BY</code>로 반을 나눠요.</p>
+<pre class="t-code">SELECT 반, 이름, 점수,
+       RANK() OVER (PARTITION BY 반 ORDER BY 점수 DESC) AS 반_등수
+FROM 성적;</pre>
+<p>반이 바뀔 때마다 등수가 1부터 다시 시작합니다.</p>`,
+      plain: 'PARTITION BY로 반을 나눠요. RANK() OVER (PARTITION BY 반 ORDER BY 점수 DESC) … 반이 바뀌면 등수가 1부터. [SQL 3줄]' },
+    { id: 'u3', who: 'user', plain: '그럼 GROUP BY 반이랑 뭐가 달라?' },
+    { id: 'c3', who: 'ai', html: `<p><code>GROUP BY</code>는 반마다 한 행으로 줄여서 합계나 평균 같은 집계만 남겨요. <code>PARTITION BY</code>는 행 수를 그대로 두고, 각 행 옆에 그룹 안에서 계산한 값을 붙입니다.</p>
+<p>학생이 12명이고 반이 3개라면 GROUP BY 반은 3행, PARTITION BY 반은 12행이 나와요.</p>`,
+      plain: 'GROUP BY는 반마다 한 행으로 줄이고, PARTITION BY는 행 수를 그대로 둔 채 그룹 안 계산값을 붙입니다. 12명·3개 반이면 3행과 12행.' },
+    { id: 'u4', who: 'user', plain: '아, PARTITION BY도 GROUP BY처럼 묶이는 줄 알았네. 이해했어. 다음엔 기출 3회분 풀어볼게' },
+    { id: 'c4', who: 'ai', html: '<p>좋아요. 동점이 나오는 문제는 세 함수의 결과를 손으로 직접 써 보면서 확인해 보세요.</p>',
+      plain: '좋아요. 동점이 나오는 문제는 세 함수의 결과를 손으로 직접 써 보면서 확인해 보세요.' },
+  ];
+
+  const CARDS = [
+    { cat: 'sql', concepts: ['PARTITION BY', 'GROUP BY'], title: 'PARTITION BY',
+      q: '학생 행은 그대로 두고 반별 등수만 옆에 붙이려면, GROUP BY와 PARTITION BY 중 무엇을 써야 할까?',
+      a: 'PARTITION BY. GROUP BY는 반마다 한 행으로 줄이고, PARTITION BY는 행을 그대로 둔 채 그룹 안에서 계산한다.',
+      mine: '그럼 GROUP BY 반이랑 뭐가 달라?', src: () => `${md(0)} SQL 대화에서 내가 한 질문`,
+      why: '어젯밤 대화에서 헷갈렸던 개념이고, 아직 한 번도 다시 보지 않았어요. 잊기 전에 가장 먼저 봅니다.' },
+    { cat: 'sql', concepts: ['NOT EXISTS', 'NULL'], title: 'NOT IN과 NULL',
+      q: '서브쿼리 결과에 NULL이 하나 섞여 있을 때, NOT IN으로 주문한 적 없는 고객을 찾으면 어떻게 될까?',
+      a: '한 행도 나오지 않는다. NULL과의 비교는 참도 거짓도 아니어서 NOT IN 조건이 참이 될 수 없다. NOT EXISTS로 쓰면 원하는 결과가 나온다.',
+      mine: 'NOT IN이 NULL을 만나면 결과가 비는 이유', src: () => `${md(-2)} SQL 대화에서 막힌 채 끝난 지점`,
+      why: '이틀 전 막힌 채로 세션이 끝났어요. 해결 표시가 없는 막힘은 복습 우선순위가 높습니다.' },
+    { cat: 'db', concepts: ['격리 수준'], title: '격리 수준',
+      q: '표준 SQL에서 Repeatable Read 격리 수준으로도 막지 못하는 이상 현상은?',
+      a: '팬텀 리드. 같은 조건으로 다시 조회하면 다른 트랜잭션이 새로 넣은 행이 보일 수 있다.',
+      mine: 'Repeatable Read에서도 팬텀 리드가 생기는 이유', src: () => `${md(-1)} 데이터베이스 수업 대화에서 막힌 지점`,
+      why: '다른 과목도 섞어서 보냅니다. 수업 과제에서 막힌 채 끝난 지 하루 지났어요.' },
+  ];
+  const RATES = [['dont', '모르겠음'], ['unsure', '헷갈림'], ['know', '알겠음']];
+
+  const STORIES = {
+    sql: { text: 'SQLD를 준비하며 2주 동안 AI와 6번 공부했다. LEFT JOIN 뒤 WHERE 조건이 결과를 INNER JOIN처럼 바꾸는 문제와, NOT IN이 NULL을 만나 빈 결과를 내는 문제에서 막혔다. 같은 예제를 직접 돌려 원인을 확인했고, 헷갈린 개념은 다음 날 복습 카드로 다시 풀며 확실히 했다.',
+      evidence: ['sql-3', 'sql-5', 'sql-6'] },
+    db: { text: '데이터베이스 수업에서 정규화 과제를 하며 SQLD 공부 때 익힌 정규화를 이상 현상 찾기에 다시 적용했다. 트랜잭션 격리 수준을 공부하다 Repeatable Read에서도 팬텀 리드가 생길 수 있다는 점에서 막혔고, 이를 복습으로 이어 가며 정리했다.',
+      evidence: ['db-2', 'db-3', 'db-4'] },
+    net: { text: 'TCP 연결 수립과 종료 과정을 상태 단위로 따라가며 공부했다. 연결을 끊은 뒤 TIME_WAIT을 두는 이유에서 막혔고, 아직 복습 중이다.',
+      evidence: ['net-1', 'net-2'] },
+  };
+
+  let state;
+  function freshState() {
+    return {
+      view: 0, loop: 1, shown: 2,
+      collected: false, collecting: false,
+      cstate: { ...INITIAL_STATE }, mapCat: 'all', selected: 'GROUP BY',
+      phone: 'lock', cardIdx: 0, revealed: false, ratings: [],
+      expCat: 'sql',
+    };
+  }
+
+  const collectedSessions = () => SESSIONS.filter((s) => state.collected || !s.fresh);
+  const sessionsOf = (concept) => collectedSessions().filter((s) => s.topics.includes(concept));
+  const catsOf = (concept) => [...new Set(sessionsOf(concept).map((s) => s.cat))];
+  const shakyCount = () => Object.keys(NODES).filter((k) => state.cstate[k] === 'shaky').length;
+  const firstShaky = () => CARDS.filter((c, i) => state.ratings[i] && state.ratings[i] !== 'know');
+
+  /* pipeline + navigation */
+  function renderPipe() {
+    document.querySelectorAll('.node').forEach((n) => {
+      if (Number(n.dataset.view) === state.view) n.setAttribute('aria-current', 'step'); else n.removeAttribute('aria-current');
+    });
+    $('cnt-0').textContent = state.loop > 1 ? `${state.loop}회차 공부 중` : `대화 ${SESSIONS.length}개 · 과목 3`;
+    $('cnt-1').textContent = state.collected ? `학습 데이터 ${SESSIONS.length}건` : '새 대화 4개 대기';
+    $('cnt-2').textContent = `개념 ${Object.keys(NODES).length} · 흔들림 ${shakyCount()}`;
+    $('cnt-3').textContent = state.phone === 'done' ? `오늘 ${CARDS.length}장 끝` : `오늘 ${CARDS.length}장 · 08:30`;
+    $('cnt-4').textContent = '과목 3개의 과정';
+    $('loop-n').textContent = `${state.loop}회차`;
+  }
+  function go(v, opts = {}) {
+    state.view = Math.max(0, Math.min(VIEWS.length - 1, v));
+    if (state.view >= 2 && !state.collected) state.collected = true;
+    document.querySelectorAll('.scene').forEach((s, i) => { s.hidden = i !== state.view; });
+    try { history.replaceState(null, '', '#' + VIEWS[state.view]); } catch (_) {}
+    $('prev').disabled = state.view === 0;
+    $('next').hidden = state.view === VIEWS.length - 1;
+    renderView();
+    renderPipe();
+    if (!opts.keepScroll) {
+      const top = document.querySelector('.pipe-card').getBoundingClientRect().top + window.scrollY - 12;
+      if (window.scrollY > top) window.scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' });
+    }
+  }
+  function renderView() {
+    [renderStudy, renderCollect, renderStructure, renderReview, renderExperience][state.view]();
+  }
+
+  /* study */
+  function memoNode() {
+    const box = el('div', { class: 't-sys' + (state.loop > 1 ? ' loop2' : '') });
+    box.append(el('span', { class: 'lbl', text: state.loop > 1 ? `Experii 메모 · ${state.loop}회차 · Claude에게만 보임` : 'Experii 메모 · 세션 시작 때 Claude에게만 보임' }), el('br'));
+    box.append(...loopMemo());
+    return box;
+  }
+  function loopMemo() {
+    if (state.loop === 1) {
+      return ['SQL 과목 · 지난번에 정한 다음 할 일: ', el('span', { class: 'val', text: '윈도우 함수 시작하기' }), ' · 아직 흔들림: ', el('span', { class: 'val', text: 'NOT EXISTS' })];
+    }
+    const left = firstShaky().flatMap((c) => c.cat === 'sql' ? [c.title] : []);
+    if (!left.length) return ['SQL 과목 · 지난 복습 모두 통과. 다음 할 일: ', el('span', { class: 'val', text: '기출 3회분 풀기' })];
+    return ['SQL 과목 · 지난 복습에서 아직 흔들림: ', el('span', { class: 'val', text: left.join(', ') }), ' · 오늘 공부 중에 다시 짚어 주세요.'];
+  }
+  function msgNode(m) {
+    if (m.who === 'user') return el('div', { class: 't-user' }, el('span', { text: m.plain }));
+    const d = document.createElement('div'); d.innerHTML = m.html;
+    return el('div', { class: 't-ai' }, d);
+  }
+  function renderStudy(animate) {
+    const t = $('study-term');
+    t.replaceChildren(memoNode());
+    CONVO.slice(0, state.shown).forEach((m, i) => {
+      const n = msgNode(m);
+      if (animate && i >= state.shown - 2) n.classList.add('fade-in');
+      t.append(n);
+    });
+    t.append(el('div', { class: 't-input' }, el('span', { class: 'caret' })));
+    const done = state.shown >= CONVO.length;
+    $('msg-count').textContent = `${Math.min(state.shown, CONVO.length)} / ${CONVO.length}`;
+    $('next-msg').textContent = done ? '세션 끝내고 수집 보기' : '다음 대화';
+    $('all-msg').hidden = done;
+    const recent = SESSIONS.slice().sort((a, b) => b.off - a.off).slice(0, 5);
+    $('recent-logs').replaceChildren(...recent.map(logRow));
+  }
+  function whenLabel(s) { return s.off === 0 ? `오늘 ${s.at}` : s.off === -1 ? `어제 ${s.at}` : `${md(s.off)} ${s.at}`; }
+  function logRow(s) {
+    return el('li', { 'data-id': s.id },
+      el('span', { class: 't' }, el('span', { class: 'cat-dot', style: `background:${CATS[s.cat].color}` }), s.title),
+      el('span', { class: 'm', text: `${CATS[s.cat].folder} · ${whenLabel(s)} · 메시지 ${s.msgs}` }));
+  }
+
+  /* collect */
+  function renderCollect() {
+    const fresh = SESSIONS.filter((s) => s.fresh).sort((a, b) => b.off - a.off);
+    $('new-logs').replaceChildren(...fresh.map((s) => {
+      const li = logRow(s);
+      li.append(el('span', { class: 'st' }, state.collected ? el('span', { class: 'chip', text: CATS[s.cat].short }) : el('span', { class: 'note', text: '대기' })));
+      return li;
+    }));
+    renderBins();
+    $('run-collect').disabled = state.collected || state.collecting;
+    $('run-collect').textContent = state.collected ? '수집 완료' : '에이전트 실행';
+    $('collect-sub').textContent = state.collected ? '4개 대화를 3개 과목에 나눠 쌓았습니다' : '대화 4개를 읽고 과목을 나눕니다';
+    renderCompact();
+    renderExtract(false);
+  }
+  function binCounts(includeIds) {
+    const counts = { sql: 0, db: 0, net: 0 };
+    for (const s of SESSIONS) if (!s.fresh || state.collected || includeIds?.includes(s.id)) counts[s.cat]++;
+    return counts;
+  }
+  function renderBins(includeIds, popCat) {
+    const counts = binCounts(includeIds);
+    $('bins').replaceChildren(...Object.entries(CATS).map(([k, c]) => {
+      const ss = SESSIONS.filter((s) => s.cat === k && (!s.fresh || state.collected || includeIds?.includes(s.id)));
+      const recentTopics = [...new Set(ss.slice().sort((a, b) => b.off - a.off).flatMap((s) => s.topics))].slice(0, 4);
+      return el('div', { class: 'bin', style: `border-left:4px solid ${c.color}` },
+        el('h4', { text: c.name }),
+        el('span', { class: 'n' + (popCat === k ? ' pop' : '') }, String(counts[k]), el('small', { text: '세션' })),
+        el('div', { class: 'chips' }, recentTopics.map((t) => el('span', { class: 'chip', text: t }))));
+    }));
+  }
+  async function runCollect() {
+    if (state.collected || state.collecting) return;
+    const run = state;
+    state.collecting = true;
+    $('run-collect').disabled = true;
+    $('orb').classList.add('busy');
+    const fresh = SESSIONS.filter((s) => s.fresh).sort((a, b) => b.off - a.off);
+    const done = [];
+    for (const s of fresh) {
+      const li = document.querySelector(`#new-logs li[data-id="${s.id}"]`);
+      li.classList.add('reading');
+      li.querySelector('.st').replaceChildren(el('span', { class: 'note', text: '읽는 중…' }));
+      $('collect-sub').textContent = `${s.title} · 과목 판단 중`;
+      await wait(650);
+      if (state !== run) return;
+      li.classList.remove('reading');
+      li.querySelector('.st').replaceChildren(el('span', { class: 'chip fade-in', text: CATS[s.cat].short }));
+      done.push(s.id);
+      renderBins(done, s.cat);
+      await wait(250);
+      if (state !== run) return;
+    }
+    $('orb').classList.remove('busy');
+    state.collecting = false;
+    state.collected = true;
+    renderCollect();
+    renderExtract(true);
+    renderPipe();
+  }
+  function renderCompact() {
+    $('compact').replaceChildren(
+      el('div', { class: 'raw sys', 'data-mid': 'meta', text: `~/study/sqld · 오늘 21:10–21:48 · 대화 원문` }),
+      ...CONVO.map((m) => el('div', { class: 'raw', 'data-mid': m.id }, el('span', { class: 'who', text: m.who === 'user' ? '나' : 'Claude' }), m.plain)),
+    );
+  }
+  function lightRaw(ids) {
+    document.querySelectorAll('#compact [data-mid]').forEach((n) => n.classList.toggle('lit', ids.includes(n.dataset.mid)));
+  }
+  function recRow(label, content, src) {
+    const row = el('div', { class: 'rec-row' }, el('span', { text: label }), content);
+    if (src) {
+      const ids = src.split(' ');
+      row.dataset.src = src;
+      row.tabIndex = 0;
+      row.addEventListener('mouseenter', () => lightRaw(ids));
+      row.addEventListener('mouseleave', () => lightRaw([]));
+      row.addEventListener('focus', () => lightRaw(ids));
+      row.addEventListener('blur', () => lightRaw([]));
+    }
+    return row;
+  }
+  function renderExtract(animate) {
+    const box = $('extract');
+    $('extract-hint').hidden = !state.collected;
+    if (!state.collected) {
+      box.replaceChildren(el('div', { class: 'empty' }, '에이전트를 실행하면 대화에서', el('br'), '뽑아낸 학습 데이터가 여기에 나옵니다.'));
+      return;
+    }
+    const rows = [
+      recRow('과목', el('div', null, 'SQL · SQLD 자격증', el('span', { class: 'sub', text: '폴더와 대화 내용으로 판단' })), 'meta'),
+      recRow('공부 시간', el('div', { text: '21:10–21:48 · 38분' }), 'meta'),
+      recRow('다룬 개념', el('div', { class: 'chips' }, ['윈도우 함수', 'PARTITION BY', 'GROUP BY'].map((t) => el('span', { class: 'chip', text: t }))), 'u1 c1 c2 c3'),
+      recRow('내가 한 질문', el('div', null, '3개', el('span', { class: 'sub', text: '차이 비교 · 반별 적용 · GROUP BY와 비교' })), 'u1 u2 u3'),
+      recRow('헷갈린 지점', el('div', null, 'PARTITION BY도 GROUP BY처럼 행을 묶는 줄 알았음', el('span', { class: 'sub' }, el('span', { class: 'pill ok', text: '세션 안에서 해결' }))), 'u3 c3 u4'),
+      recRow('직접 다룬 예제', el('div', { text: '점수표 4행 비교, 반별 등수 쿼리' }), 'c1 c2'),
+      recRow('이어지는 경험', el('div', null, `GROUP BY · ${md(-6)} SQL 대화`, el('span', { class: 'sub', text: '같은 개념을 6일 만에 다시 만남' }))),
+      recRow('다음 할 일', el('div', { text: '기출 3회분 풀기' }), 'u4'),
+    ];
+    if (animate) rows.forEach((r, i) => { r.style.animationDelay = (reduced ? 0 : i * 60) + 'ms'; r.classList.add('fade-in'); });
+    box.replaceChildren(el('div', { class: 'rec' }, rows));
+  }
+
+  /* structure */
+  function renderStructure() {
+    $('map-tabs').replaceChildren(...[['all', '전체'], ['sql', 'SQL'], ['db', '데이터베이스 수업'], ['net', '네트워크 수업']].map(([k, label]) =>
+      el('button', { type: 'button', 'aria-pressed': String(state.mapCat === k), text: label, onclick: () => { state.mapCat = k; renderStructure(); } })));
+    renderMap();
+    renderInsights();
+    renderDetail();
+  }
+  function inCat(concept) { return state.mapCat === 'all' || catsOf(concept).includes(state.mapCat); }
+  function radius(concept) { return 12 + 5 * (Math.max(1, sessionsOf(concept).length) - 1); }
+  function renderMap() {
+    const svg = $('map');
+    const zones = [
+      sv('rect', { class: 'zone', x: 16, y: 16, width: 432, height: 368, rx: 16 }), sv('text', { class: 'zone-l', x: 32, y: 40, text: 'SQL · SQLD 자격증' }),
+      sv('rect', { class: 'zone', x: 488, y: 16, width: 216, height: 186, rx: 16 }), sv('text', { class: 'zone-l', x: 504, y: 40, text: '데이터베이스 수업' }),
+      sv('rect', { class: 'zone', x: 488, y: 214, width: 216, height: 170, rx: 16 }), sv('text', { class: 'zone-l', x: 504, y: 238, text: '네트워크 수업' }),
+    ];
+    const edges = EDGES.map(([a, b, kind, label]) => {
+      const A = NODES[a], B = NODES[b];
+      const dim = !(inCat(a) || inCat(b));
+      const g = sv('g', { class: dim ? 'dim' : null }, sv('line', { class: 'edge' + (kind ? ' ' + kind : ''), x1: A.x, y1: A.y, x2: B.x, y2: B.y }));
+      if (label) g.append(sv('text', { class: 'edge-l ' + kind, x: (A.x + B.x) / 2 + (kind === 'cross' ? 0 : 10), y: (A.y + B.y) / 2 - 6, 'text-anchor': 'middle', text: label }));
+      return g;
+    });
+    const nodes = Object.entries(NODES).map(([name, p]) => {
+      const r = radius(name);
+      const st = state.cstate[name];
+      const cats = catsOf(name);
+      const g = sv('g', {
+        class: `nd ${st}${state.selected === name ? ' selected' : ''}${inCat(name) ? '' : ' dim'}`,
+        tabindex: 0, role: 'button', 'aria-label': `${name}, ${STATE_LABEL[st]}, 세션 ${sessionsOf(name).length}회`,
+        onclick: () => select(name),
+        onkeydown: (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(name); } },
+      });
+      g.append(sv('circle', { class: 'sel', cx: p.x, cy: p.y, r: r + 6 }));
+      if (cats.length > 1) g.append(sv('circle', { class: 'ring', cx: p.x, cy: p.y, r: r + 3 }));
+      g.append(sv('circle', { class: 'c', cx: p.x, cy: p.y, r }));
+      g.append(sv('text', { class: 'cnt', x: p.x, y: p.y + 4, text: String(sessionsOf(name).length) }));
+      g.append(sv('text', { x: p.x, y: p.top ? p.y - r - 9 : p.y + r + 16, text: name }));
+      return g;
+    });
+    svg.replaceChildren(...zones, ...edges, ...nodes);
+  }
+  function select(name) {
+    state.selected = name;
+    if (!inCat(name)) state.mapCat = 'all';
+    renderStructure();
+  }
+  function renderInsights() {
+    const open = collectedSessions().filter((s) => s.struggle && !s.struggle.ok);
+    const items = [
+      { k: 'var(--warn)', t: '자주 헷갈리는 짝', p: `GROUP BY는 ${md(-6)}에 익혔는데, 오늘 PARTITION BY와 섞이면서 다시 흔들렸어요.`, sel: 'GROUP BY' },
+      { k: 'var(--me)', t: '과목을 넘는 연결', p: '정규화는 SQLD와 데이터베이스 수업에 모두 나왔고, 수업에서 배운 인덱스는 SQLD의 JOIN 성능과 이어집니다.', sel: '정규화' },
+      { k: 'var(--warn)', t: `막힌 채로 끝난 곳 ${open.length}개`, p: open.map((s) => s.struggle.t).join(' · ') + '. 내일 아침 복습 카드 후보입니다.', sel: 'NOT EXISTS' },
+      { k: 'var(--ink-3)', t: '오래 안 본 개념', p: '식별자는 13일 동안 다시 나오지 않았어요.', sel: '식별자' },
+    ];
+    $('insights').replaceChildren(...items.map((it) => el('button', { class: 'ins', type: 'button', onclick: () => select(it.sel) },
+      el('h4', null, el('span', { class: 'k', style: `background:${it.k}` }), it.t), el('p', { text: it.p }))));
+  }
+  function reviewEventsFor(concept) {
+    return CARDS.map((c, i) => ({ c, r: state.ratings[i] })).filter(({ c, r }) => r && c.concepts.includes(concept));
+  }
+  function renderDetail() {
+    const name = state.selected;
+    const st = state.cstate[name];
+    const ss = sessionsOf(name).sort((a, b) => a.off - b.off);
+    const trail = ss.map((s) => {
+      const sg = s.struggle && s.struggle.sc.includes(name) ? s.struggle : null;
+      return el('li', null, el('span', { class: 'dt', text: md(s.off) }), `${CATS[s.cat].short} · ${s.title}`,
+        sg ? el('span', { class: 'st' + (sg.ok ? ' ok' : '') , text: `${sg.ok ? '막혔다가 해결' : '막힌 채 끝남'} · ${sg.t}` }) : null);
+    });
+    for (const { c, r } of reviewEventsFor(name)) {
+      trail.push(el('li', { class: 'rv' }, el('span', { class: 'dt', text: '다음 날' }), `폰 복습 카드 · ${RATES.find(([k]) => k === r)[1]}`));
+    }
+    const neighbors = EDGES.filter(([a, b]) => a === name || b === name).map(([a, b]) => (a === name ? b : a));
+    $('detail').replaceChildren(
+      el('div', { class: 'row' }, el('h4', { text: name }), el('span', { class: 'pill ' + st, text: STATE_LABEL[st] })),
+      el('div', { class: 'row', style: 'margin-top:6px' }, catsOf(name).map((k) => el('span', { class: 'chip', text: CATS[k].name }))),
+      el('h5', { text: '배워 온 과정' }), el('ul', { class: 'trail' }, trail),
+      neighbors.length ? el('h5', { text: '이어진 개념' }) : null,
+      neighbors.length ? el('div', { class: 'chips' }, neighbors.map((n) => el('button', { class: 'chip', type: 'button', text: n, onclick: () => select(n) }))) : null,
+    );
+  }
+
+  /* review */
+  function phoneStatus() { return el('div', { class: 'ph-status' }, el('span', { text: '08:30' }), el('span', { text: '5G  82%' })); }
+  function renderReview() {
+    const ph = $('phone');
+    if (state.phone === 'lock') {
+      const tomorrow = dateAt(1).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
+      ph.replaceChildren(phoneStatus(),
+        el('div', { class: 'ph-lock' }, el('div', { class: 'time', text: '8:30' }), el('div', { class: 'date', text: tomorrow })),
+        el('button', { class: 'notif', type: 'button', onclick: () => { state.phone = 'card'; state.cardIdx = 0; state.revealed = false; renderReview(); renderPipe(); } },
+          el('div', { class: 'hd' }, el('b', { text: 'Experii' }), el('span', { text: '지금' })),
+          el('div', { class: 'tt', text: `오늘 다시 볼 개념 ${CARDS.length}개` }),
+          el('div', { class: 'bd', text: '어젯밤 헷갈린 PARTITION BY부터 시작해요. 3분이면 끝나요.' })),
+        el('p', { class: 'ph-hint', text: '알림을 눌러 열기' }));
+    } else if (state.phone === 'card') {
+      const c = CARDS[state.cardIdx];
+      const card = el('div', { class: 'ph-card' },
+        el('div', { class: 'ph-top' }, el('span', { text: `다시 보기 ${state.cardIdx + 1} / ${CARDS.length}` }),
+          el('span', { class: 'ph-prog' }, CARDS.map((_, i) => el('i', { class: i <= state.cardIdx ? 'on' : null })))),
+        el('div', null, el('span', { class: 'chip', text: CATS[c.cat].name })),
+        el('div', { class: 'ph-concept', text: c.title }),
+        el('p', { class: 'ph-q', text: c.q }));
+      if (!state.revealed) {
+        card.append(el('button', { class: 'btn-primary', type: 'button', style: 'margin-top:auto', text: '답 보기', onclick: () => { state.revealed = true; renderReview(); } }));
+      } else {
+        card.append(el('p', { class: 'ph-a fade-in', text: c.a }),
+          el('p', { class: 'ph-mine fade-in' }, el('b', { text: c.src() }), `"${c.mine}"`),
+          el('div', { class: 'rate' }, RATES.map(([k, label]) => el('button', { class: k, type: 'button', text: label, onclick: () => rate(k) }))));
+      }
+      ph.replaceChildren(phoneStatus(), card);
+    } else {
+      const res = CARDS.map((c, i) => el('li', null, el('span', { text: c.title }), el('span', { class: 'pill ' + (state.ratings[i] === 'know' ? 'ok' : 'shaky'), text: RATES.find(([k]) => k === state.ratings[i])[1] })));
+      ph.replaceChildren(phoneStatus(), el('div', { class: 'ph-card' },
+        el('div', { class: 'ph-done' }, el('h4', { text: '오늘 다시 보기 끝' }), el('p', { class: 'note', text: '결과는 개념 지도와 다음 공부에 반영됐어요.' })),
+        el('ul', { class: 'res' }, res),
+        el('button', { class: 'btn-ghost', type: 'button', style: 'margin-top:auto', text: '처음부터 다시 풀기', onclick: () => { state.phone = 'lock'; state.ratings = []; state.cstate = { ...INITIAL_STATE }; renderReview(); renderPipe(); } })));
+    }
+    renderReviewSide();
+  }
+  function rate(k) {
+    const c = CARDS[state.cardIdx];
+    state.ratings[state.cardIdx] = k;
+    for (const concept of c.concepts) state.cstate[concept] = k === 'know' ? 'ok' : 'shaky';
+    if (state.cardIdx < CARDS.length - 1) { state.cardIdx++; state.revealed = false; }
+    else state.phone = 'done';
+    renderReview();
+    renderPipe();
+  }
+  function renderReviewSide() {
+    const side = $('review-side');
+    const blocks = [];
+    if (state.phone === 'card') {
+      const c = CARDS[state.cardIdx];
+      blocks.push(el('div', { class: 'why' }, el('h4', { text: '에이전트가 이 카드를 고른 이유' }), el('p', { text: c.why })));
+    } else if (state.phone === 'lock') {
+      blocks.push(el('div', { class: 'why' }, el('h4', { text: '보내는 기준' }),
+        el('p', { text: '흔들림 상태인 개념, 막힌 채 끝난 지점, 오래 안 본 개념 중에서 하루 몇 장만 고릅니다. 과목을 섞어서 보냅니다.' })));
+    }
+    const changes = CARDS.flatMap((c, i) => state.ratings[i] ? c.concepts.map((con) => [con, INITIAL_STATE[con], state.cstate[con]]) : []);
+    blocks.push(el('div', { class: 'card' }, el('div', { class: 'card-head' }, el('h3', { text: '개념 지도에 반영' }),
+      el('button', { class: 'linkish', type: 'button', text: '지도에서 보기', onclick: () => go(2) })),
+      el('div', { class: 'card-body' }, changes.length
+        ? el('ul', { class: 'changes' }, changes.map(([con, from, to]) => el('li', null, el('b', { text: con }), el('span', { class: 'pill ' + from, text: STATE_LABEL[from] }),
+          from === to ? el('span', { class: 'note', text: '그대로 · 다음 카드에 다시 나옵니다' }) : [el('span', { class: 'arrow', text: '→' }), el('span', { class: 'pill ' + to, text: STATE_LABEL[to] })])))
+        : el('p', { class: 'note', text: '카드에 답하면 바뀐 상태가 여기에 쌓입니다.' }))));
+    if (state.phone === 'done') {
+      blocks.push(el('div', { class: 'card' }, el('div', { class: 'card-head' }, el('h3', { text: '다음 공부 때 Claude에게 넘길 메모' })),
+        el('div', { class: 'card-body', style: 'display:grid;gap:12px' },
+          el('div', { class: 'memo' }, el('span', { class: 'lbl', text: '[Experii] ' }), ...nextMemoText()),
+          el('div', { class: 'controls', style: 'margin-top:0' },
+            el('button', { class: 'btn-primary', type: 'button', text: '다시 공부로 · 루프 한 바퀴', onclick: () => { state.loop++; state.shown = 2; go(0); } }),
+            el('span', { class: 'note', text: '다음 세션이 이 메모로 시작합니다' })))));
+    }
+    side.replaceChildren(...blocks);
+  }
+  function nextMemoText() {
+    const left = firstShaky().map((c) => `${CATS[c.cat].short} ${c.title}`);
+    return left.length ? [`아직 흔들림: ${left.join(', ')}. 오늘 공부 중에 다시 짚어 주세요.`] : ['지난 복습 모두 통과. SQL 다음 할 일: 기출 3회분 풀기.'];
+  }
+
+  /* experience */
+  function renderExperience() {
+    $('exp-tabs').replaceChildren(...Object.entries(CATS).map(([k, c]) =>
+      el('button', { type: 'button', 'aria-pressed': String(state.expCat === k), text: c.name, onclick: () => { state.expCat = k; renderExperience(); } })));
+    const cat = state.expCat;
+    const ss = collectedSessions().filter((s) => s.cat === cat).sort((a, b) => a.off - b.off);
+    const concepts = new Set(ss.flatMap((s) => s.topics));
+    const struggles = ss.filter((s) => s.struggle);
+    const solved = struggles.filter((s) => s.struggle.ok).length;
+    const reviews = CARDS.filter((c, i) => c.cat === cat && state.ratings[i]).length;
+    const span = ss.length ? ss[ss.length - 1].off - ss[0].off + 1 : 0;
+    const stats = [
+      [`${span}일`, `${md(ss[0].off)} ~ ${md(ss[ss.length - 1].off)}`], [String(ss.length), 'AI와 공부한 세션'], [String(concepts.size), '다룬 개념'],
+      [`${solved}/${struggles.length}`, '막혔다가 해결'], [String(ss.reduce((n, s) => n + s.q, 0)), 'AI에게 한 질문'], [String(reviews), '복습 카드'],
+    ];
+    $('exp-stats').replaceChildren(...stats.map(([b, s]) => el('div', { class: 'stat' }, el('b', { text: b }), el('span', { text: s }))));
+    const trail = ss.map((s) => el('li', null, el('span', { class: 'dt', text: md(s.off) }), s.title,
+      s.struggle ? el('span', { class: 'st' + (s.struggle.ok ? ' ok' : ''), text: `${s.struggle.ok ? '막혔다가 해결' : '막힌 채 끝남'} · ${s.struggle.t}` }) : null));
+    CARDS.forEach((c, i) => {
+      if (c.cat === cat && state.ratings[i]) trail.push(el('li', { class: 'rv' }, el('span', { class: 'dt', text: '다음 날' }), `복습 카드 · ${c.title} · ${RATES.find(([k]) => k === state.ratings[i])[1]}`));
+    });
+    $('exp-trail').replaceChildren(...trail);
+    $('exp-story').textContent = STORIES[cat].text;
+    $('exp-evid').replaceChildren(el('span', { text: '근거' }),
+      ...STORIES[cat].evidence.map((id) => { const s = SESSIONS.find((x) => x.id === id); return el('span', { class: 'chip', text: `${md(s.off)} ${s.title}` }); }));
+  }
+
+  /* wiring */
+  document.querySelectorAll('.node').forEach((n) => n.addEventListener('click', () => go(Number(n.dataset.view))));
+  $('next-msg').addEventListener('click', () => {
+    if (state.shown >= CONVO.length) { go(1); return; }
+    state.shown = Math.min(CONVO.length, state.shown + 2); renderStudy(true);
+  });
+  $('all-msg').addEventListener('click', () => { state.shown = CONVO.length; renderStudy(false); });
+  $('run-collect').addEventListener('click', runCollect);
+  $('prev').addEventListener('click', () => go(state.view - 1));
+  $('next').addEventListener('click', () => go(state.view + 1));
+  $('reset').addEventListener('click', () => { state = freshState(); $('orb').classList.remove('busy'); go(0); });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.target.closest('input, textarea, select, [contenteditable]') || ev.altKey || ev.ctrlKey || ev.metaKey) return;
+    if (ev.key === 'ArrowRight') go(state.view + 1);
+    else if (ev.key === 'ArrowLeft') go(state.view - 1);
+  });
+
+  state = freshState();
+  const start = VIEWS.indexOf((location.hash || '').slice(1));
+  go(start < 0 ? 0 : start, { keepScroll: true });
+})();
+</script>
