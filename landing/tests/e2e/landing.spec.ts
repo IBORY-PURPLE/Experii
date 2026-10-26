@@ -91,4 +91,41 @@ test.describe('landing', () => {
     await page.goto('/privacy');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('개인정보 처리방침');
   });
+
+  test('처리방침 각 절은 브라우저 접근성 트리에서 제목 이름을 가진 영역이다', async ({ page }) => {
+    await page.goto('/privacy');
+    const headings = await page.locator('main h2').allTextContents();
+    expect(headings.length).toBeGreaterThan(0);
+    const cdp = await page.context().newCDPSession(page);
+    const { nodes } = (await cdp.send('Accessibility.getFullAXTree')) as {
+      nodes: { role?: { value: string }; name?: { value: string } }[];
+    };
+    const regions = nodes.filter((n) => n.role?.value === 'region').map((n) => n.name?.value);
+    expect(regions).toEqual(headings);
+  });
+
+  test('좁은 화면의 하단 고정 버튼은 화면 바닥에 붙고 꼬리말 아래에 빈 공간을 만들지 않는다', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 780 });
+    await page.goto('/');
+    await page.evaluate(() => (document.documentElement.style.scrollBehavior = 'auto'));
+    const cta = page.locator('[data-cta="sticky"]');
+    await page.locator('#difference').evaluate((el) => scrollTo(0, el.getBoundingClientRect().top + scrollY));
+    await expect(cta.locator('xpath=..')).toHaveAttribute('data-show', '');
+    await expect.poll(async () => Math.round((await cta.locator('xpath=..').boundingBox())!.y + (await cta.locator('xpath=..').boundingBox())!.height)).toBe(780);
+
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    const below = await page.evaluate(
+      () => document.documentElement.scrollHeight - (document.querySelector('footer')!.getBoundingClientRect().bottom + scrollY),
+    );
+    expect(below).toBeLessThanOrEqual(1);
+  });
+
+  test('작동 방식 끝 링크는 지금 할 수 없는 행동을 약속하지 않고 사전 신청으로 보낸다', async ({ page }) => {
+    await page.goto('/');
+    const link = page.locator('#how a.how-link');
+    await expect(link).toContainText('사전 신청');
+    await expect(link).not.toContainText('시작하기');
+    await link.click();
+    await expect(page).toHaveURL(/#signup$/);
+  });
 });

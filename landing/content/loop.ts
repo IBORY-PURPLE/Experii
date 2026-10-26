@@ -383,7 +383,6 @@ export const loopShared = {
   placeholder: '질문을 입력하세요',
   who: 'AI',
   fakeTake: '과제 받기',
-  fakeRun: '실행',
   fakeSave: '경험 카드로 저장',
   status: '방금 대화에서 과제를 만드는 중…',
   taskPill: '현장 과제',
@@ -411,7 +410,6 @@ export const loopShared = {
   reminderDates: ['10월 27일 화요일', '11월 2일 월요일', '11월 25일 수요일'],
   reminderLabels: ['공부 1일 뒤 · 배운 점', '공부 7일 뒤 · 활용 방안', '공부 30일 뒤 · 면접 예상 질문'],
   lockBadge: '출시 예정 기능',
-  lockRevisit: '다시 본 날',
   lockHint: '알림을 눌러 넘겨 보세요',
   openedTitle: '경험 카드',
   openedDate: '11월 25일 (수)',
@@ -460,14 +458,6 @@ export const loopCopy = {
     hitNext: '다음 알림 보기',
     hitOpen: '30일 알림 열기',
   },
-  player: {
-    idle: '처음부터 이어 보기',
-    playing: '일시정지',
-    paused: '이어 보기',
-    ended: '다시 보기',
-    note: '빈칸은 직접 풀어 볼 수 있어요.',
-    solve: '현장 과제에서 직접 풀기',
-  },
   threads: {
     chat: '예시 대화, 미리 써 둔 대화',
     task: '예시 화면, 현장 과제',
@@ -481,8 +471,6 @@ export const loopCopy = {
     reminder: '{date}, {label} 알림',
     reminderLabels: ['공부 1일 뒤, 배운 점', '공부 7일 뒤, 활용 방안', '공부 30일 뒤, 면접 예상 질문'],
     opened: '30일 알림을 열었어요. 10월 26일에 만든 경험 카드가 다시 열렸어요. 다시 본 날 10월 27일, 11월 2일, 11월 25일.',
-    replayStart: '처음부터 이어 보기를 시작해요. 미리 써 둔 예시 화면이에요.',
-    replayEnd: '이어 보기가 끝났어요. 빈칸은 현장 과제 단계에서 직접 풀어 볼 수 있어요.',
   },
 };
 
@@ -499,18 +487,3 @@ export const heroDemo = {
 export type LoopShared = typeof loopShared;
 export type HeroDemoCopy = typeof heroDemo;
 export type LoopCopy = typeof loopCopy;
-
-// 이어 보기 시간표 (DESIGN 5.8, ms)
-export const loopTiming = {
-  total: 21000,
-  stepOffsets: [0, 7400, 12000, 15000],
-  stepLengths: [7400, 4600, 3000, 6000],
-  reducedGap: 600,
-  resultDelay: 240,
-  liveDelay: 60,
-  introSpeed: { 2: 1.35, 3: 1.3 },
-  flyMs: 400,
-  remindDays: [1, 7, 30],
-  dotStart: 420,
-  dotGap: 150,
-};

@@ -1,8 +1,12 @@
 'use server';
 
 import { CONSENT_VERSION } from '@/content/privacy';
-import { SignupSchema, fromFormData, toFieldErrors, toRow, type SignupState } from '@/lib/signup-schema';
+import type { SignupState } from '@/lib/signup-fields';
+import { SignupSchema, fromFormData, toFieldErrors, toRow } from '@/lib/signup-schema';
+import { isProductionDeploy } from '@/lib/site';
 import { supabaseServer } from '@/lib/supabase-server';
+
+let warnedDryRun = false;
 
 export async function submitSignup(_prev: SignupState, formData: FormData): Promise<SignupState> {
   if (formData.get('website')) return { status: 'success' };
@@ -10,7 +14,13 @@ export async function submitSignup(_prev: SignupState, formData: FormData): Prom
   const parsed = SignupSchema.safeParse(fromFormData(formData));
   if (!parsed.success) return { status: 'invalid', fieldErrors: toFieldErrors(parsed.error) };
 
-  if (process.env.SIGNUP_WRITE_ENABLED !== 'true') return { status: 'success' };
+  if (process.env.SIGNUP_WRITE_ENABLED !== 'true') {
+    if (isProductionDeploy && !warnedDryRun) {
+      warnedDryRun = true;
+      console.warn('signup_dry_run: SIGNUP_WRITE_ENABLED is not "true" on the production deploy, so signups are answered with success but not saved.');
+    }
+    return { status: 'success' };
+  }
 
   try {
     const { error } = await supabaseServer()

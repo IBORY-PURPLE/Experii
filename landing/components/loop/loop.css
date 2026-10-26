@@ -180,48 +180,7 @@
 .stage .step-tab[aria-selected="true"] .st-num { background: var(--sc); color: #fff; box-shadow: none; }
 .stage .step-tab[aria-selected="true"] .st-name { color: var(--color-ink); }
 .stage .step-tab[aria-selected="true"] .st-when { color: var(--color-ink-3); }
-.stage .step-tab::after { content: ""; position: absolute; inset: 0; border-radius: 10px; background: var(--sc); opacity: 0; pointer-events: none; }
 .stage .step-tab:focus-visible { outline-offset: -3px; border-radius: 10px; }
-
-/* ---------- player ---------- */
-.stage .player { display: none; }
-.stage .play {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding: 0 16px 0 8px;
-  border: 0;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--color-line-2);
-  cursor: pointer;
-  transition: transform 160ms var(--q);
-}
-.stage .play:active { transform: scale(0.98); }
-.stage .play-ico { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--color-ink); color: #fff; display: grid; place-items: center; }
-.stage .play-ico svg { display: block; width: 16px; height: 16px; }
-.stage .play-label { font-size: 15px; font-weight: 680; white-space: nowrap; }
-.stage .play { max-width: 100%; }
-.stage .prog { display: flex; flex: 0 1 96px; gap: 4px; min-width: 32px; }
-.stage .prog i { height: 4px; border-radius: 2px; background: var(--color-surface-2); overflow: hidden; }
-.stage .prog i:nth-child(1) { flex: 74 1 0; }
-.stage .prog i:nth-child(2) { flex: 46 1 0; }
-.stage .prog i:nth-child(3) { flex: 30 1 0; }
-.stage .prog i:nth-child(4) { flex: 60 1 0; }
-.stage .prog b { display: block; height: 4px; background: var(--color-ink); transform-origin: 0 50%; transform: scaleX(0); }
-.stage .replay-note { margin-top: 8px; font-size: 14px; color: var(--color-ink-3); display: flex; flex-wrap: wrap; gap: 0 10px; align-items: center; }
-.stage .link-btn {
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-talk);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  cursor: pointer;
-}
 
 /* ---------- app screens (shared by JS and no-JS) ---------- */
 .stage .screen {
@@ -255,17 +214,25 @@
   line-height: 1;
 }
 .stage .fly { display: none; }
-.stage .tapfx {
-  position: absolute;
-  z-index: 10;
-  width: 40px;
-  height: 40px;
-  margin: -20px 0 0 -20px;
-  border-radius: 50%;
-  background: rgb(26 34 51 / 0.25);
-  pointer-events: none;
-  opacity: 0;
+
+/* step 3: the one in-app button the visitor presses */
+.stage .save-btn {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms var(--q);
 }
+.stage .save-btn:hover { background: var(--color-ink-2); }
+.stage .save-btn:active { transform: scale(0.97); }
 
 /* ---------- no JS: four steps stacked, finished state (DESIGN 5.12) ---------- */
 html:not(.js) .stage .tints,
@@ -274,7 +241,6 @@ html:not(.js) .stage .ruler,
 html:not(.js) .stage .opts,
 html:not(.js) .stage .l-chat,
 html:not(.js) .stage .l-card,
-html:not(.js) .stage .tapfx,
 html:not(.js) .stage > .aw { display: none; }
 html:not(.js) .stage { padding: 8px; }
 html:not(.js) .stage .panel { display: grid; gap: 18px; padding: 22px 0 26px; }
@@ -301,7 +267,6 @@ html:not(.js) .stage .xlist { padding-bottom: 12px; }
 /* ---------- JS: tabs + one Experii window ---------- */
 .js .stage .nj { display: none; }
 .js .stage .steps { display: flex; flex-direction: column; }
-.js .stage .player { display: block; }
 .js .stage > .aw { flex: none; height: var(--wh); }
 .js .stage:not([data-ready]) .panel:not([data-step="1"]) { display: none; }
 .js .stage .panel { display: block; }
@@ -352,38 +317,48 @@ html:not(.js) .stage .xlist { padding-bottom: 12px; }
 .js .stage .l-list .toast { flex: none; }
 .js .stage .l-card { z-index: 1; visibility: hidden; transition: visibility 0s 500ms; }
 .js .stage .l-card.shown { visibility: visible; transition: none; }
+/* step 4: time skips ahead and desktop notifications arrive over the app, top right (as in the hero) */
 .js .stage .lock {
   position: absolute;
   inset: 0;
   z-index: 2;
-  padding: 28px 20px 16px;
-  background: radial-gradient(130% 55% at 50% 0%, var(--color-lock-glow) 0%, rgb(59 29 44 / 0) 70%), var(--color-lock);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: space-between;
+  gap: 20px 16px;
+  padding: 22px 16px 16px 22px;
+  background: radial-gradient(90% 80% at 0% 0%, var(--color-lock-glow) 0%, rgb(59 29 44 / 0) 70%), var(--color-lock);
   visibility: visible;
-  transition: transform 500ms var(--q), visibility 0s;
+  transition: opacity 420ms ease, visibility 0s;
 }
-.js .stage .lock.up { transform: translateY(-100%); visibility: hidden; transition: transform 500ms var(--q), visibility 0s 500ms; }
-.js .stage .lock-date { display: block; position: relative; height: 80px; margin-top: 6px; }
-.js .stage .ld { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; transition: transform 360ms var(--q), opacity 360ms var(--q); }
-.js .stage .ld .md { font-size: 46px; line-height: 1.1; font-weight: 760; letter-spacing: -0.03em; }
-.js .stage .ld .dow { font-size: 15px; font-weight: 550; opacity: 0.85; margin-top: 3px; }
+.js .stage .lock.up { opacity: 0; visibility: hidden; transition: opacity 420ms ease, visibility 0s 420ms; }
+.js .stage .lock-when { flex: 1 0 172px; }
+.js .stage .lock-date { display: block; position: relative; height: 72px; }
+.js .stage .ld { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; transition: transform 360ms var(--q), opacity 360ms var(--q); }
+.js .stage .ld .md { font-size: 40px; line-height: 1.1; font-weight: 760; letter-spacing: -0.03em; white-space: nowrap; }
+.js .stage .ld .dow { font-size: 15px; font-weight: 550; color: rgb(255 255 255 / 0.85); margin-top: 3px; }
 .js .stage .ld[data-pos="past"] { transform: translateY(-45%); opacity: 0; }
 .js .stage .ld[data-pos="next"] { transform: translateY(45%); opacity: 0; }
-.js .stage .lock-badge { margin: 4px 0 0; }
-.js .stage .lock-revisit { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; color: rgb(255 255 255 / 0.85); }
-.js .stage .dot-w { position: relative; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #fff; }
-.js .stage .dot-w:first-of-type { margin-left: 2px; }
-.js .stage .dot-w::after { content: ""; position: absolute; inset: 1.5px; border-radius: 50%; background: #fff; transform: scale(0); transition: transform 280ms var(--q); }
-.js .stage .dot-w.on::after { transform: none; }
-.js .stage .stack { display: grid; align-items: end; gap: 0; width: min(100%, 380px); margin: auto auto 0; padding-bottom: 26px; }
-.js .stage .notif { grid-area: 1 / 1; transform-origin: 50% 100%; transition: transform 260ms var(--q), opacity 260ms var(--q); }
+.js .stage .lock-badge { display: inline-block; margin: 8px 0 0; }
+.js .stage .lock-toasts { flex: 0 1 272px; display: grid; gap: 40px; }
+.js .stage .stack { display: grid; }
+.js .stage .notif {
+  grid-area: 1 / 1;
+  box-shadow: 0 16px 32px -16px rgb(0 0 0 / 0.5);
+  transform-origin: 50% 100%;
+  transition: transform 420ms var(--q), opacity 300ms ease, box-shadow 160ms ease;
+}
 .js .stage .notif[data-off="0"] { z-index: 3; }
-.js .stage .notif[data-off="1"] { z-index: 2; transform: translateY(13px) scale(0.94); opacity: 0.7; }
-.js .stage .notif[data-off="2"] { z-index: 1; transform: translateY(26px) scale(0.88); opacity: 0.45; }
-.js .stage .notif[data-off="gone"] { z-index: 4; transform: translateY(-60%) scale(0.96); opacity: 0; pointer-events: none; }
-.js .stage .notif[data-off="pre"] { transform: translateY(-30px); opacity: 0; }
+.js .stage .notif[data-off="0"]:hover { box-shadow: 0 0 0 2px rgb(255 255 255 / 0.7), 0 18px 36px -14px rgb(0 0 0 / 0.6); }
+.js .stage .notif[data-off="1"] { z-index: 2; transform: translateY(14px) scale(0.95); opacity: 0.75; }
+.js .stage .notif[data-off="2"] { z-index: 1; transform: translateY(28px) scale(0.9); opacity: 0.5; }
+.js .stage .notif[data-off="pre"] { opacity: 0; transform: translateX(32px); }
+.js .stage .notif:not([data-off="0"]) { pointer-events: none; }
 .js .stage .n-hit { display: block; position: absolute; inset: 0; width: 100%; padding: 0; border: 0; border-radius: inherit; background: transparent; cursor: pointer; }
 .js .stage .n-hit:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.js .stage .lock-hint { display: block; margin-top: 4px; text-align: center; font-size: 13px; color: rgb(255 255 255 / 0.8); }
+.js .stage .lock-hint { display: block; text-align: right; font-size: 13px; color: rgb(255 255 255 / 0.8); }
 
 /* fly + tap marks */
 .js .stage .fly { display: block; position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; opacity: 0; transform: translateX(var(--x0, 0)); }
@@ -416,15 +391,11 @@ html:not(.js) .stage .xlist { padding-bottom: 12px; }
   .js .stage .status.busy .status-label { animation: loop-pulse 1000ms ease-in-out infinite; }
   .js .stage .panel.enter > :not(.screen) { animation: loop-rise 300ms var(--q) both; }
   .js .stage .panel.enter .screen { animation: loop-fadein 220ms ease both; }
-  .js .stage .step-tab.hint::after { animation: loop-hint 1500ms ease both; }
-  .js .stage .tapfx { animation: loop-tap 550ms var(--q) both; }
 }
 @keyframes loop-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes loop-sheet { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
 @keyframes loop-fadein { from { opacity: 0; } to { opacity: 1; } }
 @keyframes loop-pop { 0% { transform: scale(0.9); } 60% { transform: scale(1.06); } to { transform: none; } }
-@keyframes loop-hint { 30% { opacity: 0.14; } to { opacity: 0; } }
-@keyframes loop-tap { from { transform: scale(0.35); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
 @keyframes loop-pulse { 50% { opacity: 0.45; } }
 
 /* ---------- JS, below 1024px: tabs above the window, actions right under it (F-2) ---------- */
@@ -444,7 +415,6 @@ html:not(.js) .stage .xlist { padding-bottom: 12px; }
   .js .stage > .aw { order: 2; }
   .stage .aw-side { display: none; }
   .js .stage .panels { order: 3; }
-  .js .stage .player { order: 4; padding: 0 4px 4px; }
   .js .stage .step-tab {
     flex-direction: column;
     align-items: center;
@@ -470,15 +440,6 @@ html:not(.js) .stage .xlist { padding-bottom: 12px; }
   .js .stage .detail .two { min-height: calc(3 * 1.62em); }
   .js .stage .r4 { margin-top: 0; min-height: 104px; }
   .js .stage .r4 .fact { margin-top: 4px; }
-  /* while the replay runs (it switches steps on its own) steps 1-3 reserve the step-4 ruler block,
-     so the stage height never changes without a visitor action */
-  .js .stage:is([data-replay="playing"], [data-replay="paused"], [data-replay="ended"]) .panel:not([data-step="4"])::after {
-    content: "";
-    flex: none;
-    height: 104px;
-  }
-  .js .stage .replay-note { flex-direction: column; align-items: flex-start; line-height: 1.5; }
-  .js .stage:is([data-replay="playing"], [data-replay="paused"], [data-replay="ended"]) .player { min-height: 130px; }
 }
 
 /* ---------- JS, 1024px and up: tabs and copy left, window right ---------- */
@@ -502,5 +463,4 @@ html:not(.js) .stage .xlist { padding-bottom: 12px; }
   .js .stage .detail { padding-top: 22px; }
   .stage .detail .two { font-size: 18px; }
   .js .stage .act { margin-top: 14px; }
-  .js .stage .player { margin-top: 18px; }
 }

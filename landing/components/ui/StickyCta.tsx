@@ -40,7 +40,7 @@ export function StickyCta({ label }: { label: string }) {
   }, []);
 
   return (
-    <div className="sticky" data-show={show ? '' : undefined} inert={!show}>
+    <div className="sticky-cta" data-show={show ? '' : undefined} inert={!show}>
       <a className="btn btn-ink" href="#signup" data-cta="sticky">
         {label}
       </a>

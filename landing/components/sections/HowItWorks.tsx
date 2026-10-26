@@ -1,7 +1,7 @@
 import { how } from '@/content/landing';
 import { heroDemo, loopCopy, loopShared, loopTopics } from '@/content/loop';
 import { LoopStepper } from '@/components/loop/LoopStepper';
-import type { HeroVariant } from '@/lib/signup-schema';
+import type { HeroVariant } from '@/lib/signup-fields';
 
 export function HowItWorks({ variant }: { variant: HeroVariant }) {
   return (

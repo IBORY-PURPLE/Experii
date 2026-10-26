@@ -14,6 +14,8 @@ type Scene = 'home' | 'study' | 'opened';
 type Play = 'idle' | 'playing' | 'paused' | 'ended';
 type Target = 'input' | 'send' | 'take' | 'answer' | 'save' | 'toast';
 type Count = 0 | 1 | 2 | 3;
+// What the thread keeps in view: its newest line, or the saved card from its head down.
+type Focus = 'end' | 'card';
 
 // One frame of the illustration. The script below only ever sets these fields.
 interface Frame {
@@ -21,6 +23,7 @@ interface Frame {
   ask: string;
   reply: string;
   at: number;
+  focus: Focus;
   answered: boolean;
   saved: boolean;
   remind: Count;
@@ -40,8 +43,14 @@ const marks = (t: LoopTopic) => {
   return { q: 1, explain: 2, ask: n + 2, reply: n + 3, offer: n + 4, status: n + 5, task: n + 9, solve: n + 10, result: n + 11, cardAi: n + 12, card: n + 13 };
 };
 
-const START: Frame = { scene: 'home', ask: '', reply: '', at: 0, answered: false, saved: false, remind: 0, dots: 0, press: 0 };
+const START: Frame = { scene: 'home', ask: '', reply: '', at: 0, focus: 'end', answered: false, saved: false, remind: 0, dots: 0, press: 0 };
 const finalFrame = (t: LoopTopic): Frame => ({ ...START, scene: 'opened', at: marks(t).card, answered: true, saved: true, dots: 3 });
+
+// Each key beat (task card, SQL with its options, result, the card's answer line) stays whole on screen
+// this long before the next one pushes it up.
+const READ = 2800;
+// Playback needs this much of the thread above the fold: the tallest key beat (SQL with options) fits.
+const MIN_ROOM = 200;
 
 function script(t: LoopTopic): { cues: Cue[]; total: number } {
   const M = marks(t);
@@ -54,6 +63,11 @@ function script(t: LoopTopic): { cues: Cue[]; total: number } {
   ];
   for (let k = 0; k < n; k++) cues.push({ t: 3750 + 420 * k, set: { at: M.explain + k } });
   const c = 3750 + 420 * n + 400;
+  const task = c + 4200;
+  const solve = task + READ;
+  const result = solve + READ + 100;
+  const card = result + READ + 450;
+  const saved = card + READ + 1200;
   cues.push(
     { t: c, set: { at: M.ask } },
     { t: c + 500, type: 'reply', dur: 700 },
@@ -64,26 +78,27 @@ function script(t: LoopTopic): { cues: Cue[]; total: number } {
     { t: c + 3250, set: { at: M.status + 1 } },
     { t: c + 3500, set: { at: M.status + 2 } },
     { t: c + 3750, set: { at: M.status + 3 } },
-    { t: c + 4200, set: { at: M.task } },
-    { t: c + 4800, set: { at: M.solve } },
-    { t: c + 5350, move: 'answer', dur: 700 },
-    { t: c + 6100, press: { answered: true } },
-    { t: c + 6450, set: { at: M.result } },
-    { t: c + 7300, set: { at: M.cardAi } },
-    { t: c + 7750, set: { at: M.card } },
-    { t: c + 8350, move: 'save', dur: 650 },
-    { t: c + 9050, press: { saved: true } },
-    { t: c + 10300, set: { remind: 1 } },
-    { t: c + 11700, set: { remind: 2 } },
-    { t: c + 13100, set: { remind: 3 } },
-    { t: c + 13800, move: 'toast', dur: 700 },
-    { t: c + 14550, press: {} },
-    { t: c + 14750, set: { scene: 'opened', remind: 0 } },
-    { t: c + 15200, set: { dots: 1 } },
-    { t: c + 15350, set: { dots: 2 } },
-    { t: c + 15500, set: { dots: 3 } },
+    { t: task, set: { at: M.task } },
+    { t: solve, set: { at: M.solve } },
+    { t: solve + 1100, move: 'answer', dur: 700 },
+    { t: solve + 1850, press: { answered: true } },
+    { t: result, set: { at: M.result } },
+    { t: result + READ, set: { at: M.cardAi } },
+    { t: card, set: { at: M.card, focus: 'card' } },
+    { t: card + READ, set: { focus: 'end' } },
+    { t: card + READ + 500, move: 'save', dur: 650 },
+    { t: saved, press: { saved: true } },
+    { t: saved + 1250, set: { remind: 1 } },
+    { t: saved + 2650, set: { remind: 2 } },
+    { t: saved + 4050, set: { remind: 3 } },
+    { t: saved + 4750, move: 'toast', dur: 700 },
+    { t: saved + 5500, press: {} },
+    { t: saved + 5700, set: { scene: 'opened', remind: 0 } },
+    { t: saved + 6150, set: { dots: 1 } },
+    { t: saved + 6300, set: { dots: 2 } },
+    { t: saved + 6450, set: { dots: 3 } },
   );
-  return { cues, total: c + 16200 };
+  return { cues, total: saved + 7150 };
 }
 
 const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2);
@@ -127,19 +142,23 @@ function Explain({ item }: { item: ChatItem }) {
   return <MockTableView table={item.table} />;
 }
 
+// Server HTML (and so the no-JS page) and the first client render show the finished loop; playback
+// switches to the first frame only when it actually starts.
 export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: LoopShared; copy: HeroDemoCopy }) {
-  const [f, setFrame] = useState<Frame>(START);
+  const [f, setFrame] = useState<Frame>(() => finalFrame(topic));
   const [play, setPlay] = useState<Play>('idle');
   const fRef = useRef(f);
   const playRef = useRef<Play>('idle');
   const hold = useRef({ hidden: false, off: true });
   const reduced = useRef(false);
   const winRef = useRef<HTMLDivElement>(null);
+  const ctrlRef = useRef<HTMLButtonElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const flowRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const pos = useRef({ x: 0, y: 0 });
   const flowY = useRef(0);
+  const aim = useRef<Target | null>(null);
   const tl = useTimeline();
   const M = marks(topic);
 
@@ -172,7 +191,15 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
   const events = (cues: Cue[]): TimelineEvent[] =>
     cues.map((c): TimelineEvent => {
       if ('set' in c) return { t: c.t, fn: () => commit(c.set) };
-      if ('press' in c) return { t: c.t, fn: () => commit({ ...c.press, press: fRef.current.press + 1 }) };
+      if ('press' in c)
+        return {
+          t: c.t,
+          fn: () => {
+            aim.current = null;
+            commit({ ...c.press, press: fRef.current.press + 1 });
+            fit();
+          },
+        };
       if ('type' in c) {
         const field = c.type;
         const text = field === 'ask' ? topic.question : topic.reply;
@@ -191,6 +218,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
         t: c.t,
         dur: c.dur,
         fn: () => {
+          aim.current = c.move;
           from = pos.current;
           to = point(c.move) ?? from;
         },
@@ -209,6 +237,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
 
   const begin = () => {
     tl.stop();
+    aim.current = null;
     commit(START);
     const p = point('input');
     if (p) setCursor(p.x, p.y);
@@ -228,17 +257,44 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
     } else begin();
   };
 
-  const api = useRef({ begin, sync, commit, setMode, topic });
-  api.current = { begin, sync, commit, setMode, topic };
+  // Runs only while the pause control is uncovered (below the sticky header's scroll-padding) and enough
+  // of the thread is above the fold to hold a whole key beat; otherwise the timeline holds where it is.
+  const gate = () => {
+    const ctrl = ctrlRef.current?.getBoundingClientRect();
+    const vp = threadRef.current?.getBoundingClientRect();
+    if (!ctrl || !vp) return;
+    const inset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    const off = !ctrl.height || ctrl.top < inset || innerHeight - vp.top < MIN_ROOM;
+    if (off === hold.current.off) return;
+    hold.current.off = off;
+    if (!off && playRef.current === 'idle') begin();
+    else sync();
+  };
+
+  // Slide the thread (not scroll it) so its newest line, or the card's head, sits inside the part of the
+  // window that is on screen. The camera holds still while the pointer travels to a target in the thread.
+  const fit = () => {
+    const vp = threadRef.current;
+    const flow = flowRef.current;
+    if (!vp || !flow || aim.current) return;
+    const room = Math.min(vp.clientHeight, Math.max(MIN_ROOM, innerHeight - vp.getBoundingClientRect().top - 8));
+    let y = room - flow.offsetHeight;
+    const lead = fRef.current.focus === 'card' ? flow.querySelector<HTMLElement>('.hd-card') : null;
+    if (lead) y = Math.max(y, flow.getBoundingClientRect().top - lead.getBoundingClientRect().top + 12);
+    y = Math.min(0, Math.round(y));
+    if (y === flowY.current) return;
+    flowY.current = y;
+    flow.style.transform = y ? `translateY(${y}px)` : '';
+  };
+
+  const api = useRef({ begin, sync, setMode, gate, fit });
+  api.current = { begin, sync, setMode, gate, fit };
 
   useEffect(() => {
     const mq = matchMedia('(prefers-reduced-motion: reduce)');
     reduced.current = mq.matches;
     hold.current.hidden = document.visibilityState === 'hidden';
-    if (mq.matches) {
-      api.current.commit(finalFrame(api.current.topic));
-      api.current.setMode('ended');
-    }
+    if (mq.matches) api.current.setMode('ended');
     const onMotion = (e: MediaQueryListEvent) => {
       reduced.current = e.matches;
     };
@@ -246,54 +302,30 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
       hold.current.hidden = document.visibilityState === 'hidden';
       api.current.sync();
     };
-    const io = new IntersectionObserver(
-      ([en]) => {
-        hold.current.off = !(en.isIntersecting && en.intersectionRatio >= 0.35);
-        if (!hold.current.off && playRef.current === 'idle') api.current.begin();
-        else api.current.sync();
-      },
-      { threshold: [0, 0.35, 0.6] },
-    );
-    if (winRef.current) io.observe(winRef.current);
+    let raf = 0;
+    const onView = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        api.current.gate();
+        api.current.fit();
+      });
+    };
+    onView();
+    document.fonts?.ready.then(onView);
+    window.addEventListener('scroll', onView, { passive: true });
+    window.addEventListener('resize', onView);
     mq.addEventListener('change', onMotion);
     document.addEventListener('visibilitychange', onVisibility);
     return () => {
-      io.disconnect();
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onView);
+      window.removeEventListener('resize', onView);
       mq.removeEventListener('change', onMotion);
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
 
-  // Slide the thread (not scroll it) so its newest line sits inside the part of the window that is on
-  // screen; the window starts below the hero copy and the visitor may not have scrolled yet.
-  const fit = () => {
-    const vp = threadRef.current;
-    const flow = flowRef.current;
-    if (!vp || !flow) return;
-    const onScreen = window.innerHeight - vp.getBoundingClientRect().top - 16;
-    const room = Math.min(vp.clientHeight, Math.max(180, onScreen));
-    const y = Math.min(0, Math.round(room - flow.offsetHeight));
-    if (y === flowY.current) return;
-    flowY.current = y;
-    flow.style.transform = y ? `translateY(${y}px)` : '';
-  };
-  const fitRef = useRef(fit);
-  fitRef.current = fit;
-  useLayoutEffect(() => fitRef.current(), [f.at, f.answered]);
-  useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => fitRef.current());
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, []);
+  useLayoutEffect(() => api.current.fit(), [f.at, f.answered, f.focus]);
 
   const count = copy.recent.length + (f.saved ? 1 : 0);
   const nav: NavId = f.scene === 'opened' ? 'cards' : f.remind > 0 ? 'remind' : 'study';
@@ -303,24 +335,39 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
   const scene = (s: Scene) => (f.scene === s ? 'hd-scene on' : 'hd-scene');
   const ldPos = (j: number) => (j < f.remind - 1 ? 'past' : j === f.remind - 1 ? 'now' : 'next');
   const toastOff = (j: number) => (j < f.remind ? String(f.remind - 1 - j) : 'pre');
+  // Every label sits in one grid cell, so the button keeps the widest one's width in every state.
+  const labels = [...new Set(Object.values(copy.control))];
 
   return (
     <div className="hero-demo" data-play={play} data-scene={f.scene} data-remind={f.remind}>
-      <div className="hd-tools">
-        <button type="button" className="hd-ctrl" onClick={onControl}>
-          <i aria-hidden="true">
-            <svg viewBox="0 0 16 16" width="14" height="14">
-              {ICONS[play]}
-            </svg>
-          </i>
-          {copy.control[play]}
-          <span className="sr-only"> · {copy.controlTarget}</span>
-        </button>
-      </div>
       <p className="sr-only">{copy.summary}</p>
-      <div className="hd-win" ref={winRef} aria-hidden="true">
-        <AppWindow shared={shared} title={title} active={nav} count={count} bump={f.saved} mainClassName="mock">
-          <div className={scene('home')}>
+      <div className="hd-win" ref={winRef}>
+        <AppWindow
+          shared={shared}
+          title={title}
+          active={nav}
+          count={count}
+          bump={f.saved}
+          mainClassName="mock"
+          tools={
+            <button type="button" className="hd-ctrl" ref={ctrlRef} onClick={onControl}>
+              <i aria-hidden="true">
+                <svg viewBox="0 0 16 16" width="12" height="12">
+                  {ICONS[play]}
+                </svg>
+              </i>
+              <span className="hd-ctrl-l">
+                {labels.map((l) => (
+                  <span key={l} className={l === copy.control[play] ? 'on' : undefined}>
+                    {l}
+                  </span>
+                ))}
+              </span>
+              <span className="sr-only"> · {copy.controlTarget}</span>
+            </button>
+          }
+        >
+          <div className={scene('home')} aria-hidden="true">
             <div className="hd-ask-wrap">
               <i className="hd-mark">{shared.appIcon}</i>
               <div className={f.ask ? 'hd-ask typing' : 'hd-ask'} data-t="input">
@@ -347,7 +394,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
             </div>
           </div>
 
-          <div className={scene('study')}>
+          <div className={scene('study')} aria-hidden="true">
             <div className="appbar">
               <span className="subj">{shared.subject}</span>
               <span className="adate">{shared.studyDate}</span>
@@ -477,7 +524,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
             {f.saved && f.remind === 0 ? <p className="toast hd-toast">{shared.toast}</p> : null}
           </div>
 
-          <div className={scene('opened')}>
+          <div className={scene('opened')} aria-hidden="true">
             <div className="appbar">
               <span className="ab-title">{shared.openedTitle}</span>
               <span className="adate">{shared.openedDate}</span>
@@ -512,7 +559,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
             </div>
           </div>
 
-          <div className="hd-remind">
+          <div className="hd-remind" aria-hidden="true">
             <p className="hd-date">
               {shared.lockDates.map((d, j) => (
                 <span key={d.md} className="ld" data-pos={ldPos(j)}>
@@ -537,7 +584,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
             </ol>
           </div>
         </AppWindow>
-        <div className="hd-cursor" ref={cursorRef}>
+        <div className="hd-cursor" ref={cursorRef} aria-hidden="true">
           {f.press ? <i key={f.press} className="hd-press" /> : null}
           <svg viewBox="0 0 24 24" width="24" height="24">
             <path d="M5 2.5v15.2l3.9-3.6 2.6 5.6 2.5-1.1-2.6-5.5h5.3z" fill="#fff" stroke="#1a2233" strokeWidth="1.5" strokeLinejoin="round" />

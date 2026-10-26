@@ -28,6 +28,7 @@ export default async function OpengraphImage() {
           <div style={{ display: 'flex', marginTop: 28, fontSize: 26, color: '#5b6676' }}>{hero.kicker}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, gap: 16 }}>
+          <div style={{ display: 'flex', alignSelf: 'flex-end', fontSize: 20, fontWeight: 700, color: '#4e5968', padding: '6px 16px', borderRadius: 999, border: '2px solid #d5dae1' }}>{hero.badge}</div>
           <div style={{ display: 'flex', alignSelf: 'flex-start', fontSize: 24, padding: '12px 20px', borderRadius: 20, background: '#f2f4f7' }}>{hero.question}</div>
           <div style={{ display: 'flex', alignSelf: 'flex-end', fontSize: 24, padding: '12px 20px', borderRadius: 20, border: '2px dashed #8a94a3', color: '#5b6676' }}>{hero.before}</div>
           <div style={{ display: 'flex', alignSelf: 'flex-end', fontSize: 25, fontWeight: 700, lineHeight: 1.45, padding: '16px 22px', borderRadius: 22, border: '3px solid #3d5a99', wordBreak: 'keep-all' }}>{hero.after}</div>

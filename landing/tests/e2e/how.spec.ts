@@ -99,30 +99,102 @@ test.describe('작동 방식 (섹션 4)', () => {
     }
   });
 
-  test('이어 보기가 끝나면 다시 보기, 탭을 누르면 처음 상태로 돌아간다', async ({ page }) => {
-    test.setTimeout(60_000);
+  test('섹션 4는 직접 해 보는 버전이라 자동 재생 버튼이 없다 (보는 버전은 히어로)', async ({ page }) => {
     const stage = await toStage(page);
-    const play = stage.locator('.play');
-    await play.click();
-    await expect(stage).toHaveAttribute('data-replay', 'playing');
-    await expect(stage).toHaveAttribute('data-replay', 'ended', { timeout: 20_000 });
-    await expect(play).toContainText('다시 보기');
-    await expect(stage.locator('.replay-note')).toBeVisible();
-    await expect(stage.locator('#loop-panel-4 .l-card.shown')).toBeVisible();
-
-    await page.locator('#loop-tab-1').click();
-    await expect(stage).toHaveAttribute('data-replay', 'idle');
-    await expect(play).toContainText('처음부터 이어 보기');
-    await expect(stage.locator('.replay-note')).toHaveCount(0);
-    const bars = await stage.locator('.prog b').evaluateAll((els) => els.map((b) => (b as HTMLElement).style.transform));
-    expect(bars).toEqual(['scaleX(0)', 'scaleX(0)', 'scaleX(0)', 'scaleX(0)']);
-
-    await play.click();
-    await expect(stage).toHaveAttribute('data-replay', 'playing');
-    await expect(stage).toHaveAttribute('data-step', '1');
+    await expect(stage.getByRole('button', { name: /이어 보기|다시 보기|일시정지/ })).toHaveCount(0);
   });
 
-  test('키보드 순서: 단계 탭 → 앱 화면 → 다음 단계 → 이어 보기', async ({ page }) => {
+  test('경험 카드로 저장을 누르면 내 경험 카드 목록이 열리고 사이드바 숫자가 1 늘어난다', async ({ page }) => {
+    desktopOnly(page);
+    const stage = await toStage(page);
+    await page.locator('#loop-tab-3').click();
+    const panel = stage.locator('#loop-panel-3');
+    const count = stage.locator('.aw-count');
+    const before = Number(await count.textContent());
+    const save = panel.getByRole('button', { name: '경험 카드로 저장' });
+    await expect(save).toBeVisible();
+    await expect(panel.locator('.l-list')).toBeHidden();
+    await save.click();
+    await expect(panel.locator('.l-list')).toBeVisible();
+    await expect(panel.locator('.l-list .xl-new')).toContainText('주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제');
+    await expect(count).toHaveText(String(before + 1));
+    await expect(panel.locator('.xscroll')).toBeFocused();
+  });
+
+  test('직접 해 보는 창에서 누를 수 없는 것은 눌러 보이지 않는다', async ({ page }) => {
+    await toStage(page);
+    for (const n of [1, 2, 3, 4]) {
+      await page.locator(`#loop-tab-${n}`).click();
+      await expect(page.locator(`#loop-panel-${n}`)).toBeVisible();
+      const dead = await page.locator('#stage').evaluate((root) =>
+        [...root.querySelectorAll('*')]
+          .filter((el) => {
+            const cs = getComputedStyle(el);
+            if (!el.getClientRects().length || cs.visibility === 'hidden') return false;
+            const looksClickable = cs.cursor === 'pointer' || el.classList.contains('fake');
+            return looksClickable && !el.closest('button, a[href], [role="tab"], input, label');
+          })
+          .map((el) => `${el.tagName}.${el.className}: ${el.textContent}`),
+      );
+      expect(dead, `step ${n}`).toEqual([]);
+    }
+  });
+
+  test('리마인드는 데스크톱 알림처럼 창 오른쪽 위에 도착한 알림만 쌓인다', async ({ page }) => {
+    desktopOnly(page);
+    const stage = await toStage(page);
+    await page.locator('#loop-tab-4').click();
+    const panel = stage.locator('#loop-panel-4');
+    const screen = (await panel.locator('.screen').boundingBox())!;
+    const arrived = () =>
+      panel
+        .locator('.notif')
+        .evaluateAll((els) =>
+          els.filter((e) => parseFloat(getComputedStyle(e).opacity) > 0.05).map((e) => e.querySelector('.n-date')!.textContent),
+        );
+    await expect.poll(arrived).toEqual(['10월 27일 화요일']);
+
+    const front = panel.locator('.notif[data-off="0"]');
+    const f = (await front.boundingBox())!;
+    expect(screen.x + screen.width - (f.x + f.width)).toBeLessThanOrEqual(32);
+    expect(f.y - screen.y).toBeLessThanOrEqual(48);
+    const date = (await panel.locator('.ld[data-pos="now"] .md').boundingBox())!;
+    expect(date.x - screen.x).toBeLessThanOrEqual(48);
+    expect(date.y - screen.y).toBeLessThanOrEqual(64);
+
+    const hit = front.getByRole('button', { name: '다음 알림 보기' });
+    expect(await hit.evaluate((el) => getComputedStyle(el).cursor)).toBe('pointer');
+    await hit.click();
+    await expect.poll(arrived).toEqual(['10월 27일 화요일', '11월 2일 월요일']);
+    await expect(front.locator('.n-date')).toHaveText('11월 2일 월요일');
+  });
+
+  test('분석 스크립트가 늦게 떠도 깊은 링크 방문의 loop_step 1이 남는다', async ({ page }) => {
+    desktopOnly(page);
+    type Call = [string, Record<string, string | number> | undefined];
+    await page.goto('/#how-group');
+    await expect(page.locator('#stage')).toHaveAttribute('data-ready', '');
+    await page.waitForTimeout(1500);
+    await page.evaluate(() => {
+      const w = window as unknown as { __calls: Call[]; umami: { track: (n: string, d?: Record<string, string | number>) => void } };
+      w.__calls = [];
+      w.umami = { track: (n, d) => void w.__calls.push([n, d]) };
+    });
+    await page.locator('.how-topics a[data-topic="join"]').click();
+    await page.locator('#loop-tab-2').click();
+    const steps = () =>
+      page.evaluate(() =>
+        (window as unknown as { __calls: Call[] }).__calls.filter(([n]) => n === 'loop_step').map(([, d]) => d),
+      );
+    await expect
+      .poll(steps)
+      .toEqual([
+        { step: 1, variant: 'h1', topic: 'group' },
+        { step: 2, variant: 'h1', topic: 'join' },
+      ]);
+  });
+
+  test('키보드 순서: 단계 탭 → 앱 화면 → 다음 단계 → 섹션 끝 링크', async ({ page }) => {
     await toStage(page);
     await page.locator('#loop-tab-1').focus();
     await page.keyboard.press('Tab');
@@ -130,7 +202,7 @@ test.describe('작동 방식 (섹션 4)', () => {
     await page.keyboard.press('Tab');
     await expect(page.locator('#loop-panel-1 .next-step')).toBeFocused();
     await page.keyboard.press('Tab');
-    await expect(page.locator('#stage .play')).toBeFocused();
+    await expect(page.locator('#how a.how-link')).toBeFocused();
     await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('Shift+Tab');

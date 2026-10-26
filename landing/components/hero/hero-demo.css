@@ -5,38 +5,46 @@
   --cut: 44px;
   position: relative;
   width: min(1180px, 100%);
-  margin: 68px auto 0;
+  margin: 32px auto 0;
   text-align: left;
 }
 @media (min-width: 1280px) {
   .hero-demo { --hdh: 600px; }
 }
-.hd-tools { position: absolute; right: 0; bottom: 100%; margin-bottom: 12px; }
+/* play/pause sits in the window's title bar; HeroDemo holds playback whenever the bar is covered */
 .hd-ctrl {
+  position: relative;
+  flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 16px 0 6px;
+  gap: 7px;
+  height: 30px;
+  padding: 0 12px 0 4px;
   border: 0;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.9);
+  background: #fff;
   box-shadow: inset 0 0 0 1px var(--color-line-2);
   color: var(--color-ink);
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 680;
+  line-height: 1;
   white-space: nowrap;
   cursor: pointer;
   transition: transform var(--dur-press) var(--ease-out-quint);
 }
+/* a compact pill with a 44px hit area (TSD 11) that fills the 44px title bar */
+.hd-ctrl::after { content: ""; position: absolute; inset: -7px -6px; }
 .hd-ctrl:active { transform: scale(0.97); }
-.hd-ctrl i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--color-ink); color: #fff; }
+.hd-ctrl i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-ink); color: #fff; }
 .hd-ctrl svg { display: block; }
-html:not(.js) .hd-tools { visibility: hidden; }
+.hd-ctrl-l { display: grid; }
+.hd-ctrl-l > span { grid-area: 1 / 1; }
+.hd-ctrl-l > :not(.on) { visibility: hidden; }
+html:not(.js) .hd-ctrl { visibility: hidden; }
 
 .hd-win { position: relative; margin-bottom: calc(-1 * var(--cut)); }
-.hd-win .aw { height: calc(var(--hdh) + var(--cut)); }
+.hd-win .aw { --bar: 44px; height: calc(var(--hdh) + var(--cut)); }
 
 /* scenes share the visible part of the main pane */
 .hero-demo .hd-scene,
@@ -52,7 +60,7 @@ html:not(.js) .hd-tools { visibility: hidden; }
   transition: opacity 320ms ease, visibility 0s 320ms;
 }
 .hero-demo .hd-scene.on { opacity: 1; visibility: visible; transition: opacity 320ms ease; }
-.hero-demo .appbar { min-height: 46px; padding: 8px 20px; }
+.hero-demo .appbar { min-height: 40px; padding: 6px 20px; }
 .hero-demo .key { box-shadow: var(--shadow-key); }
 
 /* home */
@@ -130,8 +138,8 @@ html:not(.js) .hd-tools { visibility: hidden; }
 .hd-toast { position: absolute; left: 50%; top: 60px; z-index: 2; margin: 0; transform: translateX(-50%); white-space: nowrap; box-shadow: 0 10px 24px -12px rgb(26 34 51 / 0.5); }
 
 /* reopened card */
-.hd-open { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 20px; align-items: start; width: min(880px, 100% - 48px); margin: 0 auto; padding: 18px 0; }
-.hd-open-card { display: grid; gap: 10px; }
+.hd-open { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 20px; align-items: start; width: min(880px, 100% - 48px); margin: 0 auto; padding: 10px 0 18px; }
+.hd-open-card { display: grid; gap: 8px; }
 .hero-demo .follow { align-self: start; }
 
 /* reminders: time skips ahead; desktop notifications arrive over a dimmed app */
@@ -146,12 +154,12 @@ html:not(.js) .hd-tools { visibility: hidden; }
 .hero-demo[data-remind="1"] .hd-remind,
 .hero-demo[data-remind="2"] .hd-remind,
 .hero-demo[data-remind="3"] .hd-remind { opacity: 1; visibility: visible; transition: opacity 420ms ease; }
-.hd-date { position: absolute; left: 36px; top: 32px; width: 260px; height: 86px; }
+.hd-date { position: absolute; left: 36px; top: 32px; width: 260px; height: 86px; overflow: hidden; }
 .hero-demo .ld { position: absolute; inset: 0; display: flex; flex-direction: column; transition: transform 360ms var(--ease-out-quint), opacity 360ms var(--ease-out-quint); }
 .hero-demo .ld .md { font-size: 46px; line-height: 1.1; font-weight: 760; letter-spacing: -0.03em; }
 .hero-demo .ld .dow { margin-top: 3px; font-size: 15px; font-weight: 550; color: rgb(255 255 255 / 0.85); }
-.hero-demo .ld[data-pos="past"] { transform: translateY(-45%); opacity: 0; }
-.hero-demo .ld[data-pos="next"] { transform: translateY(45%); opacity: 0; }
+.hero-demo .ld[data-pos="past"] { transform: translateY(-100%); opacity: 0; }
+.hero-demo .ld[data-pos="next"] { transform: translateY(100%); opacity: 0; }
 .hero-demo .hd-remind .lock-badge { position: absolute; left: 36px; top: 128px; margin: 0; }
 .hd-toasts { position: absolute; right: 24px; top: 24px; display: grid; align-items: start; width: 360px; }
 .hero-demo .notif {
@@ -164,7 +172,9 @@ html:not(.js) .hd-tools { visibility: hidden; }
 .hero-demo .notif[data-off="0"] { z-index: 3; }
 .hero-demo .notif[data-off="1"] { z-index: 2; transform: translateY(14px) scale(0.95); opacity: 0.75; }
 .hero-demo .notif[data-off="2"] { z-index: 1; transform: translateY(28px) scale(0.9); opacity: 0.5; }
-.hero-demo .notif[data-off="pre"] { opacity: 0; transform: translateX(32px); }
+/* not arrived yet: hidden off to the right. An arriving toast is opaque from its first frame and only
+   slides in, so the one it covers never shows through; a leaving one stays put while the overlay fades. */
+.hero-demo .notif[data-off="pre"] { visibility: hidden; transform: translateX(32px); transition: transform 0s 420ms, visibility 0s 420ms; }
 .hd-n-date { display: block; margin-bottom: 2px; font-size: 13px; font-weight: 700; color: var(--color-ink-3); }
 
 /* pointer and press ring */

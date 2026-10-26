@@ -14,6 +14,7 @@ export const CardMock = memo(function CardMock({
   listShown,
   listFresh,
   flyRef,
+  onSave,
 }: {
   topic: LoopTopic;
   shared: LoopShared;
@@ -24,6 +25,7 @@ export const CardMock = memo(function CardMock({
   listShown: boolean;
   listFresh: boolean;
   flyRef?: Ref<HTMLSpanElement>;
+  onSave: () => void;
 }) {
   const isFresh = (i: number) => i > fresh && i <= at;
   const list = topic.list;
@@ -53,9 +55,9 @@ export const CardMock = memo(function CardMock({
                 showSource={false}
                 fresh={isFresh(1)}
               />
-              <span className={isFresh(1) ? 'fake save fresh' : 'fake save'} aria-hidden="true">
+              <button type="button" className={isFresh(1) ? 'save-btn fresh' : 'save-btn'} onClick={onSave}>
                 {shared.fakeSave}
-              </span>
+              </button>
             </>
           ) : null}
         </div>

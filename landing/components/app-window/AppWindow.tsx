@@ -17,13 +17,15 @@ const ICONS: Record<NavId, ReactNode> = {
   remind: <path d="M4.6 10.6V7.2a3.4 3.4 0 0 1 6.8 0v3.4l1.1 1.4h-9zM6.8 13.4a1.3 1.3 0 0 0 2.4 0" />,
 };
 
-// The Experii desktop window both the hero autoplay and section 4 draw inside. Chrome is decorative.
+// The Experii desktop window both the hero autoplay and section 4 draw inside. Chrome is decorative;
+// `tools` (real controls) sit in the title bar next to the badge and stay in the accessibility tree.
 export function AppWindow({
   shared,
   title,
   active,
   count,
   bump,
+  tools,
   className,
   mainClassName,
   children,
@@ -33,17 +35,25 @@ export function AppWindow({
   active: NavId;
   count: number;
   bump?: boolean;
+  tools?: ReactNode;
   className?: string;
   mainClassName?: string;
   children?: ReactNode;
 }) {
   return (
     <div className={className ? `aw ${className}` : 'aw'}>
-      <div className="aw-bar" aria-hidden="true">
-        <i className="aw-ico">{shared.appIcon}</i>
-        <span className="aw-title">{title}</span>
-        <span className="ex aw-ex">{shared.island}</span>
-        <span className="aw-ctl">
+      <div className="aw-bar">
+        <i className="aw-ico" aria-hidden="true">
+          {shared.appIcon}
+        </i>
+        <span className="aw-title" aria-hidden="true">
+          {title}
+        </span>
+        {tools}
+        <span className="ex aw-ex" aria-hidden="true">
+          {shared.island}
+        </span>
+        <span className="aw-ctl" aria-hidden="true">
           <i data-c="min" />
           <i data-c="max" />
           <i data-c="close" />

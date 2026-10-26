@@ -10,15 +10,18 @@ test.describe('JS 없음', () => {
     await expect(page.locator('#stage').getByText('LEFT JOIN orders o').first()).toBeVisible();
   });
 
-  test('데스크톱 폭에서 히어로 앱 창은 의미 있는 정지 화면이다', async ({ page }) => {
+  test('데스크톱 폭에서 히어로 앱 창은 루프를 마친 마지막 장면으로 멈춰 있다', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     const win = page.locator('.hd-win');
     await expect(win).toBeVisible();
-    await expect(win.locator('.hd-scene.on')).toHaveCount(1);
-    await expect(win.locator('.hd-scene.on')).toContainText('오늘 공부하다 막힌 걸 물어보세요');
-    await expect(win.locator('.hd-scene.on')).toContainText('내 GPT · 연결 준비 중');
-    await expect(win.locator('.hd-scene.on .hd-recent li')).toHaveCount(3);
+    const on = win.locator('.hd-scene.on');
+    await expect(on).toHaveCount(1);
+    await expect(on.locator('.revisit-line')).toContainText('다시 본 날');
+    await expect(on.locator('.revisit-line .dot.on')).toHaveCount(3);
+    await expect(on.locator('.xcard .xc-a')).toBeVisible();
+    await expect(on.locator('.follow')).toBeVisible();
+    await expect(win.locator('.aw-count')).toHaveText('4');
     await expect(win.locator('.aw-bar')).toContainText('예시 화면');
     await expect(page.locator('.hd-ctrl')).toBeHidden();
   });

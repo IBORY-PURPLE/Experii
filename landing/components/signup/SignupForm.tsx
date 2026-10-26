@@ -6,7 +6,7 @@ import { signup } from '@/content/landing';
 import { consent } from '@/content/privacy';
 import { track } from '@/lib/analytics';
 import { readAttribution, type Attribution } from '@/lib/attribution';
-import { UTM_KEYS, type HeroVariant, type SignupField, type SignupState } from '@/lib/signup-schema';
+import { UTM_KEYS, type HeroVariant, type SignupField, type SignupState } from '@/lib/signup-fields';
 import { ChoiceChips } from './ChoiceChips';
 import { SignupSuccess } from './SignupSuccess';
 

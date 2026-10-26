@@ -1,4 +1,4 @@
-import { UTM_KEYS } from './signup-schema';
+import { UTM_KEYS } from './signup-fields';
 
 export type Attribution = Partial<Record<(typeof UTM_KEYS)[number] | 'referrer_host', string>>;
 

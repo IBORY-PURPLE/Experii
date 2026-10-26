@@ -1,6 +1,6 @@
 import { signup } from '@/content/landing';
 import { SignupForm } from '@/components/signup/SignupForm';
-import type { HeroVariant } from '@/lib/signup-schema';
+import type { HeroVariant } from '@/lib/signup-fields';
 
 export function SignupSection({ variant }: { variant: HeroVariant }) {
   return (

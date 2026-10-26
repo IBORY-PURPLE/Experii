@@ -238,10 +238,10 @@
 /* lock screen and reopened card (step 4) */
 .mock .scr-lock { background: var(--color-lock); }
 .mock .lock { display: flex; flex-direction: column; padding: 16px 12px; background: var(--color-lock); color: #fff; }
-.mock .lock-date, .mock .lock-revisit, .mock .lock-hint { display: none; }
+.mock .lock-date, .mock .lock-hint { display: none; }
 .mock .lock-badge {
-  align-self: center;
-  margin: 0 0 12px;
+  width: fit-content;
+  margin: 0 auto 12px;
   padding: 2px 10px;
   border-radius: 999px;
   background: rgb(255 255 255 / 0.16);

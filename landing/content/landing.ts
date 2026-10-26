@@ -1,4 +1,4 @@
-import type { HeroVariant } from '@/lib/signup-schema';
+import type { HeroVariant } from '@/lib/signup-fields';
 import type { Rich } from '@/lib/rich';
 
 export const meta = {
@@ -85,7 +85,7 @@ export const how = {
   lead: 'SQLD 공부 하루가 면접 답변 한 줄이 되기까지',
   caption: '예시 화면이에요. 쓰던 GPT를 연결해 이렇게 공부하도록 준비하고 있어요. 지금 보이는 대화는 미리 써 둔 예시예요.',
   close: '공부한 날 한 번 남기면, 그다음은 Experii가 꺼내 줘요.',
-  startLink: '이 질문으로 첫 공부 시작하기',
+  startLink: '먼저 써 보고 싶다면 사전 신청하기',
   beats: {
     label: '리마인드 시점',
     badge: '출시 예정 기능',

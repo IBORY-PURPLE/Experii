@@ -45,8 +45,8 @@
   font-weight: 800;
   line-height: 1;
 }
-.aw-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 650; color: var(--color-ink-2); }
-.aw-bar .aw-ex { flex: none; margin-left: auto; height: 24px; }
+.aw-title { min-width: 0; margin-right: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 650; color: var(--color-ink-2); }
+.aw-bar .aw-ex { flex: none; height: 24px; }
 .aw-ctl { flex: none; display: flex; align-self: stretch; }
 .aw-ctl i { position: relative; width: 44px; }
 .aw-ctl i::before, .aw-ctl i::after { content: ""; position: absolute; left: 50%; top: 50%; }

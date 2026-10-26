@@ -62,9 +62,6 @@ export const TaskMock = memo(function TaskMock({
           <div className={cx('m ai ctx', 1)}>
             <span className="who">{shared.who}</span>
             <p>{topic.offer}</p>
-            <span className="fake muted" aria-hidden="true">
-              {shared.fakeTake}
-            </span>
           </div>
         ) : null}
         {at >= 1 ? (
@@ -118,11 +115,6 @@ export const TaskMock = memo(function TaskMock({
                   </button>
                 );
               })}
-            </div>
-            <div className="run">
-              <span className="fake muted" aria-hidden="true">
-                {shared.fakeRun}
-              </span>
             </div>
             <div className={resultFresh ? 'result fresh' : 'result'}>
               {resultShown && blank.status === 'right' ? (

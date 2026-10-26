@@ -18,9 +18,9 @@ export default function PrivacyPage() {
       <p className="policy-meta">
         {privacyPolicy.effectiveDate} · {CONSENT_VERSION}
       </p>
-      {privacyPolicy.sections.map((s) => (
-        <section key={s.heading} aria-labelledby={`p-${s.heading}`}>
-          <h2 id={`p-${s.heading}`}>{s.heading}</h2>
+      {privacyPolicy.sections.map((s, i) => (
+        <section key={s.heading} aria-labelledby={`p-${i + 1}`}>
+          <h2 id={`p-${i + 1}`}>{s.heading}</h2>
           <ul>
             {s.body.map((line) => (
               <li key={line}>{line}</li>

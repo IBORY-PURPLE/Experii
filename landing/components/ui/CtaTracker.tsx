@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { track } from '@/lib/analytics';
-import type { HeroVariant } from '@/lib/signup-schema';
+import type { HeroVariant } from '@/lib/signup-fields';
 
 export function CtaTracker({ variant }: { variant: HeroVariant }) {
   useEffect(() => {

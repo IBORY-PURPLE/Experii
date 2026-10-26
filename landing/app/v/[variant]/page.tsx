@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Landing } from '@/components/Landing';
-import type { HeroVariant } from '@/lib/signup-schema';
+import type { HeroVariant } from '@/lib/signup-fields';
 
 const VARIANTS = ['h2', 'h3'] as const satisfies readonly HeroVariant[];
 

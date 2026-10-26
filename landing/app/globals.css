@@ -750,9 +750,9 @@
   .foot-links a { display: inline-flex; align-items: center; min-height: 44px; }
 
   /* sticky cta */
-  .sticky { display: none; }
+  .sticky-cta { display: none; }
   @media (max-width: 767px) {
-    .js .sticky {
+    .js .sticky-cta {
       display: block;
       position: fixed;
       left: 0;
@@ -765,8 +765,8 @@
       transform: translateY(110%);
       transition: transform var(--dur-sticky) var(--ease-out-quint);
     }
-    .js .sticky[data-show] { transform: none; }
-    .sticky .btn { display: flex; width: 100%; }
+    .js .sticky-cta[data-show] { transform: none; }
+    .sticky-cta .btn { display: flex; width: 100%; }
   }
 
   /* privacy page */
