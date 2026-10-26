@@ -87,6 +87,7 @@ Linear로 치면 학습 ID는 이슈 ID, 세션 기록은 이슈에 연결되는
 | 서버의 LLM 호출 | 요약은 사용자의 AI가 쓴다. MVP 운영비 0 |
 | 여러 사용자 집계, 팀·공유 기능 | 개인 누적 검증이 먼저 |
 | 모바일 앱, ChatGPT 정식 지원 | Phase 1 이후 |
+| GPT를 내장한 데스크톱 앱 | 장기 비전(부록 C). MVP 검증 뒤 판단 |
 
 ### 7.3 지금 여지만 남겨 둘 것
 
@@ -245,9 +246,44 @@ SQLD-1  SQLD 자격증                                        진행 중
 | 이슈 활동 기록 | 학습 타임라인 |
 | Linear 원격 MCP 서버 | Experi 원격 MCP 서버 |
 
+## 부록 C. 장기 비전: GPT 내장 데스크톱 앱 (MVP 범위 밖)
+
+2026-10-26에 정한 방향이다. MVP에서는 이 비전을 위한 기능을 만들지 않는다. MVP 결과를 본 뒤 다음 단계로 검토한다.
+
+### 그림
+
+Aside 브라우저처럼 사용자가 ChatGPT 계정으로 로그인하면 Experi 데스크톱 앱 안에 GPT가 붙는다. 사용자는 앱 안에서 공부하고, 학습은 별도 명령 없이 앱에 쌓인다.
+
+| 구성 | 내용 |
+|---|---|
+| 데스크톱 앱 | Tauri 또는 Electron |
+| 로그인 | Sign in with ChatGPT. `127.0.0.1` 루프백 콜백, 토큰은 OS 키체인에 저장 |
+| 공부 채팅 | 사용자의 ChatGPT 플랜으로 Responses API 호출(`store: false`, `stream: true`) |
+| 로컬 도구 | 파일 검색·업로드·폴더 인덱싱을 function calling으로 앱이 직접 구현 |
+| 구조화 | 같은 토큰으로 과목별 정리 후 로컬 DB에 저장 |
+| 동기화 | Experi 서버로 올려 웹·폰에서 다시 보기 |
+
+AI 호출은 사용자 PC에서 사용자 플랜으로 일어난다. 서버는 지금처럼 LLM을 부르지 않고 저장과 동기화만 맡는다.
+
+### MVP와의 관계
+
+- MVP의 기록 구조(사용자의 AI가 MCP로 요약을 보냄)를 데스크톱 앱이 대체하거나, 두 번째 기록 경로로 붙는다.
+- H1이 미달하고 원인이 "AI가 기록 도구를 안 부름"이면 이 비전의 근거가 된다.
+- H3가 미달하면 어디서 공부하든 다시 보기 가치가 없다는 뜻이므로 비전도 재검토한다.
+
+### 미리 풀어야 할 제약
+
+| 제약 | 내용 | 후보 |
+|---|---|---|
+| GPT 플랜 사용 자격 | 셀프 등록은 오픈소스 로컬 클라이언트만. 비공개 앱은 OpenAI 승인 필요(기준·일정 비공개) | 클라이언트만 오픈소스로 공개하고 서버는 비공개, 또는 파트너 승인 |
+| 사용 가능한 플랜 | 플랜 사용은 ChatGPT Plus·Pro만 | 무료 사용자는 사용자 API 키(BYOK) |
+| 프리뷰 상태 | Responses API 일부 파라미터와 hosted 도구 미지원. 스펙이 바뀔 수 있음 | MVP 기간 동안 변경 추적 |
+| 데이터 경계 | 앱 안의 대화 원문을 어디까지 서버에 올릴지 | 11장 원칙(원문은 서버에 두지 않음)과 맞춰 결정 |
+
 ## 참고
 
 - [MCP 사양 2026-07-28: Tools](https://modelcontextprotocol.io/specification/latest/server/tools) (상태가 필요한 도구는 명시적 handle을 인자로 받으라는 권고)
 - [Claude Code: MCP](https://code.claude.com/docs/en/mcp) (원격 HTTP 서버, 프롬프트를 명령으로 쓰기)
 - [Claude Code: Hooks](https://code.claude.com/docs/en/hooks) (SessionStart, SessionEnd)
 - [Claude 커넥터 인증 요구사항](https://claude.com/docs/connectors/building/authentication)
+- [Sign in with ChatGPT](https://developers.openai.com/siwc) (부록 C. 플랜 사용 등록·로그인·모델 호출·프리뷰 제약)
