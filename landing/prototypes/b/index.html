@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="SQLD 공부 대화를 현장 과제와 면접 답변 한 줄로 남기는 Experii 사전 신청 페이지">
+  <title>Experii · 공부하는 오늘이, 면접에서 말할 경험이 됩니다</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18181a;
+      --muted: #68686f;
+      --line: #d8d8dc;
+      --soft: #f4f4f6;
+      --paper: #ffffff;
+      --chat: #3d5a99;
+      --task: #2f6f5e;
+      --card: #9a5b13;
+      --remind: #74448c;
+      --radius-s: 12px;
+      --radius-m: 22px;
+      --radius-l: 36px;
+      --max: 1180px;
+      font-family: Pretendard Variable, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-size: 16px; line-height: 1.65; word-break: keep-all; overflow-x: hidden; }
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { color: inherit; }
+    a { color: inherit; }
+    img, svg { display: block; max-width: calc(50% + 50%); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { text-wrap: balance; letter-spacing: -.045em; line-height: 1.06; }
+    :focus-visible { outline: 3px solid #1677ff; outline-offset: 3px; }
+    .sr-only { position: absolute!important; width: 1px!important; height: 1px!important; padding: 0!important; margin: -1px!important; overflow: hidden!important; clip: rect(0,0,0,0)!important; white-space: nowrap!important; border: 0!important; }
+    .shell { width: min(calc(50% + 50% - 40px), var(--max)); margin-inline: auto; }
+    .section { padding: clamp(96px, 12vw, 184px) 0; }
+    .section-title { max-width: 850px; font-size: clamp(40px, 6vw, 76px); font-weight: 740; margin-bottom: 30px; }
+    .section-copy { max-width: 740px; color: var(--muted); font-size: clamp(19px, 2.1vw, 28px); line-height: 1.45; letter-spacing: -.025em; }
+    .section-copy strong { color: var(--ink); font-weight: 720; }
+    .micro-label { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 10px; border: 1px solid currentColor; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0; }
+    .example-badge { color: #55565c; background: #eeeeF1; border: 0; }
+    .planned-badge { color: #623a78; background: #eee5f3; border: 0; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .button { min-height: 48px; padding: 11px 22px; border-radius: 999px; border: 1px solid var(--ink); text-decoration: none; font-weight: 680; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; }
+    .button.primary { color: #fff; background: var(--ink); }
+    .button.light { color: var(--ink); background: #fff; border-color: #fff; }
+    .button:active { transform: scale(.98); }
+
+    .site-nav { position: absolute; z-index: 10; inset: 0 0 auto; height: 70px; display: flex; align-items: center; }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-size: 20px; font-weight: 800; letter-spacing: -.04em; text-decoration: none; }
+    .nav-link { min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 650; text-decoration: none; }
+
+    .hero { min-height: 100svh; min-height: 100dvh; padding: 132px 0 72px; background: #f5f5f7; display: grid; align-items: center; }
+    .hero-copy { text-align: center; position: relative; z-index: 2; }
+    .hero-positioning { margin: 0 auto 18px; font-size: 14px; font-weight: 700; }
+    .hero h1 { max-width: 980px; margin: 0 auto 26px; font-size: clamp(45px, 7.5vw, 92px); font-weight: 760; }
+    .hero-sub { max-width: 710px; margin: 0 auto 32px; color: #5d5d63; font-size: clamp(18px, 2vw, 25px); line-height: 1.5; letter-spacing: -.022em; }
+    .hero-stage { width: min(calc(50% + 50%), 980px); margin: 70px auto 0; display: grid; grid-template-columns: .85fr 1.15fr; gap: 18px; align-items: stretch; text-align: left; }
+    .answer-stack, .prompt-mirror { background: #fff; border-radius: 28px; min-width: 0; }
+    .answer-stack { padding: clamp(20px, 3vw, 34px); display: flex; flex-direction: column; gap: 12px; }
+    .interviewer { align-self: flex-start; padding: 9px 13px; background: #ececf0; border-radius: 15px 15px 15px 4px; font-size: 14px; }
+    .before { color: #85858b; text-decoration: line-through; text-decoration-thickness: 1px; padding: 8px 0 2px 12px; }
+    .after { padding: 15px 17px; border: 2px solid var(--chat); border-radius: 18px 18px 4px 18px; color: #22355e; font-weight: 650; line-height: 1.5; }
+    .source-chip { align-self: flex-end; color: var(--chat); font-size: 12px; font-weight: 700; }
+    .prompt-mirror { padding: clamp(20px, 3vw, 34px); display: flex; flex-direction: column; justify-content: space-between; }
+    .prompt-box { min-height: 92px; padding: 17px; border-radius: 20px; background: #202024; color: #fff; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .prompt-text { font-size: clamp(16px, 1.5vw, 20px); line-height: 1.5; }
+    .send-button { flex: 0 0 44px; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; cursor: pointer; display: grid; place-items: center; }
+    .prompt-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .prompt-chip { min-height: 44px; padding: 8px 13px; border: 1px solid #d3d3d8; border-radius: 999px; background: #fff; cursor: pointer; font-size: 13px; }
+
+    .problem-grid { display: grid; grid-template-columns: .82fr 1.18fr; gap: clamp(50px, 9vw, 120px); align-items: center; }
+    .quote-list { border-top: 1px solid var(--ink); }
+    blockquote { margin: 0; padding: 25px 0; border-bottom: 1px solid var(--line); font-size: clamp(18px, 2vw, 25px); line-height: 1.52; letter-spacing: -.025em; }
+    .quote-source { margin-top: 20px; color: var(--muted); font-size: 14px; }
+    .memo-stage { min-height: 520px; position: relative; display: grid; place-items: center; }
+    .memo { width: min(82%, 390px); min-height: 230px; padding: 28px; border: 1px solid #d1d1d6; background: #fff; border-radius: 7px; position: absolute; box-shadow: 0 24px 60px rgba(20,20,30,.08); }
+    .memo:nth-child(1) { transform: translate(-38px,-38px) rotate(-6deg); opacity: .5; }
+    .memo:nth-child(2) { transform: translate(35px,10px) rotate(5deg); opacity: .72; }
+    .memo:nth-child(3) { transform: translate(-4px,53px); }
+    .memo h3 { font-size: 23px; margin-bottom: 52px; }
+    .memo-meta { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; }
+
+    .shift { background: #000; color: #fff; }
+    .shift-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 70px; align-items: end; }
+    .shift .section-title { font-size: clamp(46px, 7vw, 88px); margin: 0; }
+    .shift-copy { color: #8c8c92; font-size: clamp(22px, 2.4vw, 32px); line-height: 1.46; letter-spacing: -.03em; }
+    .shift-copy strong { color: #fff; }
+    .followups { grid-column: 1/-1; display: grid; grid-template-columns: 1fr 1.15fr; gap: 14px; margin-top: 90px; }
+    .followup { padding: 22px 24px; border: 1px solid #343439; border-radius: 22px; font-size: clamp(18px, 2vw, 26px); }
+    .followup:last-child { background: #fff; color: #000; }
+
+    .how { background: #f1f1f3; }
+    .how-head { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 58px; }
+    .how-head .section-title { margin: 0; }
+    .how-note { max-width: 360px; color: var(--muted); }
+    .loop-stage { position: relative; background: #080809; color: #fff; border-radius: clamp(24px, 4vw, 52px); padding: clamp(18px, 5vw, 66px); overflow: hidden; }
+    .loop-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(34px, 6vw, 82px); align-items: start; }
+    .loop-nav { position: sticky; top: 24px; }
+    .loop-tablist { display: grid; gap: 2px; }
+    .loop-tab { min-height: 90px; padding: 16px 0; border: 0; border-bottom: 1px solid #313136; background: transparent; color: #77777f; text-align: left; cursor: pointer; display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: start; }
+    .loop-tab[aria-selected="true"] { color: #fff; }
+    .step-number { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 13px; }
+    .loop-tab[data-step="0"][aria-selected="true"] .step-number { background: var(--chat); border-color: var(--chat); }
+    .loop-tab[data-step="1"][aria-selected="true"] .step-number { background: var(--task); border-color: var(--task); }
+    .loop-tab[data-step="2"][aria-selected="true"] .step-number { background: var(--card); border-color: var(--card); }
+    .loop-tab[data-step="3"][aria-selected="true"] .step-number { background: var(--remind); border-color: var(--remind); }
+    .loop-tab strong { display: block; font-size: 18px; }
+    .loop-tab small { display: block; margin-top: 3px; color: inherit; font-size: 12px; }
+    .tab-detail { margin: 24px 0 0 54px; color: #8e8e96; max-width: 330px; line-height: 1.6; }
+    .tab-detail strong { color: #fff; }
+    .player { margin-top: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 7px 6px 15px; background: #252529; border-radius: 999px; }
+    .player-dots { display: flex; gap: 8px; align-items: center; }
+    .player-dot { width: 7px; height: 7px; border-radius: 50%; background: #6b6b72; }
+    .player-dot.active { width: 38px; border-radius: 99px; background: #fff; }
+    .play-button { min-width: 48px; height: 48px; padding: 0 14px; border: 0; border-radius: 999px; background: #fff; color: #000; cursor: pointer; font-weight: 750; }
+
+    .phone-wrap { position: relative; min-width: 0; }
+    .phone { width: min(calc(50% + 50%), 450px); margin-inline: auto; padding: 11px; border: 2px solid #55565e; border-radius: 48px; background: #171719; box-shadow: 0 38px 90px rgba(0,0,0,.35); }
+    .phone-screen { min-height: 690px; max-height: 760px; overflow-y: auto; overscroll-behavior: contain; border-radius: 38px; background: #f7f7f9; color: var(--ink); scrollbar-width: thin; }
+    .phone-top { position: sticky; z-index: 4; top: 0; padding: 16px 18px 10px; background: rgba(247,247,249,.96); border-bottom: 1px solid #e3e3e6; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .phone-brand { font-weight: 800; letter-spacing: -.03em; }
+    .loop-panel { padding: 18px; border-bottom: 8px solid #e9e9ec; }
+    .loop-panel:last-child { border-bottom: 0; }
+    .js-enhanced .loop-panel[hidden] { display: none; }
+    .panel-kicker { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 12px; color: var(--muted); }
+    .model-chip { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 4px 9px; border-radius: 999px; background: #ececf0; font-size: 12px; font-weight: 700; }
+    .model-chip small { font-weight: 500; color: var(--muted); }
+    .chat-flow { display: flex; flex-direction: column; gap: 11px; }
+    .bubble { max-width: 91%; padding: 12px 14px; border-radius: 17px; font-size: 13px; line-height: 1.52; }
+    .bubble.user { align-self: flex-end; background: var(--chat); color: #fff; border-bottom-right-radius: 5px; }
+    .bubble.ai { align-self: flex-start; background: #fff; border: 1px solid #e0e0e4; border-bottom-left-radius: 5px; }
+    .bubble-name { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .mini-table { width: calc(50% + 50%); border-collapse: collapse; margin: 9px 0; font-size: 11px; }
+    .mini-table th, .mini-table td { padding: 5px; border: 1px solid #ddddE1; text-align: left; }
+    .mini-table th { background: #f0f0f2; }
+    .mini-table .focus-row { color: #233766; background: #e6ecfa; font-weight: 750; }
+    .decorative-action { display: inline-flex; min-height: 34px; margin-top: 8px; padding: 6px 11px; border-radius: 999px; background: #eeeeF1; color: #77777d; font-size: 12px; }
+    .status-list { display: grid; gap: 9px; margin: 12px 0 18px; }
+    .status-row { padding: 10px 12px; border-radius: 11px; background: #e9e9ec; font-size: 12px; }
+    .status-row::before { content: "✓"; margin-right: 8px; color: var(--task); font-weight: 800; }
+    .task-card { padding: 17px; border: 2px solid var(--task); border-radius: 17px; background: #fff; }
+    .task-card h3 { margin: 8px 0 10px; font-size: 20px; letter-spacing: -.03em; }
+    .task-meta { color: var(--task); font-size: 11px; font-weight: 800; }
+    .task-card p, .task-card .tables { font-size: 12px; line-height: 1.6; }
+    pre { max-width: calc(50% + 50%); margin: 14px 0 10px; padding: 14px; overflow-x: auto; border-radius: 13px; background: #1f2225; color: #f4f5f6; font: 11px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre; text-align: left; word-break: normal; }
+    .blank-token { color: #9de0c8; font-weight: 800; }
+    .answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .answer-option { min-height: 46px; padding: 8px; border: 1px solid var(--task); border-radius: 12px; background: #fff; color: var(--task); cursor: pointer; font-size: 13px; font-weight: 750; }
+    .answer-option.selected { background: var(--task); color: #fff; }
+    .task-result { margin-top: 12px; padding: 12px; border-radius: 12px; background: #e8f0ed; font-size: 12px; }
+    .task-result.error { background: #f5e9e8; color: #7b2f28; }
+    .task-result[hidden] { display: none; }
+    .experience-card { overflow: hidden; border: 1px solid #ded5ca; border-radius: 18px; background: #fff; }
+    .experience-band { height: 8px; background: var(--card); }
+    .experience-body { padding: 17px; }
+    .experience-body h3 { margin: 6px 0 13px; font-size: 19px; }
+    .experience-label { margin: 13px 0 5px; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .experience-answer { font-size: 13px; line-height: 1.6; font-weight: 650; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag { padding: 4px 8px; border-radius: 999px; background: #f2ece5; color: #75440f; font-size: 11px; font-weight: 700; }
+    details { margin-top: 12px; font-size: 12px; }
+    summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+    .source-line { margin-top: 12px; color: var(--card); font-size: 11px; font-weight: 750; }
+    .review-days { margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2ddd8; font-size: 11px; }
+    .review-dot { color: #c9bbaa; }
+    .review-dot.filled { color: var(--card); }
+    .card-list { display: grid; gap: 8px; margin-top: 14px; }
+    .card-row { padding: 11px; border-radius: 13px; background: #fff; border: 1px solid #e0e0e3; font-size: 11px; }
+    .card-row:first-child { border-color: var(--card); }
+    .toast { margin-top: 11px; padding: 10px 12px; border-radius: 999px; background: #262628; color: #fff; text-align: center; font-size: 11px; }
+    .lock-screen { padding: 19px 12px 16px; border-radius: 20px; background: linear-gradient(155deg,#d8d0e4,#f0eef3 48%,#cbc4d5); }
+    .lock-date { text-align: center; color: #4d4454; font-size: 13px; font-weight: 700; margin-bottom: 13px; }
+    .notification { padding: 14px; border: 1px solid rgba(255,255,255,.7); border-radius: 16px; background: rgba(255,255,255,.86); }
+    .notification + .notification { margin-top: 8px; }
+    .notification[hidden] { display: none; }
+    .notification-label { color: var(--remind); font-size: 11px; font-weight: 800; }
+    .notification p { margin: 7px 0 0; font-size: 12px; line-height: 1.55; }
+    .notification-detail { color: #4f3a57; }
+    .reminder-controls { display: flex; gap: 8px; margin-top: 12px; }
+    .reminder-button { flex: 1; min-height: 44px; border: 0; border-radius: 12px; background: var(--remind); color: #fff; cursor: pointer; font-weight: 750; }
+    .loop-close { margin-top: 14px; }
+    .js-enhanced .loop-close { display: none; }
+    .js-enhanced .loop-close.open { display: block; }
+    .transfer-token { position: absolute; z-index: 8; left: 56%; top: 47%; pointer-events: none; opacity: 0; padding: 8px 12px; border-radius: 999px; background: #f4e1c7; color: #6f3e08; font-size: 12px; font-weight: 800; }
+    .phone-caption { max-width: 470px; margin: 18px auto 0; color: #a5a5ad; font-size: 12px; text-align: center; }
+    .loop-cta { display: inline-block; margin-top: 12px; color: #fff; font-size: 13px; font-weight: 750; }
+    .loop-status { min-height: 24px; margin: 12px 0 0 54px; color: #b7b7bd; font-size: 12px; }
+
+    .numbers { display: grid; grid-template-columns: repeat(3,1fr); gap: clamp(24px, 6vw, 80px); margin-top: 82px; }
+    .number-block { border-top: 1px solid var(--ink); padding-top: 20px; }
+    .number-block small { display: block; color: var(--muted); font-weight: 700; }
+    .number-block strong { display: block; margin: 4px 0; font-size: clamp(45px, 7vw, 82px); line-height: 1; letter-spacing: -.06em; }
+    .number-block span { color: var(--muted); }
+
+    .difference { background: #f5f5f7; }
+    .timeline { position: relative; margin-top: 84px; padding: 55px 0 0; }
+    .timeline-axis { position: absolute; top: 34px; left: 0; right: 0; height: 1px; background: #bcbcc2; }
+    .timeline-points { display: grid; grid-template-columns: 1.2fr .7fr .7fr; }
+    .timeline-point { position: relative; font-weight: 750; }
+    .timeline-point::before { content: ""; position: absolute; top: -27px; left: 0; width: 11px; height: 11px; border-radius: 50%; background: var(--ink); }
+    .track { margin-top: 34px; height: 46px; position: relative; }
+    .track-label { position: absolute; top: 0; left: 0; font-size: 12px; font-weight: 700; }
+    .track-bar { position: absolute; top: 25px; height: 8px; border-radius: 99px; }
+    .track-bar.experii { left: 0; width: calc(50% + 50%); background: var(--card); }
+    .track-bar.later { left: 55%; width: 45%; background: #c8c8cd; }
+    .card-stack { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 74px; }
+    .history-card { min-height: 180px; padding: 19px; border: 1px solid #d7d7db; border-radius: 18px; background: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+    .history-card:nth-child(2) { transform: translateY(18px); }
+    .history-card:nth-child(3) { transform: translateY(36px); }
+    .history-card:nth-child(4) { transform: translateY(54px); }
+    .history-card time { color: var(--card); font-size: 12px; font-weight: 800; }
+    .history-card p { margin: 12px 0 0; font-size: 13px; line-height: 1.55; }
+
+    .start-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(50px, 8vw, 110px); align-items: start; }
+    .start-grid .section-title { position: sticky; top: 40px; }
+    .start-steps { border-top: 1px solid var(--ink); }
+    .start-step { display: grid; grid-template-columns: 54px 1fr; gap: 18px; padding: 30px 0; border-bottom: 1px solid var(--line); }
+    .start-number { font-size: 15px; font-weight: 800; }
+    .start-step h3 { margin-bottom: 8px; font-size: 28px; }
+    .start-step p { margin: 0; color: var(--muted); }
+    .mini-ui { margin-top: 18px; padding: 16px; border-radius: 15px; background: var(--soft); }
+    .provider-row { min-height: 44px; padding: 8px 0; border-bottom: 1px solid #d9d9dd; display: flex; align-items: center; justify-content: space-between; }
+    .provider-row:last-child { border-bottom: 0; }
+    .fee-strip { margin-top: 54px; padding: 26px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); font-size: clamp(20px, 2.2vw, 29px); color: var(--muted); }
+    .fee-strip strong { color: var(--ink); }
+
+    .signup { background: #e9e0d5; }
+    .signup-grid { display: grid; grid-template-columns: .75fr 1.25fr; gap: clamp(50px, 8vw, 110px); align-items: start; }
+    .signup-copy { position: sticky; top: 36px; }
+    .signup-copy .section-title { font-size: clamp(40px, 5vw, 68px); }
+    .signup-form { padding: clamp(24px, 4vw, 48px); border-radius: 28px; background: #fff; }
+    .form-intro { margin-bottom: 28px; font-weight: 700; }
+    .field { margin: 0 0 27px; padding: 0; border: 0; }
+    .field legend, .field > label { display: block; margin-bottom: 10px; font-weight: 750; }
+    .text-input { width: calc(50% + 50%); min-height: 52px; padding: 12px 14px; border: 1px solid #b9b9bf; border-radius: 12px; background: #fff; }
+    .choice-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .choice { position: relative; }
+    .choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice span { min-height: 46px; padding: 9px 13px; border: 1px solid #c7c7cc; border-radius: 999px; display: inline-flex; align-items: center; cursor: pointer; font-size: 14px; }
+    .choice input:checked + span { border-color: var(--ink); background: var(--ink); color: #fff; }
+    .choice input:focus-visible + span { outline: 3px solid #1677ff; outline-offset: 3px; }
+    .consent { padding: 17px; border-radius: 14px; background: var(--soft); font-size: 12px; }
+    .consent label { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; font-weight: 750; }
+    .consent input { width: 20px; height: 20px; flex: 0 0 auto; }
+    .consent ul { margin: 12px 0 0; padding-left: 18px; color: var(--muted); }
+    .submit-button { width: calc(50% + 50%); min-height: 54px; margin-top: 20px; border: 0; border-radius: 999px; background: var(--ink); color: #fff; cursor: pointer; font-weight: 750; }
+    .form-error { min-height: 24px; margin-top: 10px; color: #a22d23; font-size: 13px; }
+    .signup-success { display: none; min-height: 460px; align-content: center; text-align: center; }
+    .signup-success.show { display: grid; }
+    .signup-success h3 { font-size: 42px; }
+    .signup-success p { color: var(--muted); }
+    .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+    footer { padding: 40px 0 calc(40px + env(safe-area-inset-bottom)); background: #000; color: #fff; }
+    .footer-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+    .footer-brand { font-size: 28px; font-weight: 800; }
+    .footer-note { color: #9a9aa1; font-size: 13px; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 18px; font-size: 13px; }
+    .sticky-cta { display: none; position: fixed; z-index: 20; left: 14px; right: 14px; bottom: calc(12px + env(safe-area-inset-bottom)); min-height: 52px; border: 0; border-radius: 999px; background: #000; color: #fff; text-decoration: none; align-items: center; justify-content: center; box-shadow: 0 12px 34px rgba(0,0,0,.22); font-weight: 750; }
+    .sticky-cta.show { display: flex; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      html { scroll-behavior: smooth; }
+      .button, .answer-option, .prompt-chip, .play-button { transition: transform .18s ease, background-color .18s ease, color .18s ease; }
+      .loop-stage[data-scene="8"] .transfer-token { animation: transfer .42s cubic-bezier(.22,1,.36,1) both; }
+      @keyframes transfer { from { opacity: 0; transform: translate(-80px,80px) scale(.85); } 35% { opacity: 1; } to { opacity: 0; transform: translate(30px,-110px) scale(1); } }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms!important; animation-iteration-count: 1!important; scroll-behavior: auto!important; transition-duration: .001ms!important; }
+    }
+
+    @media (max-width: 900px) {
+      .hero-stage, .problem-grid, .shift-grid, .loop-layout, .start-grid, .signup-grid { grid-template-columns: 1fr; }
+      .hero-stage { max-width: 650px; }
+      .shift-copy { max-width: 620px; }
+      .followups { margin-top: 45px; }
+      .loop-nav, .start-grid .section-title, .signup-copy { position: static; }
+      .loop-tablist { grid-template-columns: repeat(4,1fr); gap: 6px; }
+      .loop-tab { min-height: 74px; padding: 10px 5px; grid-template-columns: 1fr; justify-items: center; text-align: center; border: 1px solid #303036; border-radius: 15px; }
+      .loop-tab small, .tab-detail { display: none; }
+      .player { margin: 22px auto 30px; display: flex; width: fit-content; }
+      .loop-status { margin: -18px 0 18px; text-align: center; }
+      .numbers { gap: 24px; }
+      .card-stack { grid-template-columns: 1fr 1fr; }
+      .history-card:nth-child(n) { transform: none; }
+      .signup-copy { max-width: 700px; }
+    }
+
+    @media (max-width: 600px) {
+      .shell { width: min(calc(50% + 50% - 28px), var(--max)); }
+      .section { padding: 92px 0; }
+      .site-nav { height: 58px; }
+      .hero { padding: 108px 0 54px; min-height: auto; }
+      .hero h1 { font-size: clamp(40px, 13vw, 56px); }
+      .hero-stage { margin-top: 48px; }
+      .answer-stack, .prompt-mirror { border-radius: 22px; }
+      .problem-grid { gap: 50px; }
+      .memo-stage { min-height: 430px; }
+      .followups { grid-template-columns: 1fr; }
+      .how-head { display: block; }
+      .how-note { margin-top: 18px; }
+      .loop-stage { margin-inline: -7px; padding: 14px 8px 26px; border-radius: 26px; }
+      .loop-tablist { gap: 4px; }
+      .loop-tab { min-height: 70px; padding: 8px 2px; }
+      .loop-tab strong { font-size: 12px; letter-spacing: -.03em; }
+      .step-number { width: 27px; height: 27px; }
+      .phone { padding: 7px; border-radius: 38px; }
+      .phone-screen { min-height: 620px; max-height: 680px; border-radius: 31px; }
+      .loop-panel { padding: 14px; }
+      .bubble { max-width: 96%; }
+      .transfer-token { left: 45%; }
+      .numbers { grid-template-columns: 1fr; margin-top: 60px; }
+      .number-block { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 4px 12px; }
+      .number-block small { grid-column: 1/-1; }
+      .number-block strong { font-size: 54px; }
+      .timeline-points { grid-template-columns: 1fr 1fr 1fr; font-size: 13px; }
+      .track-bar.later { left: 50%; width: 50%; }
+      .card-stack { grid-template-columns: 1fr; }
+      .history-card { min-height: 145px; }
+      .start-step { grid-template-columns: 36px 1fr; }
+      .signup { padding-bottom: 120px; }
+      .signup-form { margin-inline: -3px; padding: 22px 16px; border-radius: 22px; }
+      .choice-grid { display: grid; grid-template-columns: 1fr; }
+      .choice span { width: calc(50% + 50%); }
+      .footer-inner { display: grid; }
+      .footer-links { display: grid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="#top" aria-label="Experii 처음으로">Experii</a>
+      <a class="nav-link" href="#signup">사전 신청하기</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="shell hero-copy">
+        <p class="hero-positioning">면접에 집중한 학습 앱</p>
+        <h1 id="hero-title">공부하는 오늘이,<br>면접에서 말할 경험이 됩니다</h1>
+        <p class="hero-sub">SQLD 공부하며 AI와 나눈 대화가 현장 과제가 되고, 면접에서 꺼낼 답변 한 줄로 남아요.<br>쓰던 GPT·Claude를 연결해 쓰도록 준비하고 있어요.</p>
+        <div class="button-row">
+          <a class="button primary" href="#signup" data-cta="hero">사전 신청하기</a>
+          <a class="button" href="#how">어떻게 쓰는지 보기</a>
+        </div>
+
+        <div class="hero-stage" aria-label="답변이 바뀌는 예시와 공부 질문 선택">
+          <div class="answer-stack">
+            <span class="micro-label example-badge">예시 화면</span>
+            <div class="interviewer">면접관 · SQL 써 보셨어요?</div>
+            <div class="before">자격증 있어요.</div>
+            <div class="after">주문 없는 회원을 찾는 과제에서 LEFT JOIN으로 이렇게 써 봤어요.</div>
+            <div class="source-chip">10월 26일 SQLD 대화에서</div>
+          </div>
+          <div class="prompt-mirror">
+            <div>
+              <div class="prompt-box">
+                <span class="prompt-text" aria-hidden="true">LEFT JOIN이랑 INNER JOIN 차이가 헷갈려</span>
+                <span class="sr-only">LEFT JOIN이랑 INNER JOIN 차이가 헷갈려</span>
+                <button class="send-button" type="button" data-topic="join" aria-label="이 질문으로 예시 화면 보기">
+                  <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 15V3m0 0L4 8m5-5 5 5" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+              <div class="prompt-chips" aria-label="SQLD 질문 예시">
+                <button class="prompt-chip" type="button" data-topic="join">JOIN 차이가 헷갈려</button>
+                <button class="prompt-chip" type="button" data-topic="group">GROUP BY랑 HAVING</button>
+                <button class="prompt-chip" type="button" data-topic="rank">ROW_NUMBER랑 RANK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="problem" aria-labelledby="problem-title">
+      <div class="shell problem-grid">
+        <div>
+          <h2 class="section-title" id="problem-title">공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요</h2>
+          <p class="section-copy"><strong>정리해서 저장은 했는데,</strong> 다시 열어 본 적은 없어요. <strong>공부는 했는데,</strong> 면접에서 꺼낼 경험으로는 남지 않아요.</p>
+        </div>
+        <div>
+          <div class="quote-list">
+            <blockquote>“AI와 공부하며 공부 시간은 늘어났는데 이해도는 떨어지는 느낌”</blockquote>
+            <blockquote>“웹 리서치로 얻은 정보가 노션과 카톡에 누적만 되어 있고 실제로 다시 보지 않음”</blockquote>
+            <blockquote>“웹 리서치 시간이 너무 아까움”</blockquote>
+          </div>
+          <p class="quote-source">창업자와 주변 대학생 2명이 실제로 한 말이에요.</p>
+        </div>
+        <div class="memo-stage" aria-hidden="true">
+          <article class="memo"><h3>JOIN 정리</h3><div class="memo-meta"><span>저장함 · 9월 3일</span><span>다시 연 날 —</span></div></article>
+          <article class="memo"><h3>JOIN 정리</h3><div class="memo-meta"><span>저장함 · 9월 17일</span><span>다시 연 날 —</span></div></article>
+          <article class="memo"><h3>JOIN 정리</h3><div class="memo-meta"><span>저장함 · 10월 26일</span><span>다시 연 날 —</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shift" id="shift" aria-labelledby="shift-title">
+      <div class="shell shift-grid">
+        <h2 class="section-title" id="shift-title">서류는 AI가 도와줘요.<br>면접에서 나누는 대화는요?</h2>
+        <p class="shift-copy"><strong>“자격증 있어요”는 첫 질문까지만 답이 돼요.</strong> 그다음 질문에 답하려면 직접 써 본 경험이 있어야 해요.</p>
+        <div class="followups" aria-label="면접 꼬리질문 예시">
+          <div class="followup">면접관 · SQLD 있으시네요.</div>
+          <div class="followup">면접관 · 그럼 SQL을 어떤 과제에서 어떻게 써 봤어요?</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section how" id="how" aria-labelledby="how-title">
+      <div class="shell">
+        <div class="how-head">
+          <h2 class="section-title" id="how-title">SQLD 공부 하루가<br>면접 답변 한 줄이 되기까지</h2>
+          <p class="how-note">공부한 날 세 단계, 그리고 1·7·30일 뒤. 같은 카드가 다시 돌아오는 데까지 직접 눌러 보세요.</p>
+        </div>
+
+        <div class="loop-stage" id="loopStage" data-scene="13">
+          <div class="loop-layout">
+            <div class="loop-nav">
+              <div class="loop-tablist" role="tablist" aria-label="Experii 작동 방식">
+                <button class="loop-tab" id="tab-chat" type="button" role="tab" aria-selected="true" aria-controls="panel-chat" tabindex="0" data-step="0"><span class="step-number">1</span><span><strong>학습 대화</strong><small>공부한 날</small></span></button>
+                <button class="loop-tab" id="tab-task" type="button" role="tab" aria-selected="false" aria-controls="panel-task" tabindex="-1" data-step="1"><span class="step-number">2</span><span><strong>현장 과제</strong><small>공부한 날</small></span></button>
+                <button class="loop-tab" id="tab-card" type="button" role="tab" aria-selected="false" aria-controls="panel-card" tabindex="-1" data-step="2"><span class="step-number">3</span><span><strong>경험 카드</strong><small>공부한 날</small></span></button>
+                <button class="loop-tab" id="tab-remind" type="button" role="tab" aria-selected="false" aria-controls="panel-remind" tabindex="-1" data-step="3"><span class="step-number">4</span><span><strong>리마인드</strong><small>1·7·30일 뒤</small></span></button>
+              </div>
+              <p class="tab-detail" id="tabDetail"><strong>AI와 평소처럼 공부해요.</strong> 막힌 개념을 물으면 예시 표로 풀어 주고, 거꾸로 질문도 던져요.</p>
+              <div class="player" aria-label="루프 이어 보기 제어">
+                <div class="player-dots" aria-hidden="true"><span class="player-dot active"></span><span class="player-dot"></span><span class="player-dot"></span><span class="player-dot"></span></div>
+                <button class="play-button" id="playButton" type="button" aria-label="처음부터 이어 보기">재생</button>
+              </div>
+              <p class="loop-status" id="loopStatus" aria-live="polite">1단계 학습 대화, 예시 화면</p>
+            </div>
+
+            <div class="phone-wrap">
+              <div class="phone">
+                <div class="phone-screen" id="phoneScreen">
+                  <div class="phone-top"><span class="phone-brand">Experii</span><span class="micro-label example-badge">예시 화면</span></div>
+
+                  <section class="loop-panel" id="panel-chat" role="tabpanel" aria-labelledby="tab-chat" data-panel="0">
+                    <div class="panel-kicker"><span>SQLD · 2과목</span><time datetime="2026-10-26">10월 26일 (월)</time></div>
+                    <div class="model-chip">내 GPT <small>연결 준비 중</small></div>
+                    <div class="s0-start" style="margin-top:12px;padding:12px;border-radius:14px;background:#ececf0">
+                      <p style="margin:0 0 9px;color:#68686f;font-size:12px">오늘 공부하다 막힌 걸 물어보세요</p>
+                      <div style="padding:10px;border-radius:10px;background:#fff;color:#77777d;font-size:12px">질문을 입력하세요</div>
+                      <div class="prompt-chips" style="margin-top:8px"><span class="tag">JOIN 차이가 헷갈려</span><span class="tag">GROUP BY랑 HAVING</span><span class="tag">ROW_NUMBER랑 RANK</span></div>
+                    </div>
+                    <div class="chat-flow" style="margin-top:14px">
+                      <div class="bubble user" id="userQuestion">LEFT JOIN이랑 INNER JOIN 차이가 헷갈려</div>
+                      <div class="bubble ai join-specific"><span class="bubble-name">AI</span>둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요.
+                        <table class="mini-table"><thead><tr><th colspan="2">members</th><th colspan="2">orders</th></tr><tr><th>id</th><th>이름</th><th>order</th><th>member</th></tr></thead><tbody><tr><td>1</td><td>민지</td><td>101</td><td>1</td></tr><tr><td>2</td><td>서준</td><td>102</td><td>1</td></tr><tr><td>3</td><td>하린</td><td>103</td><td>3</td></tr></tbody></table>
+                        <strong>INNER JOIN</strong>은 양쪽에 짝이 있는 행만 남겨요. 주문이 없는 서준은 빠져서 결과가 3행이에요.
+                        <table class="mini-table"><tbody><tr><td>민지</td><td>101</td></tr><tr><td>민지</td><td>102</td></tr><tr><td>하린</td><td>103</td></tr></tbody></table>
+                        <strong>LEFT JOIN</strong>은 왼쪽(회원) 행을 모두 남기고, 짝이 없으면 주문 칸을 NULL로 채워요. 그래서 4행이에요.
+                        <table class="mini-table"><tbody><tr><td>민지</td><td>101</td></tr><tr><td>민지</td><td>102</td></tr><tr class="focus-row"><td>서준</td><td>NULL</td></tr><tr><td>하린</td><td>103</td></tr></tbody></table>
+                      </div>
+                      <div class="bubble ai topic-summary" hidden><span class="bubble-name">AI</span><span id="topicExplanation"></span></div>
+                      <div class="bubble ai"><span class="bubble-name">AI</span><span id="aiQuestion">그럼 하나 물어볼게요. 주문을 한 번도 안 한 회원만 뽑으려면, 결과 표 B에서 어떤 행을 고르면 될까요?</span></div>
+                      <div class="bubble user" id="userReply">LEFT JOIN 하고 주문 칸이 NULL인 행?</div>
+                      <div class="bubble ai"><span class="bubble-name">AI</span><span id="taskOffer">맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?</span><span class="decorative-action">과제 받기</span></div>
+                    </div>
+                  </section>
+
+                  <section class="loop-panel" id="panel-task" role="tabpanel" aria-labelledby="tab-task" data-panel="1">
+                    <div class="panel-kicker"><span>방금 대화에서 과제를 만드는 중…</span><span class="micro-label example-badge">예시 화면</span></div>
+                    <div class="status-list">
+                      <div class="status-row" id="statusConcept">대화에서 개념 찾기 · LEFT JOIN, IS NULL</div>
+                      <div class="status-row" id="statusSituation">상황 고르기 · 쇼핑몰 회원·주문 데이터</div>
+                      <div class="status-row">현장 과제 만들기</div>
+                    </div>
+                    <article class="task-card">
+                      <span class="task-meta">현장 과제 · <span id="taskTeam">쇼핑몰 마케팅팀 요청 (가상 상황)</span></span>
+                      <h3 id="taskHeading">첫 구매 쿠폰 대상 찾기</h3>
+                      <p id="taskPrompt">가입은 했지만 아직 한 번도 주문하지 않은 회원에게 첫 구매 쿠폰을 보내려고 해요. 대상 회원의 아이디, 이름, 가입일을 뽑아 주세요.</p>
+                      <p class="tables" id="taskTables">쓰는 테이블: members(member_id, member_name, joined_at) · orders(order_id, member_id, ordered_at)</p>
+                    </article>
+                    <pre id="sqlBlock" aria-label="SQL 빈칸 문제">SELECT m.member_id, m.member_name, m.joined_at
+FROM members m
+<span class="blank-token" id="sqlBlank">LEFT JOIN</span> orders o
+  ON m.member_id = o.member_id
+WHERE o.order_id IS NULL;</pre>
+                    <div class="answer-options" aria-label="빈칸 보기">
+                      <button class="answer-option" id="optionWrong" type="button" data-correct="false">INNER JOIN</button>
+                      <button class="answer-option" id="optionCorrect" type="button" data-correct="true">LEFT JOIN</button>
+                    </div>
+                    <div class="task-result error" id="wrongResult" hidden><strong id="wrongResultTitle">결과 0행</strong><br><span id="wrongFeedback">INNER JOIN은 주문이 없는 회원을 처음부터 빼서, o.order_id가 NULL인 행이 남지 않아요. LEFT JOIN으로 바꿔 볼까요?</span></div>
+                    <div class="task-result" id="correctResult"><strong id="correctResultTitle">결과 2행</strong><br><span id="correctRows">2 · 서준 · 2026-09-10<br>4 · 도윤 · 2026-10-12</span><br><span id="correctFeedback">맞아요. 주문이 없는 회원은 주문 칸이 NULL로 남아서 WHERE에서 골라져요.</span></div>
+                    <span class="sr-only" id="resultLive" aria-live="polite"></span>
+                  </section>
+
+                  <section class="loop-panel" id="panel-card" role="tabpanel" aria-labelledby="tab-card" data-panel="2">
+                    <div class="bubble ai" style="margin-bottom:13px"><span class="bubble-name">AI</span>방금 푼 과제를 면접 답변 한 줄로 정리했어요. 내 말투에 맞게 고쳐도 돼요.</div>
+                    <article class="experience-card">
+                      <div class="experience-band"></div>
+                      <div class="experience-body">
+                        <span class="micro-label example-badge">예시 화면</span>
+                        <h3>경험 카드 · 2026.10.26 (월)</h3>
+                        <p class="experience-label">면접 질문</p>
+                        <p class="experience-answer" id="experienceQuestion">SQL을 써 본 적 있나요?</p>
+                        <p class="experience-label">내 답변 한 줄</p>
+                        <p class="experience-answer" id="experienceAnswer">쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.</p>
+                        <p class="experience-label">배운 점</p>
+                        <p class="experience-answer" id="lesson">LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.</p>
+                        <details><summary>내가 쓴 쿼리</summary><pre id="savedSql">SELECT m.member_id, m.member_name, m.joined_at
+FROM members m
+LEFT JOIN orders o
+  ON m.member_id = o.member_id
+WHERE o.order_id IS NULL;</pre></details>
+                        <div class="tag-row" id="tagRow"><span class="tag">SQLD</span><span class="tag">2과목</span><span class="tag">JOIN</span></div>
+                        <div class="source-line">출처 · 10월 26일 SQLD 대화</div>
+                        <div class="review-days">다시 볼 날 · <span class="review-dot">○</span> 10월 27일 · <span class="review-dot">○</span> 11월 2일 · <span class="review-dot">○</span> 11월 25일</div>
+                      </div>
+                    </article>
+                    <span class="decorative-action">경험 카드로 저장</span>
+                    <div class="card-list" aria-label="내 경험 카드 목록">
+                      <strong>내 경험 카드</strong>
+                      <div class="card-row" id="listCurrent">오늘 · SQLD 2과목 · JOIN — 주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제</div>
+                      <div class="card-row">7일 전 · SQLD 2과목 · GROUP BY — 결제 2건 이상인 재구매 회원을 뽑는 과제</div>
+                      <div class="card-row">30일 전 · SQLD 2과목 · 서브쿼리 — 평균보다 많이 주문한 회원을 찾는 과제</div>
+                    </div>
+                    <div class="toast">저장했어요. 내일 다시 꺼내 드릴게요.</div>
+                  </section>
+
+                  <section class="loop-panel" id="panel-remind" role="tabpanel" aria-labelledby="tab-remind" data-panel="3">
+                    <div class="panel-kicker"><span class="micro-label planned-badge">출시 예정 기능</span><span>예시 화면</span></div>
+                    <div class="lock-screen">
+                      <div class="lock-date" id="lockDate">10월 27일 화요일</div>
+                      <article class="notification" data-reminder="0">
+                        <div class="notification-label">Experii · 공부 1일 뒤 · 배운 점</div>
+                        <p id="reminderOne">LEFT JOIN은 왼쪽 표의 행을 모두 남겨요. 주문이 없는 회원은 주문 칸이 NULL이라 IS NULL로 찾았죠.</p>
+                        <p class="notification-detail">어제 쓴 쿼리 다시 보기 →</p>
+                      </article>
+                      <article class="notification" data-reminder="1">
+                        <div class="notification-label">Experii · 공부 7일 뒤 · 활용 방안</div>
+                        <p id="reminderSeven">'한 번도 ~하지 않은' 대상을 찾을 땐 같은 모양이에요. 예: 강의를 결제하고 한 번도 듣지 않은 수강생 찾기.</p>
+                        <p class="notification-detail" id="reminderSevenDetail">IS NULL 조건은 ON이 아니라 WHERE에 둬요. ON에 넣으면 회원이 모두 그대로 나와요.</p>
+                      </article>
+                      <article class="notification" data-reminder="2">
+                        <div class="notification-label">Experii · 공부 30일 뒤 · 면접 예상 질문</div>
+                        <p id="reminderThirty">면접 질문: “SQL을 실제로 써 본 적 있나요?” 내 답변 한 줄 다시 보기 →</p>
+                        <p class="notification-detail" id="reminderThirtyDetail">꼬리질문 대비: 같은 결과를 다른 방법으로도 낼 수 있나요? → NOT EXISTS로도 찾을 수 있어요.</p>
+                      </article>
+                      <div class="reminder-controls"><button class="reminder-button" id="nextReminder" type="button">다음 알림</button></div>
+                    </div>
+                    <article class="experience-card loop-close" id="loopClose">
+                      <div class="experience-band"></div>
+                      <div class="experience-body">
+                        <p class="experience-label">다시 본 날 · 10월 27일 · 11월 2일 · 11월 25일</p>
+                        <h3>경험 카드 · 2026.10.26 (월)</h3>
+                        <p class="experience-answer" id="closedAnswer">쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.</p>
+                        <div class="review-days">다시 본 날 · <span class="review-dot filled">●</span> 10월 27일 · <span class="review-dot filled">●</span> 11월 2일 · <span class="review-dot filled">●</span> 11월 25일</div>
+                      </div>
+                    </article>
+                  </section>
+                </div>
+              </div>
+              <div class="transfer-token" aria-hidden="true">LEFT JOIN · IS NULL</div>
+              <p class="phone-caption">예시 화면이에요. 쓰던 GPT를 연결해 이렇게 공부하도록 준비하고 있어요. 지금 보이는 대화는 미리 써 둔 예시예요.</p>
+              <a class="loop-cta" href="#signup">이 질문으로 첫 공부 시작하기</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="numbers" aria-label="리마인드 시점">
+          <div class="number-block"><small>공부하고</small><strong>1일 뒤</strong><span>배운 점</span></div>
+          <div class="number-block"><small>다시 꺼내고</small><strong>7일 뒤</strong><span>활용 방안</span></div>
+          <div class="number-block"><small>한 번 더</small><strong>30일 뒤</strong><span>면접 예상 질문</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section difference" id="difference" aria-labelledby="difference-title">
+      <div class="shell">
+        <h2 class="section-title" id="difference-title">지원할 때가 아니라,<br>공부하는 날마다</h2>
+        <p class="section-copy"><strong>몇 달 치 기록은 나중에 한꺼번에 만들 수 없어요.</strong> 공부한 그날 남긴 카드에는 날짜와 내가 쓴 쿼리, 푼 과제가 그대로 있어요. 꾸준히 공부한 만큼 쌓여요.</p>
+        <div class="timeline" aria-label="공부부터 면접까지의 기록 타임라인">
+          <div class="timeline-axis"></div>
+          <div class="timeline-points"><div class="timeline-point">자격증 공부</div><div class="timeline-point">지원</div><div class="timeline-point">면접</div></div>
+          <div class="track"><span class="track-label">Experii · 공부 첫날부터</span><span class="track-bar experii"></span></div>
+          <div class="track"><span class="track-label" style="left:55%">지원할 때 쓰는 도구</span><span class="track-bar later"></span></div>
+        </div>
+        <div class="card-stack" aria-label="날짜가 찍힌 경험 카드 예시">
+          <article class="history-card"><span class="micro-label example-badge">예시</span><div><time>오늘 · SQLD 2과목 · JOIN</time><p>주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제를 풀어 봤습니다.</p></div></article>
+          <article class="history-card"><span class="micro-label example-badge">예시</span><div><time>7일 전 · SQLD 2과목 · GROUP BY</time><p>취소 주문은 빼고 결제 2건 이상인 재구매 회원을 뽑는 과제를 풀어 봤습니다.</p></div></article>
+          <article class="history-card"><span class="micro-label example-badge">예시</span><div><time>30일 전 · SQLD 2과목 · 서브쿼리</time><p>평균보다 많이 주문한 회원을 서브쿼리로 찾는 과제를 풀어 봤습니다.</p></div></article>
+          <article class="history-card"><span class="micro-label example-badge">예시</span><div><time>3개월 전 · SQLD 1과목 · 정규화</time><p>주문서 엑셀을 회원·주문 테이블로 나누는 과제를 풀어 봤습니다.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="start" aria-labelledby="start-title">
+      <div class="shell start-grid">
+        <h2 class="section-title" id="start-title">연결하고,<br>공부만 하세요</h2>
+        <div>
+          <div class="start-steps">
+            <article class="start-step"><span class="start-number">01</span><div><h3>가입은 짧게</h3><p>3분 안에 시작하도록 만들고 있어요.</p><div class="mini-ui"><span class="micro-label example-badge">예시 화면</span><div class="provider-row"><span>이메일</span><span>계속</span></div></div></div></article>
+            <article class="start-step"><span class="start-number">02</span><div><h3>쓰던 AI 그대로</h3><p>이미 구독 중인 GPT·Claude를 연결할 수 있게 준비하고 있어요.</p><div class="mini-ui"><span class="micro-label example-badge">예시 화면</span><div class="provider-row"><span>GPT</span><span class="micro-label planned-badge">준비 중</span></div><div class="provider-row"><span>Claude</span><span class="micro-label planned-badge">준비 중</span></div></div></div></article>
+            <article class="start-step"><span class="start-number">03</span><div><h3>첫 질문 하나</h3><p>오늘 막힌 SQLD 개념 하나를 물어보면 시작이에요.</p><div class="mini-ui"><span class="micro-label example-badge">예시 화면</span><div class="provider-row"><span>SQLD · JOIN 차이가 헷갈려</span><span>↑</span></div></div></div></article>
+          </div>
+          <p class="fee-strip"><strong>Experii 이용료는 받지 않아요.</strong> AI는 쓰고 있는 구독을 그대로 써요.</p>
+          <a class="button primary" href="#signup" data-cta="easy-start">사전 신청하기</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section signup" id="signup" aria-labelledby="signup-title">
+      <div class="shell signup-grid">
+        <div class="signup-copy"><h2 class="section-title" id="signup-title">SQLD 공부 중이라면,<br>먼저 만나 보세요</h2><p>공부한 날마다 현장 과제 하나, 면접 답변 한 줄. 1·7·30일 뒤에 다시 꺼내 드려요.</p></div>
+        <div class="signup-form">
+          <form id="signupForm" novalidate>
+            <p class="form-intro">SQLD를 공부 중인 대학생께 먼저 연락드려요</p>
+            <div class="field"><label for="email">이메일</label><input class="text-input" id="email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required></div>
+            <fieldset class="field"><legend>지금 어떤 상황인가요?</legend><div class="choice-grid">
+              <label class="choice"><input type="radio" name="student_status" value="undergrad" required><span>대학생</span></label>
+              <label class="choice"><input type="radio" name="student_status" value="job_seeker"><span>졸업 후 취업 준비</span></label>
+              <label class="choice"><input type="radio" name="student_status" value="other"><span>기타</span></label>
+            </div></fieldset>
+            <fieldset class="field"><legend>SQLD 공부 상태를 알려 주세요</legend><div class="choice-grid">
+              <label class="choice"><input type="radio" name="sqld_status" value="studying" required><span>지금 공부 중</span></label>
+              <label class="choice"><input type="radio" name="sqld_status" value="planning"><span>공부할 계획</span></label>
+              <label class="choice"><input type="radio" name="sqld_status" value="certified"><span>이미 취득</span></label>
+              <label class="choice"><input type="radio" name="sqld_status" value="none"><span>해당 없음</span></label>
+            </div></fieldset>
+            <fieldset class="field"><legend>유료 AI 구독을 골라 주세요</legend><div class="choice-grid">
+              <label class="choice"><input type="checkbox" name="ai_subscriptions" value="chatgpt_paid"><span>ChatGPT 유료</span></label>
+              <label class="choice"><input type="checkbox" name="ai_subscriptions" value="claude_paid"><span>Claude 유료</span></label>
+              <label class="choice"><input type="checkbox" name="ai_subscriptions" value="none" id="subscriptionNone"><span>유료 구독 없음</span></label>
+            </div></fieldset>
+            <div class="consent">
+              <label><input type="checkbox" name="consent" required><span>[필수] 만 14세 이상이며 개인정보 수집·이용에 동의합니다.</span></label>
+              <ul><li>수집 항목: 이메일, 신분, SQLD 공부 상태, 유료 AI 구독 여부</li><li>이용 목적: Experii 출시·시범 사용 안내, 서비스 기획을 위한 응답 집계</li><li>보유 기간: 수집일로부터 1년 또는 철회 요청 시 즉시 파기</li><li>동의하지 않을 수 있으며, 동의하지 않으면 사전 신청이 되지 않습니다.</li></ul>
+            </div>
+            <div class="honeypot" aria-hidden="true"><label for="website">웹사이트</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+            <input type="hidden" name="hero_variant" value="h1">
+            <button class="submit-button" type="submit">사전 신청하기</button>
+            <p class="form-error" id="formError" role="alert"></p>
+          </form>
+          <div class="signup-success" id="signupSuccess" tabindex="-1"><h3>신청됐어요.</h3><p>출시와 시범 사용 소식을 이메일로 알려 드릴게요.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner"><div><div class="footer-brand">Experii</div><p class="footer-note">출시 전 제품이며 화면은 예시입니다.</p></div><div class="footer-links"><a href="mailto:hello@experii.kr">hello@experii.kr</a><a href="#signup">개인정보 처리 안내</a></div></div>
+  </footer>
+  <a class="sticky-cta" id="stickyCta" href="#signup" data-cta="sticky">사전 신청하기</a>
+
+  <script>
+    (() => {
+      document.documentElement.classList.add('js-enhanced');
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+      const loopStage = $('#loopStage');
+      const phoneScreen = $('#phoneScreen');
+      const tabs = $$('.loop-tab');
+      const panels = $$('.loop-panel');
+      const dots = $$('.player-dot');
+      const loopStatus = $('#loopStatus');
+      const tabDetail = $('#tabDetail');
+      const playButton = $('#playButton');
+      const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const details = [
+        '<strong>AI와 평소처럼 공부해요.</strong> 막힌 개념을 물으면 예시 표로 풀어 주고, 거꾸로 질문도 던져요.',
+        '<strong>배운 걸 바로 써 봐요.</strong> 방금 대화에서 실무 상황 과제가 나와요.',
+        '<strong>푼 경험이 답변 한 줄로.</strong> 면접에서 꺼낼 한 줄을 카드로 저장해요.',
+        '<strong>잊을 즈음 다시 꺼내 줘요.</strong> 배운 점, 활용 방안, 면접 예상 질문이 알림으로 와요.'
+      ];
+      const stepNames = ['학습 대화', '현장 과제', '경험 카드', '리마인드'];
+      let activeStep = 0;
+      let reminderIndex = 0;
+      let playing = false;
+      let playIndex = 0;
+      let playTimer = 0;
+      const sceneSteps = [0,0,0,0,0,1,1,1,2,2,3,3,3,3];
+      const sceneTimes = [600,1400,3400,1200,800,1200,800,2600,1800,1200,1500,1500,1500,1500];
+
+      function setStep(index, focus = false) {
+        activeStep = (index + tabs.length) % tabs.length;
+        tabs.forEach((tab, i) => {
+          const selected = i === activeStep;
+          tab.setAttribute('aria-selected', String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+          panels[i].hidden = !selected;
+          dots[i].classList.toggle('active', selected);
+        });
+        tabDetail.innerHTML = details[activeStep];
+        loopStatus.textContent = `${activeStep + 1}단계 ${stepNames[activeStep]}, 예시 화면`;
+        if (focus) tabs[activeStep].focus();
+        phoneScreen.scrollTop = 0;
+      }
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => { stopPlayback(false); setStep(index); });
+        tab.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft','ArrowRight'].includes(event.key)) return;
+          event.preventDefault();
+          stopPlayback(false);
+          setStep(index + (event.key === 'ArrowRight' ? 1 : -1), true);
+        });
+      });
+
+      function setAnswer(correct, announce = true) {
+        const correctButton = $('#optionCorrect');
+        const wrongButton = $('#optionWrong');
+        correctButton.classList.toggle('selected', correct);
+        wrongButton.classList.toggle('selected', !correct);
+        $('#correctResult').hidden = !correct;
+        $('#wrongResult').hidden = correct;
+        $('#sqlBlank').textContent = correct ? correctButton.textContent : wrongButton.textContent;
+        if (announce) $('#resultLive').textContent = correct ? $('#correctResultTitle').textContent : $('#wrongResultTitle').textContent;
+      }
+      $('#optionCorrect').addEventListener('click', () => setAnswer(true));
+      $('#optionWrong').addEventListener('click', () => setAnswer(false));
+
+      const reminderDates = ['10월 27일 화요일','11월 2일 월요일','11월 25일 수요일'];
+      const reminders = $$('.notification');
+      function setReminder(index) {
+        reminderIndex = Math.max(0, Math.min(index, 2));
+        reminders.forEach((item, i) => item.hidden = i !== reminderIndex);
+        $('#lockDate').textContent = reminderDates[reminderIndex];
+        $('#nextReminder').textContent = reminderIndex === 2 ? '이 알림 열기' : '다음 알림';
+        $('#loopClose').classList.remove('open');
+      }
+      $('#nextReminder').addEventListener('click', () => {
+        stopPlayback(false);
+        if (reminderIndex < 2) setReminder(reminderIndex + 1);
+        else {
+          $('#loopClose').classList.add('open');
+          $('#loopClose').scrollIntoView({block:'nearest', behavior: reduceMotion ? 'auto' : 'smooth'});
+          loopStatus.textContent = '30일 알림에서 같은 경험 카드가 열렸어요';
+        }
+      });
+
+      function applyScene(index) {
+        playIndex = index;
+        loopStage.dataset.scene = String(index);
+        setStep(sceneSteps[index]);
+        if (index === 7) setAnswer(true, false);
+        if (index >= 10 && index <= 12) setReminder(index - 10);
+        if (index === 13) {
+          setReminder(2);
+          $('#loopClose').classList.add('open');
+          loopStatus.textContent = '공부한 카드가 1·7·30일 뒤 다시 열렸어요';
+        }
+      }
+      function scheduleNext() {
+        if (!playing) return;
+        if (playIndex >= sceneSteps.length - 1) {
+          playing = false;
+          playButton.textContent = '다시 보기';
+          playButton.setAttribute('aria-label','처음부터 다시 보기');
+          return;
+        }
+        const wait = reduceMotion ? 600 : sceneTimes[playIndex];
+        playTimer = window.setTimeout(() => { applyScene(playIndex + 1); scheduleNext(); }, wait);
+      }
+      function startPlayback(fromStart) {
+        if (fromStart) {
+          setReminder(0);
+          $('#loopClose').classList.remove('open');
+          $('#correctResult').hidden = true;
+          $('#wrongResult').hidden = true;
+          $('#sqlBlank').textContent = '[ ? ]';
+          applyScene(0);
+        }
+        playing = true;
+        playButton.textContent = '일시정지';
+        playButton.setAttribute('aria-label','이어 보기 일시정지');
+        scheduleNext();
+      }
+      function stopPlayback(updateLabel = true) {
+        playing = false;
+        clearTimeout(playTimer);
+        if (updateLabel) {
+          playButton.textContent = '계속';
+          playButton.setAttribute('aria-label','이어 보기 계속 재생');
+        }
+      }
+      playButton.addEventListener('click', () => {
+        if (playing) stopPlayback();
+        else startPlayback(playButton.textContent === '재생' || playButton.textContent === '다시 보기');
+      });
+
+      const topicData = {
+        join: {
+          question:'LEFT JOIN이랑 INNER JOIN 차이가 헷갈려',
+          explanation:'둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요.',
+          aiQuestion:'그럼 하나 물어볼게요. 주문을 한 번도 안 한 회원만 뽑으려면, 결과 표 B에서 어떤 행을 고르면 될까요?',
+          reply:'LEFT JOIN 하고 주문 칸이 NULL인 행?',
+          offer:'맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?',
+          concept:'대화에서 개념 찾기 · LEFT JOIN, IS NULL', situation:'상황 고르기 · 쇼핑몰 회원·주문 데이터', team:'쇼핑몰 마케팅팀 요청 (가상 상황)', heading:'첫 구매 쿠폰 대상 찾기',
+          prompt:'가입은 했지만 아직 한 번도 주문하지 않은 회원에게 첫 구매 쿠폰을 보내려고 해요. 대상 회원의 아이디, 이름, 가입일을 뽑아 주세요.', tables:'쓰는 테이블: members(member_id, member_name, joined_at) · orders(order_id, member_id, ordered_at)',
+          sql:'SELECT m.member_id, m.member_name, m.joined_at\nFROM members m\n[ ? ] orders o\n  ON m.member_id = o.member_id\nWHERE o.order_id IS NULL;', wrong:'INNER JOIN', correct:'LEFT JOIN', wrongTitle:'결과 0행', wrongFeedback:'INNER JOIN은 주문이 없는 회원을 처음부터 빼서, o.order_id가 NULL인 행이 남지 않아요. LEFT JOIN으로 바꿔 볼까요?', correctTitle:'결과 2행', correctRows:'2 · 서준 · 2026-09-10\n4 · 도윤 · 2026-10-12', correctFeedback:'맞아요. 주문이 없는 회원은 주문 칸이 NULL로 남아서 WHERE에서 골라져요.',
+          interview:'SQL을 써 본 적 있나요?', answer:'쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.', lesson:'LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.', savedSql:'SELECT m.member_id, m.member_name, m.joined_at\nFROM members m\nLEFT JOIN orders o\n  ON m.member_id = o.member_id\nWHERE o.order_id IS NULL;', tag:'JOIN', current:'오늘 · SQLD 2과목 · JOIN — 주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제',
+          one:'LEFT JOIN은 왼쪽 표의 행을 모두 남겨요. 주문이 없는 회원은 주문 칸이 NULL이라 IS NULL로 찾았죠.', seven:"'한 번도 ~하지 않은' 대상을 찾을 땐 같은 모양이에요. 예: 강의를 결제하고 한 번도 듣지 않은 수강생 찾기.", sevenDetail:'IS NULL 조건은 ON이 아니라 WHERE에 둬요. ON에 넣으면 회원이 모두 그대로 나와요.', thirty:'면접 질문: “SQL을 실제로 써 본 적 있나요?” 내 답변 한 줄 다시 보기 →', thirtyDetail:'꼬리질문 대비: 같은 결과를 다른 방법으로도 낼 수 있나요? → NOT EXISTS로도 찾을 수 있어요.'
+        },
+        group: {
+          question:'GROUP BY랑 HAVING 차이가 뭐야? WHERE랑 헷갈려', explanation:'WHERE는 묶기 전에 행을 하나씩 거르고, HAVING은 GROUP BY로 묶은 다음 그룹을 걸러요. 그래서 COUNT(*) 같은 집계 조건은 HAVING에 써요.', aiQuestion:"취소된 주문은 빼고 2번 이상 결제한 회원을 찾으려면, '취소 제외'와 '2번 이상'은 각각 어디에 쓸까요?", reply:'취소 제외는 WHERE, 2번 이상은 HAVING?', offer:'맞아요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?', concept:'대화에서 개념 찾기 · WHERE, GROUP BY, HAVING', situation:'상황 고르기 · 쇼핑몰 주문 데이터', team:'쇼핑몰 CRM팀 요청 (가상 상황)', heading:'재구매 회원 찾기', prompt:'결제 완료 주문이 2건 이상인 재구매 회원을 뽑아 주세요. 취소된 주문은 세지 않아요.', tables:"쓰는 테이블: orders(order_id, member_id, ordered_at, status) · status는 'PAID' 또는 'CANCELLED'", sql:"SELECT member_id, COUNT(*) AS paid_orders\nFROM orders\nWHERE status = 'PAID'\nGROUP BY member_id\n[ ? ] COUNT(*) >= 2;", wrong:'WHERE', correct:'HAVING', wrongTitle:'집계 함수 오류', wrongFeedback:'WHERE에는 COUNT 같은 집계 함수를 쓸 수 없어서 오류가 나요. 묶은 다음 거르는 건 HAVING이에요.', correctTitle:'결과 1행', correctRows:'1 · 결제 2건', correctFeedback:'맞아요. 취소 주문은 WHERE로 빼고, 묶은 뒤의 집계 조건은 HAVING에 써요.', interview:'데이터에서 조건에 맞는 고객을 뽑아 본 적 있나요?', answer:'주문 데이터에서 취소 주문은 WHERE로 빼고, GROUP BY와 HAVING으로 결제 2건 이상인 재구매 회원을 뽑는 과제를 풀어 봤습니다.', lesson:'WHERE는 묶기 전의 행을, HAVING은 묶은 뒤의 그룹을 거른다.', savedSql:"SELECT member_id, COUNT(*) AS paid_orders\nFROM orders\nWHERE status = 'PAID'\nGROUP BY member_id\nHAVING COUNT(*) >= 2;", tag:'GROUP BY', current:'오늘 · SQLD 2과목 · GROUP BY — 결제 2건 이상인 재구매 회원을 뽑는 과제', one:'WHERE는 묶기 전의 행을, HAVING은 묶은 뒤의 그룹을 걸러요. 집계 조건은 HAVING에.', seven:"'n번 이상', '합계 n원 이상'처럼 그룹 단위 조건이 나오면 HAVING이에요. 예: 한 학기에 세 번 이상 결석한 학생 찾기.", sevenDetail:'취소 주문을 먼저 빼야 결제한 주문만 셀 수 있어요.', thirty:'면접 질문: “데이터에서 조건에 맞는 고객을 뽑아 본 적 있나요?” 내 답변 한 줄 다시 보기 →', thirtyDetail:'취소 제외는 WHERE, 결제 횟수 조건은 HAVING에 썼어요.'
+        },
+        rank: {
+          question:'ROW_NUMBER랑 RANK 차이가 뭐야?', explanation:'둘 다 순서대로 번호를 매겨요. 값이 같으면 RANK는 같은 순위를 주고 다음 순위를 건너뛰어요(1, 1, 3). ROW_NUMBER는 같아도 1, 2, 3처럼 서로 다른 번호를 줘요.', aiQuestion:'회원마다 주문을 딱 1건만 남기고 싶다면 어느 쪽이 안전할까요?', reply:'겹치면 안 되니까 ROW_NUMBER?', offer:'맞아요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?', concept:'대화에서 개념 찾기 · ROW_NUMBER, PARTITION BY', situation:'상황 고르기 · 쇼핑몰 주문 데이터', team:'고객센터팀 요청 (가상 상황)', heading:'회원별 최근 주문 1건', prompt:'회원마다 가장 최근 결제 주문 1건만 뽑아 주세요. 같은 날 주문이 두 건인 회원도 있어요.', tables:'쓰는 테이블: orders(order_id, member_id, ordered_at, status)', sql:"SELECT member_id, order_id, ordered_at\nFROM (\n  SELECT member_id, order_id, ordered_at,\n    [ ? ] OVER (PARTITION BY member_id ORDER BY ordered_at DESC) AS rn\n  FROM orders\n  WHERE status = 'PAID'\n) t\nWHERE rn = 1;", wrong:'RANK()', correct:'ROW_NUMBER()', wrongTitle:'회원 4번이 2행', wrongFeedback:'같은 날 결제한 주문이 두 건이면 RANK는 둘 다 1이라 회원 4번은 2건이 나와요. 회원당 1건이 필요하면 ROW_NUMBER예요.', correctTitle:'회원 1·3·4가 한 건씩', correctRows:'회원별 가장 최근 결제 주문', correctFeedback:'맞아요. ROW_NUMBER로 서로 다른 번호를 매기고 1번만 골랐어요.', interview:'중복 데이터를 정리해 본 적 있나요?', answer:'주문 데이터에 ROW_NUMBER로 회원별 최신순 번호를 매기고, 인라인 뷰로 1번만 골라 회원별 최근 결제 주문을 뽑는 과제를 풀어 봤습니다.', lesson:'값이 같을 때 RANK는 같은 번호, ROW_NUMBER는 다른 번호를 준다.', savedSql:"SELECT member_id, order_id, ordered_at\nFROM (\n  SELECT member_id, order_id, ordered_at,\n         ROW_NUMBER() OVER (PARTITION BY member_id ORDER BY ordered_at DESC) AS rn\n  FROM orders\n  WHERE status = 'PAID'\n) t\nWHERE rn = 1;", tag:'윈도우 함수', current:'오늘 · SQLD 2과목 · 윈도우 함수 — 회원별 최근 결제 주문을 뽑는 과제', one:'값이 같을 때 RANK는 같은 번호, ROW_NUMBER는 다른 번호를 줘요.', seven:"'그룹마다 n건만' 뽑을 땐 PARTITION BY + ROW_NUMBER를 인라인 뷰로 감싸요. 예: 학과별 최근 공지 1건.", sevenDetail:'윈도우 함수 결과(rn)는 같은 SELECT의 WHERE에서 바로 쓸 수 없어서 FROM 안에 한 번 감쌌어요.', thirty:'면접 질문: “중복 데이터를 정리해 본 적 있나요?” 내 답변 한 줄 다시 보기 →', thirtyDetail:'회원마다 한 건만 남기기 위해 ROW_NUMBER를 썼어요.'
+        }
+      };
+      function renderSqlWithBlank(text) {
+        const block = $('#sqlBlock');
+        block.textContent = '';
+        const parts = text.split('[ ? ]');
+        block.append(document.createTextNode(parts[0]));
+        const span = document.createElement('span');
+        span.id = 'sqlBlank'; span.className = 'blank-token'; span.textContent = '[ ? ]';
+        block.append(span, document.createTextNode(parts[1] || ''));
+      }
+      function selectTopic(key) {
+        const data = topicData[key] || topicData.join;
+        stopPlayback(false);
+        $('.join-specific').hidden = key !== 'join';
+        $('.topic-summary').hidden = key === 'join';
+        const map = {userQuestion:'question',topicExplanation:'explanation',aiQuestion:'aiQuestion',userReply:'reply',taskOffer:'offer',statusConcept:'concept',statusSituation:'situation',taskTeam:'team',taskHeading:'heading',taskPrompt:'prompt',taskTables:'tables',optionWrong:'wrong',optionCorrect:'correct',wrongResultTitle:'wrongTitle',wrongFeedback:'wrongFeedback',correctResultTitle:'correctTitle',correctRows:'correctRows',correctFeedback:'correctFeedback',experienceQuestion:'interview',experienceAnswer:'answer',lesson:'lesson',savedSql:'savedSql',listCurrent:'current',reminderOne:'one',reminderSeven:'seven',reminderSevenDetail:'sevenDetail',reminderThirty:'thirty',reminderThirtyDetail:'thirtyDetail',closedAnswer:'answer'};
+        Object.entries(map).forEach(([id, field]) => { const node = $('#' + id); if (node) node.textContent = data[field]; });
+        renderSqlWithBlank(data.sql);
+        $('#tagRow').innerHTML = `<span class="tag">SQLD</span><span class="tag">2과목</span><span class="tag"></span>`;
+        $('#tagRow').lastElementChild.textContent = data.tag;
+        $('#correctResult').hidden = true; $('#wrongResult').hidden = true;
+        setReminder(0); setStep(0);
+        $('#how').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth'});
+      }
+      $$('[data-topic]').forEach(button => button.addEventListener('click', () => selectTopic(button.dataset.topic)));
+
+      const subscriptionInputs = $$('input[name="ai_subscriptions"]');
+      subscriptionInputs.forEach(input => input.addEventListener('change', () => {
+        if (input.value === 'none' && input.checked) subscriptionInputs.forEach(other => { if (other !== input) other.checked = false; });
+        if (input.value !== 'none' && input.checked) $('#subscriptionNone').checked = false;
+      }));
+      const form = $('#signupForm');
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        const error = $('#formError');
+        error.textContent = '';
+        if ($('#website').value) return;
+        if (!$('#email').validity.valid) { error.textContent = '이메일 주소를 확인해 주세요'; $('#email').focus(); return; }
+        const checks = [
+          ['student_status','지금 상황을 골라 주세요'],
+          ['sqld_status','SQLD 공부 상태를 골라 주세요'],
+          ['ai_subscriptions','하나 이상 골라 주세요'],
+          ['consent','동의해야 신청할 수 있어요']
+        ];
+        for (const [name, message] of checks) {
+          const selected = form.querySelector(`[name="${name}"]:checked`);
+          if (!selected) { error.textContent = message; form.querySelector(`[name="${name}"]`).focus(); return; }
+        }
+        form.hidden = true;
+        $('#signupSuccess').classList.add('show');
+        $('#signupSuccess').focus();
+      });
+
+      const stickyCta = $('#stickyCta');
+      let heroVisible = true, signupVisible = false;
+      function updateSticky() { stickyCta.classList.toggle('show', innerWidth < 700 && !heroVisible && !signupVisible); }
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => { if (entry.target.id === 'top') heroVisible = entry.isIntersecting; if (entry.target.id === 'signup') signupVisible = entry.isIntersecting; });
+        updateSticky();
+      }, {threshold:.08});
+      observer.observe($('#top')); observer.observe($('#signup'));
+      addEventListener('resize', updateSticky, {passive:true});
+
+      setStep(0);
+      setReminder(0);
+      $('#correctResult').hidden = true;
+      $('#wrongResult').hidden = true;
+      $('#sqlBlank').textContent = '[ ? ]';
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1510 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Experii · 공부하는 오늘이, 면접에서 말할 경험이 됩니다</title>
+<meta name="description" content="SQLD 공부하며 AI와 나눈 대화가 현장 과제가 되고, 면접에서 꺼낼 답변 한 줄로 남아요.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+:root{
+  --bg:#ffffff;--surface:#f2f4f7;--surface-2:#e8ecf1;--line:#e3e7ed;--line-2:#cfd6df;
+  --ink:#1a2233;--ink-2:#4e5968;--ink-3:#5b6676;--ink-4:#646e7c;
+  --talk:#3d5a99;--talk-t:#eef2f9;
+  --task:#2f6f5e;--task-t:#ebf4f1;
+  --card:#9a5b13;--card-t:#f8f1e7;
+  --remind:#a3325c;--remind-t:#f8eef3;
+  --lock:#3b1d2c;--err:#b42318;
+  --full:calc(50% + 50%);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --gut:16px;--maxw:1080px;
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"D2Coding",monospace;
+  color-scheme:light;
+}
+@media(min-width:640px){:root{--gut:32px}}
+@media(min-width:1024px){:root{--gut:40px}}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:72px}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.65;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p,figure,ol,ul,blockquote,pre{margin:0}
+ol,ul{padding:0;list-style:none}
+a{color:inherit}
+button{font:inherit;color:inherit}
+svg{display:block}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid var(--talk);outline-offset:3px}
+.wrap{max-width:calc(var(--maxw) + var(--gut)*2);margin-inline:auto;padding-inline:var(--gut)}
+h1,h2,h3{text-wrap:balance;font-weight:760;letter-spacing:-.02em;line-height:1.3}
+.h2{font-size:26px;line-height:1.34}
+.lead{font-size:17px;line-height:1.62;color:var(--ink-3)}
+.two{color:var(--ink-3)}
+.two b,.lead b{color:var(--ink);font-weight:650}
+@media(min-width:1024px){
+  .h2{font-size:44px;line-height:1.28;letter-spacing:-.026em}
+  .lead{font-size:20px}
+}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:14px;font-size:16px;font-weight:650;text-decoration:none;border:0;cursor:pointer;white-space:nowrap;transition:transform .16s var(--ease)}
+.btn:active{transform:scale(.97)}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-soft{background:var(--surface);color:var(--ink)}
+.btn-sm{min-height:44px;padding:0 16px;font-size:15px;border-radius:12px}
+.ex{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;background:#fff;border:1px solid var(--line-2);color:var(--ink-2);font-size:12.5px;font-weight:650;white-space:nowrap}
+.pill-btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;border:0;background:#fff;color:var(--ink);font-size:15px;font-weight:650;cursor:pointer;box-shadow:inset 0 0 0 1px var(--line-2);transition:transform .16s var(--ease)}
+.pill-btn:active{transform:scale(.97)}
+.pill-btn.dark{background:var(--ink);color:#fff;box-shadow:none}
+.btn-notif{min-width:9.5em;justify-content:center}
+.soon{display:inline-flex;align-items:center;vertical-align:2px;height:24px;padding:0 9px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px rgba(163,50,92,.4);color:var(--remind);font-size:12.5px;font-weight:700;white-space:nowrap}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes sheet{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.9);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:inline-flex;align-items:center;min-height:44px;font-weight:820;font-size:21px;letter-spacing:-.035em;text-decoration:none}
+
+/* tick nav */
+.ticks{display:none}
+@media(min-width:1200px){
+  .ticks{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:25;display:flex;flex-direction:column}
+  .ticks a{position:relative;display:flex;align-items:center;width:30px;height:22px;text-decoration:none}
+  .ticks i{display:block;width:10px;height:2px;border-radius:2px;background:#c3cad3;transform-origin:0 50%;transition:transform .35s var(--ease)}
+  .ticks a[aria-current="true"] i{background:var(--ink);transform:scaleX(2.2)}
+  .ticks span{position:absolute;left:34px;top:50%;font-size:12.5px;font-weight:600;color:var(--ink-2);white-space:nowrap;pointer-events:none;opacity:0;transform:translate(-4px,-50%);transition:opacity .2s,transform .2s;background:#fff;padding:2px 6px;border-radius:6px}
+  .ticks a:hover span,.ticks a:focus-visible span{opacity:1;transform:translate(0,-50%)}
+}
+
+/* hero */
+.hero{padding:22px 0 56px}
+.hero-kicker{font-size:14px;font-weight:600;color:var(--ink-3);margin-bottom:10px}
+.hero h1{font-size:30px;line-height:1.3}
+.hero h1 span{display:block}
+.hero-body{display:grid;gap:26px;margin-top:14px}
+.hero-sub{font-size:16.5px;line-height:1.62;color:var(--ink-4)}
+.hero-sub b{color:var(--ink-2);font-weight:550}
+.cta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.cta-row .btn{padding:0 18px;font-size:15.5px}
+.interview{position:relative;background:var(--surface);border-radius:24px;padding:20px 16px 18px;display:flex;flex-direction:column;gap:12px}
+.interview>.ex{position:absolute;top:14px;right:14px}
+.iv{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.iv.me{align-items:flex-end;text-align:left}
+.who{font-size:12.5px;font-weight:600;color:var(--ink-4)}
+.bub{font-size:16px;line-height:1.5;padding:9px 14px;border-radius:18px;max-width:92%}
+.bub-q{background:#fff;border-top-left-radius:6px}
+.bub-before{color:var(--ink-3);border:1.5px dashed #b6bfcb;border-top-right-radius:6px}
+.bub-after{background:#fff;border:2px solid var(--talk);border-top-right-radius:6px;font-weight:640;color:var(--ink);font-size:17px;line-height:1.5}
+.src-chip{display:inline-flex;align-items:center;gap:7px;min-height:28px;padding:0 11px;border-radius:999px;background:var(--card-t);color:var(--card);font-size:13px;font-weight:680;margin-top:3px}
+.src-chip::before{content:"";width:12px;height:10px;border-radius:2px;border:1.5px solid currentColor;border-top-width:3.5px}
+@media(min-width:1024px){
+  .hero{padding:64px 0 120px}
+  .hero-kicker{font-size:16px;margin-bottom:16px}
+  .hero h1{font-size:56px;line-height:1.24;letter-spacing:-.028em}
+  .hero-body{grid-template-columns:minmax(0,1fr) 540px;gap:72px;margin-top:44px;align-items:start}
+  .hero-sub{font-size:20px;max-width:24em}
+  .cta-row{margin-top:32px}
+  .cta-row .btn{padding:0 24px;font-size:16px}
+  .interview{border-radius:32px;padding:34px 32px 30px;gap:16px}
+  .interview>.ex{top:22px;right:22px}
+  .bub{font-size:18px;padding:12px 18px}
+  .bub-after{font-size:20px}
+  .src-chip{font-size:14px;min-height:32px;padding:0 13px}
+}
+
+/* sections */
+.sec{padding:88px 0}
+.sec-head{max-width:780px}
+.sec-head .lead{margin-top:14px}
+@media(min-width:1024px){.sec{padding:128px 0}}
+
+/* problem */
+.quotes{display:grid;gap:26px;margin-top:40px}
+.quotes blockquote{border-top:1.5px solid var(--ink);padding-top:14px;font-size:18px;line-height:1.55;font-weight:600;letter-spacing:-.01em}
+.q-src{margin-top:22px;font-size:14px;color:var(--ink-4)}
+.pr-low{display:grid;gap:36px;margin-top:56px;align-items:center}
+.memos{position:relative;padding:0 6px}
+.memo-pile{display:grid}
+.memo{grid-area:1/1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px 14px;font-size:13.5px}
+.memo:nth-child(1){transform:translate(0,0) scale(.94);transform-origin:50% 0}
+.memo:nth-child(2){transform:translateY(40px) scale(.97);transform-origin:50% 0}
+.memo:nth-child(3){transform:translateY(80px);box-shadow:0 10px 26px -14px rgba(26,34,51,.3)}
+.memo-pile{padding-bottom:80px}
+.memo-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.memo-top b{font-size:15px;font-weight:700}
+.memo-top span{font-size:12.5px;color:var(--ink-4);white-space:nowrap}
+.memo-lines{display:grid;gap:7px;margin:12px 0 14px}
+.memo-lines i{display:block;height:7px;border-radius:4px;background:var(--surface-2)}
+.memo-lines i:nth-child(2){width:84%}.memo-lines i:nth-child(3){width:62%}
+.memo-re{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-4);border-top:1px dashed var(--line-2);padding-top:9px}
+.memo-re .hd{width:9px;height:9px;border-radius:50%;border:1.5px solid #b6bfcb}
+.memo-re em{font-style:normal;margin-left:4px}
+.pr-sum{display:grid;gap:14px;font-size:20px;line-height:1.5;color:var(--ink-3);font-weight:500;letter-spacing:-.01em}
+.pr-sum b{color:var(--ink);font-weight:700}
+@media(min-width:1024px){
+  .quotes{grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;margin-top:64px}
+  .quotes blockquote{font-size:22px}
+  .pr-low{grid-template-columns:440px minmax(0,1fr);gap:88px;margin-top:104px}
+  .pr-sum{font-size:28px;gap:20px}
+}
+
+/* shift */
+.shift-grid{display:grid;gap:36px}
+.shift-q{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.shift-q .bub{background:var(--surface);border-top-left-radius:6px;font-size:17px}
+.shift .two{margin-top:18px;font-size:17px}
+@media(min-width:1024px){
+  .shift-grid{grid-template-columns:minmax(0,1fr) 460px;gap:88px;align-items:center}
+  .shift-q{gap:14px}
+  .shift-q .bub{font-size:20px;padding:14px 20px}
+  .shift .two{font-size:20px;margin-top:24px;max-width:28em}
+}
+
+/* how: stage */
+.how .sec-head{margin-bottom:36px}
+.stage{position:relative;isolation:isolate;border-radius:24px;background:var(--surface);padding:12px;--sp:12px;--pw:min(304px,calc(100vw - 56px));--ph:560px;--bz:7px;--rp:40px}
+.tints{position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none}
+.tints i{position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .5s var(--ease)}
+.tints i:nth-child(1){background:var(--talk-t)}
+.tints i:nth-child(2){background:var(--task-t)}
+.tints i:nth-child(3){background:var(--card-t)}
+.tints i:nth-child(4){background:var(--remind-t)}
+.stage[data-step="1"] .tints i:nth-child(1),.stage[data-step="2"] .tints i:nth-child(2),.stage[data-step="3"] .tints i:nth-child(3),.stage[data-step="4"] .tints i:nth-child(4){opacity:1}
+.ctrl{position:static}
+.step-tab:nth-child(1),.panel[data-step="1"]{--sc:var(--talk)}
+.step-tab:nth-child(2),.panel[data-step="2"]{--sc:var(--task)}
+.step-tab:nth-child(3),.panel[data-step="3"]{--sc:var(--card)}
+.step-tab:nth-child(4),.panel[data-step="4"]{--sc:var(--remind)}
+.steps,.player,.phone{display:none}
+.panel{position:static;display:grid;gap:20px;padding:22px 8px 26px}
+.panel+.panel{border-top:1px solid var(--line-2)}
+.nj{font-size:20px;font-weight:740;letter-spacing:-.015em}
+.nj small{display:block;font-size:13px;font-weight:600;color:var(--sc);letter-spacing:0}
+.detail{position:static}
+.detail .two{font-size:16.5px;line-height:1.62}
+.detail .hint{margin-top:10px;font-size:14px;color:var(--ink-3)}
+.next-step{margin-top:16px}
+html:not(.js) .next-step,html:not(.js) .ruler{display:none}
+.fact{font-size:14px;line-height:1.5;color:var(--ink-3);display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;flex:1 1 260px}
+html:not(.js) .fact{margin-top:12px}
+/* screens (common) */
+.screen{position:relative;z-index:2;width:var(--full);max-width:360px;background:#fff;border:8px solid #dfe4ea;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;padding-top:40px;font-size:14px;line-height:1.55;color:var(--ink)}
+.island{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:8;height:24px;padding:0 12px;border-radius:999px;background:var(--ink);color:#fff;font-size:12px;font-weight:650;display:flex;align-items:center;white-space:nowrap}
+.appbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 14px 10px;border-bottom:1px solid var(--line);flex:none}
+.subj{font-size:12.5px;font-weight:700;color:var(--talk);background:var(--talk-t);padding:3px 9px;border-radius:999px}
+.adate{font-size:12.5px;color:var(--ink-4)}
+.ab-title{font-size:15px;font-weight:750}
+.ab-title:focus{outline:none}
+.thread{display:flex;flex-direction:column;gap:10px;padding:14px 12px 16px}
+.thread>*{flex-shrink:0}
+.m{max-width:88%;border-radius:18px;padding:9px 13px}
+.m.me{align-self:flex-end;background:var(--talk);color:#fff;border-bottom-right-radius:6px}
+.m.ai{align-self:flex-start;background:var(--surface);border-bottom-left-radius:6px;max-width:96%}
+.m .who{display:block;font-size:11.5px;font-weight:700;color:var(--ink-4);margin-bottom:2px}
+.m.ai>p+p,.m.ai>p+table,.m.ai>table+p,.m.ai>.tbls+p{margin-top:8px}
+.tbls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.mt{border-collapse:collapse;font-size:13px;line-height:1.35;background:#fff;border-radius:8px;overflow:hidden;font-variant-numeric:tabular-nums}
+.m.ai>.mt{margin-top:6px}
+.mt caption{caption-side:top;text-align:left;font-size:12px;font-weight:700;color:var(--ink-3);padding:0 0 4px}
+.mt th,.mt td{padding:4px 8px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.mt th{font-weight:650;color:var(--ink-3)}
+.mt tbody tr:last-child td{border-bottom:0}
+.mt tr.hl td{background:var(--talk-t);color:var(--talk);font-weight:750}
+.composer{display:flex;align-items:center;gap:7px;padding:9px 9px 11px;border-top:1px solid var(--line);background:#fff;flex:none}
+.gpt{flex:none;display:inline-flex;flex-direction:column;line-height:1.2;padding:5px 9px;border-radius:11px;background:var(--surface);font-size:12px;font-weight:750}
+.gpt small{font-size:11px;font-weight:550;color:var(--ink-4)}
+.field-mock{flex:1;min-width:0;height:36px;border-radius:18px;border:1px solid var(--line-2);display:flex;align-items:center;padding:0 12px;font-size:13.5px;color:var(--ink-4);overflow:hidden;white-space:nowrap}
+.typed{color:var(--ink)}
+.composer.typing .ph{display:none}
+.composer.typing .typed::after{content:"";display:inline-block;width:1.5px;height:15px;background:var(--talk);margin-left:1px;vertical-align:-2px}
+.send{flex:none;width:32px;height:32px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
+.send::before{content:"";width:8px;height:8px;border-left:2px solid #fff;border-top:2px solid #fff;transform:translateY(2px) rotate(45deg)}
+.s0{margin-block:auto;padding:28px 4px 8px;display:grid;gap:14px;justify-items:center;text-align:center}
+.s0-guide{font-size:14.5px;color:var(--ink-3);font-weight:550}
+.s0-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.s0-chips span{font-size:12.5px;padding:6px 10px;border-radius:999px;border:1px solid var(--line-2);color:var(--ink-2);background:#fff}
+.fake{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:9px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:700;margin-top:8px;cursor:default;user-select:none}
+.fake.muted{background:var(--surface-2);color:var(--ink-3)}
+.status{align-self:stretch;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13px}
+.status-label{font-weight:650;color:var(--ink-2)}
+@keyframes pulse{50%{opacity:.45}}
+@media(prefers-reduced-motion:no-preference){.status.busy .status-label{animation:pulse 1s ease-in-out infinite}}
+.checks li{display:flex;gap:8px;align-items:flex-start;margin-top:6px;color:var(--ink-3)}
+.checks li::before{content:"";flex:none;width:15px;height:15px;margin-top:2px;border-radius:50%;background:var(--task) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.3l2.3 2.2 4.7-4.9' fill='none' stroke='%23fff' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/13px no-repeat}
+.checks b{color:var(--ink);font-weight:650}
+.task{align-self:stretch;border:1.5px solid var(--task);border-radius:16px;padding:12px 13px;background:#fff;font-size:13.5px;line-height:1.55}
+.task-h{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.task-pill{background:var(--task);color:#fff;font-size:12px;font-weight:750;padding:2px 8px;border-radius:999px}
+.task-from{font-size:12px;color:var(--ink-3)}
+.task-tables{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.task-tables .k{font-size:12px;color:var(--ink-3);margin-right:2px}
+.task-tables code{font-family:var(--mono);font-size:11.5px;background:var(--task-t);color:var(--task);padding:2px 6px;border-radius:6px}
+.solve{align-self:stretch}
+.sql{font-family:var(--mono);font-size:12px;line-height:1.65;background:#f6f8f9;border:1px solid var(--line);border-radius:12px;padding:9px 10px;white-space:normal;color:var(--ink)}
+.sql code{font:inherit}
+.sql .ln{display:block;white-space:pre-wrap;padding-left:2ch;text-indent:-2ch}
+.sql b{font-weight:750;color:var(--ink)}
+.blank{display:inline-block;text-indent:0;min-width:10ch;text-align:center;border:1.5px dashed var(--task);border-radius:6px;color:var(--task);font-weight:750;padding:0 3px;line-height:1.45}
+.blank.is-right{border-style:solid;background:var(--task-t)}
+.blank.is-wrong{border-style:solid;border-color:var(--err);color:var(--err);background:#fdf1f0}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.06)}to{transform:none}}
+@media(prefers-reduced-motion:no-preference){.blank.pop{animation:pop .28s var(--ease)}}
+.opts{display:flex;gap:8px;margin-top:10px}
+.opt{flex:1;min-height:44px;border-radius:12px;border:1.5px solid var(--task);background:#fff;color:var(--task);font-family:var(--mono);font-weight:750;font-size:13.5px;cursor:pointer;transition:transform .15s var(--ease)}
+.opt:active{transform:scale(.96)}
+.opt[aria-pressed="true"]{background:var(--task);color:#fff}
+.opt.wrong[aria-pressed="true"]{background:#fff;color:var(--err);border-color:var(--err)}
+html:not(.js) .opts,html:not(.js) [data-out]{display:none}
+.run{display:flex;justify-content:flex-end}
+.result{margin-top:10px;display:grid;gap:10px;justify-items:start}
+.res-zero{font-size:13px;font-weight:700;color:var(--err);background:#fdf1f0;padding:7px 10px;border-radius:10px}
+/* experience card */
+.xcard{align-self:stretch;background:#fff;border:1px solid #e8d6bf;border-radius:16px;overflow:hidden;font-size:13.5px;line-height:1.5}
+.xc-head{background:var(--card);color:#fff;font-size:12.5px;font-weight:700;padding:7px 12px}
+.xc-body{padding:8px 12px 12px}
+.xc-k{display:block;font-size:11.5px;font-weight:700;color:var(--ink-4);margin-top:8px}
+.xc-q{font-weight:600}
+.xc-a{font-size:14.5px;font-weight:720;line-height:1.5;color:var(--ink)}
+.pen{display:inline-block;width:12px;height:12px;margin-left:5px;vertical-align:-1px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 13l1-3.5 6.8-6.8a1.6 1.6 0 012.3 2.3L6.3 11.8 3 13z' fill='none' stroke='%23646e7c' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.xc-query{display:flex;align-items:center;gap:8px;margin-top:9px;padding:6px 9px;border-radius:9px;background:var(--surface)}
+.xc-query .xc-k{margin:0}
+.xc-snip{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);font-weight:650}
+.fold{margin-left:auto;width:7px;height:7px;border-right:1.6px solid var(--ink-4);border-bottom:1.6px solid var(--ink-4);transform:rotate(-45deg)}
+.xc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px}
+.xc-tags li{font-size:11.5px;padding:1px 7px;border-radius:6px;background:var(--card-t);color:var(--card);font-weight:700}
+.xc-src{font-size:12px;color:var(--ink-3);margin-top:7px}
+.xc-re{display:flex;flex-wrap:wrap;align-items:center;gap:3px 8px;font-size:12px;color:var(--ink-3);margin-top:5px}
+.xc-re .xc-k{margin:0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.6px solid var(--remind);vertical-align:-1px;margin-right:3px;position:relative}
+.dot::after{content:"";position:absolute;inset:1.4px;border-radius:50%;background:var(--remind);transform:scale(0);transition:transform .28s var(--ease)}
+.dot.on::after{transform:none}
+/* list */
+.xlist{display:grid;gap:10px;padding:12px 12px 70px}
+.xl-stamp{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-3);margin-bottom:5px}
+.xl-stamp .when{font-weight:750;color:#fff;background:var(--card);padding:1px 7px;border-radius:6px}
+.xl-title{font-size:13.5px;font-weight:700;margin:-1px 0 8px}
+.xl-old{background:var(--surface);border-radius:14px;padding:10px 12px}
+.xl-old .when{color:var(--ink-2);background:#fff}
+.xl-old p{font-size:13px;font-weight:600}
+.toast{margin:0 12px 12px;background:var(--ink);color:#fff;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:650}
+/* lock */
+.scr-lock{background:var(--lock)}
+.js .lock{background:radial-gradient(130% 55% at 50% 0%,#5b2a43 0%,rgba(59,29,44,0) 70%),var(--lock)}
+.lock{display:flex;flex-direction:column;padding:16px 12px 16px;background:var(--lock);color:#fff}
+.lock-date{display:none}
+.stack{display:flex;flex-direction:column;gap:10px}
+.notif{position:relative;background:#fff;color:var(--ink);border-radius:18px;padding:11px 13px 12px;font-size:13px;line-height:1.5}
+.n-date{display:block;font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:4px}
+.n-head{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:3px;flex-wrap:wrap}
+.n-ico{width:18px;height:18px;border-radius:5px;background:var(--remind);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;font-style:normal;flex:none}
+.n-app{font-weight:750}
+.n-label{color:var(--remind);font-weight:700}
+.n-body{display:block}
+.n-more{display:block;margin-top:7px;padding-top:7px;border-top:1px solid var(--line);color:var(--ink-3);font-size:12.5px}
+.n-hit{display:none}
+.lock-hint{display:none}
+.l-chat,.l-card{display:none}
+.follow{background:var(--remind-t);border-radius:14px;padding:11px 12px;font-size:13px}
+.fl-label{font-size:12px;font-weight:750;color:var(--remind);margin-bottom:4px}
+.fl-q{font-weight:650}
+.fl-k{font-size:11.5px;font-weight:750;color:var(--ink-3);margin-top:8px}
+.follow .sql{margin-top:8px;background:#fff;font-size:11.5px}
+.revisit-line{font-size:12.5px;font-weight:650;color:var(--remind);display:flex;flex-wrap:wrap;align-items:center;gap:2px 4px}
+.l-card .xc-re{display:none}
+/* no-js layout */
+@media(min-width:960px){
+  html:not(.js) .panel{grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:start;padding:32px 24px}
+}
+/* js layout */
+.js .steps{display:flex}
+.js .player{display:block}
+.js .phone{display:block}
+.js .stage{display:flex;flex-direction:column;gap:18px}
+.js .phone{position:relative;align-self:center;width:var(--pw);height:var(--ph);border-radius:var(--rp);background:#dde2e8;box-shadow:inset 0 0 0 1px #c8cfd8,0 34px 60px -24px rgba(26,34,51,.34),0 12px 24px -14px rgba(26,34,51,.2)}
+.js .panel{display:block;padding:0;border:0}
+.js .nj{display:none}
+.js .screen{position:absolute;top:calc(var(--sp) + var(--bz));left:calc(50% - var(--pw)/2 + var(--bz));width:calc(var(--pw) - var(--bz)*2);max-width:none;height:calc(var(--ph) - var(--bz)*2);border:0;border-radius:calc(var(--rp) - var(--bz))}
+.js .screen .thread{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin}
+.js [data-in]:not(.on){display:none}
+@media(prefers-reduced-motion:no-preference){
+  .js .fresh{animation:rise .32s var(--ease) both}
+  .js .task.fresh{animation:sheet .42s var(--ease) both}
+  .js .panel.enter .detail{animation:rise .3s var(--ease) both}
+  .js .panel.enter .screen{animation:fadein .22s ease both}
+}
+.js .panel .ctx{opacity:.7}
+.js .panel .key{box-shadow:0 16px 34px -14px rgba(26,34,51,.32)}
+/* steps tablist */
+.steps{flex-direction:column}
+.step-tab{position:relative;display:flex;gap:12px;align-items:flex-start;text-align:left;background:none;border:0;border-top:1px solid var(--line-2);padding:8px 4px 9px 0;cursor:pointer;width:var(--full)}
+.step-tab:last-child{border-bottom:1px solid var(--line-2)}
+.st-num{flex:none;width:24px;height:24px;margin-top:9px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:760;color:var(--ink-4);box-shadow:inset 0 0 0 1.5px var(--line-2)}
+.st-when{display:block;font-size:13px;font-weight:600;color:var(--ink-4)}
+.st-name{display:block;font-size:20px;font-weight:740;color:var(--ink-4);letter-spacing:-.015em;line-height:1.3}
+.step-tab[aria-selected="true"] .st-num{background:var(--sc);color:#fff;box-shadow:none}
+.step-tab[aria-selected="true"] .st-name{color:var(--ink)}
+.step-tab[aria-selected="true"] .st-when{color:var(--ink-3)}
+.step-tab::after{content:"";position:absolute;inset:0;border-radius:10px;background:var(--sc);opacity:0;pointer-events:none}
+@keyframes hint{30%{opacity:.14}to{opacity:0}}
+@media(prefers-reduced-motion:no-preference){.step-tab.hint::after{animation:hint 1.5s ease both}}
+.step-tab:focus-visible{outline-offset:-3px;border-radius:10px}
+/* ruler */
+.ruler{margin-top:20px}
+.ru-track{position:relative;height:34px;margin:0 6px}
+.ru-ticks{position:absolute;left:0;right:0;top:10px;height:12px;border-right:1px solid var(--line-2);background:repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px calc(var(--full)/30))}
+.ru-base{position:absolute;left:0;right:0;top:21px;height:2px;background:var(--line-2);border-radius:2px}
+.ru-fill{position:absolute;left:0;right:0;top:21px;height:2px;background:var(--remind);transform-origin:0 50%;transform:scaleX(calc(var(--cur,0)/30));transition:transform .55s var(--ease)}
+.ru-mark{position:absolute;top:16px;left:calc(var(--d)/30*var(--full));width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;border:2px solid var(--remind)}
+.ru-mark::after{content:"";position:absolute;inset:1.5px;border-radius:50%;background:var(--remind);transform:scale(0);transition:transform .3s var(--ease)}
+.ru-mark.on::after{transform:none}
+.ru-mark[data-d="0"]{border-color:var(--card)}
+.ru-mark[data-d="0"]::after{background:var(--card);transform:none}
+.ru-clip{position:absolute;top:0;bottom:0;left:-8px;right:-8px;overflow:hidden;pointer-events:none}
+.ru-pos{position:absolute;top:0;bottom:0;left:8px;right:8px;transform:translateX(calc(var(--cur,0)/30*var(--full)));transition:transform .55s var(--ease);pointer-events:none}
+.ru-pin{position:absolute;left:-1px;top:0;width:2px;height:12px;border-radius:2px;background:var(--remind)}
+.ru-ends{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.beats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.beats li{border-top:1.5px solid var(--line-2);padding-top:9px;color:var(--ink-4)}
+.beats .big{display:block;font-size:22px;font-weight:760;letter-spacing:-.02em;line-height:1.2}
+.beats .sm{display:block;font-size:12.5px;margin-top:4px;line-height:1.45}
+.beats li.now{color:var(--ink);border-top-color:var(--remind)}
+.beats li.now .sm{color:var(--ink-2)}
+.rc{display:flex;gap:12px 16px;flex-wrap:wrap;align-items:center;margin-top:18px}
+html:not(.js) .rc{display:block}
+html:not(.js) .btn-notif{display:none}
+/* player */
+.player{margin-top:24px}
+.play{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 16px 0 8px;border-radius:999px;background:#fff;border:0;box-shadow:inset 0 0 0 1px var(--line-2);cursor:pointer;transition:transform .16s var(--ease)}
+.play:active{transform:scale(.98)}
+.play-ico{width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;flex:none}
+.play-ico svg{width:16px;height:16px;display:none}
+.play[data-state="idle"] .i-play,.play[data-state="paused"] .i-play,.play[data-state="playing"] .i-pause,.play[data-state="ended"] .i-again{display:block}
+.play-label{font-size:15px;font-weight:680;white-space:nowrap}
+.prog{display:flex;gap:4px;width:96px}
+.prog i{flex:var(--w) 1 0;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+.prog b{display:block;height:4px;background:var(--ink);transform-origin:0 50%;transform:scaleX(0)}
+.replay-note{margin-top:12px;font-size:14px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.link-btn{background:none;border:0;padding:0;min-height:44px;color:var(--talk);font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+/* js: screens 3 and 4 layers */
+.js .l-chat,.js .l-list,.js .l-card{position:absolute;inset:0;padding-top:40px;display:flex;flex-direction:column;background:#fff}
+.js .l-list{z-index:3;transform:translateX(var(--full));transition:transform .42s var(--ease);visibility:hidden}
+.js .l-list.shown{transform:none;visibility:visible}
+.js .l-list .xlist{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:12px}
+.js .l-list .toast{flex:none}
+.js .l-card{z-index:1;visibility:hidden;transition:visibility 0s .5s}
+.js .l-card.shown{visibility:visible;transition:none}
+.js .l-chat.covered{visibility:hidden;transition:visibility 0s .45s}
+.js .lock{position:absolute;inset:0;z-index:2;padding:52px 12px 14px;transition:transform .5s var(--ease)}
+.js .lock.up{transform:translateY(calc(-1*var(--full)))}
+.js .lock-date{display:block;position:relative;height:86px;margin-top:10px}
+.ld{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;transition:transform .36s var(--ease),opacity .36s}
+.ld .md{font-size:46px;font-weight:760;letter-spacing:-.03em;line-height:1.1}
+.ld .dow{font-size:15px;font-weight:550;opacity:.82;margin-top:3px}
+.ld[data-pos="past"]{transform:translateY(-45%);opacity:0}
+.ld[data-pos="next"]{transform:translateY(45%);opacity:0}
+.js .stack{display:grid;margin-top:auto;padding-bottom:28px;gap:0}
+.js .notif{grid-area:1/1;transform-origin:bottom;transition:transform .26s var(--ease),opacity .26s}
+.js .notif .n-date{display:none}
+.js .notif[data-off="0"]{z-index:3}
+.js .notif[data-off="1"]{transform:translateY(13px) scale(.94);opacity:.7;z-index:2}
+.js .notif[data-off="2"]{transform:translateY(26px) scale(.88);opacity:.45;z-index:1}
+.js .notif[data-off="gone"]{position:absolute;left:0;right:0;top:0;transform:translateY(-70%) scale(.96);opacity:0;pointer-events:none}
+.js .notif[data-off="pre"]{transform:translateY(-30px);opacity:0}
+.js .n-hit{display:block;position:absolute;inset:0;width:var(--full);border:0;background:transparent;border-radius:inherit;cursor:pointer}
+.js .n-hit:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.js .lock-hint{display:block;margin-top:6px;text-align:center;font-size:12.5px;color:rgba(255,255,255,.78)}
+.js .l-card .thread{gap:10px}
+.fly{position:absolute;left:0;top:0;z-index:9;pointer-events:none;opacity:0;transform:translateX(var(--x0,0))}
+.fly>span{display:block;transform:translateY(var(--y0,0));font-family:var(--mono);font-size:11.5px;font-weight:700;background:var(--card-t);color:var(--card);padding:3px 7px;border-radius:6px;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(154,91,19,.5)}
+.fly.go{opacity:1;transform:translateX(var(--x1,0));transition:transform .4s cubic-bezier(.2,.7,.3,1)}
+.fly.go>span{transform:translateY(var(--y1,0));transition:transform .4s cubic-bezier(.65,0,.85,.55)}
+.tapfx{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(26,34,51,.25);pointer-events:none;z-index:10;animation:tap .55s var(--ease) both}
+@keyframes tap{from{transform:scale(.35);opacity:1}to{transform:scale(1.5);opacity:0}}
+.noanim,.noanim *{transition:none!important;animation:none!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:0s!important;animation-duration:0s!important;animation-delay:0s!important;animation-iteration-count:1!important}}
+.how-foot{margin-top:26px;display:grid;gap:22px;max-width:560px}
+.how-caption{font-size:14px;color:var(--ink-4)}
+.how-close{font-size:20px;font-weight:720;letter-spacing:-.015em;line-height:1.45}
+.how-close a{display:inline-flex;align-items:center;min-height:44px;margin-top:4px;font-size:16px;font-weight:680;color:var(--talk);text-underline-offset:5px}
+@media(min-width:960px){
+  .js .stage{display:grid;grid-template-columns:minmax(0,1fr) var(--phcol);column-gap:48px;align-items:start;border-radius:32px;--sp:48px;--pw:352px;--ph:724px;--bz:9px;--rp:50px;--phcol:400px;padding:var(--sp) var(--sp) 32px}
+  .js .phone{grid-column:2;grid-row:1;justify-self:center;align-self:start;margin-bottom:-96px}
+  .js .ctrl{grid-column:1;grid-row:1}
+  .js .screen{left:auto;right:calc(var(--sp) + (var(--phcol) - var(--pw))/2 + var(--bz))}
+  .js .panels{min-height:318px}
+  .js .player{margin-top:14px}
+  .detail{padding-top:22px}
+  .detail .two{font-size:18px}
+  .how-close{font-size:24px}
+  .how-foot{margin-top:32px}
+}
+@media(max-width:959px){
+  .js .steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:rgba(255,255,255,.65);border-radius:16px;padding:4px}
+  .js .step-tab{flex-direction:column;align-items:center;text-align:center;gap:0;border:0;border-radius:12px;padding:8px 2px;min-height:56px;justify-content:center}
+  .js .step-tab:last-child{border:0}
+  .js .st-num{display:none}
+  .js .st-when{font-size:11px}
+  .js .st-name{font-size:14.5px}
+  .js .step-tab[aria-selected="true"]{background:#fff;box-shadow:inset 0 -2px 0 var(--sc),0 1px 3px rgba(26,34,51,.08)}
+  .js .detail{padding:14px 4px 0}
+  .js .player{padding:0 4px 4px}
+}
+
+/* difference */
+.diff .sec-head p+p{margin-top:12px}
+.tl{margin-top:44px}
+.tl-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 44px 44px;column-gap:6px;row-gap:6px;align-items:center;font-size:12.5px}
+.ax{font-weight:650;color:var(--ink-3);padding-bottom:4px;border-bottom:1px solid var(--line-2);grid-row:1}
+.ax-study{grid-column:1/5}
+.ax-apply{grid-column:5}
+.ax-iv{grid-column:6}
+.tl-name{grid-column:1/-1;font-weight:700;color:var(--ink-2);margin-top:8px}
+.nm-ex{grid-row:2}
+.nm-ot{grid-row:4}
+.r-study{grid-column:1/5;grid-row:3;height:14px;background:linear-gradient(var(--card),var(--card)) 0 50%/auto 2px no-repeat,repeating-linear-gradient(90deg,var(--card) 0 1.5px,transparent 1.5px 7px);opacity:.9}
+.r-future{grid-column:5/7;grid-row:3;height:2px;background:repeating-linear-gradient(90deg,var(--card) 0 5px,transparent 5px 9px)}
+.r-dot{grid-row:3;justify-self:center;width:12px;height:12px;border-radius:50%;background:var(--card);box-shadow:0 0 0 3px #fff}
+.rd1{grid-column:1}.rd2{grid-column:2}.rd3{grid-column:3}.rd4{grid-column:4}
+.r-ot{grid-column:5/7;grid-row:5;height:6px;border-radius:3px;background:#aab3bf}
+.gd{grid-row:1/6;align-self:stretch;justify-self:start;border-left:1px dashed var(--line-2);margin-left:-3px}
+.gd-a{grid-column:5}.gd-b{grid-column:6}
+.tl-cards{display:grid;gap:10px;margin-top:22px}
+.tc{background:#fff;border:1px solid #ead9c4;border-radius:14px;overflow:hidden}
+.tc-when{font-size:12.5px;font-weight:750;color:#fff;background:var(--card);padding:6px 14px}
+.tc-meta{font-size:12.5px;color:var(--ink-3);padding:10px 14px 0}
+.tc-a{font-size:14.5px;font-weight:600;line-height:1.5;padding:4px 14px 14px}
+.tc-now{box-shadow:0 16px 32px -18px rgba(154,91,19,.5)}
+.tl-foot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:18px}
+.diff-notes{display:grid;gap:6px;margin-top:40px;font-size:16px;color:var(--ink-3);max-width:640px}
+.diff-notes b{color:var(--ink);font-weight:650}
+@media(min-width:1024px){
+  .tl{margin-top:72px}
+  .tl-grid,.tl-cards{grid-template-columns:120px repeat(4,minmax(0,1fr)) 76px 76px;column-gap:16px}
+  .tl-grid{font-size:14px;row-gap:14px}
+  .ax-study{grid-column:2/6}.ax-apply{grid-column:6}.ax-iv{grid-column:7}
+  .tl-name{grid-column:1;margin:0}
+  .nm-ex{grid-row:2}.nm-ot{grid-row:3}
+  .r-study{grid-column:2/6;grid-row:2}
+  .r-future{grid-column:6/8;grid-row:2}
+  .r-dot{grid-row:2}
+  .rd1{grid-column:2}.rd2{grid-column:3}.rd3{grid-column:4}.rd4{grid-column:5}
+  .r-ot{grid-column:6/8;grid-row:3}
+  .gd{grid-row:1/4;margin-left:-8px}.gd-a{grid-column:6}.gd-b{grid-column:7}
+  .tl-cards{margin-top:18px;gap:16px}
+  .tl-cards .tc{grid-row:1}
+  .tl-cards .tc:nth-child(1){grid-column:2}.tl-cards .tc:nth-child(2){grid-column:3}.tl-cards .tc:nth-child(3){grid-column:4}.tl-cards .tc:nth-child(4){grid-column:5}
+  .tl-foot{grid-column:1/-1}
+  .diff-notes{font-size:18px;margin-top:56px}
+}
+
+/* easy start */
+.es{position:relative;margin-top:40px;background:var(--surface);border-radius:24px;padding:22px 16px}
+.es>.ex{position:absolute;top:16px;right:16px}
+.es-steps{display:grid;gap:30px}
+.es-steps li{display:grid;gap:12px;align-content:start}
+.es-num{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:760;color:#fff;background:var(--ink)}
+.es-steps .two{font-size:16px}
+.mini{background:#fff;border-radius:16px;padding:14px;min-height:112px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.mj{align-items:center}
+.mj-logo{font-weight:820;letter-spacing:-.035em;font-size:16px}
+.mj-bar{width:var(--full);height:30px;border-radius:9px;border:1px solid var(--line-2)}
+.mj-btn{width:var(--full);height:34px;border-radius:9px;background:var(--ink);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
+.mc-t{font-size:13.5px;font-weight:750;margin-bottom:2px}
+.mc-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;padding:7px 0;border-top:1px solid var(--line)}
+.wait{font-size:12px;font-weight:700;color:var(--ink-3);background:var(--surface);padding:2px 8px;border-radius:999px}
+.ma-field{display:flex;align-items:center;gap:8px;height:44px;border-radius:22px;border:1px solid var(--line-2);padding:0 8px 0 6px;font-size:13px;color:var(--ink-4);overflow:hidden;white-space:nowrap}
+.ma-chip{flex:none;font-size:12px;font-weight:750;color:var(--talk);background:var(--talk-t);padding:4px 9px;border-radius:999px}
+.ma-ph{overflow:hidden;text-overflow:ellipsis}
+.es-band{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;justify-content:space-between;margin-top:24px}
+.es-band .two{font-size:17px}
+@media(min-width:1024px){
+  .es{padding:44px 40px 40px;border-radius:32px;margin-top:56px}
+  .es>.ex{top:22px;right:22px}
+  .es-steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+  .es-steps li{padding:0 28px;border-left:1px solid var(--line-2)}
+  .es-steps li:first-child{padding-left:0;border-left:0}
+  .es-steps li:last-child{padding-right:0}
+  .es-steps .two{font-size:17px;min-height:5em}
+  .es-band{margin-top:36px}
+  .es-band .two{font-size:20px}
+}
+
+/* signup */
+.su{background:var(--surface);border-radius:24px;padding:28px 14px 14px;display:grid;gap:26px}
+.su-copy{padding:0 4px}
+.su-note{margin-top:12px;font-size:16px;color:var(--ink-3)}
+.su-form,.su-done{background:#fff;border-radius:20px;padding:22px 16px}
+.su-form{display:grid;gap:24px}
+.field{display:grid;gap:8px;border:0;margin:0;padding:0;min-width:0}
+.field>label,.field legend{font-size:15px;font-weight:700;padding:0;margin-bottom:8px}
+.field>label{margin:0}
+.field legend small{font-weight:500;color:var(--ink-4);font-size:13.5px;margin-left:4px}
+.inp{justify-self:stretch;width:auto;height:52px;border-radius:12px;border:1.5px solid var(--line-2);padding:0 14px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.inp:focus-visible{outline-offset:1px}
+.inp[aria-invalid="true"]{border-color:var(--err)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;display:inline-flex}
+.chip input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.chip span{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line-2);font-size:15px;font-weight:560;background:#fff;color:var(--ink);transition:transform .15s var(--ease)}
+.chip input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip input:focus-visible+span{outline:3px solid var(--talk);outline-offset:2px}
+.chip input:active+span{transform:scale(.97)}
+fieldset[data-invalid] .chip span{border-color:var(--err)}
+.err{font-size:13.5px;color:var(--err);font-weight:650}
+.consent{font-size:13.5px;color:var(--ink-3);background:var(--surface);border-radius:14px;padding:14px}
+.consent-t{font-weight:700;color:var(--ink);font-size:14px}
+.consent ul{margin-top:6px;display:grid;gap:2px}
+.consent li{padding-left:12px;position:relative}
+.consent li::before{content:"";position:absolute;left:2px;top:.72em;width:3px;height:3px;border-radius:50%;background:var(--ink-4)}
+.check{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:15px;color:var(--ink);font-weight:650;min-height:44px;cursor:pointer}
+.check input{width:22px;height:22px;margin:0;accent-color:var(--ink);flex:none}
+.check input[aria-invalid="true"]{outline:2px solid var(--err);outline-offset:2px}
+.hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+.su-form .btn{width:var(--full)}
+.done-h{font-size:24px;font-weight:760;letter-spacing:-.02em}
+.su-done p+p{margin-top:6px;color:var(--ink-3)}
+.su-done:focus{outline:none}
+@media(min-width:1024px){
+  .su{grid-template-columns:minmax(0,1fr) 500px;gap:64px;padding:64px;border-radius:32px;align-items:start}
+  .su-copy{position:sticky;top:110px;padding:0}
+  .su-note{font-size:20px;margin-top:18px}
+  .su-form,.su-done{padding:32px}
+}
+
+/* footer, sticky */
+.foot{padding:44px 0 calc(48px + env(safe-area-inset-bottom));border-top:1px solid var(--line);font-size:14px;color:var(--ink-3)}
+.foot-in{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.foot .brand{font-size:18px;color:var(--ink)}
+.foot-links{display:flex;flex-wrap:wrap;align-items:center;gap:4px 18px}
+.foot-links a{display:inline-flex;align-items:center;min-height:44px}
+.sticky{display:none}
+@media(max-width:767px){
+  .js .sticky{display:block;position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.95);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s var(--ease)}
+  .js .sticky.show{transform:none}
+  .nav .btn{transition:opacity .2s}
+  .sticky-on .nav .btn{opacity:0;pointer-events:none}
+  .sticky .btn{display:flex}
+}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">Experii</a>
+    <a class="btn btn-ink btn-sm" href="#signup">사전 신청하기</a>
+  </div>
+</header>
+
+<nav class="ticks" aria-label="섹션 바로 가기">
+  <a href="#top"><i></i><span>처음</span></a>
+  <a href="#problem"><i></i><span>문제</span></a>
+  <a href="#shift"><i></i><span>달라진 질문</span></a>
+  <a href="#how"><i></i><span>작동 방식</span></a>
+  <a href="#difference"><i></i><span>언제 시작하나요</span></a>
+  <a href="#start"><i></i><span>귀찮지 않은 시작</span></a>
+  <a href="#signup"><i></i><span>사전 신청</span></a>
+</nav>
+
+<main>
+<!-- 1 Hero -->
+<section id="top" class="hero" aria-labelledby="hero-h">
+  <div class="wrap">
+    <p class="hero-kicker">면접에 집중한 학습 앱</p>
+    <h1 id="hero-h"><span>공부하는 오늘이,</span> <span>면접에서 말할 경험이 됩니다</span></h1>
+    <div class="hero-body">
+      <div class="hero-copy">
+        <p class="hero-sub"><b>SQLD 공부하며 AI와 나눈 대화가 현장 과제가 되고, 면접에서 꺼낼 답변 한 줄로 남아요.</b> 쓰던 GPT·Claude를 연결해 쓰도록 준비하고 있어요.</p>
+        <div class="cta-row">
+          <a class="btn btn-ink" href="#signup">사전 신청하기</a>
+          <a class="btn btn-soft" href="#how">어떻게 쓰는지 보기</a>
+        </div>
+      </div>
+      <figure class="interview" aria-label="같은 면접 질문에 대한 두 가지 답변 예시">
+        <span class="ex">예시</span>
+        <div class="iv"><span class="who">면접관</span><p class="bub bub-q">SQL 써 보셨어요?</p></div>
+        <div class="iv me iv-b"><span class="who">자격증만 있을 때</span><p class="bub bub-before">자격증 있어요.</p></div>
+        <div class="iv me iv-a"><span class="who">과제를 풀어 봤을 때</span><p class="bub bub-after">주문 없는 회원을 찾는 과제에서 LEFT JOIN으로 이렇게 써 봤어요.</p><p class="src-chip">10월 26일 SQLD 대화에서</p></div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 2 Problem -->
+<section id="problem" class="sec problem" aria-labelledby="pr-h">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="pr-h" class="h2">공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요</h2></div>
+    <div class="quotes">
+      <blockquote>“AI와 공부하며 공부 시간은 늘어났는데 이해도는 떨어지는 느낌”</blockquote>
+      <blockquote>“웹 리서치로 얻은 정보가 노션과 카톡에 누적만 되어 있고 실제로 다시 보지 않음”</blockquote>
+      <blockquote>“웹 리서치 시간이 너무 아까움”</blockquote>
+    </div>
+    <p class="q-src">창업자와 주변 대학생 2명이 실제로 한 말이에요.</p>
+    <div class="pr-low">
+      <div class="memos" aria-hidden="true">
+        <div class="memo-pile">
+          <div class="memo"><div class="memo-top"><b>SQL JOIN 정리</b><span>저장함 · 9월 3일</span></div><div class="memo-lines"><i></i><i></i><i></i></div><div class="memo-re">다시 연 날<em></em><i class="hd"></i><i class="hd"></i><i class="hd"></i></div></div>
+          <div class="memo"><div class="memo-top"><b>SQL JOIN 정리</b><span>저장함 · 9월 17일</span></div><div class="memo-lines"><i></i><i></i><i></i></div><div class="memo-re">다시 연 날<em></em><i class="hd"></i><i class="hd"></i><i class="hd"></i></div></div>
+          <div class="memo"><div class="memo-top"><b>SQL JOIN 정리</b><span>저장함 · 10월 2일</span></div><div class="memo-lines"><i></i><i></i><i></i></div><div class="memo-re">다시 연 날<em></em><i class="hd"></i><i class="hd"></i><i class="hd"></i></div></div>
+        </div>
+      </div>
+      <div class="pr-sum">
+        <p><b>정리해서 저장은 했는데,</b> 다시 열어 본 적은 없어요.</p>
+        <p><b>공부는 했는데,</b> 면접에서 꺼낼 경험으로는 남지 않아요.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 Shift -->
+<section id="shift" class="sec shift" aria-labelledby="sh-h">
+  <div class="wrap shift-grid">
+    <div>
+      <h2 id="sh-h" class="h2">서류는 AI가 도와줘요. 면접에서 나누는 대화는요?</h2>
+      <p class="two"><b>"자격증 있어요"는 첫 질문까지만 답이 돼요.</b> 그다음 질문에 답하려면 직접 써 본 경험이 있어야 해요.</p>
+    </div>
+    <div class="shift-q">
+      <span class="who">면접관</span>
+      <p class="bub">SQLD 있으시네요.</p>
+      <p class="bub">그럼 SQL을 어떤 과제에서 어떻게 써 봤어요?</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 How it works -->
+<section id="how" class="sec how" aria-labelledby="how-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="how-h" class="h2">공부하고, 풀고, 남기고, 다시 꺼내요</h2>
+      <p class="lead">SQLD 공부 하루가 면접 답변 한 줄이 되기까지</p>
+    </div>
+
+    <div class="stage" id="stage" data-step="1">
+      <div class="tints" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="phone" aria-hidden="true"></div>
+      <div class="ctrl">
+        <div class="steps" role="tablist" aria-label="작동 방식 4단계" aria-orientation="vertical">
+          <button class="step-tab" type="button" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true"><span class="st-num">1</span><span><span class="st-when">공부한 날</span><span class="st-name">학습 대화</span></span></button>
+          <button class="step-tab" type="button" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1"><span class="st-num">2</span><span><span class="st-when">공부한 날</span><span class="st-name">현장 과제</span></span></button>
+          <button class="step-tab" type="button" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1"><span class="st-num">3</span><span><span class="st-when">공부한 날</span><span class="st-name">경험 카드</span></span></button>
+          <button class="step-tab" type="button" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1"><span class="st-num">4</span><span><span class="st-when">1·7·30일 뒤</span><span class="st-name">리마인드</span></span></button>
+        </div>
+
+        <div class="panels">
+          <!-- panel 1 -->
+          <div class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1" data-step="1">
+            <div class="detail">
+              <h3 class="nj"><small>공부한 날</small>1 학습 대화</h3>
+              <p class="two"><b>AI와 평소처럼 공부해요.</b> 막힌 개념을 물으면 예시 표로 풀어 주고, 거꾸로 질문도 던져요.</p>
+              <button type="button" class="pill-btn next-step" data-go="2">다음 단계: 현장 과제</button>
+            </div>
+            <div class="screen scr-chat">
+              <span class="island">예시 화면</span>
+              <div class="appbar"><span class="subj">SQLD · 2과목</span><span class="adate">10월 26일 (월)</span></div>
+              <div class="thread" tabindex="0" role="group" aria-label="예시 대화, 미리 써 둔 대화">
+                <div class="s0" data-in="0" data-out="1">
+                  <p class="s0-guide">오늘 공부하다 막힌 걸 물어보세요</p>
+                  <div class="s0-chips"><span>JOIN 차이가 헷갈려</span><span>GROUP BY랑 HAVING</span><span>ROW_NUMBER랑 RANK</span></div>
+                </div>
+                <p class="m me" data-in="1">LEFT JOIN이랑 INNER JOIN 차이가 헷갈려</p>
+                <div class="m ai" data-in="2">
+                  <span class="who">AI</span>
+                  <p>둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요.</p>
+                  <div class="tbls" data-in="3">
+                    <table class="mt"><caption>members</caption><thead><tr><th>member_id</th><th>member_name</th></tr></thead><tbody><tr><td>1</td><td>민지</td></tr><tr><td>2</td><td>서준</td></tr><tr><td>3</td><td>하린</td></tr></tbody></table>
+                    <table class="mt"><caption>orders</caption><thead><tr><th>order_id</th><th>member_id</th></tr></thead><tbody><tr><td>101</td><td>1</td></tr><tr><td>102</td><td>1</td></tr><tr><td>103</td><td>3</td></tr></tbody></table>
+                  </div>
+                  <p data-in="4"><b>INNER JOIN</b>은 양쪽에 짝이 있는 행만 남겨요. 주문이 없는 서준은 빠져서 결과가 3행이에요.</p>
+                  <table class="mt" data-in="5"><caption>결과 표 A (INNER JOIN, 3행)</caption><thead><tr><th>member_name</th><th>order_id</th></tr></thead><tbody><tr><td>민지</td><td>101</td></tr><tr><td>민지</td><td>102</td></tr><tr><td>하린</td><td>103</td></tr></tbody></table>
+                  <p data-in="6"><b>LEFT JOIN</b>은 왼쪽(회원) 행을 모두 남기고, 짝이 없으면 주문 칸을 NULL로 채워요. 그래서 4행이에요.</p>
+                  <table class="mt" data-in="7"><caption>결과 표 B (LEFT JOIN, 4행)</caption><thead><tr><th>member_name</th><th>order_id</th></tr></thead><tbody><tr><td>민지</td><td>101</td></tr><tr><td>민지</td><td>102</td></tr><tr class="hl"><td>서준</td><td>NULL</td></tr><tr><td>하린</td><td>103</td></tr></tbody></table>
+                </div>
+                <p class="m ai" data-in="8"><span class="who">AI</span>그럼 하나 물어볼게요. 주문을 한 번도 안 한 회원만 뽑으려면, 결과 표 B에서 어떤 행을 고르면 될까요?</p>
+                <p class="m me" data-in="9">LEFT JOIN 하고 주문 칸이 NULL인 행?</p>
+                <div class="m ai" data-in="10"><span class="who">AI</span><p>맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?</p><span class="fake" aria-hidden="true">과제 받기</span></div>
+              </div>
+              <div class="composer">
+                <span class="gpt">내 GPT <small>연결 준비 중</small></span>
+                <span class="field-mock" aria-hidden="true"><span class="ph">질문을 입력하세요</span><span class="typed"></span></span>
+                <span class="send" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- panel 2 -->
+          <div class="panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2" data-step="2">
+            <div class="detail">
+              <h3 class="nj"><small>공부한 날</small>2 현장 과제</h3>
+              <p class="two"><b>배운 걸 바로 써 봐요.</b> 방금 대화에서 실무 상황 과제가 나와요.</p>
+              <p class="hint">폰 화면의 빈칸에 들어갈 JOIN을 직접 골라 보세요.</p>
+              <button type="button" class="pill-btn next-step" data-go="3">다음 단계: 경험 카드</button>
+            </div>
+            <div class="screen scr-chat">
+              <span class="island">예시 화면</span>
+              <div class="appbar"><span class="subj">SQLD · 2과목</span><span class="adate">10월 26일 (월)</span></div>
+              <div class="thread" tabindex="0" role="group" aria-label="예시 화면, 현장 과제">
+                <div class="m ai ctx" data-in="1"><span class="who">AI</span><p>맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?</p><span class="fake muted" aria-hidden="true">과제 받기</span></div>
+                <div class="status" data-in="1">
+                  <p class="status-label">방금 대화에서 과제를 만드는 중…</p>
+                  <ol class="checks">
+                    <li data-in="2"><span><b>대화에서 개념 찾기</b> · LEFT JOIN, IS NULL</span></li>
+                    <li data-in="3"><span><b>상황 고르기</b> · 쇼핑몰 회원·주문 데이터</span></li>
+                    <li data-in="4"><span><b>현장 과제 만들기</b></span></li>
+                  </ol>
+                </div>
+                <article class="task key" data-in="5">
+                  <div class="task-h"><span class="task-pill">현장 과제</span><span class="task-from">쇼핑몰 마케팅팀 요청 (가상 상황)</span></div>
+                  <p>가입은 했지만 아직 한 번도 주문하지 않은 회원에게 첫 구매 쿠폰을 보내려고 해요. 대상 회원의 아이디, 이름, 가입일을 뽑아 주세요.</p>
+                  <p class="task-tables"><span class="k">쓰는 테이블</span><code>members(member_id, member_name, joined_at)</code><code>orders(order_id, member_id, ordered_at)</code></p>
+                </article>
+                <div class="solve" data-in="6">
+                  <pre class="sql"><code><span class="ln"><b>SELECT</b> m.member_id, m.member_name, m.joined_at</span><span class="ln"><b>FROM</b> members m</span><span class="ln"><span class="blank is-right" data-blank>LEFT JOIN</span> orders o</span><span class="ln">  <b>ON</b> m.member_id = o.member_id</span><span class="ln"><b>WHERE</b> o.order_id <b>IS NULL</b>;</span></code></pre>
+                  <div class="opts" role="group" aria-label="빈칸에 들어갈 JOIN 고르기">
+                    <button type="button" class="opt" data-opt="INNER JOIN" aria-pressed="false">INNER JOIN</button>
+                    <button type="button" class="opt" data-opt="LEFT JOIN" aria-pressed="false">LEFT JOIN</button>
+                  </div>
+                  <div class="run"><span class="fake muted" aria-hidden="true">실행</span></div>
+                  <div class="result" data-result>
+                    <table class="mt"><caption>결과 2행</caption><thead><tr><th>member_id</th><th>member_name</th><th>joined_at</th></tr></thead><tbody><tr><td>2</td><td>서준</td><td>2026-09-10</td></tr><tr><td>4</td><td>도윤</td><td>2026-10-12</td></tr></tbody></table>
+                    <p class="m ai"><span class="who">AI</span>맞아요. 주문이 없는 회원은 주문 칸이 NULL로 남아서 WHERE에서 골라져요.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <template id="tpl-right">
+              <table class="mt"><caption>결과 2행</caption><thead><tr><th>member_id</th><th>member_name</th><th>joined_at</th></tr></thead><tbody><tr><td>2</td><td>서준</td><td>2026-09-10</td></tr><tr><td>4</td><td>도윤</td><td>2026-10-12</td></tr></tbody></table>
+              <p class="m ai"><span class="who">AI</span>맞아요. 주문이 없는 회원은 주문 칸이 NULL로 남아서 WHERE에서 골라져요.</p>
+            </template>
+            <template id="tpl-wrong">
+              <p class="res-zero">결과 0행</p>
+              <p class="m ai"><span class="who">AI</span>결과가 0행이에요. INNER JOIN은 주문이 없는 회원을 처음부터 빼서, o.order_id가 NULL인 행이 남지 않아요. LEFT JOIN으로 바꿔 볼까요?</p>
+            </template>
+          </div>
+
+          <!-- panel 3 -->
+          <div class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" data-step="3">
+            <div class="detail">
+              <h3 class="nj"><small>공부한 날</small>3 경험 카드</h3>
+              <p class="two"><b>푼 경험이 답변 한 줄로.</b> 면접에서 꺼낼 한 줄을 카드로 저장해요.</p>
+              <button type="button" class="pill-btn next-step" data-go="4">다음 단계: 리마인드</button>
+            </div>
+            <div class="screen scr-card">
+              <span class="island">예시 화면</span>
+              <div class="layer l-chat">
+                <div class="appbar"><span class="subj">SQLD · 2과목</span><span class="adate">10월 26일 (월)</span></div>
+                <div class="thread">
+                  <pre class="sql ctx-code ctx"><code><span class="ln"><b>FROM</b> members m</span><span class="ln src-line"><b>LEFT JOIN</b> orders o</span><span class="ln">  <b>ON</b> m.member_id = o.member_id</span><span class="ln"><b>WHERE</b> o.order_id <b>IS NULL</b>;</span></code></pre>
+                  <p class="m ai" data-in="1"><span class="who">AI</span>방금 푼 과제를 면접 답변 한 줄로 정리했어요. 내 말투에 맞게 고쳐도 돼요.</p>
+                  <article class="xcard" data-in="1">
+                    <p class="xc-head">경험 카드 · 2026.10.26 (월)</p>
+                    <div class="xc-body">
+                      <span class="xc-k">면접 질문</span><p class="xc-q">SQL을 써 본 적 있나요?</p>
+                      <span class="xc-k">내 답변 한 줄<i class="pen" aria-hidden="true"></i></span><p class="xc-a">쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.</p>
+                      <span class="xc-k">배운 점</span><p>LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.</p>
+                      <p class="xc-query"><span class="xc-k">내가 쓴 쿼리</span><code class="xc-snip" data-in="2">LEFT JOIN … IS NULL</code><i class="fold" aria-hidden="true"></i></p>
+                    </div>
+                  </article>
+                  <span class="fake save" data-in="1" aria-hidden="true">경험 카드로 저장</span>
+                </div>
+              </div>
+              <div class="layer l-list">
+                <div class="appbar"><span class="ab-title">내 경험 카드</span><span class="adate">10월 26일 (월)</span></div>
+                <ol class="xlist">
+                  <li class="xl-new">
+                    <p class="xl-stamp"><span class="when">오늘</span>SQLD 2과목 · JOIN</p>
+                    <p class="xl-title">주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제</p>
+                    <article class="xcard key">
+                      <p class="xc-head">경험 카드 · 2026.10.26 (월)</p>
+                      <div class="xc-body">
+                        <span class="xc-k">면접 질문</span><p class="xc-q">SQL을 써 본 적 있나요?</p>
+                        <span class="xc-k">내 답변 한 줄<i class="pen" aria-hidden="true"></i></span><p class="xc-a">쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.</p>
+                        <span class="xc-k">배운 점</span><p>LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.</p>
+                        <p class="xc-query"><span class="xc-k">내가 쓴 쿼리</span><code class="xc-snip">LEFT JOIN … IS NULL</code><i class="fold" aria-hidden="true"></i></p>
+                        <ul class="xc-tags"><li>SQLD</li><li>2과목</li><li>JOIN</li></ul>
+                        <p class="xc-src">출처 · 10월 26일 SQLD 대화</p>
+                        <p class="xc-re"><span class="xc-k">다시 볼 날</span><span><i class="dot"></i>10월 27일</span><span><i class="dot"></i>11월 2일</span><span><i class="dot"></i>11월 25일</span></p>
+                      </div>
+                    </article>
+                  </li>
+                  <li class="xl-old ctx"><p class="xl-stamp"><span class="when">7일 전</span>SQLD 2과목 · GROUP BY</p><p>결제 2건 이상인 재구매 회원을 뽑는 과제</p></li>
+                  <li class="xl-old ctx"><p class="xl-stamp"><span class="when">30일 전</span>SQLD 2과목 · 서브쿼리</p><p>평균보다 많이 주문한 회원을 찾는 과제</p></li>
+                </ol>
+                <p class="toast">저장했어요. 내일 다시 꺼내 드릴게요.</p>
+              </div>
+              <span class="fly" aria-hidden="true"><span>LEFT JOIN … IS NULL</span></span>
+            </div>
+          </div>
+
+          <!-- panel 4 -->
+          <div class="panel" id="panel-4" role="tabpanel" aria-labelledby="tab-4" data-step="4">
+            <div class="detail">
+              <h3 class="nj"><small>1·7·30일 뒤</small>4 리마인드</h3>
+                            <p class="two"><b>잊을 즈음 다시 꺼내 줘요.</b> 배운 점, 활용 방안, 면접 예상 질문이 알림으로 와요. <span class="soon">출시 예정 기능</span></p>
+              <div class="ruler" aria-hidden="true">
+                <div class="ru-track">
+                  <i class="ru-ticks"></i><i class="ru-base"></i><i class="ru-fill"></i>
+                  <i class="ru-mark" data-d="0" style="--d:0"></i><i class="ru-mark" data-d="1" style="--d:1"></i><i class="ru-mark" data-d="7" style="--d:7"></i><i class="ru-mark" data-d="30" style="--d:30"></i>
+                  <span class="ru-clip"><span class="ru-pos"><i class="ru-pin"></i></span></span>
+                </div>
+                <div class="ru-ends"><span>10월 26일 공부한 날</span><span>11월 25일</span></div>
+              </div>
+              <ol class="beats">
+                <li><span class="big">1일 뒤</span><span class="sm">10월 27일 화요일<br>배운 점</span></li>
+                <li><span class="big">7일 뒤</span><span class="sm">11월 2일 월요일<br>활용 방안</span></li>
+                <li><span class="big">30일 뒤</span><span class="sm">11월 25일 수요일<br>면접 예상 질문</span></li>
+              </ol>
+              <div class="rc"><button type="button" class="pill-btn dark btn-notif">다음 알림</button><p class="fact">알림은 공부한 날로부터 1일, 7일, 30일 뒤, 딱 세 번 와요.</p></div>
+            </div>
+            <div class="screen scr-lock">
+              <span class="island">예시 화면</span>
+              <div class="layer l-card">
+                <div class="appbar"><span class="ab-title" tabindex="-1">경험 카드</span><span class="adate">11월 25일 (수)</span></div>
+                <div class="thread">
+                  <p class="revisit-line">다시 본 날 · <i class="dot"></i>10월 27일 · <i class="dot"></i>11월 2일 · <i class="dot"></i>11월 25일</p>
+                  <article class="xcard">
+                    <p class="xc-head">경험 카드 · 2026.10.26 (월)</p>
+                    <div class="xc-body">
+                      <span class="xc-k">면접 질문</span><p class="xc-q">SQL을 써 본 적 있나요?</p>
+                      <span class="xc-k">내 답변 한 줄<i class="pen" aria-hidden="true"></i></span><p class="xc-a">쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.</p>
+                      <span class="xc-k">배운 점</span><p>LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.</p>
+                      <p class="xc-query"><span class="xc-k">내가 쓴 쿼리</span><code class="xc-snip">LEFT JOIN … IS NULL</code><i class="fold" aria-hidden="true"></i></p>
+                      <ul class="xc-tags"><li>SQLD</li><li>2과목</li><li>JOIN</li></ul>
+                      <p class="xc-src">출처 · 10월 26일 SQLD 대화</p>
+                    </div>
+                  </article>
+                  <div class="follow">
+                    <p class="fl-label">공부 30일 뒤 · 면접 예상 질문</p>
+                    <p class="fl-q">면접 질문: "SQL을 실제로 써 본 적 있나요?"</p>
+                    <p class="fl-k">꼬리질문 대비</p>
+                    <p>같은 결과를 다른 방법으로도 낼 수 있나요? → NOT EXISTS로도 찾을 수 있어요.</p>
+                    <pre class="sql"><code><span class="ln"><b>SELECT</b> m.member_id, m.member_name, m.joined_at</span><span class="ln"><b>FROM</b> members m</span><span class="ln"><b>WHERE NOT EXISTS</b> (</span><span class="ln">  <b>SELECT</b> 1</span><span class="ln">  <b>FROM</b> orders o</span><span class="ln">  <b>WHERE</b> o.member_id = m.member_id</span><span class="ln">);</span></code></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="lock">
+                <p class="lock-date" aria-live="off"><span class="ld" data-pos="now"><span class="md">10월 27일</span> <span class="dow">화요일</span></span><span class="ld" data-pos="next"><span class="md">11월 2일</span> <span class="dow">월요일</span></span><span class="ld" data-pos="next"><span class="md">11월 25일</span> <span class="dow">수요일</span></span></p>
+                <ol class="stack">
+                  <li class="notif"><span class="n-date">10월 27일 화요일</span><span class="n-head"><i class="n-ico" aria-hidden="true">E</i><span class="n-app">Experii</span><span class="n-label"> · 공부 1일 뒤 · 배운 점</span></span><span class="n-body">LEFT JOIN은 왼쪽 표의 행을 모두 남겨요. 주문이 없는 회원은 주문 칸이 NULL이라 IS NULL로 찾았죠.</span><span class="n-more">어제 쓴 쿼리 다시 보기 →</span><button type="button" class="n-hit" aria-label="다음 알림 보기"></button></li>
+                  <li class="notif"><span class="n-date">11월 2일 월요일</span><span class="n-head"><i class="n-ico" aria-hidden="true">E</i><span class="n-app">Experii</span><span class="n-label"> · 공부 7일 뒤 · 활용 방안</span></span><span class="n-body">'한 번도 ~하지 않은' 대상을 찾을 땐 같은 모양이에요. 예: 강의를 결제하고 한 번도 듣지 않은 수강생 찾기.</span><span class="n-more">IS NULL 조건은 ON이 아니라 WHERE에 둬요. ON에 넣으면 회원이 모두 그대로 나와요.</span><button type="button" class="n-hit" aria-label="다음 알림 보기"></button></li>
+                  <li class="notif"><span class="n-date">11월 25일 수요일</span><span class="n-head"><i class="n-ico" aria-hidden="true">E</i><span class="n-app">Experii</span><span class="n-label"> · 공부 30일 뒤 · 면접 예상 질문</span></span><span class="n-body">면접 질문: "SQL을 실제로 써 본 적 있나요?" 내 답변 한 줄 다시 보기 →</span><button type="button" class="n-hit" aria-label="30일 알림 열기"></button></li>
+                </ol>
+                <p class="lock-hint" aria-hidden="true">알림을 눌러 넘겨 보세요</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player">
+          <button type="button" class="play" data-state="idle">
+            <span class="play-ico" aria-hidden="true">
+              <svg class="i-play" viewBox="0 0 16 16"><path d="M5 3.2v9.6l7.6-4.8z" fill="currentColor"/></svg>
+              <svg class="i-pause" viewBox="0 0 16 16"><rect x="3.8" y="3.2" width="2.8" height="9.6" rx="1" fill="currentColor"/><rect x="9.4" y="3.2" width="2.8" height="9.6" rx="1" fill="currentColor"/></svg>
+              <svg class="i-again" viewBox="0 0 16 16"><path d="M12.6 9.2A4.8 4.8 0 1 1 11 4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11.6 1.8v3.4H8.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="play-label">처음부터 이어 보기</span>
+            <span class="prog" aria-hidden="true"><i style="--w:74"><b></b></i><i style="--w:46"><b></b></i><i style="--w:30"><b></b></i><i style="--w:60"><b></b></i></span>
+          </button>
+          <p class="replay-note" hidden>빈칸은 직접 풀어 볼 수 있어요. <button type="button" class="link-btn" data-solve>현장 과제에서 직접 풀기</button></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="how-foot">
+      <p class="how-caption">예시 화면이에요. 쓰던 GPT를 연결해 이렇게 공부하도록 준비하고 있어요. 지금 보이는 대화는 미리 써 둔 예시예요.</p>
+      <div class="how-close">
+        <p>공부한 날 한 번 남기면, 그다음은 Experii가 꺼내 줘요.</p>
+        <a href="#signup">이 질문으로 첫 공부 시작하기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 Difference -->
+<section id="difference" class="sec diff" aria-labelledby="df-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="df-h" class="h2">지원할 때가 아니라, 공부하는 날마다</h2>
+      <p class="lead"><b>몇 달 치 기록은 나중에 한꺼번에 만들 수 없어요.</b> 공부한 그날 남긴 카드에는 날짜와 내가 쓴 쿼리, 푼 과제가 그대로 있어요.</p>
+    </div>
+    <figure class="tl">
+      <div class="tl-grid" aria-hidden="true">
+        <span class="ax ax-study">자격증 공부</span><span class="ax ax-apply">지원</span><span class="ax ax-iv">면접</span>
+        <span class="tl-name nm-ex">Experii</span>
+        <i class="r-study"></i><i class="r-future"></i>
+        <i class="r-dot rd1"></i><i class="r-dot rd2"></i><i class="r-dot rd3"></i><i class="r-dot rd4"></i>
+        <span class="tl-name nm-ot">지원할 때 쓰는 도구</span>
+        <i class="r-ot"></i>
+        <i class="gd gd-a"></i><i class="gd gd-b"></i>
+      </div>
+      <figcaption class="sr-only">Experii의 경험 카드는 자격증 공부 첫날부터 쌓이고, 지원할 때 쓰는 도구는 지원 시점부터 시작해요.</figcaption>
+      <ol class="tl-cards">
+        <li class="tc"><p class="tc-when">3개월 전</p><p class="tc-meta">SQLD 1과목 · 정규화</p><p class="tc-a">주문서 엑셀을 회원·주문 테이블로 나누는 과제를 풀어 봤습니다.</p></li>
+        <li class="tc"><p class="tc-when">30일 전</p><p class="tc-meta">SQLD 2과목 · 서브쿼리</p><p class="tc-a">평균보다 많이 주문한 회원을 서브쿼리로 찾는 과제를 풀어 봤습니다.</p></li>
+        <li class="tc"><p class="tc-when">7일 전</p><p class="tc-meta">SQLD 2과목 · GROUP BY</p><p class="tc-a">취소 주문은 빼고 결제 2건 이상인 재구매 회원을 뽑는 과제를 풀어 봤습니다.</p></li>
+        <li class="tc tc-now"><p class="tc-when">오늘</p><p class="tc-meta">SQLD 2과목 · JOIN</p><p class="tc-a">주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제를 풀어 봤습니다.</p></li>
+      </ol>
+      <div class="tl-foot"><span class="ex">예시</span><span class="two">면접 날짜가 정해지기 전부터, 공부한 날마다 한 칸씩.</span></div>
+    </figure>
+    <div class="diff-notes">
+      <p><b>지원할 때 쓰는 도구와 같이 써도 돼요.</b> Experii는 그 전 몇 달을 맡아요.</p>
+      <p>꾸준히 공부한 만큼 쌓여요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 Easy start -->
+<section id="start" class="sec easy" aria-labelledby="es-h">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="es-h" class="h2">연결하고, 공부만 하세요</h2></div>
+    <div class="es">
+      <span class="ex">예시 화면</span>
+      <ol class="es-steps">
+        <li>
+          <span class="es-num">1</span>
+          <p class="two"><b>가입은 짧게</b> 3분 안에 시작하도록 만들고 있어요.</p>
+          <div class="mini mj" aria-hidden="true"><span class="mj-logo">Experii</span><span class="mj-bar"></span><span class="mj-btn">시작하기</span></div>
+        </li>
+        <li>
+          <span class="es-num">2</span>
+          <p class="two"><b>쓰던 AI 그대로</b> 이미 구독 중인 GPT·Claude를 연결할 수 있게 준비하고 있어요.</p>
+          <div class="mini mc"><p class="mc-t">내 AI 연결</p><p class="mc-row"><span>GPT</span><span class="wait">준비 중</span></p><p class="mc-row"><span>Claude</span><span class="wait">준비 중</span></p></div>
+        </li>
+        <li>
+          <span class="es-num">3</span>
+          <p class="two"><b>첫 질문 하나</b> 오늘 막힌 SQLD 개념 하나를 물어보면 시작이에요.</p>
+          <div class="mini ma" aria-hidden="true"><p class="ma-field"><span class="ma-chip">SQLD</span><span class="ma-ph">오늘 공부하다 막힌 걸 물어보세요</span></p></div>
+        </li>
+      </ol>
+    </div>
+    <div class="es-band">
+      <p class="two"><b>Experii 이용료는 받지 않아요.</b> AI는 쓰고 있는 구독을 그대로 써요.</p>
+      <a class="btn btn-ink" href="#signup">사전 신청하기</a>
+    </div>
+  </div>
+</section>
+
+<!-- 7 Signup -->
+<section id="signup" class="sec signup" aria-labelledby="su-h">
+  <div class="wrap">
+    <div class="su">
+      <div class="su-copy">
+        <h2 id="su-h" class="h2">SQLD 공부 중이라면, 먼저 만나 보세요</h2>
+        <p class="su-note">SQLD를 공부 중인 대학생께 먼저 연락드려요</p>
+      </div>
+      <div>
+        <form id="su-form" class="su-form" method="post" action="#signup" novalidate>
+          <div class="field">
+            <label for="f-email">이메일</label>
+            <input class="inp" id="f-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required aria-describedby="e-email">
+            <p class="err" id="e-email" hidden>이메일 주소를 확인해 주세요</p>
+          </div>
+          <fieldset class="field" data-group="student_status">
+            <legend>지금 상황</legend>
+            <div class="chips">
+              <label class="chip"><input type="radio" name="student_status" value="undergrad" required aria-describedby="e-student_status"><span>대학생</span></label>
+              <label class="chip"><input type="radio" name="student_status" value="job_seeker" aria-describedby="e-student_status"><span>졸업 후 취업 준비</span></label>
+              <label class="chip"><input type="radio" name="student_status" value="other" aria-describedby="e-student_status"><span>기타</span></label>
+            </div>
+            <p class="err" id="e-student_status" hidden>지금 상황을 골라 주세요</p>
+          </fieldset>
+          <fieldset class="field" data-group="sqld_status">
+            <legend>SQLD 공부 상태</legend>
+            <div class="chips">
+              <label class="chip"><input type="radio" name="sqld_status" value="studying" required aria-describedby="e-sqld_status"><span>지금 공부 중</span></label>
+              <label class="chip"><input type="radio" name="sqld_status" value="planning" aria-describedby="e-sqld_status"><span>공부할 계획</span></label>
+              <label class="chip"><input type="radio" name="sqld_status" value="certified" aria-describedby="e-sqld_status"><span>이미 취득</span></label>
+              <label class="chip"><input type="radio" name="sqld_status" value="none" aria-describedby="e-sqld_status"><span>해당 없음</span></label>
+            </div>
+            <p class="err" id="e-sqld_status" hidden>SQLD 공부 상태를 골라 주세요</p>
+          </fieldset>
+          <fieldset class="field" data-group="ai_subscriptions">
+            <legend>유료 AI 구독<small>여러 개 고를 수 있어요</small></legend>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="ai_subscriptions" value="chatgpt_paid" aria-describedby="e-ai_subscriptions"><span>ChatGPT 유료</span></label>
+              <label class="chip"><input type="checkbox" name="ai_subscriptions" value="claude_paid" aria-describedby="e-ai_subscriptions"><span>Claude 유료</span></label>
+              <label class="chip"><input type="checkbox" name="ai_subscriptions" value="none" aria-describedby="e-ai_subscriptions"><span>유료 구독 없음</span></label>
+            </div>
+            <p class="err" id="e-ai_subscriptions" hidden>하나 이상 골라 주세요</p>
+          </fieldset>
+          <div class="consent">
+            <p class="consent-t">[필수] 개인정보 수집·이용 동의</p>
+            <ul>
+              <li>수집 항목: 이메일, 신분, SQLD 공부 상태, 유료 AI 구독 여부</li>
+              <li>이용 목적: Experii 출시·시범 사용 안내, 서비스 기획을 위한 응답 집계</li>
+              <li>보유 기간: 수집일로부터 1년 또는 철회 요청 시 즉시 파기</li>
+              <li>동의하지 않을 수 있으며, 동의하지 않으면 사전 신청이 되지 않습니다.</li>
+            </ul>
+            <label class="check"><input type="checkbox" name="consent" value="on" required aria-describedby="e-consent">만 14세 이상이며 위 내용에 동의합니다.</label>
+            <p class="err" id="e-consent" hidden>동의해야 신청할 수 있어요</p>
+          </div>
+          <div class="hp" aria-hidden="true"><label>웹사이트<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          <input type="hidden" name="hero_variant" value="h1">
+          <input type="hidden" name="utm_source"><input type="hidden" name="utm_medium"><input type="hidden" name="utm_campaign"><input type="hidden" name="utm_content"><input type="hidden" name="utm_term"><input type="hidden" name="referrer_host">
+          <button type="submit" class="btn btn-ink">사전 신청하기</button>
+        </form>
+        <div class="su-done" id="su-done" tabindex="-1" hidden>
+          <p class="done-h">신청됐어요.</p>
+          <p>출시와 시범 사용 소식을 이메일로 알려 드릴게요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<p id="live" class="sr-only" aria-live="polite"></p>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="brand">Experii</span>
+    <p>출시 전 제품이며 화면은 예시입니다.</p>
+    <p class="foot-links"><a href="/privacy">개인정보 처리방침</a><span>문의 이메일 (준비 중)</span></p>
+  </div>
+</footer>
+
+<div class="sticky"><a class="btn btn-ink" href="#signup">사전 신청하기</a></div>
+
+<script>
+(() => {
+  'use strict';
+  const d = document;
+  const mq = matchMedia('(prefers-reduced-motion: reduce)');
+  let reduced = mq.matches;
+  if (mq.addEventListener) mq.addEventListener('change', e => { reduced = e.matches; });
+  const $ = (s, r) => (r || d).querySelector(s);
+  const $$ = (s, r) => Array.from((r || d).querySelectorAll(s));
+  const live = $('#live');
+  const say = t => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 60); };
+  const reflow = el => void el.offsetWidth;
+  function pop(el, cls) {
+    cls = cls || 'fresh';
+    if (reduced || !el) return;
+    el.classList.remove(cls); reflow(el); el.classList.add(cls);
+    el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+  }
+
+  /* small clock: events [{t, fn} | {t, dur, frame}] on one timeline, pausable */
+  function Runner(events, opt) {
+    opt = opt || {};
+    const speed = opt.speed || 1;
+    const ev = events.slice().sort((a, b) => a.t - b.t);
+    const total = opt.total || ev.reduce((m, e) => Math.max(m, e.t + (e.dur || 0)), 0);
+    let el = 0, t0 = 0, raf = 0, i = 0, playing = false, done = false;
+    const act = new Set();
+    function step(ts) {
+      el = (ts - t0) * speed;
+      while (i < ev.length && ev[i].t <= el) { const e = ev[i++]; if (e.fn) e.fn(); if (e.dur) act.add(e); }
+      act.forEach(e => { const p = Math.min(1, Math.max(0, (el - e.t) / e.dur)); e.frame(p); if (p >= 1) act.delete(e); });
+      if (opt.tick) opt.tick(Math.min(el, total));
+      if (el >= total && i >= ev.length && !act.size) { playing = false; done = true; if (opt.end) opt.end(); return; }
+      raf = requestAnimationFrame(step);
+    }
+    return {
+      play() { if (playing || done) return; playing = true; t0 = performance.now() - el / speed; raf = requestAnimationFrame(step); },
+      pause() { if (!playing) return; playing = false; cancelAnimationFrame(raf); },
+      stop() { playing = false; done = true; cancelAnimationFrame(raf); },
+      get playing() { return playing; }
+    };
+  }
+
+  /* ---------- LoopStepper ---------- */
+  const stage = $('#stage');
+  const tabs = $$('[role="tab"]', stage);
+  const panels = $$('[role="tabpanel"]', stage);
+  const NAMES = ['학습 대화', '현장 과제', '경험 카드', '리마인드'];
+  const [p1, p2, p3, p4] = panels;
+  const chat3 = $('.l-chat', p3), list3 = $('.l-list', p3);
+
+  function setAt(scope, n, fresh) {
+    $$('[data-in]', scope).forEach(el => {
+      const a = +el.dataset.in, b = el.dataset.out != null ? +el.dataset.out : 1e9;
+      const on = n >= a && n < b;
+      if (on && fresh && !el.classList.contains('on')) pop(el);
+      el.classList.toggle('on', on);
+    });
+    scope.dataset.at = n;
+  }
+  function toBottom(scope, smooth) {
+    const t = $('.thread', scope);
+    if (!t) return;
+    t.scrollTo({ top: t.scrollHeight, behavior: smooth && !reduced ? 'smooth' : 'auto' });
+  }
+  function instant(fn) { stage.classList.add('noanim'); fn(); reflow(stage); requestAnimationFrame(() => stage.classList.remove('noanim')); }
+  function typeSet(scope, txt) {
+    const c = $('.composer', scope), ty = $('.typed', c);
+    ty.textContent = txt; c.classList.toggle('typing', !!txt);
+  }
+  function tap(el) {
+    if (!el || reduced) return;
+    const scr = el.closest('.screen'); if (!scr) return;
+    const r = el.getBoundingClientRect(), s = scr.getBoundingClientRect();
+    const fx = d.createElement('i'); fx.className = 'tapfx';
+    fx.style.left = (r.left - s.left + r.width / 2) + 'px';
+    fx.style.top = (r.top - s.top + r.height / 2) + 'px';
+    scr.appendChild(fx); setTimeout(() => fx.remove(), 650);
+  }
+  function hintTab(n) { const t = tabs[n - 1]; if (t.getAttribute('aria-selected') === 'true') return; pop(t, 'hint'); }
+
+  /* step 2: blank */
+  const blank = $('[data-blank]', p2), opts = $$('.opt', p2), resBox = $('[data-result]', p2);
+  const next2 = $('.next-step', p2), statusBox = $('.status', p2);
+  function resetBlank() {
+    blank.textContent = '[ ? ]'; blank.className = 'blank';
+    opts.forEach(b => { b.setAttribute('aria-pressed', 'false'); b.classList.remove('wrong'); });
+    resBox.replaceChildren(); next2.hidden = true;
+  }
+  function fill(v) {
+    const ok = v === 'LEFT JOIN';
+    blank.textContent = v;
+    blank.classList.toggle('is-right', ok); blank.classList.toggle('is-wrong', !ok);
+    opts.forEach(b => { const on = b.dataset.opt === v; b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.classList.toggle('wrong', on && !ok); });
+    pop(blank, 'pop');
+  }
+  function showResult(v, quiet) {
+    const ok = v === 'LEFT JOIN';
+    resBox.replaceChildren($(ok ? '#tpl-right' : '#tpl-wrong').content.cloneNode(true));
+    pop(resBox);
+    next2.hidden = !ok;
+    if (!quiet) say(ok ? '결과 2행, 서준과 도윤. 맞아요. 주문이 없는 회원은 주문 칸이 NULL로 남아서 WHERE에서 골라져요.' : '결과 0행. INNER JOIN은 주문이 없는 회원을 처음부터 빼요. LEFT JOIN으로 바꿔 볼까요?');
+  }
+  const busy = on => statusBox.classList.toggle('busy', on);
+
+  /* step 3 */
+  function listShown(on) { list3.classList.toggle('shown', on); chat3.classList.toggle('covered', on); if (on) pop($('.toast', list3)); }
+  function fly() {
+    if (reduced) return;
+    const f = $('.fly', p3), src = $('.src-line', chat3), dst = $('.xc-snip', chat3);
+    const scr = p3.querySelector('.screen').getBoundingClientRect();
+    const th = $('.thread', chat3).getBoundingClientRect();
+    const a = src.getBoundingClientRect(), b = $('.xc-query', chat3).getBoundingClientRect();
+    const y0 = Math.max(a.top, th.top) - scr.top, x0 = a.left - scr.left;
+    const y1 = b.top - scr.top + 4, x1 = b.left - scr.left + 84;
+    f.style.setProperty('--x0', x0 + 'px'); f.style.setProperty('--y0', y0 + 'px');
+    f.style.setProperty('--x1', x1 + 'px'); f.style.setProperty('--y1', y1 + 'px');
+    f.classList.remove('go'); reflow(f); f.classList.add('go');
+    setTimeout(() => f.classList.remove('go'), 430);
+    void dst;
+  }
+
+  /* step 4 */
+  const lock = $('.lock', p4), notifs = $$('.notif', p4), lds = $$('.ld', p4), cardL = $('.l-card', p4);
+  const marks = $$('.ru-mark', p4), beats = $$('.beats li', p4), btnNotif = $('.btn-notif', p4);
+  const reDots = $$('.revisit-line .dot', p4);
+  const DAYS = [1, 7, 30];
+  const DATES = ['10월 27일 화요일', '11월 2일 월요일', '11월 25일 수요일'];
+  const LABELS = ['공부 1일 뒤, 배운 점', '공부 7일 뒤, 활용 방안', '공부 30일 뒤, 면접 예상 질문'];
+  let idx = -1, opened = false, dotTimers = [];
+  function paintMarks() {
+    marks.forEach(m => {
+      const dd = +m.dataset.d;
+      m.classList.toggle('on', (dd === 1 && idx >= 1) || (dd === 7 && idx >= 2) || (dd === 30 && opened));
+    });
+  }
+  function setIdx(i, announce) {
+    idx = i;
+    notifs.forEach((n, j) => {
+      const off = i < 0 ? 'pre' : (j < i ? 'gone' : String(Math.min(j - i, 2)));
+      n.dataset.off = off;
+      const front = off === '0';
+      $('.n-hit', n).hidden = !front;
+      n.setAttribute('aria-hidden', front ? 'false' : 'true');
+    });
+    const k = Math.max(i, 0);
+    lds.forEach((l, j) => { l.dataset.pos = j < k ? 'past' : j === k ? 'now' : 'next'; });
+    stage.style.setProperty('--cur', i < 0 ? 0 : DAYS[i]);
+    beats.forEach((b, j) => b.classList.toggle('now', j === i));
+    btnNotif.textContent = opened ? '처음 알림부터 다시' : (i < 2 ? '다음 알림' : '30일 알림 열기');
+    paintMarks();
+    if (announce && i >= 0) say(DATES[i] + ', ' + LABELS[i] + ' 알림');
+  }
+  function openCard(announce) {
+    opened = true;
+    lock.classList.add('up'); cardL.classList.add('shown');
+    dotTimers.forEach(clearTimeout); dotTimers = [];
+    reDots.forEach((dt, k) => { dt.classList.remove('on'); dotTimers.push(setTimeout(() => dt.classList.add('on'), reduced ? 0 : 420 + k * 150)); });
+    $$('.n-hit', p4).forEach(h => { h.hidden = true; });
+    btnNotif.textContent = '처음 알림부터 다시';
+    paintMarks();
+    const t = $('.l-card .thread', p4); if (t) t.scrollTop = 0;
+    if (announce) say('30일 알림을 열었어요. 10월 26일에 만든 경험 카드가 다시 열렸어요. 다시 본 날 10월 27일, 11월 2일, 11월 25일.');
+  }
+  function closeCard() {
+    opened = false; lock.classList.remove('up'); cardL.classList.remove('shown');
+    dotTimers.forEach(clearTimeout); dotTimers = [];
+    reDots.forEach(dt => dt.classList.remove('on'));
+  }
+  function advance(fromHit) {
+    if (rep) stopReplay();
+    if (opened) { closeCard(); setIdx(0, true); return; }
+    if (idx < 2) {
+      setIdx(idx + 1, true);
+      if (fromHit) { const h = $('.notif[data-off="0"] .n-hit', p4); if (h) h.focus(); }
+    } else {
+      openCard(true);
+      if (fromHit) { const h = $('.l-card .ab-title', p4); if (h) h.focus({ preventScroll: true }); }
+    }
+  }
+  $$('.n-hit', p4).forEach(h => h.addEventListener('click', () => advance(true)));
+  btnNotif.addEventListener('click', () => advance(false));
+
+  /* sequences (times in ms on the replay scale) */
+  const Q1 = 'LEFT JOIN이랑 INNER JOIN 차이가 헷갈려', A1 = 'LEFT JOIN 하고 주문 칸이 NULL인 행?';
+  const at1 = n => () => { setAt(p1, n, true); toBottom(p1, true); };
+  function seq1() {
+    return [
+      { t: 0, fn: () => { setAt(p1, 0); typeSet(p1, ''); } },
+      { t: 600, dur: 1150, frame: x => typeSet(p1, Q1.slice(0, Math.ceil(Q1.length * x))) },
+      { t: 1800, fn: () => { typeSet(p1, ''); at1(1)(); } },
+      { t: 2000, fn: at1(2) }, { t: 2500, fn: at1(3) }, { t: 3000, fn: at1(4) },
+      { t: 3500, fn: at1(5) }, { t: 4000, fn: at1(6) }, { t: 4500, fn: at1(7) },
+      { t: 5400, fn: at1(8) },
+      { t: 5650, dur: 650, frame: x => typeSet(p1, A1.slice(0, Math.ceil(A1.length * x))) },
+      { t: 6350, fn: () => { typeSet(p1, ''); at1(9)(); } },
+      { t: 6800, fn: () => { at1(10)(); hintTab(2); } },
+      { t: 7400, fn: () => {} }
+    ];
+  }
+  const at2 = n => () => { setAt(p2, n, true); toBottom(p2, true); };
+  function seq2(replay) {
+    const ev = [
+      { t: 0, fn: () => { resetBlank(); busy(true); at2(1)(); } },
+      { t: 250, fn: at2(2) }, { t: 600, fn: at2(3) },
+      { t: 950, fn: () => { at2(4)(); busy(false); } },
+      { t: 1400, fn: at2(5) }, { t: 2200, fn: at2(6) }
+    ];
+    if (replay) ev.push(
+      { t: 3000, fn: () => { tap(opts[1]); fill('LEFT JOIN'); } },
+      { t: 3800, fn: () => { showResult('LEFT JOIN', true); toBottom(p2, true); } },
+      { t: 4600, fn: () => {} });
+    else ev.push({ t: 2300, fn: () => {} });
+    return ev;
+  }
+  function seq3() {
+    return [
+      { t: 0, fn: () => { listShown(false); setAt(chat3, 1, true); toBottom(chat3, false); } },
+      { t: 450, fn: fly },
+      { t: 860, fn: () => setAt(chat3, 2, true) },
+      { t: 1400, fn: () => tap($('.save', chat3)) },
+      { t: 1800, fn: () => { listShown(true); $('.xlist', list3).scrollTop = 0; } },
+      { t: 3000, fn: () => {} }
+    ];
+  }
+  function seq4(replay) {
+    const ev = [{ t: 0, fn: () => { closeCard(); setIdx(-1); } }, { t: 120, fn: () => setIdx(0) }];
+    if (replay) ev.push(
+      { t: 1500, fn: () => setIdx(1) }, { t: 3000, fn: () => setIdx(2) },
+      { t: 4500, fn: () => { tap($('.notif[data-off="0"]', p4)); openCard(false); } },
+      { t: 6000, fn: () => {} });
+    else ev.push({ t: 500, fn: () => {} });
+    return ev;
+  }
+
+  const seen = new Set(), complete = new Set();
+  let cur = 1, intro = null;
+  function finalState(n) {
+    if (n === 1) { setAt(p1, 10); typeSet(p1, ''); requestAnimationFrame(() => toBottom(p1)); }
+    if (n === 2) { busy(false); setAt(p2, 6); requestAnimationFrame(() => toBottom(p2)); }
+    if (n === 3) { setAt(chat3, 2); instant(() => listShown(true)); }
+    if (n === 4) { if (idx < 0) instant(() => setIdx(0)); }
+    complete.add(n);
+  }
+  function cancelIntro() { if (intro) { intro.stop(); intro = null; } }
+  function runIntro(n) {
+    cancelIntro();
+    if (reduced) { finalState(n); return; }
+    const map = { 1: [seq1(), 1.75], 2: [seq2(false), 1.35], 3: [seq3(), 1.3], 4: [seq4(false), 1] };
+    const [ev, sp] = map[n];
+    intro = Runner(ev, { speed: sp, end: () => { intro = null; complete.add(n); } });
+    intro.play();
+  }
+  function activate(n, o) {
+    o = o || {};
+    if (!o.replay) stopReplay();
+    cancelIntro();
+    cur = n;
+    tabs.forEach((t, i) => { const on = i === n - 1; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+    panels.forEach((pp, i) => {
+      const on = i === n - 1;
+      pp.hidden = !on;
+      pp.classList.remove('enter');
+      if (on && !reduced) { reflow(pp); pp.classList.add('enter'); }
+    });
+    stage.dataset.step = n;
+    if (o.focus) tabs[n - 1].focus();
+    if (o.replay) return;
+    say(n + '단계 ' + NAMES[n - 1] + ', 예시 화면');
+    if (!seen.has(n)) { seen.add(n); runIntro(n); }
+    else if (!complete.has(n)) finalState(n);
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => activate(i + 1));
+    t.addEventListener('keydown', e => {
+      let j = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % 4;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i + 3) % 4;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = 3;
+      if (j !== null) { e.preventDefault(); activate(j + 1, { focus: true }); }
+    });
+  });
+  $$('[data-go]', stage).forEach(b => b.addEventListener('click', () => activate(+b.dataset.go, { focus: true })));
+  opts.forEach(b => b.addEventListener('click', () => {
+    if (rep) stopReplay();
+    const v = b.dataset.opt;
+    fill(v);
+    setTimeout(() => { showResult(v); toBottom(p2, true); }, reduced ? 0 : 240);
+  }));
+
+  /* replay: "처음부터 이어 보기" */
+  const playBtn = $('.play', stage), playLabel = $('.play-label', stage), progB = $$('.prog b', stage), note = $('.replay-note', stage);
+  const OFF = [0, 7400, 12000, 15000], LEN = 21000, SEGLEN = [7400, 4600, 3000, 6000];
+  const LABEL = { idle: '처음부터 이어 보기', playing: '일시정지', paused: '이어 보기', ended: '다시 보기' };
+  let rep = null;
+  function setRep(st) { playBtn.dataset.state = st; playLabel.textContent = LABEL[st]; }
+  function paintProg(ms) { progB.forEach((b, k) => { const v = Math.min(1, Math.max(0, (ms - OFF[k]) / SEGLEN[k])); b.style.transform = 'scaleX(' + v + ')'; }); }
+  function resetAll() {
+    instant(() => {
+      setAt(p1, 0); typeSet(p1, '');
+      resetBlank(); busy(false); setAt(p2, 0);
+      listShown(false); setAt(chat3, 0);
+      closeCard(); setIdx(-1);
+    });
+  }
+  function buildReplay() {
+    if (reduced) {
+      const S = [
+        () => { activate(1, { replay: true }); setAt(p1, 0); },
+        () => { setAt(p1, 1); toBottom(p1); }, () => { setAt(p1, 7); toBottom(p1); },
+        () => { setAt(p1, 9); toBottom(p1); }, () => { setAt(p1, 10); toBottom(p1); },
+        () => { activate(2, { replay: true }); setAt(p2, 4); toBottom(p2); }, () => { setAt(p2, 5); toBottom(p2); },
+        () => { setAt(p2, 6); fill('LEFT JOIN'); showResult('LEFT JOIN', true); toBottom(p2); },
+        () => { activate(3, { replay: true }); setAt(chat3, 2); toBottom(chat3); }, () => listShown(true),
+        () => { activate(4, { replay: true }); setIdx(0); }, () => setIdx(1), () => setIdx(2), () => openCard(false)
+      ];
+      const ev = S.map((fn, k) => ({ t: k * 600, fn }));
+      ev.push({ t: S.length * 600, fn: () => {} });
+      return { ev, total: S.length * 600, scale: LEN / (S.length * 600) };
+    }
+    const ev = [];
+    const add = (off, list) => list.forEach(e => ev.push(Object.assign({}, e, { t: e.t + off })));
+    ev.push({ t: 0, fn: () => activate(1, { replay: true }) }); add(OFF[0], seq1());
+    ev.push({ t: OFF[1], fn: () => activate(2, { replay: true }) }); add(OFF[1], seq2(true));
+    ev.push({ t: OFF[2], fn: () => activate(3, { replay: true }) }); add(OFF[2], seq3());
+    ev.push({ t: OFF[3], fn: () => activate(4, { replay: true }) }); add(OFF[3], seq4(true));
+    ev.push({ t: LEN, fn: () => {} });
+    return { ev, total: LEN, scale: 1 };
+  }
+  function startReplay() {
+    cancelIntro();
+    resetAll();
+    [1, 2, 3, 4].forEach(n => seen.add(n)); complete.clear();
+    const R = buildReplay();
+    rep = Runner(R.ev, { total: R.total, tick: ms => paintProg(ms * R.scale), end: endReplay });
+    note.hidden = true; setRep('playing'); rep.play();
+    say('처음부터 이어 보기를 시작해요. 미리 써 둔 예시 화면이에요.');
+  }
+  function endReplay() {
+    rep = null; setRep('ended'); paintProg(LEN);
+    [1, 2, 3, 4].forEach(n => complete.add(n));
+    note.hidden = false;
+    say('이어 보기가 끝났어요. 빈칸은 현장 과제 단계에서 직접 풀어 볼 수 있어요.');
+  }
+  function stopReplay() {
+    if (!rep) return;
+    rep.stop(); rep = null; setRep('idle'); paintProg(0);
+  }
+  playBtn.addEventListener('click', () => {
+    const st = playBtn.dataset.state;
+    if (st === 'playing') { rep.pause(); setRep('paused'); }
+    else if (st === 'paused') { rep.play(); setRep('playing'); }
+    else startReplay();
+  });
+  $('[data-solve]', stage).addEventListener('click', () => {
+    note.hidden = true; setRep('idle'); paintProg(0);
+    resetBlank(); activate(2, { focus: true }); finalState(2);
+    requestAnimationFrame(() => { const o = opts[1]; o.focus({ preventScroll: true }); });
+  });
+
+  /* init */
+  panels.forEach((pp, i) => { pp.hidden = i !== 0; });
+  instant(() => {
+    resetBlank(); setAt(p2, 0);
+    setAt(chat3, 0); listShown(false);
+    setIdx(-1);
+    if (reduced) { seen.add(1); finalState(1); } else { setAt(p1, 0); typeSet(p1, ''); }
+  });
+  if ('IntersectionObserver' in window) {
+    const phone = $('.phone', stage);
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (e.isIntersecting && cur === 1 && !seen.has(1) && !rep) { seen.add(1); runIntro(1); io.disconnect(); }
+      });
+    }, { threshold: 0.55 });
+    io.observe(phone);
+  } else { seen.add(1); finalState(1); }
+
+  /* ---------- page ---------- */
+  const links = $$('.ticks a');
+  const secs = $$('main > section[id]');
+  if ('IntersectionObserver' in window) {
+    const io2 = new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (!e.isIntersecting) return;
+        links.forEach(a => { if (a.hash === '#' + e.target.id) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach(s => io2.observe(s));
+    const sticky = $('.sticky'), heroCta = $('.hero .cta-row'), su = $('#signup');
+    const vis = new Map([[heroCta, true], [su, false], [stage, false]]);
+    sticky.inert = true;
+    const io4 = new IntersectionObserver(es => {
+      es.forEach(e => vis.set(e.target, e.isIntersecting));
+      const show = !vis.get(heroCta) && !vis.get(su) && !vis.get(stage);
+      sticky.classList.toggle('show', show); sticky.inert = !show;
+      d.body.classList.toggle('sticky-on', show);
+    });
+    io4.observe(heroCta); io4.observe(su); io4.observe(stage);
+  }
+
+  /* ---------- signup (prototype: nothing is sent) ---------- */
+  const form = $('#su-form'), done = $('#su-done');
+  const groupInputs = name => $$('input[name="' + name + '"]', form);
+  function setErr(key, bad) {
+    const e = $('#e-' + key); if (e) e.hidden = !bad;
+    const inputs = key === 'email' ? [form.email] : groupInputs(key);
+    inputs.forEach(i => { if (bad) i.setAttribute('aria-invalid', 'true'); else i.removeAttribute('aria-invalid'); });
+    const fs = form.querySelector('[data-group="' + key + '"]');
+    if (fs) { if (bad) fs.setAttribute('data-invalid', ''); else fs.removeAttribute('data-invalid'); }
+    return bad;
+  }
+  form.addEventListener('change', e => {
+    const t = e.target;
+    if (t.name === 'ai_subscriptions' && t.checked) {
+      groupInputs('ai_subscriptions').forEach(b => {
+        if (b === t) return;
+        if (t.value === 'none' || b.value === 'none') b.checked = false;
+      });
+    }
+    if (t.name && t.name !== 'email' && t.name !== 'website') setErr(t.name, false);
+  });
+  form.email.addEventListener('input', () => setErr('email', false));
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (form.website.value) { showDone(); return; }
+    const em = form.email.value.trim();
+    const bad = [];
+    if (setErr('email', !(em.length > 0 && em.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)))) bad.push(form.email);
+    ['student_status', 'sqld_status', 'ai_subscriptions'].forEach(k => {
+      const ins = groupInputs(k);
+      if (setErr(k, !ins.some(i => i.checked))) bad.push(ins[0]);
+    });
+    if (setErr('consent', !form.consent.checked)) bad.push(form.consent);
+    if (bad.length) { bad[0].focus(); return; }
+    showDone();
+  });
+  function showDone() { form.hidden = true; done.hidden = false; done.focus(); }
+})();
+</script>
+</body>
+</html>

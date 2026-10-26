@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 Thumbs.db
+.audit/
+.claude/worktrees/
+.gstack/
