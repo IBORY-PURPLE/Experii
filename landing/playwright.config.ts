@@ -17,6 +17,7 @@ export default defineConfig({
   projects: [
     { name: 'mobile', use: { viewport: { width: 360, height: 780 }, hasTouch: true }, testIgnore: /nojs\.spec\.ts/ },
     { name: 'desktop', use: { viewport: { width: 1440, height: 900 } }, testIgnore: /nojs\.spec\.ts/ },
+    { name: 'desktop-1280', use: { viewport: { width: 1280, height: 800 } }, testIgnore: /nojs\.spec\.ts/ },
     { name: 'nojs', use: { viewport: { width: 360, height: 780 }, javaScriptEnabled: false }, testMatch: /nojs\.spec\.ts/ },
   ],
   webServer: {

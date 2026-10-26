@@ -1,0 +1,126 @@
+/* Experii desktop window shell, shared by the hero autoplay and section 4. Size comes from the parent. */
+.aw {
+  --bar: 40px;
+  --side: 208px;
+  --chrome: #f6f7f9;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--side) minmax(0, 1fr);
+  grid-template-rows: var(--bar) minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--color-line-2), 0 40px 80px -40px rgb(26 34 51 / 0.36), 0 18px 36px -24px rgb(26 34 51 / 0.2);
+  color: var(--color-ink);
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: left;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.aw ul, .aw ol { margin: 0; padding: 0; list-style: none; }
+.aw p, .aw pre { margin: 0; }
+
+.aw-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-left: 14px;
+  background: var(--chrome);
+  border-bottom: 1px solid var(--color-line);
+}
+.aw-ico {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+}
+.aw-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 650; color: var(--color-ink-2); }
+.aw-bar .aw-ex { flex: none; margin-left: auto; height: 24px; }
+.aw-ctl { flex: none; display: flex; align-self: stretch; }
+.aw-ctl i { position: relative; width: 44px; }
+.aw-ctl i::before, .aw-ctl i::after { content: ""; position: absolute; left: 50%; top: 50%; }
+.aw-ctl [data-c="min"]::before { width: 10px; height: 1.5px; margin: -0.75px 0 0 -5px; background: var(--color-ink-3); }
+.aw-ctl [data-c="max"]::before { width: 9px; height: 9px; margin: -5px 0 0 -5px; border: 1.5px solid var(--color-ink-3); border-radius: 2px; }
+.aw-ctl [data-c="close"]::before,
+.aw-ctl [data-c="close"]::after { width: 12px; height: 1.5px; margin: -0.75px 0 0 -6px; background: var(--color-ink-3); transform: rotate(45deg); }
+.aw-ctl [data-c="close"]::after { transform: rotate(-45deg); }
+
+.aw-side {
+  grid-area: 2 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  padding: 16px 12px;
+  background: var(--chrome);
+  border-right: 1px solid var(--color-line);
+}
+.aw-brand { padding: 0 10px; font-size: 19px; font-weight: 820; letter-spacing: -0.035em; line-height: 1.3; }
+.aw-subj {
+  align-self: flex-start;
+  margin: 2px 10px 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--color-talk-tint);
+  color: var(--color-talk);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.aw-nav { display: grid; gap: 2px; }
+.aw-nav li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 620;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+.aw-nav li.on { background: #fff; color: var(--color-ink); box-shadow: 0 0 0 1px var(--color-line), 0 1px 2px rgb(26 34 51 / 0.06); }
+.aw-nav svg { flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.aw-count {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--color-card-tint);
+  color: var(--color-card);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.aw-main { grid-area: 2 / 2; position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #fff; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .aw-count.bump { animation: aw-bump 520ms var(--ease-out-quint); }
+}
+@keyframes aw-bump {
+  0% { transform: scale(0.6); }
+  55% { transform: scale(1.25); }
+  to { transform: none; }
+}
+
+@media (max-width: 767.98px) {
+  .aw { --side: 0px; }
+  .aw-side { display: none; }
+  .aw-bar .aw-ctl i { width: 32px; }
+}

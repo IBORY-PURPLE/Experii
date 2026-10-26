@@ -1,7 +1,7 @@
 import { Fragment, type CSSProperties, type ReactNode } from 'react';
 import type { MockTable, SqlLine } from '@/content/loop';
 
-// Column names may break after "_" so a 3-column result still fits a phone narrower than 360px.
+// Column names may break after "_" so a 3-column result still fits a narrow app pane.
 const breakable = (name: string) =>
   name.split('_').map((part, i, all) =>
     i < all.length - 1 ? (

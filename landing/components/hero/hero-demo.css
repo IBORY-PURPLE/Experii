@@ -1,0 +1,208 @@
+/* Hero autoplay inside the Experii window (HeroDemo). The window runs past the hero card's bottom edge
+   by --cut, so every scene keeps its content in the visible part above it. */
+.hero-demo {
+  --hdh: 560px;
+  --cut: 44px;
+  position: relative;
+  width: min(1180px, 100%);
+  margin: 68px auto 0;
+  text-align: left;
+}
+@media (min-width: 1280px) {
+  .hero-demo { --hdh: 600px; }
+}
+.hd-tools { position: absolute; right: 0; bottom: 100%; margin-bottom: 12px; }
+.hd-ctrl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px 0 6px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: inset 0 0 0 1px var(--color-line-2);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 680;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-out-quint);
+}
+.hd-ctrl:active { transform: scale(0.97); }
+.hd-ctrl i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--color-ink); color: #fff; }
+.hd-ctrl svg { display: block; }
+html:not(.js) .hd-tools { visibility: hidden; }
+
+.hd-win { position: relative; margin-bottom: calc(-1 * var(--cut)); }
+.hd-win .aw { height: calc(var(--hdh) + var(--cut)); }
+
+/* scenes share the visible part of the main pane */
+.hero-demo .hd-scene,
+.hero-demo .hd-remind {
+  position: absolute;
+  inset: 0 0 var(--cut) 0;
+}
+.hero-demo .hd-scene {
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 320ms ease, visibility 0s 320ms;
+}
+.hero-demo .hd-scene.on { opacity: 1; visibility: visible; transition: opacity 320ms ease; }
+.hero-demo .appbar { min-height: 46px; padding: 8px 20px; }
+.hero-demo .key { box-shadow: var(--shadow-key); }
+
+/* home */
+.hd-ask-wrap { width: min(640px, 100% - 64px); margin: 56px auto 0; display: grid; justify-items: center; gap: 14px; }
+.hd-mark {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 820;
+  margin-bottom: 4px;
+}
+.hd-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 60px;
+  padding: 0 12px 0 20px;
+  border-radius: 16px;
+  border: 1px solid var(--color-line-2);
+  background: #fff;
+  box-shadow: 0 10px 24px -18px rgb(26 34 51 / 0.4);
+  font-size: 16px;
+  color: var(--color-ink-4);
+}
+.hd-ask-text { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
+.hd-ask .typed { color: var(--color-ink); }
+.hd-ask.typing .typed::after { content: ""; display: inline-block; width: 1.5px; height: 18px; margin-left: 1px; vertical-align: -3px; background: var(--color-talk); }
+.hero-demo .hd-ask .send { width: 36px; height: 36px; }
+.hd-gpt {
+  justify-self: start;
+  flex: none;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink-2);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.hd-recent { width: min(760px, 100% - 64px); margin: 40px auto 0; }
+.hd-k { font-size: 13px; font-weight: 700; color: var(--color-ink-3); margin-bottom: 10px; }
+.hd-recent ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.hd-recent li { padding: 12px 14px 14px; border-radius: 14px; border: 1px solid var(--color-line); background: #fff; }
+.hd-recent .xl-stamp .when { color: var(--color-ink-2); background: var(--color-surface); }
+.hd-tile-t { font-size: 14px; font-weight: 650; line-height: 1.45; }
+
+/* study: one centred chat column that slides up as messages arrive */
+.hd-thread { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+.hd-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(720px, 100% - 48px);
+  margin: 0 auto;
+  padding: 18px 0 20px;
+  transition: transform 450ms var(--ease-out-quint);
+}
+.hd-flow > * { flex-shrink: 0; }
+.hero-demo .composer { padding: 10px 20px 12px; }
+.hero-demo .composer .hd-gpt { justify-self: auto; }
+.hero-demo .field-mock { height: 40px; }
+.hero-demo .fake.save { justify-self: end; margin-top: 0; }
+.hero-demo .fake.save.done { background: var(--color-card); }
+.hd-card { display: grid; gap: 10px; }
+.hero-demo .opt { display: grid; place-items: center; cursor: default; }
+.hero-demo .opt.on { background: var(--color-task); color: #fff; }
+.hero-demo .solve .opts { max-width: 420px; }
+.hd-toast { position: absolute; left: 50%; top: 60px; z-index: 2; margin: 0; transform: translateX(-50%); white-space: nowrap; box-shadow: 0 10px 24px -12px rgb(26 34 51 / 0.5); }
+
+/* reopened card */
+.hd-open { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 20px; align-items: start; width: min(880px, 100% - 48px); margin: 0 auto; padding: 18px 0; }
+.hd-open-card { display: grid; gap: 10px; }
+.hero-demo .follow { align-self: start; }
+
+/* reminders: time skips ahead; desktop notifications arrive over a dimmed app */
+.hero-demo .hd-remind {
+  z-index: 5;
+  background: radial-gradient(90% 80% at 0% 0%, var(--color-lock-glow) 0%, rgb(59 29 44 / 0) 70%), var(--color-lock);
+  color: #fff;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 420ms ease, visibility 0s 420ms;
+}
+.hero-demo[data-remind="1"] .hd-remind,
+.hero-demo[data-remind="2"] .hd-remind,
+.hero-demo[data-remind="3"] .hd-remind { opacity: 1; visibility: visible; transition: opacity 420ms ease; }
+.hd-date { position: absolute; left: 36px; top: 32px; width: 260px; height: 86px; }
+.hero-demo .ld { position: absolute; inset: 0; display: flex; flex-direction: column; transition: transform 360ms var(--ease-out-quint), opacity 360ms var(--ease-out-quint); }
+.hero-demo .ld .md { font-size: 46px; line-height: 1.1; font-weight: 760; letter-spacing: -0.03em; }
+.hero-demo .ld .dow { margin-top: 3px; font-size: 15px; font-weight: 550; color: rgb(255 255 255 / 0.85); }
+.hero-demo .ld[data-pos="past"] { transform: translateY(-45%); opacity: 0; }
+.hero-demo .ld[data-pos="next"] { transform: translateY(45%); opacity: 0; }
+.hero-demo .hd-remind .lock-badge { position: absolute; left: 36px; top: 128px; margin: 0; }
+.hd-toasts { position: absolute; right: 24px; top: 24px; display: grid; align-items: start; width: 360px; }
+.hero-demo .notif {
+  grid-area: 1 / 1;
+  min-height: 136px;
+  box-shadow: 0 16px 32px -16px rgb(0 0 0 / 0.5);
+  transform-origin: 50% 100%;
+  transition: transform 420ms var(--ease-out-quint), opacity 300ms ease;
+}
+.hero-demo .notif[data-off="0"] { z-index: 3; }
+.hero-demo .notif[data-off="1"] { z-index: 2; transform: translateY(14px) scale(0.95); opacity: 0.75; }
+.hero-demo .notif[data-off="2"] { z-index: 1; transform: translateY(28px) scale(0.9); opacity: 0.5; }
+.hero-demo .notif[data-off="pre"] { opacity: 0; transform: translateX(32px); }
+.hd-n-date { display: block; margin-bottom: 2px; font-size: 13px; font-weight: 700; color: var(--color-ink-3); }
+
+/* pointer and press ring */
+.hd-cursor { position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 250ms ease; }
+.hero-demo[data-play="playing"] .hd-cursor,
+.hero-demo[data-play="paused"] .hd-cursor { opacity: 1; }
+.hd-cursor svg { position: absolute; left: -5px; top: -2.5px; display: block; filter: drop-shadow(0 2px 3px rgb(26 34 51 / 0.3)); }
+.hd-press {
+  position: absolute;
+  left: -20px;
+  top: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgb(61 90 153 / 0.22);
+  box-shadow: 0 0 0 2px rgb(61 90 153 / 0.5);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hd-flow > *,
+  .hd-flow .m.ai > :not(.who),
+  .hd-flow .checks li,
+  .hd-toast { animation: hd-rise 340ms var(--ease-out-quint) both; }
+  .hd-toast { animation-name: hd-toast; }
+  .hd-flow > .task { animation: hd-sheet 420ms var(--ease-out-quint) both; }
+  .hero-demo .blank.pop { animation: hd-pop 300ms var(--ease-out-quint); }
+  .hd-press { animation: hd-press 620ms var(--ease-out-quint) both; }
+}
+.hero-demo[data-play="paused"] *,
+.hero-demo[data-play="paused"] *::after { animation-play-state: paused !important; }
+@keyframes hd-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes hd-sheet { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: none; } }
+@keyframes hd-toast { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translateX(-50%); } }
+@keyframes hd-pop { 0% { transform: scale(0.9); } 60% { transform: scale(1.08); } to { transform: none; } }
+@keyframes hd-press { from { transform: scale(0.3); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+
+/* desktop-only illustration: below 768px it gives way to one line of text in the hero */
+@media (max-width: 767.98px) {
+  .hero-demo { display: none; }
+}

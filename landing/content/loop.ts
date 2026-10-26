@@ -122,7 +122,7 @@ const joinTopic: LoopTopic = {
     body: '가입은 했지만 아직 한 번도 주문하지 않은 회원에게 첫 구매 쿠폰을 보내려고 해요. 대상 회원의 아이디, 이름, 가입일을 뽑아 주세요.',
     tables: ['members(member_id, member_name, joined_at)', 'orders(order_id, member_id, ordered_at)'],
   },
-  hint: '폰 화면의 빈칸에 들어갈 JOIN을 직접 골라 보세요.',
+  hint: '앱 화면의 빈칸에 들어갈 JOIN을 직접 골라 보세요.',
   optionsLabel: '빈칸에 들어갈 JOIN 고르기',
   sql: [
     { parts: [kw('SELECT'), ' m.member_id, m.member_name, m.joined_at'] },
@@ -235,7 +235,7 @@ const groupTopic: LoopTopic = {
     tables: ['orders(order_id, member_id, ordered_at, status)'],
     note: "status는 'PAID' 또는 'CANCELLED'",
   },
-  hint: '폰 화면의 빈칸에 들어갈 절을 직접 골라 보세요.', // 초안
+  hint: '앱 화면의 빈칸에 들어갈 절을 직접 골라 보세요.', // 초안
   optionsLabel: '빈칸에 들어갈 절 고르기', // 초안
   sql: [
     { parts: [kw('SELECT'), ' member_id, COUNT(*) ', kw('AS'), ' paid_orders'] },
@@ -312,7 +312,7 @@ const rankTopic: LoopTopic = {
     body: '회원마다 가장 최근 결제 주문 1건만 뽑아 주세요. 같은 날 주문이 두 건인 회원도 있어요.',
     tables: ['orders(order_id, member_id, ordered_at, status)'], // 파생: 세트 B와 같은 테이블
   },
-  hint: '폰 화면의 빈칸에 들어갈 함수를 직접 골라 보세요.', // 초안
+  hint: '앱 화면의 빈칸에 들어갈 함수를 직접 골라 보세요.', // 초안
   optionsLabel: '빈칸에 들어갈 함수 고르기', // 초안
   sql: [
     { parts: [kw('SELECT'), ' member_id, order_id, ordered_at'] },
@@ -417,10 +417,12 @@ export const loopShared = {
   openedDate: '11월 25일 (수)',
   revisitLabel: '다시 본 날',
   followTail: '꼬리질문 대비',
+  nav: { study: '오늘 공부', cards: '내 경험 카드', remind: '리마인드' },
 } as const;
 
 export const loopCopy = {
   tablistLabel: '작동 방식 4단계',
+  topicsLabel: '다른 질문으로 보기',
   steps: [
     {
       when: '공부한 날',
@@ -484,7 +486,18 @@ export const loopCopy = {
   },
 };
 
+// Hero window autoplay (set A). Tiles reuse the card list lines of sets A and B.
+export const heroDemo = {
+  recentTitle: '최근 경험 카드',
+  recent: [joinTopic.list.old[0], joinTopic.list.old[1], groupTopic.list.old[1]],
+  control: { idle: '재생', playing: '일시정지', paused: '재생', ended: '다시 보기' },
+  controlTarget: '앱 예시 화면',
+  summary:
+    '예시 화면: SQLD 공부 중 막힌 걸 물으면 AI가 예시 표로 설명하고, 현장 과제를 풀면 면접 답변 한 줄이 경험 카드로 저장돼요. 1일, 7일, 30일 뒤 알림이 오고, 30일 알림을 누르면 같은 카드가 다시 열려요.',
+};
+
 export type LoopShared = typeof loopShared;
+export type HeroDemoCopy = typeof heroDemo;
 export type LoopCopy = typeof loopCopy;
 
 // 이어 보기 시간표 (DESIGN 5.8, ms)

@@ -1,5 +1,6 @@
 'use client';
 
+import './mock.css';
 import './loop.css';
 import {
   useCallback,
@@ -15,7 +16,7 @@ import { flushSync } from 'react-dom';
 import { RichText } from '@/lib/rich';
 import { track } from '@/lib/analytics';
 import type { HeroVariant } from '@/lib/signup-schema';
-import { PhoneFrame } from '@/components/ui/PhoneFrame';
+import { AppWindow, type NavId } from '@/components/app-window/AppWindow';
 import { loopTiming, type LoopCopy, type LoopShared, type LoopTopic, type Step, type TopicId } from '@/content/loop';
 import { ChatMock } from './ChatMock';
 import { TaskMock, type Blank } from './TaskMock';
@@ -63,6 +64,7 @@ interface Props {
   shared: LoopShared;
   copy: LoopCopy;
   variant: HeroVariant;
+  cardsBefore: number;
 }
 
 const STEPS: Step[] = [1, 2, 3, 4];
@@ -161,7 +163,7 @@ const ICONS: Record<Replay, ReactNode> = {
   ),
 };
 
-export function LoopStepper({ topics, shared, copy, variant }: Props) {
+export function LoopStepper({ topics, shared, copy, variant, cardsBefore }: Props) {
   const [state, setState] = useState<LoopState>(() => initialState(topics));
   const sRef = useRef(state);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -798,230 +800,267 @@ export function LoopStepper({ topics, shared, copy, variant }: Props) {
     d === 0 || (d === 1 && s.reminderIndex >= 1) || (d === 7 && s.reminderIndex >= 2) || (d === 30 && s.cardOpened);
   const solved = s.blank.status === 'right' && s.resultShown;
   const remindLabel = s.cardOpened ? copy.remind.restart : s.reminderIndex >= 2 ? copy.remind.open : copy.remind.next;
+  const saved = s.step === 4 || (s.step === 3 && s.listShown);
+  const nav: NavId = s.step === 4 ? (s.cardOpened ? 'cards' : 'remind') : s.step === 3 ? 'cards' : 'study';
+  const winTitle =
+    s.step === 4
+      ? s.cardOpened
+        ? shared.openedTitle
+        : shared.nav.remind
+      : s.step === 3 && s.listShown
+        ? shared.listTitle
+        : topic.question;
 
   return (
-    <div
-      id="stage"
-      className="stage"
-      ref={stageRef}
-      data-step={s.step}
-      data-ready={s.ready ? '' : undefined}
-      data-replay={s.replay}
-    >
-      <div className="tints" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-        <i />
+    <>
+      <div className="how-topics">
+        <span className="how-topics-k" id="how-topics-k">
+          {copy.topicsLabel}
+        </span>
+        <ul aria-labelledby="how-topics-k">
+          {chips.map((c) => (
+            <li key={c.id}>
+              <a href={`#how-${c.id}`} data-topic={c.id} aria-current={s.topic === c.id ? 'true' : undefined}>
+                {c.chip}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
-      <PhoneFrame />
-      <div className="ctrl">
-        <div
-          className="steps"
-          role="tablist"
-          aria-label={copy.tablistLabel}
-          aria-orientation={s.vertical ? 'vertical' : 'horizontal'}
-        >
-          {STEPS.map((n, i) => {
-            const on = s.step === n;
-            return (
-              <button
-                key={n}
-                ref={(el) => {
-                  tabRefs.current[i] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`loop-tab-${n}`}
-                aria-controls={`loop-panel-${n}`}
-                aria-selected={on}
-                tabIndex={on ? 0 : -1}
-                className={s.hint === n && !on ? 'step-tab hint' : 'step-tab'}
-                onClick={() => activate(n)}
-                onKeyDown={(e) => onTabKey(e, i)}
-              >
-                <span className="st-num" aria-hidden="true">
-                  {n}
-                </span>
-                <span className="st-text">
-                  <span className="st-when">{copy.steps[i].when}</span>
-                  <span className="st-name">{copy.steps[i].name}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="panels">
-          {STEPS.map((n, i) => {
-            const c = copy.steps[i];
-            return (
-              <div
-                key={n}
-                ref={(el) => {
-                  panelRefs.current[i] = el;
-                }}
-                className={s.enter === n ? 'panel enter' : 'panel'}
-                id={`loop-panel-${n}`}
-                data-step={n}
-                role={s.ready ? 'tabpanel' : undefined}
-                aria-labelledby={s.ready ? `loop-tab-${n}` : undefined}
-                hidden={s.ready ? s.step !== n : undefined}
-              >
-                <div className="detail">
-                  <h3 className="nj">
-                    <small>{c.when}</small>
-                    {n} {c.name}
-                  </h3>
-                  <p className="two">
-                    <RichText parts={c.detail} />
-                    {n === 4 ? (
-                      <>
-                        {' '}
-                        <span className="soon">{copy.remind.soon}</span>
-                      </>
-                    ) : null}
-                  </p>
-                </div>
-                {n === 1 ? (
-                  <ChatMock
-                    topic={topic}
-                    shared={shared}
-                    chips={chips}
-                    threadLabel={copy.threads.chat}
-                    at={s.at1}
-                    fresh={s.f1}
-                    typed={s.typed}
-                  />
-                ) : n === 2 ? (
-                  <TaskMock
-                    topic={topic}
-                    shared={shared}
-                    threadLabel={copy.threads.task}
-                    at={s.at2}
-                    fresh={s.f2}
-                    busy={s.busy}
-                    blank={s.blank}
-                    blankRev={s.blankRev}
-                    blankPop={s.blankPop}
-                    resultShown={s.resultShown}
-                    resultFresh={s.resultFresh}
-                    onChoose={onChoose}
-                  />
-                ) : n === 3 ? (
-                  <CardMock
-                    topic={topic}
-                    shared={shared}
-                    chatLabel={copy.threads.card}
-                    listLabel={copy.threads.list}
-                    at={s.at3}
-                    fresh={s.f3}
-                    listShown={s.listShown}
-                    listFresh={s.listFresh}
-                    flyRef={flyRef}
-                  />
-                ) : (
-                  <ReminderMock
-                    topic={topic}
-                    shared={shared}
-                    remind={copy.remind}
-                    threadLabel={copy.threads.opened}
-                    ready={s.ready}
-                    index={s.reminderIndex}
-                    opened={s.cardOpened}
-                    revisitFilled={s.revisitFilled}
-                    onAdvance={onAdvance}
-                    cardTitleRef={cardTitleRef}
-                  />
-                )}
-                {/* after the screen in DOM so focus follows the mobile order: tabs, phone, action row */}
-                <div className="act">
-                  {n === 2 && !solved ? (
-                    <p className="hint">{topic.hint}</p>
-                  ) : n === 4 ? (
-                    <button type="button" className="pill-btn dark btn-notif" onClick={() => advance(false)}>
-                      {remindLabel}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="pill-btn next-step"
-                      onClick={() => activate((n + 1) as Step, { focus: true })}
-                    >
-                      {c.next}
-                    </button>
-                  )}
-                </div>
-                {n === 4 ? (
-                  <div className="r4">
-                    <div className="ruler" aria-hidden="true" style={{ '--cur': cur } as CSSProperties}>
-                      <div className="ru-track">
-                        <i className="ru-ticks" />
-                        <i className="ru-base" />
-                        <i className="ru-fill" />
-                        {[0, 1, 7, 30].map((d) => (
-                          <i key={d} className={markOn(d) ? 'ru-mark on' : 'ru-mark'} data-d={d} />
-                        ))}
-                        <span className="ru-clip">
-                          <span className="ru-pos">
-                            <i className="ru-pin" />
-                          </span>
-                        </span>
-                      </div>
-                      <div className="ru-ends">
-                        <span>{copy.remind.rulerStart}</span>
-                        <span>{copy.remind.rulerEnd}</span>
-                      </div>
-                    </div>
-                    <p className="fact">{copy.remind.fact}</p>
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="player">
-          <button type="button" className="play" data-state={s.replay} onClick={onPlay}>
-            <span className="play-ico" aria-hidden="true">
-              <svg viewBox="0 0 16 16" width="16" height="16">
-                {ICONS[s.replay]}
-              </svg>
-            </span>
-            <span className="play-label">{copy.player[s.replay]}</span>
-            <span className="prog" aria-hidden="true">
-              {STEPS.map((n, k) => (
-                <i key={n}>
-                  <b
-                    ref={(el) => {
-                      progRefs.current[k] = el;
-                    }}
-                  />
-                </i>
-              ))}
-            </span>
-          </button>
-          {s.noteVisible ? (
-            <p className="replay-note">
-              {copy.player.note}{' '}
-              <button type="button" className="link-btn" onClick={solveAgain}>
-                {copy.player.solve}
-              </button>
-            </p>
-          ) : null}
-        </div>
+      <div className="how-anchors" aria-hidden="true">
+        {TOPIC_IDS.map((id) => (
+          <span key={id} id={`how-${id}`} />
+        ))}
       </div>
-      {s.tap ? (
-        <i
-          key={s.tap.id}
-          className="tapfx"
-          aria-hidden="true"
-          style={{ left: `${s.tap.x}px`, top: `${s.tap.y}px` }}
+      <div
+        id="stage"
+        className="stage mock"
+        ref={stageRef}
+        data-step={s.step}
+        data-ready={s.ready ? '' : undefined}
+        data-replay={s.replay}
+      >
+        <div className="tints" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
+        <AppWindow
+          shared={shared}
+          title={winTitle}
+          active={nav}
+          count={cardsBefore + (saved ? 1 : 0)}
+          bump={s.step === 3 && s.listFresh}
         />
-      ) : null}
-      <p id="loop-live" className="sr-only" aria-live="polite">
-        {s.live}
-      </p>
-    </div>
+        <div className="ctrl">
+          <div
+            className="steps"
+            role="tablist"
+            aria-label={copy.tablistLabel}
+            aria-orientation={s.vertical ? 'vertical' : 'horizontal'}
+          >
+            {STEPS.map((n, i) => {
+              const on = s.step === n;
+              return (
+                <button
+                  key={n}
+                  ref={(el) => {
+                    tabRefs.current[i] = el;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`loop-tab-${n}`}
+                  aria-controls={`loop-panel-${n}`}
+                  aria-selected={on}
+                  tabIndex={on ? 0 : -1}
+                  className={s.hint === n && !on ? 'step-tab hint' : 'step-tab'}
+                  onClick={() => activate(n)}
+                  onKeyDown={(e) => onTabKey(e, i)}
+                >
+                  <span className="st-num" aria-hidden="true">
+                    {n}
+                  </span>
+                  <span className="st-text">
+                    <span className="st-when">{copy.steps[i].when}</span>
+                    <span className="st-name">{copy.steps[i].name}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="panels">
+            {STEPS.map((n, i) => {
+              const c = copy.steps[i];
+              return (
+                <div
+                  key={n}
+                  ref={(el) => {
+                    panelRefs.current[i] = el;
+                  }}
+                  className={s.enter === n ? 'panel enter' : 'panel'}
+                  id={`loop-panel-${n}`}
+                  data-step={n}
+                  role={s.ready ? 'tabpanel' : undefined}
+                  aria-labelledby={s.ready ? `loop-tab-${n}` : undefined}
+                  hidden={s.ready ? s.step !== n : undefined}
+                >
+                  <div className="detail">
+                    <h3 className="nj">
+                      <small>{c.when}</small>
+                      {n} {c.name}
+                    </h3>
+                    <p className="two">
+                      <RichText parts={c.detail} />
+                      {n === 4 ? (
+                        <>
+                          {' '}
+                          <span className="soon">{copy.remind.soon}</span>
+                        </>
+                      ) : null}
+                    </p>
+                  </div>
+                  {n === 1 ? (
+                    <ChatMock
+                      topic={topic}
+                      shared={shared}
+                      chips={chips}
+                      threadLabel={copy.threads.chat}
+                      at={s.at1}
+                      fresh={s.f1}
+                      typed={s.typed}
+                    />
+                  ) : n === 2 ? (
+                    <TaskMock
+                      topic={topic}
+                      shared={shared}
+                      threadLabel={copy.threads.task}
+                      at={s.at2}
+                      fresh={s.f2}
+                      busy={s.busy}
+                      blank={s.blank}
+                      blankRev={s.blankRev}
+                      blankPop={s.blankPop}
+                      resultShown={s.resultShown}
+                      resultFresh={s.resultFresh}
+                      onChoose={onChoose}
+                    />
+                  ) : n === 3 ? (
+                    <CardMock
+                      topic={topic}
+                      shared={shared}
+                      chatLabel={copy.threads.card}
+                      listLabel={copy.threads.list}
+                      at={s.at3}
+                      fresh={s.f3}
+                      listShown={s.listShown}
+                      listFresh={s.listFresh}
+                      flyRef={flyRef}
+                    />
+                  ) : (
+                    <ReminderMock
+                      topic={topic}
+                      shared={shared}
+                      remind={copy.remind}
+                      threadLabel={copy.threads.opened}
+                      ready={s.ready}
+                      index={s.reminderIndex}
+                      opened={s.cardOpened}
+                      revisitFilled={s.revisitFilled}
+                      onAdvance={onAdvance}
+                      cardTitleRef={cardTitleRef}
+                    />
+                  )}
+                  {/* after the screen in DOM so focus goes tabs, app screen, then the next-step action */}
+                  <div className="act">
+                    {n === 2 && !solved ? (
+                      <p className="hint">{topic.hint}</p>
+                    ) : n === 4 ? (
+                      <button type="button" className="pill-btn dark btn-notif" onClick={() => advance(false)}>
+                        {remindLabel}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="pill-btn next-step"
+                        onClick={() => activate((n + 1) as Step, { focus: true })}
+                      >
+                        {c.next}
+                      </button>
+                    )}
+                  </div>
+                  {n === 4 ? (
+                    <div className="r4">
+                      <div className="ruler" aria-hidden="true" style={{ '--cur': cur } as CSSProperties}>
+                        <div className="ru-track">
+                          <i className="ru-ticks" />
+                          <i className="ru-base" />
+                          <i className="ru-fill" />
+                          {[0, 1, 7, 30].map((d) => (
+                            <i key={d} className={markOn(d) ? 'ru-mark on' : 'ru-mark'} data-d={d} />
+                          ))}
+                          <span className="ru-clip">
+                            <span className="ru-pos">
+                              <i className="ru-pin" />
+                            </span>
+                          </span>
+                        </div>
+                        <div className="ru-ends">
+                          <span>{copy.remind.rulerStart}</span>
+                          <span>{copy.remind.rulerEnd}</span>
+                        </div>
+                      </div>
+                      <p className="fact">{copy.remind.fact}</p>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="player">
+            <button type="button" className="play" data-state={s.replay} onClick={onPlay}>
+              <span className="play-ico" aria-hidden="true">
+                <svg viewBox="0 0 16 16" width="16" height="16">
+                  {ICONS[s.replay]}
+                </svg>
+              </span>
+              <span className="play-label">{copy.player[s.replay]}</span>
+              <span className="prog" aria-hidden="true">
+                {STEPS.map((n, k) => (
+                  <i key={n}>
+                    <b
+                      ref={(el) => {
+                        progRefs.current[k] = el;
+                      }}
+                    />
+                  </i>
+                ))}
+              </span>
+            </button>
+            {s.noteVisible ? (
+              <p className="replay-note">
+                {copy.player.note}{' '}
+                <button type="button" className="link-btn" onClick={solveAgain}>
+                  {copy.player.solve}
+                </button>
+              </p>
+            ) : null}
+          </div>
+        </div>
+        {s.tap ? (
+          <i
+            key={s.tap.id}
+            className="tapfx"
+            aria-hidden="true"
+            style={{ left: `${s.tap.x}px`, top: `${s.tap.y}px` }}
+          />
+        ) : null}
+        <p id="loop-live" className="sr-only" aria-live="polite">
+          {s.live}
+        </p>
+      </div>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import { how } from '@/content/landing';
-import { loopCopy, loopShared, loopTopics } from '@/content/loop';
+import { heroDemo, loopCopy, loopShared, loopTopics } from '@/content/loop';
 import { LoopStepper } from '@/components/loop/LoopStepper';
 import type { HeroVariant } from '@/lib/signup-schema';
 
@@ -13,12 +13,13 @@ export function HowItWorks({ variant }: { variant: HeroVariant }) {
           </h2>
           <p className="lead">{how.lead}</p>
         </div>
-        <div className="how-anchors" aria-hidden="true">
-          <span id="how-join" />
-          <span id="how-group" />
-          <span id="how-rank" />
-        </div>
-        <LoopStepper topics={loopTopics} shared={loopShared} copy={loopCopy} variant={variant} />
+        <LoopStepper
+          topics={loopTopics}
+          shared={loopShared}
+          copy={loopCopy}
+          variant={variant}
+          cardsBefore={heroDemo.recent.length}
+        />
         <div className="how-after">
           <p className="how-caption">{how.caption}</p>
           <p className="how-close">{how.close}</p>

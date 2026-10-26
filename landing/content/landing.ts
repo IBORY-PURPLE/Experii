@@ -31,9 +31,9 @@ export const hero = {
     h2: ['“자격증 있어요” 대신', '“이렇게 써 봤어요”'],
     h3: ['자격증 공부하면서', '면접 답변도 같이 쌓으세요'],
   } satisfies Record<HeroVariant, [string, string]>,
-  sub: '내 ChatGPT 계정을 Experii 앱에 등록하면, 이제 공부만 하세요. 면접 소재는 Experii가 쌓아 둡니다.',
-  ctaPrimary: '사전 신청하기',
-  ctaSecondary: '어떻게 쓰는지 보기',
+  sub: ['내 ChatGPT 계정을 Experii 앱에 등록하면, 이제 공부만 하세요.', '면접 소재는 Experii가 쌓아 둡니다.'],
+  ctaSignup: '사전 신청하기',
+  demoNote: '앱 예시 화면은 데스크톱 화면에서 볼 수 있어요.',
   figureLabel: '같은 면접 질문에 대한 두 가지 답변 예시',
   badge: '예시',
   interviewer: '면접관',
@@ -43,18 +43,16 @@ export const hero = {
   afterLabel: '과제를 풀어 봤을 때',
   after: '주문 없는 회원을 찾는 과제에서 LEFT JOIN으로 이렇게 써 봤어요.',
   source: '10월 26일 SQLD 대화에서',
-  mirror: {
-    text: 'LEFT JOIN이랑 INNER JOIN 차이가 헷갈려',
-    srPrefix: '예시 질문: ',
-    goLabel: '이 질문으로 예시 화면 보기',
-    chipsLabel: 'SQLD 질문 예시',
-  },
-  chips: [
-    { topic: 'join', label: 'JOIN 차이가 헷갈려' },
-    { topic: 'group', label: 'GROUP BY랑 HAVING' },
-    { topic: 'rank', label: 'ROW_NUMBER랑 RANK' },
-  ],
 } as const;
+
+export const download = {
+  label: 'Windows 앱 다운로드',
+  soon: '출시 예정',
+  noteTitle: 'Experii 데스크톱 앱은 출시 전이에요.',
+  noteBody: '사전 신청하면 출시할 때 다운로드 링크를 이메일로 보내 드려요.',
+  signup: '사전 신청하기',
+  close: '닫기',
+};
 
 export const problem = {
   title: '공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요',

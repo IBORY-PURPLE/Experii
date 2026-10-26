@@ -1,4 +1,4 @@
-type EventName = 'cta_click' | 'loop_step' | 'form_start' | 'signup_success' | 'signup_error';
+type EventName = 'cta_click' | 'download_click' | 'loop_step' | 'form_start' | 'signup_success' | 'signup_error';
 type EventData = Record<string, string | number>;
 
 declare global {

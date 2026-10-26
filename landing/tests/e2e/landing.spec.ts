@@ -2,14 +2,14 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 test.describe('landing', () => {
-  test('첫 화면에 Before→After와 출처 칩이 다 보인다', async ({ page }) => {
+  test('Before→After 그림과 출처 칩이 히어로 바로 아래에 있다', async ({ page }) => {
     await page.goto('/');
-    const viewport = page.viewportSize()!;
-    for (const sel of ['#hero-h', '.bub-before', '.bub-after', '.src-chip', '#hero-cta']) {
-      const box = await page.locator(sel).first().boundingBox();
-      expect(box, sel).not.toBeNull();
-      expect(box!.y + box!.height, sel).toBeLessThanOrEqual(viewport.height);
-    }
+    const heroBottom = (await page.locator('.hero-card').boundingBox())!;
+    const figure = page.locator('.ba figure.interview');
+    for (const sel of ['.bub-q', '.bub-before', '.bub-after', '.src-chip']) await expect(figure.locator(sel)).toHaveCount(1);
+    const box = (await figure.boundingBox())!;
+    expect(box.y).toBeGreaterThan(heroBottom.y + heroBottom.height - 1);
+    expect(box.y - (heroBottom.y + heroBottom.height)).toBeLessThan(200);
   });
 
   test('히어로 CTA를 누르면 사전 신청으로 간다', async ({ page }) => {
@@ -56,6 +56,16 @@ test.describe('landing', () => {
     await page.goto('/');
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test('360px에서도 가로 넘침이 없고 앱 창 대신 안내 한 줄이 보인다', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 780 });
+    await page.goto('/');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    await expect(page.locator('.hero-demo-note')).toBeVisible();
+    await expect(page.locator('.hd-win')).toBeHidden();
+    await page.locator('#stage').scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   });
 
   test('페이지 글자는 13px 이상이다', async ({ page }) => {

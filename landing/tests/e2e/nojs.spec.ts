@@ -10,6 +10,36 @@ test.describe('JS 없음', () => {
     await expect(page.locator('#stage').getByText('LEFT JOIN orders o').first()).toBeVisible();
   });
 
+  test('데스크톱 폭에서 히어로 앱 창은 의미 있는 정지 화면이다', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const win = page.locator('.hd-win');
+    await expect(win).toBeVisible();
+    await expect(win.locator('.hd-scene.on')).toHaveCount(1);
+    await expect(win.locator('.hd-scene.on')).toContainText('오늘 공부하다 막힌 걸 물어보세요');
+    await expect(win.locator('.hd-scene.on')).toContainText('내 GPT · 연결 준비 중');
+    await expect(win.locator('.hd-scene.on .hd-recent li')).toHaveCount(3);
+    await expect(win.locator('.aw-bar')).toContainText('예시 화면');
+    await expect(page.locator('.hd-ctrl')).toBeHidden();
+  });
+
+  test('JS 없이도 다운로드 버튼이 출시 전 안내를 띄운다', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const url = page.url();
+    await page.locator('#hero-cta [data-download="hero"]').click();
+    await expect(page.locator('#download-note')).toBeVisible();
+    await expect(page.locator('#download-note')).toContainText('출시 전이에요');
+    expect(page.url()).toBe(url);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#download-note')).toBeHidden();
+  });
+
+  test('폰 프레임이 없다', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[class*="phone" i]')).toHaveCount(0);
+  });
+
   test('폼이 일반 POST로 제출된다', async ({ page }) => {
     await page.goto('/#signup');
     const form = page.locator('form.su-form');
