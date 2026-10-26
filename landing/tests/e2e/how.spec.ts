@@ -58,6 +58,17 @@ for (const viewport of [null, ...SHORT]) {
       expect(s.y + s.height).toBeLessThanOrEqual(w.y + w.height + 1);
     });
 
+    test('창 안에서 과목 칩은 사이드바에 한 번만 보인다', async ({ page }) => {
+      desktopOnly(page);
+      const stage = await toStage(page);
+      for (const n of [1, 2, 3]) {
+        await page.locator(`#loop-tab-${n}`).click();
+        await expect(page.locator(`#loop-panel-${n}`)).toBeVisible();
+        await expect(stage.getByText('SQLD · 2과목', { exact: true }).filter({ visible: true }), `step ${n}`).toHaveCount(1);
+        await expect(stage.locator('.aw-side')).toContainText('SQLD · 2과목');
+      }
+    });
+
     test('빈칸에 오답을 고르면 결과 0행, 정답을 고르면 결과 2행', async ({ page }) => {
       const stage = await toStage(page);
       await page.locator('#loop-tab-2').click();

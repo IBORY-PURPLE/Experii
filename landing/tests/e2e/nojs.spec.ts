@@ -33,7 +33,7 @@ test.describe('JS 없음', () => {
       const bar = (await win.locator('.aw-bar').boundingBox())!;
       expect(bar.y + bar.height, "the window's title bar is whole on the first screen").toBeLessThanOrEqual(size.height);
       await expect(page.locator('.hd-ctrl')).toBeHidden();
-      await expect(page.locator('.hd-ctrl[data-dock]'), 'nothing docks without JS').toHaveCount(0);
+      await expect(page.locator('.hd-dock[data-dock]'), 'nothing docks without JS').toHaveCount(0);
     });
   }
 

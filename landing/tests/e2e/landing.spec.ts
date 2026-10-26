@@ -173,6 +173,50 @@ test.describe('landing', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   });
 
+  test('깊은 링크 #signup은 로드 직후 굴러가지 않고 바로 도착하고, 페이지 안 링크는 부드럽게 내려간다', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.addInitScript(() => {
+      const w = window as unknown as { __ys: number[] };
+      w.__ys = [];
+      const tick = () => {
+        const y = Math.round(scrollY);
+        if (w.__ys[w.__ys.length - 1] !== y) w.__ys.push(y);
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    const path = () => page.evaluate(() => (window as unknown as { __ys: number[] }).__ys);
+    await page.goto('/#signup');
+    await expect(page.locator('#su-h')).toBeInViewport();
+    await page.waitForTimeout(1_500);
+    const landed = await path();
+    const first = landed.find((y) => y > 0)!;
+    expect(first, `the first move lands (not 0 → a few px → …): ${landed.join(' → ')}`).toBeGreaterThanOrEqual(landed[landed.length - 1] * 0.9);
+
+    await page.evaluate(() => {
+      scrollTo({ top: 0, behavior: 'instant' });
+      (window as unknown as { __ys: number[] }).__ys = [0];
+    });
+    await page.locator('#hero-cta a[href="#signup"]').click();
+    await expect(page.locator('#su-h')).toBeInViewport();
+    await page.waitForTimeout(1_500);
+    expect((await path()).length, 'a click on an in-page link glides through many frames').toBeGreaterThan(10);
+  });
+
+  test('앱 아이콘(SVG)을 선언하고, 첫 화면을 여는 동안 실패하는 요청이 없다', async ({ page }) => {
+    const failed: string[] = [];
+    page.on('response', (r) => {
+      if (r.status() >= 400) failed.push(`${r.status()} ${r.url()}`);
+    });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    const href = await page.locator('head link[rel="icon"][type="image/svg+xml"]').getAttribute('href');
+    const icon = await page.request.get(href!);
+    expect(icon.status()).toBe(200);
+    expect(icon.headers()['content-type']).toContain('image/svg+xml');
+    expect(await icon.text()).toContain('<svg');
+    expect(failed, 'no request fails while the page opens (favicon.ico included)').toEqual([]);
+  });
+
   test('처리방침 페이지가 열린다', async ({ page }) => {
     await page.goto('/privacy');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('개인정보 처리방침');

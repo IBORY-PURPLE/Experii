@@ -37,8 +37,9 @@ interface Watch {
   rests: string[];
   beats: string[];
   moved: string[] | null;
-  toast: { min: number; seen: string[] };
+  toast: { min: number; seen: string[]; slack: number; backText: number };
   dates: number;
+  dotTween: number;
   maxScroll: number;
 }
 const watched = (page: Page) => page.evaluate(() => (window as unknown as { __hd: Watch }).__hd);
@@ -47,7 +48,8 @@ const watched = (page: Page) => page.evaluate(() => (window as unknown as { __hd
 // (anything inside the window but its play control, and the thread's camera slide that follows scrolling),
 // and flags each frame where the control's label disagrees: the picture changing under 재생/다시 보기, or
 // 일시정지 shown over a picture that has not changed for 3.5s (the script's longest still stretch is ~3s).
-// It also times each key beat whole on screen, the time spent playing, and any text the pointer rests on.
+// It also times each key beat whole on screen, the time spent playing, and any text the pointer rests on;
+// how much empty room the front reminder keeps below its text; and frames where a revisit dot is mid-fill.
 const watch = (page: Page) =>
   page.addInitScript(() => {
     const KEY = { task: '.hd-flow .task', solve: '.hd-flow .solve', result: '.hd-flow .result', answer: '.hd-flow .xc-a' };
@@ -59,8 +61,9 @@ const watch = (page: Page) =>
       rests: [],
       beats: [],
       moved: null,
-      toast: { min: 1, seen: [] },
+      toast: { min: 1, seen: [], slack: 0, backText: 0 },
       dates: 0,
+      dotTween: 0,
       maxScroll: 0,
     };
     (window as unknown as { __hd: Watch }).__hd = w;
@@ -143,13 +146,13 @@ const watch = (page: Page) =>
         if (hd.dataset.play === 'playing') w.playMs += dt;
         w.maxScroll = Math.max(w.maxScroll, scrollY);
 
-        const ctrl = hd.querySelector('.hd-ctrl')!;
+        const dock = hd.querySelector('.hd-dock')!;
         if (hd.dataset.scene === 'study' && hd.dataset.remind === '0') {
           const thread = hd.querySelector('.hd-thread')!.getBoundingClientRect();
           const top = Math.max(
             thread.top,
             document.querySelector('.nav')?.getBoundingClientRect().bottom ?? 0,
-            ctrl.hasAttribute('data-dock') ? ctrl.getBoundingClientRect().bottom : 0,
+            dock.hasAttribute('data-dock') ? dock.getBoundingClientRect().bottom : 0,
           );
           const bottom = Math.min(thread.bottom, innerHeight);
           for (const [k, s] of Object.entries(KEY)) {
@@ -191,7 +194,11 @@ const watch = (page: Page) =>
           if (front && getComputedStyle(front).visibility === 'visible') {
             w.toast.min = Math.min(w.toast.min, +getComputedStyle(front).opacity);
             if (!w.toast.seen.includes(hd.dataset.remind!)) w.toast.seen.push(hd.dataset.remind!);
+            const text = front.lastElementChild!.getBoundingClientRect().bottom + parseFloat(getComputedStyle(front).paddingBottom);
+            w.toast.slack = Math.max(w.toast.slack, front.getBoundingClientRect().bottom - text);
           }
+          for (const n of hd.querySelectorAll<HTMLElement>('.hd-toasts .notif:not([data-off="0"])'))
+            if (getComputedStyle(n.querySelector('.n-body')!).visibility === 'visible') w.toast.backText++;
           const box = hd.querySelector('.hd-date')!.getBoundingClientRect();
           const shown = [...hd.querySelectorAll<HTMLElement>('.hd-date .md')]
             .filter((el) => +getComputedStyle(el.closest('.ld')!).opacity > 0.02)
@@ -200,27 +207,26 @@ const watch = (page: Page) =>
             .filter(([x, y]) => y > x);
           for (let i = 1; i < shown.length; i++) if (shown[i][0] < shown[i - 1][1] && shown[i - 1][0] < shown[i][1]) w.dates++;
         }
+
+        if (hd.dataset.scene === 'opened' && hd.dataset.play === 'playing') {
+          for (const dot of hd.querySelectorAll('.hd-scene.on .revisit-line .dot')) {
+            const tf = getComputedStyle(dot, '::after').transform;
+            const scale = tf === 'none' ? 1 : new DOMMatrixReadOnly(tf).a;
+            if (scale > 0.02 && scale < 0.98) w.dotTween++;
+          }
+        }
       }
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   });
 
-// Autoplay starts on the first screen of the reference windows and of 1536×730; on the shorter ones it may
-// wait for the visitor's first wheel notch. Either way it starts with the question box whole on screen.
-const startsAutoplay = async (page: Page, size: Size | null) => {
+// Autoplay starts on the first screen of every window here, the short laptop ones included, without the
+// visitor scrolling, and with the question box whole on screen.
+const startsAutoplay = async (page: Page) => {
   const hd = page.locator('.hero-demo');
-  if (!size || size.height >= 730) {
-    await expect(hd).toHaveAttribute('data-play', 'playing', { timeout: 4_000 });
-    expect(await page.evaluate(() => scrollY)).toBe(0);
-  } else {
-    await page.waitForTimeout(1_500);
-    if ((await hd.getAttribute('data-play')) === 'idle') {
-      await page.mouse.move(size.width / 2, size.height / 2);
-      await page.mouse.wheel(0, 100);
-    }
-    await expect(hd).toHaveAttribute('data-play', 'playing', { timeout: 3_000 });
-  }
+  await expect(hd).toHaveAttribute('data-play', 'playing', { timeout: 4_000 });
+  expect(await page.evaluate(() => scrollY)).toBe(0);
   await expect(hd.locator('.hd-ask .typed')).toContainText('LEFT', { timeout: 3_000 });
   const ask = await hd.locator('.hd-ask').evaluate((el) => el.getBoundingClientRect().bottom);
   expect(ask, 'the question box is whole on screen while it types').toBeLessThanOrEqual(page.viewportSize()!.height);
@@ -256,6 +262,10 @@ test.describe('히어로', () => {
         await expect(page.locator('.hd-win .aw-side')).toContainText('오늘 공부');
         await expect(page.locator('.hd-win .aw-side')).toContainText('리마인드');
         await expect(page.locator('.hd-win .aw-side')).toContainText('SQLD · 2과목');
+        const said = await page.locator('.hero-demo').ariaSnapshot();
+        expect(said, 'read aloud, the 1·7·30-day reminders carry the same 출시 예정 mark as on screen').toMatch(
+          /1일, 7일, 30일 뒤[^"\n]*출시 예정 기능/,
+        );
       });
 
       test('앱 창은 히어로 카드 아래 경계에서 잘린다', async ({ page }) => {
@@ -303,17 +313,19 @@ test.describe('히어로 자동 재생', () => {
     test.describe(sizeName(size), () => {
       if (size) test.use({ viewport: size });
 
-      test('끝까지 26초 안에 한 번 재생되고, 핵심 장면은 2초 이상 온전히 보이며, 일시정지·다시 보기가 듣는다', async ({ page }) => {
+      test('스크롤 없이 첫 화면에서 끝까지 26초 안에 한 번 재생되고, 핵심 장면은 2초 이상 온전히 보이며, 일시정지·다시 보기가 듣는다', async ({ page }) => {
         prepare(page, size);
         test.setTimeout(150_000);
         await watch(page);
         await page.goto('/');
-        await startsAutoplay(page, size);
+        await startsAutoplay(page);
         const hd = page.locator('.hero-demo');
-        if (size) await toWindow(page);
-        const scrolled = await page.evaluate(() => scrollY);
 
         await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
+        await expect(
+          hd.locator('.hd-win').getByText('SQLD · 2과목', { exact: true }).filter({ visible: true }),
+          'the window names its subject once, in the sidebar',
+        ).toHaveCount(1);
         const pause = page.getByRole('button', { name: /일시정지/ });
         await expect(pause).toBeVisible();
         const ctrlBox = await pause.boundingBox();
@@ -345,15 +357,17 @@ test.describe('히어로 자동 재생', () => {
         expect(got.beats.indexOf('study:3')).toBeLessThan(got.beats.lastIndexOf('opened:0'));
         expect(got.toast.seen.sort(), 'every reminder arrived as the front toast').toEqual(['1', '2', '3']);
         expect(got.toast.min, 'the arriving toast is opaque from its first frame, so the one behind never shows through').toBe(1);
+        expect(got.toast.slack, 'the front toast is as tall as its text, with no empty band below').toBeLessThanOrEqual(1);
+        expect(got.toast.backText, 'the toasts behind show only their edges, never their text').toBe(0);
         expect(got.dates, 'outgoing and incoming dates never overlap').toBe(0);
-        expect(got.maxScroll, 'the visitor scrolled at most once, to the window').toBe(scrolled);
+        expect(got.dotTween, 'the revisit dots fill in with a transition, not a jump').toBeGreaterThan(0);
+        expect(got.maxScroll, 'the whole loop played without the visitor scrolling').toBe(0);
         // soft, so one run reports every broken promise of the pass
         for (const [k, ms] of Object.entries(got.read)) expect.soft(ms, `${k} whole on screen (ms)`).toBeGreaterThanOrEqual(2_000);
         expect.soft(got.playMs, 'one pass plays in about 26 seconds').toBeLessThanOrEqual(26_300);
         expect.soft(got.lies, 'the control label always matches whether the picture moves').toEqual([]);
         expect.soft(got.rests, 'the resting pointer covers no text').toEqual([]);
 
-        if (size) await jump(page, 0);
         await page.getByRole('button', { name: /다시 보기/ }).click();
         await expect(hd).toHaveAttribute('data-play', 'playing');
         await expect(hd).toHaveAttribute('data-scene', 'home');
@@ -383,7 +397,7 @@ test.describe('히어로 자동 재생', () => {
           await expect(hd).toHaveAttribute('data-play', 'paused');
         }
         await jump(page, (await winTop(page)) - 72 + 60);
-        await expect(ctrl, 'past the header the control docks under it').toHaveAttribute('data-dock', '');
+        await expect(page.locator('.hd-dock'), 'past the header the control docks under it').toHaveAttribute('data-dock', '');
         const uncovered = await ctrl.evaluate((el) => {
           const b = el.getBoundingClientRect();
           const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
@@ -396,12 +410,12 @@ test.describe('히어로 자동 재생', () => {
         expect((await watched(page)).lies).toEqual([]);
       });
 
-      test('스크롤 위치마다 일시정지 버튼은 보이고, 창이 보이는 동안 표시 없이 멈추지 않으며, 라벨은 실제 재생과 같다', async ({ page }) => {
+      test('스크롤 위치마다 일시정지 버튼과 예시 화면 표시는 보이고, 창이 보이는 동안 표시 없이 멈추지 않으며, 라벨은 실제 재생과 같다', async ({ page }) => {
         prepare(page, size);
         test.setTimeout(120_000);
         await watch(page);
         await page.goto('/');
-        await startsAutoplay(page, size);
+        await startsAutoplay(page);
         const top = (await winTop(page)) - 72;
         // the bar under the header first (while the loop still runs), then the bar on screen, then mostly gone
         const spots = [
@@ -412,23 +426,28 @@ test.describe('히어로 자동 재생', () => {
           { y: 0, covered: false },
           { y: top + 620, covered: false },
         ];
-        const seen: { y: number; covered: boolean; moving: boolean; uncovered: boolean; label: string }[] = [];
+        const seen: { y: number; covered: boolean; moving: boolean; uncovered: boolean; marked: boolean; label: string }[] = [];
         for (const spot of spots) {
           await jump(page, spot.y);
           await page.waitForTimeout(300);
           const from = (await watched(page)).changes;
           await page.waitForTimeout(3_600);
           const r = await page.evaluate(() => {
+            const onTop = (el: HTMLElement) => {
+              const b = el.getBoundingClientRect();
+              const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+              return b.top >= 0 && b.bottom <= innerHeight && !!hit && el.contains(hit);
+            };
             const ctrl = document.querySelector<HTMLElement>('.hd-ctrl')!;
-            const b = ctrl.getBoundingClientRect();
-            const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
-            return { uncovered: !!hit && ctrl.contains(hit), label: ctrl.querySelector('.hd-ctrl-l .on')!.textContent! };
+            const badge = document.querySelector<HTMLElement>('.hero-demo .aw-ex')!;
+            return { uncovered: onTop(ctrl), marked: badge.textContent === '예시 화면' && onTop(badge), label: ctrl.querySelector('.hd-ctrl-l .on')!.textContent! };
           });
           seen.push({ ...spot, ...r, moving: (await watched(page)).changes > from });
         }
         for (const s of seen) {
           expect(s.uncovered || !s.moving, `scrollY ${s.y}: the demo moves while its pause button is covered`).toBe(true);
           if (s.covered) expect(s.uncovered, `scrollY ${s.y}: the window shows, so its control docks under the header`).toBe(true);
+          if (s.uncovered) expect(s.marked, `scrollY ${s.y}: wherever the control shows, the 예시 화면 badge shows beside it`).toBe(true);
         }
         expect(
           seen.some((s) => s.covered && s.moving),
@@ -442,7 +461,7 @@ test.describe('히어로 자동 재생', () => {
         test.setTimeout(90_000);
         await watch(page);
         await page.goto('/');
-        await startsAutoplay(page, size);
+        await startsAutoplay(page);
         const hd = page.locator('.hero-demo');
         await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
         await page.evaluate(() => {
@@ -483,8 +502,7 @@ test.describe('히어로 자동 재생', () => {
         prepare(page, size);
         await watch(page);
         await page.goto('/');
-        await startsAutoplay(page, size);
-        if (size) await toWindow(page);
+        await startsAutoplay(page);
         const hd = page.locator('.hero-demo');
         await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
         const setHidden = (hidden: boolean) =>
@@ -495,6 +513,7 @@ test.describe('히어로 자동 재생', () => {
         await setHidden(true);
         await expect(hd).toHaveAttribute('data-play', 'held');
         expect(await label(page)).toBe('재생');
+        await expect(page.locator('.hd-cue'), 'a hidden tab is no reason to ask for a scroll').toHaveCount(0);
         const shown = () => hd.locator('.hd-flow').evaluate((el) => el.querySelectorAll('*').length);
         const before = await shown();
         await page.waitForTimeout(2_000);
@@ -509,7 +528,7 @@ test.describe('히어로 자동 재생', () => {
         prepare(page, size);
         await watch(page);
         await page.goto('/');
-        await startsAutoplay(page, size);
+        await startsAutoplay(page);
         const hd = page.locator('.hero-demo');
         await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
         await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -521,6 +540,44 @@ test.describe('히어로 자동 재생', () => {
         const from = (await watched(page)).changes;
         await page.waitForTimeout(2_000);
         expect((await watched(page)).changes, 'nothing moves after the switch').toBe(from);
+        expect((await watched(page)).lies).toEqual([]);
+      });
+    });
+  }
+
+  // Shorter than any laptop above: one scene (the SQL with its options) or even the question box does not
+  // fit the first screen, so the loop waits there, and says so beside its control.
+  for (const { size, waits, cue } of [
+    { size: { width: 1280, height: 600 }, waits: 'held', cue: '조금 내리면 이어서 재생돼요' },
+    { size: { width: 1280, height: 560 }, waits: 'idle', cue: '조금 내리면 재생돼요' },
+  ]) {
+    test.describe(sizeName(size), () => {
+      test.use({ viewport: size });
+
+      test('장면이 다 들어가지 않는 곳에서는 조금 내리면 재생된다는 안내가 보이고, 조금 내리면 끝까지 재생된다', async ({ page }) => {
+        prepare(page, size);
+        test.setTimeout(90_000);
+        await watch(page);
+        await page.goto('/');
+        const hd = page.locator('.hero-demo');
+        const shown = page.locator('.hd-cue');
+        await expect(shown).toBeVisible({ timeout: 20_000 });
+        await expect(shown).toHaveText(cue);
+        await expect(hd).toHaveAttribute('data-play', waits);
+        expect(await label(page)).toBe('재생');
+        const box = (await shown.boundingBox())!;
+        expect(box.y, 'the cue is on the first screen').toBeGreaterThanOrEqual(0);
+        expect(box.y + box.height, 'the cue is on the first screen').toBeLessThanOrEqual(size.height);
+        const from = (await watched(page)).changes;
+        await page.waitForTimeout(2_000);
+        expect((await watched(page)).changes, 'the waiting picture stays still').toBe(from);
+
+        await page.mouse.move(640, 300);
+        await page.mouse.wheel(0, 120);
+        await expect(hd).toHaveAttribute('data-play', 'playing', { timeout: 2_000 });
+        await expect(shown).toHaveCount(0);
+        await expect(hd).toHaveAttribute('data-play', 'ended', { timeout: 30_000 });
+        await expect(hd).toHaveAttribute('data-scene', 'opened');
         expect((await watched(page)).lies).toEqual([]);
       });
     });

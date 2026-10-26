@@ -16,6 +16,10 @@ type Intent = 'idle' | 'playing' | 'paused' | 'ended';
 // What the window shows it does. 'held' is a play request whose window is not watchable: the clock waits,
 // and the control offers play instead of claiming it plays.
 type Play = Intent | 'held';
+// Whether the window is watchable, and if not, why: the tab is hidden or the control is off screen
+// ('away'), or the frame's beat is cut by the bottom of the screen ('down') or by the header ('up'), which
+// a little scroll that way mends.
+type Gate = 'open' | 'away' | 'down' | 'up';
 type Target = 'input' | 'send' | 'take' | 'answer' | 'save' | 'toast' | 'rest';
 type Count = 0 | 1 | 2 | 3;
 // What the thread keeps in view: its newest line, or the saved card from its head down.
@@ -168,16 +172,16 @@ function Explain({ item }: { item: ChatItem }) {
 export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: LoopShared; copy: HeroDemoCopy }) {
   const [f, setFrame] = useState<Frame>(() => finalFrame(topic));
   const [intent, setIntent] = useState<Intent>('idle');
-  const [seen, setSeen] = useState(false);
+  const [gate, setGate] = useState<Gate>('away');
   const fRef = useRef(f);
   const intentRef = useRef<Intent>('idle');
-  // Whether the window is watchable: tab shown, control on screen, and the frame's beat whole.
-  const seenRef = useRef(false);
+  const gateRef = useRef<Gate>('away');
   // The unobscured band of the viewport: below the header (and the docked control), above the fold.
   const view = useRef({ lo: 0, hi: 0 });
   const reduced = useRef(false);
   const winRef = useRef<HTMLDivElement>(null);
-  const ctrlRef = useRef<HTMLButtonElement>(null);
+  // The control with the window's badge (and the cue while held): one group that docks under the header.
+  const dockRef = useRef<HTMLSpanElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const flowRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -186,7 +190,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
   const aim = useRef<Target | null>(null);
   const tl = useTimeline();
   const M = marks(topic);
-  const play: Play = intent === 'playing' && !seen ? 'held' : intent;
+  const play: Play = intent === 'playing' && gate !== 'open' ? 'held' : intent;
 
   const commit = (patch: Partial<Frame>) => {
     fRef.current = { ...fRef.current, ...patch };
@@ -267,7 +271,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
       ];
     });
 
-  const sync = () => (intentRef.current === 'playing' && seenRef.current ? tl.play() : tl.pause());
+  const sync = () => (intentRef.current === 'playing' && gateRef.current === 'open' ? tl.play() : tl.pause());
 
   const reset = (frame: Frame) => {
     tl.stop();
@@ -291,7 +295,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
   };
 
   const onControl = () => {
-    if (intentRef.current === 'playing' && seenRef.current) {
+    if (intentRef.current === 'playing' && gateRef.current === 'open') {
       setMode('paused');
       return sync();
     }
@@ -299,46 +303,48 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
     setMode(intentRef.current === 'ended' || intentRef.current === 'idle' ? 'idle' : 'playing');
     update();
     // A play the visitor asked for brings the window up under the header, where every beat fits.
-    if (!seenRef.current) winRef.current?.scrollIntoView({ block: 'start' });
+    if (gateRef.current !== 'open') winRef.current?.scrollIntoView({ block: 'start' });
   };
 
-  // Whether the beat sits whole in the unobscured band and inside its clip box. A thread item is judged
-  // where it comes to rest, not mid-slide or mid-rise.
-  const whole = ([a, b = a]: Beat) => {
+  // Whether the beat sits whole in the unobscured band and inside its clip box, and if not, which way a
+  // scroll mends it: up when the header (or the docked control) covers it, down otherwise. A thread item is
+  // judged where it comes to rest, not mid-slide or mid-rise.
+  const cut = ([a, b = a]: Beat): Gate => {
     const top = winRef.current?.querySelector<HTMLElement>(a);
     const bottom = winRef.current?.querySelector<HTMLElement>(b);
     const clip = top?.closest('.hd-thread, .aw-main')?.getBoundingClientRect();
-    if (!top || !bottom || !clip) return false;
+    if (!top || !bottom || !clip) return 'away';
     const item = top.closest<HTMLElement>('.hd-flow > *');
     const shift = item ? clip.top + flowY.current + item.offsetTop - item.getBoundingClientRect().top : 0;
-    return (
+    const whole =
       top.getBoundingClientRect().top + shift >= Math.max(view.current.lo, clip.top) - 1 &&
-      bottom.getBoundingClientRect().bottom + shift <= Math.min(view.current.hi, clip.bottom) + 1
-    );
+      bottom.getBoundingClientRect().bottom + shift <= Math.min(view.current.hi, clip.bottom) + 1;
+    return whole ? 'open' : view.current.lo > clip.top ? 'up' : 'down';
   };
 
   // Docks the control under the header while the window shows past it, so pause stays in reach, then lets
   // the clock run only while the window is watchable. Autoplay starts the first time it is.
   const update = () => {
-    const ctrl = ctrlRef.current;
-    const slot = ctrl?.parentElement;
+    const group = dockRef.current;
+    const slot = group?.parentElement;
     const end = winRef.current?.querySelector('.hd-scene')?.getBoundingClientRect().bottom;
-    if (!ctrl || !slot || end === undefined) return;
+    if (!group || !slot || end === undefined) return;
     const top = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
     const s = slot.getBoundingClientRect();
     const dock = s.top < top && end > top + s.height + 16;
     slot.style.width = dock ? `${s.width}px` : '';
-    ctrl.style.cssText = dock ? `left:${s.left}px;top:${top}px` : '';
-    ctrl.toggleAttribute('data-dock', dock);
+    // anchored by its right edge, so the cue can come and go on its left without moving the control
+    group.style.cssText = dock ? `right:${document.documentElement.clientWidth - s.right}px;top:${top}px` : '';
+    group.toggleAttribute('data-dock', dock);
     view.current = { lo: dock ? top + s.height + 8 : top, hi: innerHeight };
     fit();
     const beat = beatOf(intentRef.current === 'idle' ? START : fRef.current, M);
     // While the pointer travels the camera holds still, so a scroll then cannot be answered by a refit; the
     // beat is judged again once the press lands.
-    const next =
-      document.visibilityState !== 'hidden' && (dock || (s.top >= top && s.bottom <= innerHeight)) && (!beat || !!aim.current || whole(beat));
-    if (next !== seenRef.current) setSeen((seenRef.current = next));
-    if (next && intentRef.current === 'idle') begin();
+    const shown = document.visibilityState !== 'hidden' && (dock || (s.top >= top && s.bottom <= innerHeight));
+    const next: Gate = !shown ? 'away' : !beat || aim.current ? 'open' : cut(beat);
+    if (next !== gateRef.current) setGate((gateRef.current = next));
+    if (next === 'open' && intentRef.current === 'idle') begin();
     else sync();
   };
 
@@ -406,11 +412,16 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
     f.scene === 'opened' ? shared.openedTitle : f.remind > 0 ? shared.nav.remind : f.scene === 'study' ? topic.question : shared.nav.study;
   const right = topic.right.result;
   const scene = (s: Scene) => (f.scene === s ? 'hd-scene on' : 'hd-scene');
-  const ldPos = (j: number) => (j < f.remind - 1 ? 'past' : j === f.remind - 1 ? 'now' : 'next');
-  const toastOff = (j: number) => (j < f.remind ? String(f.remind - 1 - j) : 'pre');
+  // The opened card comes from the third reminder, so date and stack keep that state while the overlay fades.
+  const arrived = f.scene === 'opened' ? 3 : f.remind;
+  const ldPos = (j: number) => (j < arrived - 1 ? 'past' : j === arrived - 1 ? 'now' : 'next');
+  const toastOff = (j: number) => (j < arrived ? String(arrived - 1 - j) : 'pre');
   // Every label sits in one grid cell, so the button keeps the widest one's width in every state.
   const labels = [...new Set(Object.values(copy.control))];
   const label = copy.control[play === 'held' ? 'paused' : play];
+  // A loop waiting to start or go on only for want of room says which way to scroll.
+  const waits = (intent === 'idle' || intent === 'playing') && (gate === 'down' || gate === 'up');
+  const cue = waits ? copy.cue[intent === 'idle' ? 'start' : 'resume'][gate] : null;
 
   return (
     <div className="hero-demo" data-play={play} data-scene={f.scene} data-remind={f.remind}>
@@ -423,25 +434,36 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
           count={count}
           bump={f.saved}
           mainClassName="mock"
-          tools={
+          tools={(badge) => (
             <span className="hd-slot">
-              <button type="button" className="hd-ctrl" ref={ctrlRef} onClick={onControl}>
-                <i aria-hidden="true">
-                  <svg viewBox="0 0 16 16" width="12" height="12">
-                    {ICONS[play]}
-                  </svg>
-                </i>
-                <span className="hd-ctrl-l">
-                  {labels.map((l) => (
-                    <span key={l} className={l === label ? 'on' : undefined}>
-                      {l}
-                    </span>
-                  ))}
-                </span>
-                <span className="sr-only"> · {copy.controlTarget}</span>
-              </button>
+              <span className="hd-dock" ref={dockRef}>
+                {cue ? (
+                  <span className="hd-cue" data-dir={gate} aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="12" height="12">
+                      <path d="M8 2.5v10M3.8 8.6 8 12.8l4.2-4.2" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {cue}
+                  </span>
+                ) : null}
+                <button type="button" className="hd-ctrl" onClick={onControl}>
+                  <i aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="12" height="12">
+                      {ICONS[play]}
+                    </svg>
+                  </i>
+                  <span className="hd-ctrl-l">
+                    {labels.map((l) => (
+                      <span key={l} className={l === label ? 'on' : undefined}>
+                        {l}
+                      </span>
+                    ))}
+                  </span>
+                  <span className="sr-only"> · {copy.controlTarget}</span>
+                </button>
+                {badge}
+              </span>
             </span>
-          }
+          )}
         >
           <div className={scene('home')} aria-hidden="true">
             <div className="hd-ask-wrap">
@@ -472,7 +494,6 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
 
           <div className={scene('study')} aria-hidden="true">
             <div className="appbar">
-              <span className="subj">{shared.subject}</span>
               <span className="adate">{shared.studyDate}</span>
             </div>
             <div className="hd-thread" ref={threadRef}>

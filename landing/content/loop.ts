@@ -480,8 +480,13 @@ export const heroDemo = {
   recent: [joinTopic.list.old[0], joinTopic.list.old[1], groupTopic.list.old[1]],
   control: { idle: '재생', playing: '일시정지', paused: '재생', ended: '다시 보기' },
   controlTarget: '앱 예시 화면',
+  // shown beside the control when the window has no room for the next scene
+  cue: {
+    start: { down: '조금 내리면 재생돼요', up: '조금 올리면 재생돼요' },
+    resume: { down: '조금 내리면 이어서 재생돼요', up: '조금 올리면 이어서 재생돼요' },
+  },
   summary:
-    '예시 화면: SQLD 공부 중 막힌 걸 물으면 AI가 예시 표로 설명하고, 현장 과제를 풀면 면접 답변 한 줄이 경험 카드로 저장돼요. 1일, 7일, 30일 뒤 알림이 오고, 30일 알림을 누르면 같은 카드가 다시 열려요.',
+    '예시 화면: SQLD 공부 중 막힌 걸 물으면 AI가 예시 표로 설명하고, 현장 과제를 풀면 면접 답변 한 줄이 경험 카드로 저장돼요. 1일, 7일, 30일 뒤 리마인드 알림(출시 예정 기능)이 오고, 30일 알림을 누르면 같은 카드가 다시 열려요.',
 };
 
 export type LoopShared = typeof loopShared;

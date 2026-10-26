@@ -18,7 +18,8 @@ const ICONS: Record<NavId, ReactNode> = {
 };
 
 // The Experii desktop window both the hero autoplay and section 4 draw inside. Chrome is decorative;
-// `tools` (real controls) sit in the title bar next to the badge and stay in the accessibility tree.
+// `tools` (real controls) take the title bar's badge and place it among themselves, so the two can move
+// together; they stay in the accessibility tree.
 export function AppWindow({
   shared,
   title,
@@ -35,11 +36,16 @@ export function AppWindow({
   active: NavId;
   count: number;
   bump?: boolean;
-  tools?: ReactNode;
+  tools?: (badge: ReactNode) => ReactNode;
   className?: string;
   mainClassName?: string;
   children?: ReactNode;
 }) {
+  const badge = (
+    <span className="ex aw-ex" aria-hidden="true">
+      {shared.island}
+    </span>
+  );
   return (
     <div className={className ? `aw ${className}` : 'aw'}>
       <div className="aw-bar">
@@ -49,10 +55,7 @@ export function AppWindow({
         <span className="aw-title" aria-hidden="true">
           {title}
         </span>
-        {tools}
-        <span className="ex aw-ex" aria-hidden="true">
-          {shared.island}
-        </span>
+        {tools ? tools(badge) : badge}
         <span className="aw-ctl" aria-hidden="true">
           <i data-c="min" />
           <i data-c="max" />

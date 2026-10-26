@@ -280,6 +280,10 @@ html:not(.js) .stage .xlist { padding-bottom: 12px; }
   border-radius: 0 0 12px 12px;
 }
 .js .stage .screen .island { display: none; }
+/* where the window shows its sidebar, the sidebar names the subject and the screens drop their own chip */
+@media (min-width: 1024px) {
+  .js .stage .appbar .subj { display: none; }
+}
 .js .stage .screen .thread,
 .js .stage .xscroll {
   flex: 1;

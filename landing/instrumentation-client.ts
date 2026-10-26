@@ -6,6 +6,12 @@ import { UMAMI_SRC } from '@/lib/umami';
 // The stylesheets switch to the interactive layout on this class, so without JS the static layout stays.
 document.documentElement.classList.add('js');
 
+// In-page links scroll smoothly, but the browser's own jump to a deep link's #fragment on load does not:
+// smooth scrolling switches on with the visitor's first press.
+const smooth = () => document.documentElement.classList.add('smooth');
+addEventListener('pointerdown', smooth, { once: true, capture: true });
+addEventListener('keydown', smooth, { once: true, capture: true });
+
 // Umami (only where its ID is set, TSD 9.2) is added when the main thread goes idle after hydration.
 const umamiId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 if (umamiId) {

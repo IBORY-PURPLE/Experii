@@ -1,0 +1,247 @@
+{
+  "lenses": [
+    {
+      "lens": "lauren-tan",
+      "verdict": "3회차(f2199b4)에서 고쳤다고 한 항목은 직접 확인한 범위에서 모두 고쳐졌습니다. 근거는 프로덕션 :3100 화면, vitest 42/42, E2E 219 통과·114 건너뜀·0 실패(13.5분), check:bundle 150,591 B PASS(서버가 실제로 보내는 gzip 합과 바이트 단위로 같음)입니다. 의심 항목이던 30일 알림 비침은 현재 빌드에서 재현되지 않습니다. 정지 상태와 도착 120·150ms 시점에 애니메이션을 멈춰 찍은 프레임 모두 깨끗했습니다. 그 의심을 낳은 스크린샷은 92b1f10 무렵 dev 서버에서 찍은 오래된 증거였습니다. 페이지는 주장보다 경험을 앞세웁니다. 첫 화면 앱 창이 25.7초 한 번에 공부 대화 → 과제 → 답변 한 줄(16초) → 1·7·30일 알림(20.5초) → 같은 카드 다시 열기를 보여 주고, 라벨이 실제 재생 상태와 어긋나지 않도록 'held'를 파생 상태로 모델링한 점이 좋습니다. 이번에 재현한 결함은 0건이고, 남은 것은 모두 개선입니다. 가장 큰 개선 항목은 가장 흔한 노트북 창(1536×730)에서 데모가 10초 만에 클라이맥스(빈칸 풀기)에서 스스로 멈춘다는 점입니다. PRD의 모바일 앱, TSD의 360px 우선·자동 재생 금지와의 충돌은 창업자 결정으로 보고 결함에 넣지 않았습니다.",
+      "scores": {
+        "usp_clarity": 8.5,
+        "loop_one_cut": 8.5,
+        "honesty": 8.5,
+        "craft": 8,
+        "performance": 7.5,
+        "accessibility": 8.5,
+        "code_quality": 7,
+        "verification": 9
+      },
+      "praise": [
+        "재생 상태를 'Play = Intent | held'로 파생시켜 라벨이 실제 시계와 어긋나지 않게 했습니다. hero.spec의 MutationObserver 기반 'lies' 검출기는 구현이 아니라 사용자가 보는 동작(그림이 움직이는데 '재생'이라고 쓰여 있는지)을 단언합니다. 1536×730에서 held일 때 라벨이 '재생', 누르면 창을 끌어와 2.5초 안에 재생되는 것을 직접 확인했습니다(LT2-D1/CD2-1 해결).",
+        "check:bundle이 레버로 만들어졌고 단위 테스트까지 있습니다. 출력 150,591 B가 서버가 실제로 보내는 gzip 합과 바이트 단위로 같아, 숫자가 프록시가 아니라 진짜 산출물을 잽니다.",
+        "가짜 문이 정직합니다. 파일 다운로드나 페이지 이동이 없고, JS 없이도 popover가 뜹니다. 열리면 '사전 신청하기'에 포커스, Escape로 닫으면 호출 버튼으로 포커스가 돌아옵니다. 이벤트는 download_click 1회만 남고, 안내에서 신청으로 가면 cta_click만 남아 loop_step이 섞이지 않습니다(LT2-I7 해결).",
+        "신청 폼 경계 처리가 깔끔합니다. zod 파싱은 서버 경계에만 있고, 운영 배포에서 쓰기 플래그가 꺼지면 조용히 성공하는 대신 오류를 냅니다. 실패한 제출 뒤에도 고른 칩·이메일이 남고 포커스는 첫 오류(동의)로 갑니다(LT2-D2 해결).",
+        "30일 알림 스택이 도착 첫 프레임부터 불투명합니다. 애니메이션을 120·150ms에서 멈춰 찍은 프레임에도 뒤 알림 글자나 이전 날짜가 비치지 않아, 의심 항목을 재현 불가로 반박했습니다.",
+        "한 번 재생이 25.7초로 줄었습니다(과제 7.5초, 답변 한 줄 카드 16초, 리마인드 20.5초). 화면 문구는 content/*.ts에만 있고 컴포넌트에 하드코딩된 한국어 문구는 없습니다. content-guard가 금지 표현과 Claude 언급 위치를 고정합니다."
+      ]
+    },
+    {
+      "lens": "cursor-dev",
+      "verdict": "3회차 수정 항목은 :3100 프로덕션 빌드(f2199b4)에서 전부 고쳐진 것을 확인했다. 내가 따로 돌린 E2E는 219개 통과, 114개 건너뜀, 0개 실패(13.6분)였고, vitest 42/42, check:bundle PASS(150,591 B)였다. 히어로 30일 알림이 비친다는 의심은 이번 빌드에서 반박됐다. CSS 전환을 10배 느리게 해서 5프레임을 찍었는데 앞 알림의 불투명도는 계속 1이었다. reports/shots/hero-1440-f-remind-30.png는 1회차 dev 서버(Next 'N' 표시가 보인다)에서 전환 도중에 찍힌 프레임이다. 이번 회차에서 재현된 결함은 하나다. 히어로 스크린리더 요약이 1·7·30일 리마인드를 '출시 예정 기능' 표기 없이 안내한다(GPT가 먼저 찾았고 내가 재현했다). 경험 쪽에서 가장 큰 개선 지적은 흔한 노트북 창 크기다. 1920×1080 125%(1536×730)에서는 스크롤하지 않으면 데모가 LEFT JOIN 클릭 직전에서 '재생' 라벨로 계속 멈춰 있다. 1366×657과 1280×690에서는 첫 화면에서 자동 재생이 시작되지 않는다. 라벨은 정직하지만 USP의 핵심 장면이 첫 화면에서 재생되지 않는다. 성능은 데스크톱 기준으로 통과다. CLS 0.011~0.013, INP 근사 최대 40ms(스로틀 없음)·176ms(CPU 4배), 첫 로드 JS 147.1 KiB다. 다만 JS 예산은 KiB 기준일 때만 통과하고, 10진 kB로 읽으면 150.6 kB로 591 B 넘는다. 이번에는 Network.emulateNetworkConditionsByRule로 문서 요청까지 실제로 스로틀했고, 그 조건에서 LCP는 2.87~3.00s로 예산을 넘는다. 이 항목은 보류된 CD-4라서 결함으로 세지 않았다. 코드에서는 HeroDemo(672줄)가 상태를 state·ref 세 벌로 겹쳐 들고 렌더 중에 ref를 쓰는 것이 Cursor 리뷰를 통과하지 못할 구조다. PRD의 모바일 앱, TSD의 360px 우선·자동 재생 금지·클라이언트 컴포넌트 목록과 어긋나는 점은 창업자 결정이라 결함으로 세지 않았다.",
+      "scores": {
+        "usp_clarity": 7.5,
+        "loop_one_cut": 8,
+        "honesty": 8.5,
+        "craft": 7,
+        "performance": 7.5,
+        "accessibility": 8,
+        "code_quality": 6,
+        "verification": 8
+      },
+      "praise": [
+        "3회차 수정 항목을 모두 :3100 프로덕션 빌드에서 직접 다시 판정했다.\n- LT2-D1/CD2-1: 1536×730, 1366×657, 1280×690, 1280×800, 1440×900 모두에서 라벨이 실제 재생과 같았다. 1366×657과 1280×690은 첫 화면이 idle·'재생'이고, 누르면 창을 끌어올린 뒤(scrollY 373) 1.2초 안에 재생된다.\n- LT2-D2: 동의를 빼고 제출해도 체크된 입력 3개와 이메일이 그대로 남고, 포커스는 consent로 간다.\n- CD2-2: E2E로 확인했다.\n- LT2-I1: 1280×800에서 제목줄+120px까지 스크롤하면 data-dock이 붙고 playing·'일시정지'다.\n- CD2-3/LT2-I3/CD2-4: 섹션 4의 30일 스택 높이는 88px이다(이전 163px). 앞 알림은 내용만큼만 차지하고 뒤 알림은 글자를 숨긴다.\n- CD2-9: JS 청크를 붙잡아 둔 상태에서 hero·nav 다운로드를 누르면 download_click이 각각 1번 기록되고, 하이드레이션 뒤 클릭도 1번만 기록된다.\n- CD2-12: 그룹 이름이 '유료 AI 구독 여러 개 고를 수 있어요'로 띄어 읽힌다.\n- LT2-I9: 1440에서 히어로 위에 '처음' 라벨이 없다.\n- LT2-I4/CD2-10: check:bundle은 PASS, 150,591 B다.\n- CD2-7: signup-schema의 재export가 사라졌다.\n스크립트: scratchpad/perf/vis-r3.cjs, a11y-r3.cjs, cd29-r3.cjs, s4-r3.cjs, dock-r3.cjs",
+        "30일 알림 비침 의심을 반박했다. CDP Animation.setPlaybackRate 0.1로 전환을 늦추고 도착 후 100·500·1500·3000·4500ms(느린 시간) 시점을 찍었다. 앞 알림 opacity는 다섯 번 모두 1이었다. 정지 상태에서는 뒤 알림 본문 하단(654/670/686px)이 앞 알림 하단(693px)보다 위에 있어 가려진다. 도착 직후 왼쪽 약 26px 띠로 7일 알림 가장자리가 잠깐 보이는 것은 정상적인 슬라이드다. 스크린샷: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/cursor-dev/1440x900-toast30-arrive-slow10x-100ms.png, .../1440x900-hero-toasts-30.png, 섹션 4는 .../1440x900-s4-remind-30.png. 원래 의심 스크린샷은 1회차 dev 서버의 전환 중 프레임이다.",
+        "검증 게이트를 내가 다시 돌렸다. E2E(PW_BASE_URL=:3100, desktop·desktop-1280·nojs, 내 --output 사용)는 219개 통과, 114개 건너뜀, 0개 실패(13.6분)였고 짧은 창 세 크기도 포함된다. vitest는 42/42다. axe(wcag2a·aa·21aa·22aa)는 1440과 1280의 자동 재생 중, 도킹 상태, 다운로드 안내 모두 0건이다. 가로 넘침은 360·768·1280·1440·1536에서 /, /privacy, /v/h3 모두 0이고, 13px 미만 글자도 0이다.",
+        "런타임 수치(perf-r3-*.json, 이번에는 Network.emulateNetworkConditionsByRule로 문서 요청까지 스로틀했고 문서 헤더 응답 574~586ms로 적용을 확인했다):\n- 스로틀 없음: LCP 444~556ms. LCP 요소는 h1 span '면접에서 말할 경험이 됩니다'로 TSD가 지정한 요소와 같다.\n- CLS: 0.011(1440)·0.013(1280).\n- INP 근사 최대: 40ms(스로틀 없음), 104~176ms(CPU 4배·Slow 4G).\n- 자동 재생 22~26초 동안 long task 0개.\n- hydration 경고 0개.\n- JS: 스크립트 7개, 전송 156,433 B. check:bundle 집합과 같고, 지연 로드되는 청크는 없다.",
+        "정직한 가짜 문과 분석 경로가 단단하다. 다운로드는 네이티브 popover라 JS 없이도 열린다. 하이드레이션 전 클릭은 인라인 대기열로 잃지 않고, 하이드레이션 뒤에는 대기열이 닫혀 두 번 세지 않는다. CSP의 connect-src https://gateway.umami.is는 실제 cloud.umami.is/script.js의 기본 수집 호스트 'https://gateway.umami.is'와 일치한다(트래커 소스로 확인).",
+        "1440×900과 1280×800에서는 한 컷 루프가 끝까지 정확히 재생된다. 질문 타이핑 → 설명 → 현장 과제 → LEFT JOIN 클릭 → 결과 → 경험 카드 저장(3→4) → 1·7·30일 알림 → 30일 알림 클릭 → ●●● 순서다. 일시정지·재개·다시 보기는 모두 정직하게 동작한다. 일시정지 중 프레임 변화는 0이고, 다시 보기는 0.3초 안에 처음부터 타이핑한다.",
+        "PRD(모바일 앱)와 TSD(360px 우선, 자동 재생 금지, 클라이언트 컴포넌트 제한)와 어긋나는 점은 이미 로그에 남은 창업자 결정이라 결함으로 세지 않았다."
+      ]
+    }
+  ],
+  "confirmed": [
+    {
+      "id": "lauren-tan:LT3-I1",
+      "kind": "improvement",
+      "severity": "medium",
+      "title": "1536×730(1920×1080·125%)에서 히어로가 10초 만에 빈칸 풀기 장면에서 스스로 멈춰, 답변 한 줄과 리마인드는 스크롤해야만 나온다",
+      "principle": "Experience First (핵심 루프 다듬기, 피드백 디테일)",
+      "evidence": "gstack 1536×730, 스크롤 없이 측정. 10.16초에 data-play가 held, 라벨이 '재생'으로 바뀜. 마지막 항목 .solve 높이 178px, 보이는 띠 149px, 그 안의 보기 줄 .opts는 44px. 1366×657은 한 칸(100px) 스크롤해도 13.6초에 다시 held. 1280×690은 첫 화면에서 아예 시작하지 않음(idle). 한 칸 스크롤하면 262ms 안에 재개해 끝까지 감. 라벨은 정직하지만 알려 주는 건 13px 아이콘·라벨이 바뀌는 것 하나뿐임. 스크린샷: verify-shots-r3/lauren-tan/1536x730-held-solve.png, 1536x730-20s-noscroll.png",
+      "repro": "viewport 1536x730 → goto http://localhost:3100/ → 스크롤 없이 12초 대기 → .hero-demo[data-play]=held, .hd-ctrl-l .on='재생', .hd-flow > :last-child=.solve 확인",
+      "fix": "beatOf에서 solve 단계의 판단 대상을 .solve 전체가 아니라 .hd-flow .opts(누를 보기 줄)로 좁혀 149px 띠에서도 진행되게 한다. 또는 탭 숨김이 아닌 이유로 held일 때 창 위에 '조금 내리면 이어서 재생돼요' 한 줄을 띄운다. hero.spec의 짧은 창 케이스에 '스크롤 없이 15초 안에 data-scene이 opened에 닿는다'(또는 안내가 보인다)를 단언한다.",
+      "file": "landing/components/hero/HeroDemo.tsx:61",
+      "lens": "lauren-tan",
+      "repro_evidence": "프로덕션 빌드(localhost:3100, 커밋 f2199b4)를 Playwright msedge 채널로 확인했다. 스크립트는 scratchpad/lt3i1.cjs와 lt3i1b.cjs다.\n\n(1) 1536×730, 스크롤 없음: 재생 상태는 playing(home) → study 순으로 바뀐다. 마지막 항목은 m me → m ai → status → task key(7.75초) 순서로 나온다. 10.3~10.5초에 data-play가 held가 되고, 라벨(.hd-ctrl-l .on)이 '재생'으로 바뀐다. 이때 .hd-flow > :last-child는 .solve이고 높이 178px이다. .hd-thread top은 573이라 보이는 띠는 730−573−8 = 149px이다. .opts는 44px다. 이후 30초까지 held 그대로이고 scrollY는 0이다. 답변 한 줄, 저장, 리마인드는 나오지 않는다.\n\n(2) held 상태에서 휠 한 칸(100px): 57ms 만에 playing으로 바뀌고 result → card → remind 1·2·3 → opened → ended('다시 보기')까지 끝까지 간다.\n\n(3) 1366×657·1280×690, 스크롤 없음: 처음부터 idle('재생')이고 시작하지 않는다.\n\n(4) 1.5초에 휠 한 칸을 내린 경우:\n- 1366×657은 시작하지만 notch 기준 10.4초(로드 기준 약 11.9초)에 .solve에서 다시 held가 된다. 리뷰어는 13.6초라고 했는데, 대기 시간 차이로 생긴 근사치다.\n- 1280×690은 끝까지 재생된다.\n\n(5) 1440×900·1280×800은 스크롤 없이 약 26초에 ended까지 간다. 판정 기준 뷰포트에서는 재현되지 않는다.\n\n(6) 멈췄다는 신호는 다음뿐이다.\n- 12×12px 아이콘이 바뀐다.\n- 13px 라벨이 '재생'으로 바뀐다.\n- role=status나 aria-live 같은 별도 안내는 없다.\n\n(7) 코드: HeroDemo.tsx:61은 `return f.at >= M.task ? ['.hd-flow > :last-child'] : null;`이고, 인용한 줄과 일치한다. 짧은 창용 hero.spec 케이스들은 toWindow(hero.spec.ts:29)로 창까지 스크롤한 뒤 검사한다. 그래서 스크롤 없는 정지는 검사되지 않는다.\n\n스크린샷(커서가 오른쪽에서 쉬고 INNER/LEFT JOIN 보기가 눌리지 않은 채 정지): C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/adv-LT3-I1/1536x730-held-solve.png, 1536x730-30s-noscroll.png, 1366x657-after-onenotch-28s.png"
+    },
+    {
+      "id": "lauren-tan:LT3-I2",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "아침 산출물 reports/shots가 여전히 3회차 이전 dev 서버 화면이다. 창업자가 의심한 '알림 비침'도 이 낡은 증거에서 나왔다 (LT2-I5/CD2-6 미해결)",
+      "principle": "Prove It Works (진짜 산출물을 확인하라)",
+      "evidence": "landing/reports/shots/*.png의 수정 시각은 00:24~02:02이고 f2199b4 커밋은 05:28. hero-1440-f-remind-30.png 왼쪽 아래에 Next dev 표시기 'N'이 있고, 일시정지 버튼이 창 밖에 떠 있는 옛 레이아웃임. 현재 빌드의 같은 프레임(verify-shots-r3/lauren-tan/1440-remind30-paused.png, 1440-remind3-arriving-120ms.png, 1440-remind30-arriving-150ms-wide.png, 1280-remind30-paused.png)에는 비침이 없음. E2E도 toast.min=1, dates=0으로 통과함.",
+      "repro": "reports/shots/hero-1440-f-remind-30.png를 열어 dev 표시기와 비침을 보고, :3100에서 30일 알림 프레임을 다시 찍어 비교한다",
+      "fix": "보고용 스크린샷을 :3100 기준 스크립트 하나로 다시 생성한다. document.querySelector('nextjs-portal')가 있으면 실패하게 하고, 파일 이름에 커밋 해시를 넣어 어느 빌드의 증거인지 드러낸다. 오래된 round1/round2 샷은 지우거나 old/로 옮긴다.",
+      "file": "landing/reports/shots/hero-1440-f-remind-30.png",
+      "lens": "lauren-tan",
+      "repro_evidence": "(1) 시각: landing/reports/shots/의 PNG 77개는 수정 시각이 10-27 00:24:20부터 02:07:06 사이다(hero-1440-f-remind-30.png는 00:24:38). `git log`를 보면 f2199b4는 2026-10-27 05:28:10 +0900에 커밋됐다. 3회차 커밋 뒤에 생긴 샷은 하나도 없다. git이 추적하는 shots도 92b1f10/95d11ad 시점의 것이다. 브리프 .agents/briefs/landing-overnight.md:45는 `landing/reports/shots/`에 1440·1280 히어로 단계별 샷, 섹션 4 상태별 샷, 다운로드 안내 샷을 아침 산출물로 요구한다. 그런데 지금 그 폴더에는 이전 빌드의 증거만 있다. .audit/landing-overnight.tsv 5행의 '30일 알림 비침 … open'도 이 낡은 샷을 근거로 든다. LT2-I5는 verify-round2.json에서 확인됐는데 3회차 수정 목록에는 없다.\n(2) 낡은 샷 내용: hero-1440-f-remind-30.png를 열어 보면 왼쪽 아래 약 (38,862)에 Next dev 표시기 'N'이 있다. '일시정지' 버튼은 창 밖 오른쪽 위 약 (1255,490)에 떠 있는 옛 레이아웃이다. 앞 토스트 아래로 뒤 토스트 글자가 흐리게 비치고, '11월 25일' 뒤로 '11월 2일' 잔상도 보인다. 즉 비침은 실제로 이 샷에 찍혀 있다.\n(3) 현재 빌드 재현: msedge Playwright로 :3100에 접속했다. 스크립트는 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/adv-lt3-i2.cjs다. 1440×900과 1280×800 모두 `document.querySelector('nextjs-portal')`가 false여서 dev 표시기가 없다. 일시정지 버튼은 창 제목줄 안(약 1041,510)에 있다. data-remind가 2와 3으로 바뀌는 순간부터 0, 60, 150, 300, 600ms 시점마다 computed style을 쟀다. 들어오는 앞 토스트(data-off=0)는 첫 프레임부터 opacity 1, 배경 rgb(255,255,255), z-index 3이었다. 위치는 translateX만 29px에서 0으로 줄었다. 뒤 토스트는 z-index 1과 2, opacity 0.75와 0.5로 앞 토스트 아래에 깔린다. 원인은 hero-demo.css:175-180이다. 'pre' 상태는 visibility hidden이고, 도착할 때 페이드 없이 슬라이드만 한다. 캡처한 장면 어디에서도 비침이 보이지 않았다. 증거는 verify-shots-r3/adv-lt3-i2/에 있다: 1440-remind3-0ms.png, 1440-remind3-60ms.png, 1440-remind3-150ms.png, 1440-remind3-settled-full.png, 1280-remind3-*.png, 1440-remind2-*.png. 경로 앞부분은 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/다."
+    },
+    {
+      "id": "lauren-tan:LT3-I3",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "번들 정리 뒤 html.js 표시가 첫 페인트 뒤로 밀렸다. 이미 parse 시점에 도는 인라인 스크립트가 있는데도 쓰지 않았다",
+      "principle": "Subtract Before You Add / Fix Root Causes",
+      "evidence": "Playwright 프로브(4배 CPU, 1.6Mbps·150ms)에서 FCP 1,928ms, html.js 2,121ms. 4~5프레임이 JS 없는 레이아웃으로 그려짐. 섹션 4 높이는 JS 없을 때 1,819px, JS 있을 때 1,336px(483px 차이)이고, 히어로 재생 버튼은 그동안 숨어 있음. CLS는 0.0097(첫 화면), 0.0143(#signup)으로 기준 아래. 2회차는 next/script beforeInteractive로 페인트 전에 붙였음(git show 95d11ad:landing/app/layout.tsx:36). 프로브: scratchpad/lt-r3/pw/jsflag.cjs",
+      "repro": "node scratchpad/lt-r3/pw/jsflag.cjs <out> → early.fcp와 late.jsAt, framesBeforeJs를 비교한다",
+      "fix": "layout.tsx:34의 EARLY_DOWNLOADS 인라인 스크립트(이미 HTML 파싱 중에 실행됨) 맨 앞에 document.documentElement.classList.add('js')를 넣고 instrumentation-client.ts:7은 지운다. 번들 바이트는 0 늘어난다. JS 청크를 못 받은 경우와의 트레이드오프는 한 줄 주석으로 남긴다.",
+      "file": "landing/instrumentation-client.ts:7",
+      "lens": "lauren-tan",
+      "repro_evidence": "코드 확인: landing/instrumentation-client.ts:7이 document.documentElement.classList.add('js')를 실행한다. app/layout.tsx:34의 EARLY_DOWNLOADS는 :42에서 body 안의 순수 인라인 <script>로 출력되고 js 클래스는 넣지 않는다. 서버 HTML(curl /)에는 `<html lang=\"ko\">`만 있고 인라인 js 플래그가 없다. js 플래그는 async 청크 .next/static/chunks/3n5-9kga10zc4.js에만 들어 있다. 지적의 코드 부분은 맞다.\n\n측정(msedge Playwright, 1440×900):\n- 리뷰어 프로브 그대로(4배 CPU, 1.6Mbps, 150ms): 최상단 FCP 2204ms, jsAt 2349ms, JS 붙기 전 프레임 5개, CLS 0.0097. #how로 열면 FCP 1920ms, jsAt 2125ms, 프레임 3개.\n- 내 프로브(캐시 끔, 같은 스로틀) 2회: FCP 2024/2076ms, jsAt 3696/3749ms.\n- 스로틀 없는 데스크톱(창 크기만 주제의 대상 기준): 1440×900은 jsAt 354ms, FCP 440ms. 1280×800은 jsAt 387ms, FCP 484ms. 이 조건에서는 플래그가 첫 페인트 전에 붙으므로 현상이 재현되지 않는다.\n- 스로틀 조건에서 첫 화면에 실제로 보이는 차이는 히어로 창 제목줄의 '일시정지' 알약 하나뿐이다. 이 버튼은 top 495~525px로 다섯 창 크기 모두 첫 화면 안에 있다. 숨김 규칙은 hero-demo.css:47 html:not(.js) .hd-ctrl { visibility:hidden }이고, .hd-slot이 자리를 지키므로 밀림은 없다. 섹션 4는 첫 화면 아래에 있다. #how로 열어도 화면이 #how로 스크롤되기 시작한 시점은 2266ms로, jsAt 2159ms보다 뒤였다. 그래서 세로 목록이 번쩍이는 모습은 보이지 않았다.\n- 스크린캐스트 프레임: .../verify-shots-r3/adv-lt3-i3/how/how-thr-frame-05-t1975.jpg(JS 전, 제어 버튼 없음), .../verify-shots-r3/adv-lt3-i3/thr1-after-js.png(일시정지 보임).\n\n반박되는 부분:\n(1) '번들 정리 뒤 밀렸다'와 '2회차는 beforeInteractive로 페인트 전에 붙였음'은 틀렸다. Next 16.4.3 App Router에서 beforeInteractive 인라인은 node_modules/next/dist/client/script.js:309에서 self.__next_s.push로 출력된다. 실제 실행은 app-bootstrap.js:54 loadScriptsInSequence, 즉 메인 청크가 로드된 뒤다. 2회차 반박 검증(verify-round2.json CD2-9 repro_evidence)도 같은 스로틀에서 js 클래스 2759~2912ms, FCP 2792ms를 측정했다. 2회차도 첫 페인트 앞을 보장하지 못했으므로 회귀가 아니다.\n(2) 'JS 없을 때 섹션 4 높이 1,819px'도 맞지 않는다. javaScriptEnabled:false로 재면 #how는 3994px이고, JS가 있으면 1336px이다.\n\n그래도 남는 근거: DESIGN.md:1379(5.12)는 '<head>에서 첫 페인트 전에' js 클래스를 붙이라고 하고, :1472 V-21은 '느린 3G에서도 첫 페인트에 섹션 4가 탭 레이아웃'을 요구한다. 현재 구현은 스로틀 조건에서 이 검증 항목을 만족하지 못한다(2회차도 마찬가지였다)."
+    },
+    {
+      "id": "lauren-tan:LT3-I4",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "컨트롤이 헤더 밑에 붙는 동안 '예시 화면' 배지는 제목줄과 함께 사라져, 미리 써 둔 대화가 예시 표시 없이 재생된다",
+      "principle": "Attack the Premise (대본 데모가 정직한가)",
+      "evidence": "1280×800, scrollY 470: .hd-ctrl[data-dock]가 top 72에서 재생 중. 화면에는 앱 사이드바, 대화, 현장 과제 카드만 보이고 '예시 화면' 배지(.aw-ex, 제목줄 안)는 헤더 아래에 가려짐. 붙어 있는 알약에 보이는 글자는 '일시정지'뿐이고 '앱 예시 화면'은 sr-only에만 있음. 스크린샷: verify-shots-r3/lauren-tan/1280x800-scroll470.png",
+      "repro": "viewport 1280x800 → goto / → 3초 뒤 scrollTo(0,470) → 스크린샷에서 '예시' 표기가 있는지 확인",
+      "fix": "헤더 밑에 붙을 때 알약에 짧은 '예시' 표지를 함께 보이게 하거나, 배지를 컨트롤과 같은 슬롯에 넣어 함께 붙인다.",
+      "file": "landing/components/hero/HeroDemo.tsx:329",
+      "lens": "lauren-tan",
+      "repro_evidence": "msedge Playwright 스크립트로 프로덕션 빌드(localhost:3100)에서 재현했습니다. goto → 3초 대기 → scrollTo(0,470) → 1.5초 대기 순서입니다. 1280×800에서는 .hd-ctrl[data-dock]=true였고 컨트롤 rect는 top 72, bottom 102, left 901, right 994, 상태는 play=playing, scene=study였습니다. 히어로 창의 '예시 화면' 배지(.hero-demo .aw-ex)는 top 28~52에 있습니다. 배지 중심에서 elementFromPoint를 찍으면 배지가 아니라 헤더의 BUTTON.btn-dl(Windows 앱 다운로드)이 나옵니다. 헤더 bottom이 61이라 배지가 헤더 밑에 완전히 가려진다는 뜻입니다. 1440×900, scrollY 470에서도 dock=true, 배지 top 28, 가리는 요소 BUTTON.btn-dl로 결과가 같습니다. 이때 붙어 있는 알약에 화면으로 보이는 글자는 '일시정지'뿐이고, '· 앱 예시 화면'은 sr-only 스팬(HeroDemo.tsx:441)에만 있습니다. 히어로 창 안에서 보이는 정직성 표지는 '내 GPT · 연결 준비 중' 칩(top 573) 하나뿐입니다. 화면 아래 top 755의 '예시'는 다음 섹션(면접관 그림)의 배지라 히어로 데모와는 관계없습니다. 배지 위치는 AppWindow.tsx:53으로 제목줄 .aw-bar 안이고, 도킹 판정은 HeroDemo.tsx:323-332의 update()가 합니다. 대조군으로 1280×690, 1366×657, 1536×730에서 scrollY 300을 찍으면 dock=false이고 배지가 top 198에서 보입니다(elementFromPoint=SPAN.ex aw-ex). 그러니 이 현상은 도킹 상태에서만 생깁니다. 스크린샷은 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/adv-LT3-I4/1280x800-scroll470.png와 같은 폴더의 1440x900-scroll470.png입니다."
+    },
+    {
+      "id": "lauren-tan:LT3-I5",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "첫 로드 JS 예산 통과가 단위 해석에 달려 있다. KiB로 읽으면 3,009B 여유, Next 빌드 출력처럼 kB(1000)로 읽으면 591B 초과",
+      "principle": "Explain the Number",
+      "evidence": "npm run check:bundle → gzip 150,591 B, 예산 153,600 B(150 KiB) PASS. 서버가 실제로 보내는 gzip 합도 150,591 B로 바이트 단위까지 같음. TSD 12의 '150KB'를 150,000 B로 읽으면 591 B 초과. 감사 로그는 '여유 3.0KB'라고만 적고 다른 해석을 쓰지 않음. 스크립트 자체는 두 단위를 모두 출력함.",
+      "repro": "cd landing && npm run check:bundle → 출력의 KiB/kB 두 값을 150과 비교한다",
+      "fix": "보고서와 감사 로그의 예산 줄에 '150 KiB 해석 기준이며 kB 기준이면 591B 초과'를 함께 적어 창업자가 해석을 고르게 한다. 또는 여유를 1KB 이상 확보할 때까지 다음 기능을 추가하지 않는다는 규칙을 둔다.",
+      "file": "landing/scripts/check-bundle.mjs:9",
+      "lens": "lauren-tan",
+      "repro_evidence": "숫자는 바이트 단위까지 그대로 재현됐다. (1) `npm run check:bundle` 출력: `first-load JS gzip: 150,591 B (147.1 KiB, 150.6 kB)`, `budget: 153,600 B (150.0 KiB, 153.6 kB) -> PASS`. 스크립트 7개다(72161/40030/14704/9850/5942/4390/3514). (2) :3100에서 같은 청크 7개를 `curl -H 'Accept-Encoding: gzip'`로 받아 size_download를 더하면 150,591B로 정확히 같다. (3) landing/scripts/check-bundle.mjs:9는 `const BUDGET = 150 * 1024;`다. 그래서 KiB 해석이면 여유가 3,009B이고, TSD.md:496의 '150KB 이하'를 150,000B로 읽으면 591B 초과다. (4) .audit/landing-overnight.tsv:20은 '153,609B -> 150,591B(여유 3.0KB)'라고만 적었고, kB로 읽으면 초과라는 말이 없다. 저장소 안의 md/tsv/txt 어디에도 'KiB' 해석을 적은 곳이 없다. 이 해석을 밝힌 곳은 check-bundle.mjs:3 주석('TSD does not define KB; this reads it as KiB (1024 B) and prints both units')뿐이다. 반박 요소도 있다. TSD 자체가 단위를 정의하지 않는다. 스크립트는 해석을 주석으로 남기고 두 단위를 모두 출력한다. 따라서 LT2-I4가 요구한 '자동 검사'와 '해석 명시'는 코드 수준에서 갖춰졌고, 감사 로그 한 줄에 다른 해석이 빠진 것만 남는다."
+    },
+    {
+      "id": "lauren-tan:LT3-I6",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "히어로 알림 토스트는 여전히 min-height 136px라 앞 토스트 아래 27px(약 20%)가 비어 있다 (LT2-I3의 히어로 절반 미처리)",
+      "principle": "Experience First (디테일)",
+      "evidence": "1280×800, 30일 알림 정지 프레임: 앞 .notif 높이 136px, 내용 끝 98px, padding-bottom 12px → 빈 공간 27px. 섹션 4 토스트는 88/84/79px로 내용 높이에 맞춰짐. 스크린샷: verify-shots-r3/lauren-tan/1280-remind30-paused.png",
+      "repro": "히어로 재생 중 data-remind=3에서 일시정지 → .hd-toasts .notif[data-off=\"0\"]의 높이와 마지막 자식의 bottom을 비교한다",
+      "fix": "hero-demo.css:170의 min-height를 지우고 섹션 4와 같은 align-items:start를 쓴다. 뒤 토스트 가장자리를 같게 보이게 하려는 목적이었다면 뒤 카드에만 높이를 고정한다.",
+      "file": "landing/components/hero/hero-demo.css:170",
+      "lens": "lauren-tan",
+      "repro_evidence": "코드: landing/components/hero/hero-demo.css:170에 `min-height: 136px`가 그대로 있다. :167의 `.hd-toasts`에는 이미 `align-items: start`가 있으므로, 토스트가 늘어나는 원인은 min-height 하나뿐이다. f2199b4의 hero-demo.css diff(+9/-2)는 이 규칙을 건드리지 않았다. 커밋 메시지에도 LT2-I3/CD2-4는 \"opaque section-4 notifications sized to content\"로만 적혀 있어, 히어로 쪽 절반은 처리되지 않았다. 이 히어로 쪽 절반은 round 2 검증(verify-round2.json:115)에서 이미 확인된 내용이다.\n브라우저 측정: Edge(msedge) Playwright로 http://localhost:3100 의 1440×900과 1280×800을 열고, .hero-demo[data-remind=\"3\"]가 될 때까지 기다린 뒤 .hd-ctrl을 눌러 일시정지했다(data-play=paused). 두 해상도에서 값이 같았다. 앞 토스트(data-off=0)의 offsetHeight는 136px이다. min-height를 0으로 두고 잰 자연 높이는 세 토스트 모두 110px다. 마지막 자식 .n-body는 카드 위에서 97.5px 지점에서 끝나고, padding-bottom은 12px이다. 그래서 순수하게 늘어난 빈 공간은 26.5px(약 20%)이고, 내용 아래 전체 여백은 38.5px다. 리뷰어가 적은 값(98px, 27px)과 일치한다.\n세 토스트의 자연 높이가 이미 110px로 같아서, min-height가 높이를 맞춰 주는 역할도 하지 않는다. /, /v/h2, /v/h3 모두 같은 토픽이었고 측정값도 같았다(110→136).\n섹션 4: #loop-tab-4를 누르고 .btn-notif를 두 번 누른 30일 상태에서 앞 토스트는 88px로 내용에 맞는다. 뒤 토스트는 inset:0으로 88px이고, transform 적용 후 rect는 88/84/79px로 리뷰어가 적은 값과 같다.\n스크린샷: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/adv-LT3-I6/1280-hero-remind30-paused.png, .../1440-hero-full-remind30.png. 두 장 모두 앞 카드 본문 아래에 빈 흰 띠가 보인다."
+    },
+    {
+      "id": "lauren-tan:LT3-I7",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "같은 창 안에 'SQLD · 2과목'이 두 번 나온다(사이드바 칩과 본문 appbar 칩)",
+      "principle": "Minimize Reader Load (새 정보가 없는 라벨)",
+      "evidence": "히어로와 섹션 4 모두 사이드바 .aw-subj와 appbar .subj에 같은 문자열이 있음(AppWindow.tsx:64, HeroDemo.tsx:475, ChatMock.tsx:38, TaskMock.tsx:57, CardMock.tsx:37). 브리프 M1-a가 요구한 과목 표기는 사이드바 하나뿐. 스크린샷: verify-shots-r3/lauren-tan/1440-s4-stage.png",
+      "repro": "1440×900 → #stage → 앱 창의 왼쪽 사이드바와 본문 윗줄에서 'SQLD · 2과목'이 두 번 보이는지 확인",
+      "fix": "appbar의 .subj 칩을 지우고 날짜만 남긴다. 사이드바가 과목을 맡는다.",
+      "file": "landing/components/app-window/AppWindow.tsx:64",
+      "lens": "lauren-tan",
+      "repro_evidence": "재현됨. 프로덕션 빌드(http://localhost:3100)를 Playwright(msedge)로 1440×900과 1280×800에서 열고 화면에 보이는 .aw-subj와 .subj를 쟀다. 두 크기 모두 같은 앱 창 안에 'SQLD · 2과목'이 두 번 보인다.\n- 히어로(9초 시점, study 장면): 사이드바 .aw-subj는 1440 기준 x=152 y=581 94×24, appbar .subj는 x=358 y=540 92×24. 1280에서도 똑같이 두 개다.\n- #stage(섹션 4, scr-chat): .aw-subj는 x=582 y=3364, appbar .subj는 x=750 y=3325. 둘 다 보이고 opacity=1이다. 세로 차이는 약 40px뿐이고 칩 모양도 같다.\n- 코드 위치는 리뷰어가 적은 그대로다. AppWindow.tsx:64 `<span className=\"aw-subj\">{shared.subject}</span>`, HeroDemo.tsx:475, ChatMock.tsx:38, TaskMock.tsx:57, CardMock.tsx:37의 `<span className=\"subj\">{shared.subject}</span>`. 값은 content/loop.ts:378 `subject: 'SQLD · 2과목'`.\n- 스크린샷: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/lt3i7-verify/1440-hero-aw-9s.png, C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/lt3i7-verify/1280-stage.png. 리뷰어의 1440-s4-stage.png와 같은 화면이 나온다.\n- 짚어 둘 점: \"브리프 M1-a가 요구한 과목 표기는 사이드바 하나뿐\"이라는 말은 절반만 맞다. M1-a는 사이드바에 과목을 넣으라고만 했지, appbar 칩을 금지하지는 않았다. 오히려 정본 대본 research/10-landing-materials-brief.md:398과 DESIGN.md:989는 appbar 왼쪽에 과목 칩을 두라고 명시한다. 이 명세는 폰 목업 시절, 사이드바가 없을 때 만든 것이다. 데스크톱 창으로 옮기면서 사이드바가 생겼고 그래서 중복이 생겼다."
+    },
+    {
+      "id": "cursor-dev:CD3-1",
+      "kind": "improvement",
+      "severity": "medium",
+      "title": "흔한 노트북 창(1536×730)에서는 스크롤하지 않으면 데모가 LEFT JOIN 클릭 직전에 '재생'으로 멈춰 있고, 1366×657·1280×690에서는 첫 화면에서 자동 재생이 시작되지 않는다",
+      "principle": "Experience First / USP를 즉시 이해시키는 한 컷 루프. 커밋 메시지의 'short windows ... autoplay'는 실제 동작보다 과장이다",
+      "evidence": "원인 코드: HeroDemo.tsx:56-62 beatOf, :335-339 게이트. 프레임의 비트가 '온전히' 보여야만 시계가 돈다.\n\n입력 없이 scrollY 0에서 40초 동안 관찰했다(scratchpad/perf/hold-r3.cjs).\n- 1536×730: 1.7s 재생 → 3.7s 대화 → 8.7s 과제 카드 → 11.8s '.solve' 등장과 동시에 play=held, 라벨 '재생', answered=false. 이후 28초 동안 프레임 변화가 0이다.\n- 이때 쓰레드 띠(579~722px, 143px)가 '.solve' 높이보다 작아서 SQL 윗부분이 잘린 채 보기 두 개만 보인다.\n- 1366×657·1280×690: 4초 뒤에도 play=idle, scene=opened, 라벨 '재생'이다(vis-r3-*.json). '.hd-ask' 하단이 약 720px이라 뷰포트 밖에 있기 때문이다.\n\nE2E는 이 동작을 허용하도록 쓰여 있다. hero.spec.ts:211-223은 높이 730 미만이면 휠 100px 뒤에 재생되면 통과하고, scrollY 0 지점은 '가려지지 않았거나 멈춰 있으면' 통과한다.\n\n스크린샷:\n- C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/cursor-dev/1536x730-scroll0-held.png\n- .../cursor-dev/1536x730-ended.png\n- .../cursor-dev/1366x657-after4s.png\n- .../cursor-dev/1280x690-after4s.png",
+      "repro": "msedge Playwright, viewport 1536×730 → http://localhost:3100/ → 아무 입력 없이 30초 대기 → .hero-demo의 dataset.play가 'held'이고 .hd-ctrl-l .on이 '재생', .blank.is-right가 없는 상태에서 멈춰 있다. 1366×657에서는 4초 뒤 dataset.play가 'idle', dataset.scene이 'opened'다.",
+      "fix": "코드 주도권: 창이 첫 화면의 제자리(방문자가 스크롤하지 않은 상태)에 있을 때는 '.solve' 비트를 다음 누름 대상인 '.opts' 줄로 판정하고, 이후 비트는 머리만 보이면 진행한다. 또는 높이 800 미만에서 --hdh/--cut과 hero-card 위 여백(보류 중인 CD2-11 h1 축소 포함)을 줄여 쓰레드 띠를 가장 큰 비트(약 260px) 이상으로 만든다. 그래도 멈춘다면 창 위에 '스크롤하면 이어서 재생돼요' 같은 상태 표시를 그린다. E2E에 '1536×730에서 입력 없이 20초 안에 .blank.is-right가 나타난다'를 추가하고, 커밋 메시지 표현도 사실에 맞춘다.",
+      "file": "landing/components/hero/HeroDemo.tsx",
+      "lens": "cursor-dev",
+      "repro_evidence": "재현됨. Playwright 1.x를 channel 'msedge'로 돌려 http://localhost:3100/ (f2199b4 프로덕션 빌드)을 열고, 입력 없이 scrollY 0에서 35초 동안 250ms 간격으로 상태를 기록했다. 스크립트: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/refute-cd3-1/run.cjs, 결과: .../refute-cd3-1/out.json\n\n**크기별 결과 (scrollY 0, 입력 없음)**\n- 모든 크기에서 .hd-thread는 [573,1026], .hd-ask는 [653,713]이다. 레이아웃이 뷰포트 높이와 상관없다.\n- 1536×730: 0.1초 playing → 7.3초 task 카드 → 9.9초에 '.solve'([691,869], 178px)가 마지막 항목이 되면서 play=held, 라벨 '재생', .blank.is-right 없음. 35초까지 이 상태 그대로다.\n  - 판정 띠는 thread.top 573부터 innerHeight 730까지 157px로, 178px보다 작다. 리뷰어가 쓴 143px(579~722)와 숫자는 조금 다르지만 결론은 같다.\n  - 스크린샷을 보면 SQL 윗줄이 잘린 채 'INNER JOIN / LEFT JOIN' 두 보기와 '재생' 버튼만 보인다.\n- 1366×657, 1280×690: 처음부터 끝까지 play=idle, scene=opened(최종 프레임), 라벨 '재생'이다. 원인은 .hd-ask 하단(713)이 뷰포트 밖에 있는 것이다. beatOf(HeroDemo.tsx:56-62)와 update()의 whole(beat) 게이트(:335-339)가 코드상 이렇게 동작한다.\n- 대조군 1440×900, 1280×800: 25.4~25.5초에 ended, '다시 보기'. 정상이다.\n\n**추가 관찰 (mitig.cjs)**\n1366×657은 휠 100px로 자동 재생이 시작되지만, 10.5초에 같은 '.solve' 비트에서 다시 held로 멈춘다. 리뷰어가 쓰지 않은 내용이고 지적을 더 강하게 한다.\n\n**완화 요인**\n- 라벨은 계속 사실대로 '재생'을 보여 준다. LT2-D1/CD2-1의 '거짓 일시정지'는 고쳐졌다.\n- held 상태에서 '재생'을 누르면 scrollY 373으로 창을 끌어와 15.6초 뒤 끝까지 재생된다. 1366×657과 1280×690에서도 누르면 25.8초에 ended가 된다.\n- 1536×730은 휠 100px 한 번이면 이어서 재생되어 끝난다.\n\n**E2E와 커밋 메시지**\n- hero.spec.ts:211-224의 startsAutoplay는 높이 730 미만이면 휠 뒤 시작만 단언한다. :312는 짧은 창에서 toWindow로 스크롤한 뒤에야 완주를 확인한다. :430은 `s.uncovered || !s.moving`이다. 리뷰어 서술과 맞다.\n- 커밋 메시지의 \"short windows (1536x730, 1366x657, 1280x690) autoplay\"는 scrollY 0에서는 사실이 아니다.\n\n스크린샷: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/refute-cd3-1/1536x730-scroll0-after35s.png, 1366x657-scroll0-after35s.png, 1280x690-scroll0-after35s.png, 1440x900-scroll0-after35s.png"
+    },
+    {
+      "id": "cursor-dev:CD3-2",
+      "kind": "defect",
+      "severity": "low",
+      "title": "[source: gpt+claude] 히어로 스크린리더 요약은 1·7·30일 리마인드를 '출시 예정' 표기 없이 지금 되는 기능처럼 안내한다",
+      "principle": "정직한 주장(TSD 6.3 근거 표: '1·7·30일 리마인드 → 예시 배지와 출시 예정 기능 표기') / 텍스트 대안의 동등성(WCAG 1.1.1·1.3.1)",
+      "evidence": "HeroDemo.tsx:638은 알림 오버레이 전체에 aria-hidden을 건다. 그래서 :647의 lock-badge('출시 예정 기능', content/loop.ts:412)도 접근성 트리에서 빠진다. 대체 텍스트 content/loop.ts:483-484(HeroDemo.tsx:417에서 렌더)는 '… 1일, 7일, 30일 뒤 알림이 오고, 30일 알림을 누르면 같은 카드가 다시 열려요.'로 끝나고, '출시 예정'이라는 말이 없다. 1440×900에서 .hero-demo의 ariaSnapshot을 떠 보면 paragraph(요약)와 button '다시 보기 · 앱 예시 화면' 두 개뿐이고, /출시 예정/ 검색 결과는 false다. 화면에 보이는 배지 텍스트는 '출시 예정 기능'이다(scratchpad/perf/a11y-r3.cjs). 섹션 4는 .soon('출시 예정 기능')이 읽히므로 이 차이는 히어로에만 있다. GPT(Codex gpt-5.6-sol)가 먼저 지적했다.",
+      "repro": "http://localhost:3100/ (1440×900) → page.locator('.hero-demo').ariaSnapshot()에 '출시 예정'이 없다. 같은 시점에 .hd-remind .lock-badge의 textContent는 '출시 예정 기능'이다.",
+      "fix": "heroDemo.summary의 해당 문장을 '1일, 7일, 30일 뒤 알림(출시 예정 기능)이 오고…'처럼 고친다. 문구는 content/loop.ts 안에서만 바꾼다. 히어로 접근성 텍스트에 '출시 예정'이 들어 있는지 확인하는 단언을 content-guard 또는 hero.spec에 추가한다.",
+      "file": "landing/content/loop.ts",
+      "lens": "cursor-dev",
+      "repro_evidence": "코드(커밋 f2199b4)에서 인용한 줄이 모두 맞다. landing/components/hero/HeroDemo.tsx:417이 `<p className=\"sr-only\">{copy.summary}</p>`를 렌더하고, :638 `<div className=\"hd-remind\" aria-hidden=\"true\">` 안의 :647 `<p className=\"lock-badge\">{shared.lockBadge}</p>`(content/loop.ts:412 '출시 예정 기능')는 접근성 트리에서 빠진다. content/loop.ts:483-484의 summary는 '… 1일, 7일, 30일 뒤 알림이 오고, 30일 알림을 누르면 같은 카드가 다시 열려요.'로 끝나며 '출시 예정'이라는 말이 없다. 브라우저 재현은 Playwright(channel msedge), http://localhost:3100/, 1440×900에서 했다. data-remind=3(30일 알림 프레임)이 될 때까지 기다린 뒤 .hero-demo의 ariaSnapshot을 떴더니 paragraph(요약)와 button '일시정지 · 앱 예시 화면' 두 개뿐이었고 /출시 예정/ 검색은 false였다. 같은 시점 .hd-remind .lock-badge는 textContent '출시 예정 기능', visibility visible, opacity 1, rect (374, 661, 93×24)로 화면에 보였다. 스크린샷: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/adv-cd3-2/hero-1440-remind.png. 섹션 4의 .soon('출시 예정 기능')은 aria-hidden 조상이 없어 읽힌다. TSD.md:216 근거 표는 '1·7·30일 리마인드 | 설계 단계 | 예시 배지와 \"출시 예정 기능\" 표기'로 이 기능을 콕 집어 표기하라고 요구한다. 그런데 히어로 텍스트 대안만 이 표기를 빠뜨려서, 화면에 보이는 정보와 같지 않다. 스크립트: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/adv-cd3-2/check.cjs"
+    },
+    {
+      "id": "cursor-dev:CD3-3",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "공용 mock.css가 loop.css의 .stage 범위 변수 --q에 기대고 있어서, 히어로에서는 다시 본 날 ●●● 채움 전환이 무효가 된다",
+      "principle": "공용 계층의 경계(공유 스타일시트가 한쪽 소비자 범위의 변수에 의존) / motion craft",
+      "evidence": "mock.css:217의 '.mock .dot::after { transition: transform 280ms var(--q) }'와 :179의 .opt가 var(--q)를 쓴다. 그런데 --q는 loop.css:12의 .stage에만 정의돼 있다. 히어로(.hero-demo, .stage 밖)에서 계산된 값은 다음과 같다(1440×900, vis-r3-1440x900.json의 dotTransition).\n- 히어로 .dot::after: transition 'all 0s ease', --q는 ''\n- 섹션 4: 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)'\n그래서 히어로 마지막 장면의 ●●●은 150ms 간격으로 전환 없이 툭툭 켜진다. 두 루프 구현이 따로 있는 문제(CD-6, 보류)가 화면에 드러난 증상이다.",
+      "repro": "1440×900에서 히어로 재생을 끝까지 보거나 동작 줄이기 없이 마지막 장면을 연 뒤 getComputedStyle(document.querySelector('.hero-demo .dot'), '::after').transitionDuration을 읽으면 '0s'다. '.stage .dot'으로 같은 값을 읽으면 '0.28s'다.",
+      "fix": "mock.css 맨 위에 '.mock { --q: var(--ease-out-quint); }'를 두거나 mock.css에서는 var(--ease-out-quint)를 직접 쓴다. 그리고 loop.css:12의 정의를 지운다. 공용 CSS가 쓰는 사용자 정의 속성은 그 파일 안에서 정의한다.",
+      "file": "landing/components/loop/mock.css",
+      "lens": "cursor-dev",
+      "repro_evidence": "코드 확인 결과 인용한 내용과 같다. --q는 landing/components/loop/loop.css:12의 `.stage { --q: var(--ease-out-quint); }`에서만 정의된다(landing 전체를 grep한 결과 정의는 이 한 곳뿐이다). 공용 스타일시트 landing/components/loop/mock.css는 :179의 `.mock .opt { transition: transform 160ms var(--q) }`와 :217의 `.mock .dot::after { ... transition: transform 280ms var(--q) }`에서 이 변수를 쓴다. 히어로는 HeroDemo.tsx:3에서 mock.css를 import하고 :425에서 mainClassName=\"mock\"을 넘긴다. :616에서는 `f.dots > j ? 'dot on' : 'dot'`로 점을 켜고, :116-118에서 dots를 1→2→3으로 150ms 간격에 올린다. .hero-demo는 .stage 밖에 있다(closest('.stage') === null).\n\n브라우저 재현은 Playwright에 channel 'msedge'를 쓰고 http://localhost:3100 프로덕션 빌드에서 1440×900과 1280×800으로 했다. 계산값은 다음과 같다.\n- .hero-demo .dot::after: transition 'all', duration '0s', timing 'ease', --q ''. var(--q)를 계산값 시점에 풀 수 없어 선언 전체가 무효가 되고 초기값으로 돌아간 상태다.\n- .stage .dot::after: 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)', --q 'cubic-bezier(.22, 1, .36, 1)'.\n- .hero-demo .opt: transition 'all', --q ''.\n\n히어로가 'opened' 장면에 들어간 뒤 rAF마다 ::after transform을 샘플링했다. 1440 기준으로 t=359, 509, 659ms에 각 점이 matrix(0,0,0,0,0,0)에서 중간 프레임 없이 바로 'none'으로 넘어갔다. 280ms 전환이었다면 중간 scale 값이 찍혀야 한다. 1280에서도 t=331, 481, 630ms로 같은 결과다. 스크린샷은 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/adv-cd3-3/hero-1440x900-opened.png와 hero-1280x800-opened.png, 스크립트는 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/cd3-3.cjs에 있다."
+    },
+    {
+      "id": "cursor-dev:CD3-4",
+      "kind": "improvement",
+      "severity": "medium",
+      "title": "(thermo-nuclear) HeroDemo 672줄: 상태를 state와 ref로 세 벌 겹쳐 들고, 렌더 중에 ref를 쓰고, 프레임 커밋마다 레이아웃을 강제로 읽는다",
+      "principle": "Model the Domain / 상태의 단일 원천 / React 19 규칙(렌더 중 ref 쓰기 금지, useEffectEvent)",
+      "evidence": "- f와 fRef(:169·172), intent와 intentRef(:170·173), seen와 seenRef(:171·175)가 매번 함께 갱신되는 거울이다(commit :191-194, setMode :195-198, :340 setSeen((seenRef.current = next))).\n- :364-365에서 api.current = { update, finish }를 렌더 중에 대입한다. React 19.2 이상의 useEffectEvent가 바로 이 용도다. LoopStepper :425-426도 같은 패턴이다.\n- :399-401의 useLayoutEffect가 프레임 커밋마다 update()를 부른다. update()는 getComputedStyle(documentElement), 6개 이상의 getBoundingClientRect, offsetHeight를 읽고 그 사이에 style을 쓴다. 질문 타이핑 1.1초 동안만 해도 약 66번이다.\n- 스크롤 핸들러(:386)는 히어로가 화면 밖에 있어도 프레임마다 같은 update()를 실행한다.\n측정: 4배 CPU 자동 재생 중 long task는 0개였다(perf-r3-1440-thr-a.json heroLT=0). 그래서 지금 성능 결함은 아니고 구조 문제다.",
+      "repro": "코드 읽기: components/hero/HeroDemo.tsx 168-401. 성능 확인: node scratchpad/perf/perf-r3.cjs 1440 900 1 x → heroAutoplay.longTasksDuringAutoplay",
+      "fix": "코드 주도권: 시계, 게이트(보이는지 판정), 카메라(fit), 도킹을 createHeroPlayer()라는 작은 외부 저장소로 옮긴다(subscribe/getSnapshot → useSyncExternalStore). play/held는 그 스냅샷에서 계산하는 순수 함수로 만든다. HeroDemo는 렌더만 남는다(약 300줄). scroll/resize 감시는 IntersectionObserver로 히어로가 화면과 겹칠 때만 붙인다. api ref는 useEffectEvent로 바꾼다.",
+      "file": "landing/components/hero/HeroDemo.tsx",
+      "lens": "cursor-dev",
+      "repro_evidence": "코드(f2199b4, components/hero/HeroDemo.tsx, 672줄)와 Edge(msedge headless, 1440×900, :3100 프로덕션) 계측으로 확인했다. 계측 스크립트는 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/cd3-4/probe.cjs이고, 스크린샷은 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/cursor-dev/cd3-4-offscreen-scroll-1440.png이다.\n(1) 상태 미러는 맞다. :169/:172(f, fRef), :170/:173(intent, intentRef), :171/:175(seen, seenRef)가 있다. commit :191-194와 setMode :195-198에서 ref와 state를 함께 갱신하고, :340은 `setSeen((seenRef.current = next))`이다.\n(2) 렌더 중 ref 쓰기도 맞다. HeroDemo :364-365가 `api.current = { update, finish }`이고, LoopStepper.tsx :425-426도 같은 패턴이다. 설치된 react는 19.3.1이다. 다만 eslint나 react-hooks 플러그인, React Compiler 설정은 저장소에 없다.\n(3) :399-401의 useLayoutEffect([f])는 프레임 커밋마다 update()를 부른다. update()는 slot.style.width와 ctrl.style.cssText를 쓴 뒤 getComputedStyle(documentElement)를 읽는다. 이어서 fit()와 whole()에서 getBoundingClientRect, offsetHeight, offsetTop을 읽으니 강제 레이아웃이 맞다. 그런데 '타이핑 1.1초 동안 약 66번'은 과장이다. :245는 글자가 바뀔 때만 commit한다. 질문은 'LEFT JOIN이랑 INNER JOIN 차이가 헷갈려'로 30자다. 계측값은 글자 변화 30번, 그 사이 update() 30번, 걸린 시간 1057ms였다. 66은 프레임 수이고 커밋 수가 아니다.\n(4) 화면 밖 스크롤 주장은 재현됐다. 히어로 창 bottom이 -4345px에서 -5245px까지 내려간 상태(data-play=held)에서 휠을 20번 굴렸다. update()가 15번, getBoundingClientRect가 46번 실행됐다. 그동안 getComputedStyle에 쓴 시간은 합쳐서 0.1ms였다.\n비용은 리뷰어 말대로 사용자가 느낄 수준이 아니다. 리뷰어 측정은 heroLT=0이고, TSD 12의 요구는 INP 200ms뿐이다."
+    },
+    {
+      "id": "cursor-dev:CD3-5",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "#signup 같은 깊은 링크로 들어오면 로드 직후 약 6,000px을 부드럽게 굴러 내려간다(html { scroll-behavior: smooth })",
+      "principle": "Motion restraint / 깊은 링크는 즉시 도착해야 한다",
+      "evidence": "globals.css:69-71은 html 전체에 scroll-behavior: smooth를 건다. 이 값은 첫 문서 로드의 프래그먼트 이동에도 적용된다. 1440×900에서 /#signup의 #su-h 위치와 scrollY를 rAF로 샘플링했다(scratchpad/perf/deeplink-r3.cjs, deeplink-nothr.cjs).\n- 스로틀 없음: 0.36s까지 scrollY 0, 0.7s부터 0.96s 이후까지 191→3663px 이상으로 애니메이션된다.\n- 4배 CPU와 Slow 4G: 6.8s까지 맨 위(히어로)에 머문 뒤 3,379px 이상을 굴러간다.\nCLS는 0.011이다. .js 클래스 전환은 스크롤 전에 끝나서 화면 밀림은 없다.\n스크린샷: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/verify-shots-r3/cursor-dev/deeplink-signup-1440-thr.png",
+      "repro": "msedge, 1440×900 → http://localhost:3100/#signup 을 새 탭으로 연다 → 히어로가 보였다가 신청 섹션까지 길게 굴러간다.",
+      "fix": "html { scroll-behavior: smooth }를 'html:focus-within { scroll-behavior: smooth }'로 바꾼다. 또는 로드 뒤 JS로 클래스를 붙여 페이지 안 링크에만 적용한다. 그러면 첫 로드의 프래그먼트 이동은 즉시 도착한다.",
+      "file": "landing/app/globals.css",
+      "lens": "cursor-dev",
+      "repro_evidence": "코드: landing/app/globals.css:69-71이 `@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }`이다. 지적과 같다. app·components·lib에는 해시를 다루는 JS(scrollIntoView, location.hash, scrollTo)가 없다. 그래서 첫 로드의 프래그먼트 이동은 브라우저 기본 동작이고, 이 CSS의 영향을 받는다.\n\n직접 재현: msedge Playwright 스크립트 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/adv-cd3-5/deeplink.cjs로 http://localhost:3100/#signup 을 열었다. 문서 시작부터 rAF마다 scrollY를 샘플링했다.\n- 1440×900, 스로틀 없음: 0.78s까지 scrollY 0이다. 이후 138→191→294→…→4240(1.12s)을 지나 1.89s에 5885에 닿는다. 중간값이 130개이고, 약 1.1초 동안 굴러간다.\n- 1280×800, 스로틀 없음: 0.70s부터 1.93s까지 1→5885로 중간값 145개다.\n- 1440×900, CPU 4배와 Slow 4G: 3.16s까지 0이고, 5.55s에 5945에 닿는다. 중간값은 73개다. 지적의 '6.8s까지 맨 위'와 시작 시각은 다르지만(실행마다 다름) 현상은 같다.\n\n원인 대조:\n- `html{scroll-behavior:auto!important}`를 주입하면 0.34s에 한 번에 이동한다. 중간 애니메이션은 0개다(경로 0→8805→6066→6008→5887, 레이아웃이 자리 잡으며 생기는 점프).\n- reducedMotion:'reduce'도 0.33s에 즉시 이동한다.\n- 따라서 굴러가는 원인은 globals.css의 smooth다.\n\n최종 도착은 정확하다. 스크린샷: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/adv-cd3-5/signup-1440-nothr.png 에서 '사전 신청' 섹션 제목과 이메일 칸이 헤더 아래에 보인다."
+    },
+    {
+      "id": "cursor-dev:CD3-6",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "웹폰트가 페이지 전송량의 66%(402,985 B)다. 측정된 CLS 0.011~0.013도 전부 Pretendard 교체 때문이다",
+      "principle": "Performance budget(TSD 12는 JS만 잰다) / CLS 원인 제거",
+      "evidence": "perf-r3-1440-thr-a.json의 byType을 보면 Font 402,985 B, Script 156,433 B, Stylesheet 31,865 B, Document 21,840 B이고 전체는 613,843 B(요청 28개)다. pretendardvariable-dynamic-subset.css에는 @font-face가 92개 있고 모두 font-display: swap이다. 모든 실행에서 layout-shift 원인은 '#text 155→159, 224→228, 346→348'로, 히어로 h1과 서브 카피가 4px 내려간 것이다(1440: 0.01104, 1280: 0.01328). Slow 4G에서는 폰트가 JS와 대역폭을 나눠 써서 load 이벤트가 5.0~5.8s로 늦어진다.",
+      "repro": "node scratchpad/perf/perf-r3.cjs 1440 900 1 x → requests.byType, cls.entries[0].src",
+      "fix": "Malgun Gothic 기준 size-adjust·ascent-override를 준 fallback @font-face를 font-family 앞에 둬서 교체 때 밀림을 없앤다. h1 서브셋만 preload하거나 가변 폰트 대신 필요한 두세 굵기의 정적 서브셋을 검토한다.",
+      "file": "landing/app/layout.tsx",
+      "lens": "cursor-dev",
+      "repro_evidence": "msedge와 Playwright로 따로 짠 스크립트에서 재현했다. 스크립트는 C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/adv-cd3-6/probe.cjs이고, :3100 프로덕션 빌드를 캐시 끄고 측정했다.\n(1) 전송량: 1440×900 Slow 4G+CPU 4x(thr1440.json), 1280×800 같은 조건(thr1280.json), 1440 무스로틀(nothr1440.json) 세 실행이 모두 같았다. Font 402,985 B, Script 156,433 B, Stylesheet 31,865 B, Document 21,840 B, 합계 613,843 B, 요청 28개로 폰트가 65.6%다. 폰트 파일은 woff2 15개이고, document.fonts에 등록된 face는 92개 중 15개만 로드됐다.\n(2) pretendardvariable-dynamic-subset.css의 @font-face는 92개이고 92개 모두 font-display: swap이다. app/layout.tsx:3이 이 CSS를 import하고, globals.css:32 --font-sans의 첫 항목이 \"Pretendard Variable\"이다.\n(3) CLS 원인: 세 실행 모두 layout-shift source가 히어로 span 텍스트(155→159, 224→228, 314→316, 346→348)와 p.hero-kicker(123→124)였다. 값은 1440 무스로틀 0.01104, 1440 스로틀 0.00714+0.00287=0.0100, 1280 스로틀 0.00855+0.00407=0.0126이다. 대조 실험으로 woff2 요청을 막았더니(thr1440-block.json) CLS 항목이 0개가 됐다. 밀림은 전부 폰트 교체 때문이라는 주장이 맞다.\n(4) load 이벤트는 스로틀 1440에서 4,761ms, 1280에서 5,179ms였고, 폰트를 막으면 3,486ms다. 지적한 5.0~5.8s와 거의 맞는다. FCP는 2.86~3.01s로 폰트 유무와 상관없이 비슷하다.\n반증 쪽: TSD.md:494의 성능 예산은 \"CLS 0.05 이하 (폰트 교체 때 밀림 포함)\"이다. 측정한 0.010~0.013은 이 예산의 약 1/4이다. \"TSD 12는 JS만 잰다\"는 서술은 틀렸다. TSD 12는 폰트 교체 CLS를 명시적으로 예산에 넣고, 폰트 바이트만 예산에 없다. 폰트 선택(Pretendard Variable 동적 서브셋 자체 호스팅)은 TSD.md:107과 DESIGN.md:176에 명시된 결정이다."
+    },
+    {
+      "id": "cursor-dev:CD3-7",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "모든 페이지 로드에서 favicon.ico 404 콘솔 오류가 난다(페이지에서 유일한 콘솔 오류)",
+      "principle": "Craft: 콘솔 0 오류",
+      "evidence": "perf-r3 다섯 번 실행 모두 console에 'Failed to load resource: ... 404'가 1건 있고, requests.failed는 [[404, 'http://localhost:3100/favicon.ico']]다. curl http://localhost:3100/favicon.ico의 결과도 404다. app/ 아래에 icon 파일이 없다.",
+      "repro": "curl -s -o /dev/null -w '%{http_code}' http://localhost:3100/favicon.ico → 404",
+      "fix": "app/icon.svg(정적 'E' 마크)를 추가하면 Next가 <link rel=icon>을 생성한다.",
+      "file": "landing/app/layout.tsx",
+      "lens": "cursor-dev",
+      "repro_evidence": "재현했다. (1) curl http://localhost:3100/favicon.ico의 결과는 404였고, /icon.svg도 404였다. (2) landing/app/에는 actions/, globals.css, layout.tsx, opengraph-image.tsx, page.tsx, privacy/, robots.ts, sitemap.ts, v/만 있다. icon.* 파일과 favicon.ico가 없고 landing/public/ 디렉터리도 없다. app/layout.tsx에서 'icon'을 grep했으나 일치하는 줄이 없었다(metadata.icons 없음). (3) Playwright(channel 'msedge', 1440x900)로 http://localhost:3100/ 를 열어 networkidle 상태에서 2초 기다렸다. 콘솔 error는 정확히 1건이었다: \"Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3100/favicon.ico\". 문서의 <link rel=*icon*> 요소는 0개였다. 스크립트 위치: C:/Users/chewo/AppData/Local/Temp/claude/C--Users-chewo--claude-spares-spare-daJauR/87a16178-8dad-4a28-afbc-172203d9c45e/scratchpad/cd3-7/fav.cjs. PRD.md, TSD.md, DESIGN.md, 브리프 어디에도 favicon이나 '콘솔 0 오류' 요구사항이 없다."
+    },
+    {
+      "id": "cursor-dev:CD3-8",
+      "kind": "improvement",
+      "severity": "low",
+      "title": "(deslop) 죽은 export와 파일 안에서만 쓰는 export가 남아 있다",
+      "principle": "deslop: 사용되지 않는 코드와 공개 범위",
+      "evidence": "- lib/rich.tsx:15-17의 richToText는 저장소 어디에서도 참조되지 않는다.\n- useTimeline.ts의 createTimeline·Timeline·TimelineOptions·TimelineHandle은 export돼 있지만 그 파일 밖에서 참조가 0개다.\n- content/loop.ts의 SqlPart·CheckLine·ListRow·Reminder·RightResult 타입도 외부 참조가 0개다.\n확인 방법: export 이름마다 app·components·lib·content·tests·scripts를 grep했다.",
+      "repro": "grep -rnw richToText landing/app landing/components landing/lib landing/content landing/tests → 정의 한 줄만 나온다.",
+      "fix": "richToText를 지운다. 나머지는 export 키워드를 떼어 모듈 안에서만 쓰게 한다.",
+      "file": "landing/lib/rich.tsx",
+      "lens": "cursor-dev",
+      "repro_evidence": "커밋 f2199b4에서 재현했다. 1) lib/rich.tsx:15-17에 `export function richToText(parts: readonly Rich[])`가 정의돼 있다. landing 전체(.ts, .tsx, .mjs, .js 파일, node_modules와 .next 제외)를 grep -rnw로 찾아보니 정의 줄 lib/rich.tsx:15 하나만 나왔다. 호출처는 0개다. 2) components/loop/useTimeline.ts의 export인 TimelineOptions(:12), Timeline(:18), createTimeline(:28), TimelineHandle(:86)은 모두 같은 파일 안(:28, :87, :96, :104, :108)에서만 참조된다. 3) content/loop.ts의 export인 SqlPart(:14), CheckLine(:25), ListRow(:30), Reminder(:36), RightResult(:49)도 같은 파일 안(:17, :59, :71, :72, :66)에서만 쓰인다. 정의 파일 세 개를 빼고 repo 전체를 grep한 결과 매치가 0개였다(exit=1). 리뷰어의 주장은 그대로 맞다."
+    }
+  ],
+  "rejected": []
+}
