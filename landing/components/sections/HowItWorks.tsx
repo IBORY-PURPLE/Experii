@@ -27,21 +27,6 @@ export function HowItWorks({ variant }: { variant: HeroVariant }) {
             {how.startLink}
           </a>
         </div>
-        <div className="beats">
-          <div className="beats-head">
-            <span className="soon">{how.beats.badge}</span>
-            <span>{how.beats.fact}</span>
-          </div>
-          <ol aria-label={how.beats.label}>
-            {how.beats.items.map((b) => (
-              <li key={b.when}>
-                <span className="beat-date">{b.date}</span>
-                <span className="beat-when">{b.when}</span>
-                <span className="beat-what">{b.what}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
       </div>
     </section>
   );

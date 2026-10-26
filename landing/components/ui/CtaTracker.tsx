@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
-import { track } from '@/lib/analytics';
+import { takeEarlyDownloads, track } from '@/lib/analytics';
 import type { HeroVariant } from '@/lib/signup-fields';
 
 export function CtaTracker({ variant }: { variant: HeroVariant }) {
   useEffect(() => {
+    for (const location of takeEarlyDownloads()) track('download_click', { location, variant });
     const onClick = (e: MouseEvent) => {
       const target = e.target as Element | null;
       const dl = target?.closest<HTMLElement>('[data-download]');

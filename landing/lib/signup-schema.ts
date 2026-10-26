@@ -1,8 +1,12 @@
 import { z } from 'zod';
-import { AI_SUBSCRIPTIONS, HERO_VARIANTS, SQLD_STATUSES, STUDENT_STATUSES, type SignupField } from './signup-fields';
-
-// Landing.tsx and sections/Hero.tsx (hero lane) still import the type from here.
-export type { HeroVariant } from './signup-fields';
+import {
+  AI_SUBSCRIPTIONS,
+  HERO_VARIANTS,
+  SQLD_STATUSES,
+  STUDENT_STATUSES,
+  type SignupField,
+  type SignupValues,
+} from './signup-fields';
 
 const clipped = (max: number) =>
   z
@@ -67,6 +71,16 @@ export function fromFormData(formData: FormData) {
       utm_term: text('utm_term'),
       referrer_host: text('referrer_host'),
     },
+  };
+}
+
+export function toValues(raw: ReturnType<typeof fromFormData>): SignupValues {
+  return {
+    email: raw.email,
+    studentStatus: raw.studentStatus ?? '',
+    sqldStatus: raw.sqldStatus ?? '',
+    aiSubscriptions: raw.aiSubscriptions,
+    consent: raw.consent === 'on',
   };
 }
 

@@ -11,7 +11,9 @@
 @media (min-width: 1280px) {
   .hero-demo { --hdh: 600px; }
 }
-/* play/pause sits in the window's title bar; HeroDemo holds playback whenever the bar is covered */
+/* play/pause sits in the window's title bar. Once the bar scrolls under the page header, HeroDemo docks it
+   just below the header (fixed, at the slot's x) for as long as the window shows; the slot keeps its room. */
+.hd-slot { flex: none; display: grid; height: 30px; }
 .hd-ctrl {
   position: relative;
   flex: none;
@@ -36,6 +38,7 @@
 /* a compact pill with a 44px hit area (TSD 11) that fills the 44px title bar */
 .hd-ctrl::after { content: ""; position: absolute; inset: -7px -6px; }
 .hd-ctrl:active { transform: scale(0.97); }
+.hd-ctrl[data-dock] { position: fixed; z-index: 25; box-shadow: inset 0 0 0 1px var(--color-line-2), 0 10px 24px -12px rgb(26 34 51 / 0.5); }
 .hd-ctrl i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-ink); color: #fff; }
 .hd-ctrl svg { display: block; }
 .hd-ctrl-l { display: grid; }
@@ -179,8 +182,7 @@ html:not(.js) .hd-ctrl { visibility: hidden; }
 
 /* pointer and press ring */
 .hd-cursor { position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 250ms ease; }
-.hero-demo[data-play="playing"] .hd-cursor,
-.hero-demo[data-play="paused"] .hd-cursor { opacity: 1; }
+.hero-demo:is([data-play="playing"], [data-play="paused"], [data-play="held"]) .hd-cursor { opacity: 1; }
 .hd-cursor svg { position: absolute; left: -5px; top: -2.5px; display: block; filter: drop-shadow(0 2px 3px rgb(26 34 51 / 0.3)); }
 .hd-press {
   position: absolute;
@@ -204,6 +206,7 @@ html:not(.js) .hd-ctrl { visibility: hidden; }
   .hero-demo .blank.pop { animation: hd-pop 300ms var(--ease-out-quint); }
   .hd-press { animation: hd-press 620ms var(--ease-out-quint) both; }
 }
+/* a visitor's pause freezes everything; a hold lets the arriving frame finish its entrance */
 .hero-demo[data-play="paused"] *,
 .hero-demo[data-play="paused"] *::after { animation-play-state: paused !important; }
 @keyframes hd-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

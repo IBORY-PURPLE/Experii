@@ -24,7 +24,8 @@ export function ChoiceChips({
     <fieldset className="field" data-invalid={error ? '' : undefined} aria-describedby={error ? errorId : undefined}>
       <legend>
         {legend}
-        {hint ? <small>{hint}</small> : null}
+        {/* the space sits in the hint's own text: browsers leave a whitespace-only node out of the group name */}
+        {hint ? <small>{` ${hint}`}</small> : null}
       </legend>
       <div className="chips">
         {options.map((o) => (

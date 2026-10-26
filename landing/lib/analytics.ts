@@ -5,10 +5,19 @@ type Call = [EventName, EventData | undefined];
 declare global {
   interface Window {
     umami?: { track: (name: string, data?: EventData) => void };
+    __earlyDownloads?: string[];
   }
 }
 
-// The umami script loads afterInteractive, so events from the first moments of a visit
+// Download clicks made before hydration, kept by the inline script in app/layout.tsx. Taking them
+// also stops that script from collecting, so later clicks are counted once, by CtaTracker.
+export function takeEarlyDownloads(): string[] {
+  const early = window.__earlyDownloads ?? [];
+  window.__earlyDownloads = undefined;
+  return early;
+}
+
+// The umami script loads after hydration (instrumentation-client.ts), so events from the first moments of a visit
 // (a deep link straight into section 4) would otherwise be lost.
 const MAX_HELD = 30;
 const POLL_MS = 250;

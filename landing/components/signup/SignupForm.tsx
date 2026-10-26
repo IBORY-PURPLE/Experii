@@ -1,9 +1,9 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { startTransition, useActionState, useEffect, useRef, useState } from 'react';
 import { submitSignup } from '@/app/actions/signup';
-import { signup } from '@/content/landing';
-import { consent } from '@/content/privacy';
+import type { signup as SignupCopy } from '@/content/landing';
+import type { consent as ConsentCopy } from '@/content/privacy';
 import { track } from '@/lib/analytics';
 import { readAttribution, type Attribution } from '@/lib/attribution';
 import { UTM_KEYS, type HeroVariant, type SignupField, type SignupState } from '@/lib/signup-fields';
@@ -12,13 +12,23 @@ import { SignupSuccess } from './SignupSuccess';
 
 const FIELD_ORDER: SignupField[] = ['email', 'student_status', 'sqld_status', 'ai_subscriptions', 'consent'];
 
-export function SignupForm({ variant }: { variant: HeroVariant }) {
+export function SignupForm({
+  variant,
+  copy,
+  consent,
+}: {
+  variant: HeroVariant;
+  copy: typeof SignupCopy;
+  consent: typeof ConsentCopy;
+}) {
   const [state, formAction, pending] = useActionState<SignupState, FormData>(submitSignup, { status: 'idle' });
-  const [email, setEmail] = useState('');
-  const [studentStatus, setStudentStatus] = useState('');
-  const [sqldStatus, setSqldStatus] = useState('');
-  const [subscriptions, setSubscriptions] = useState<string[]>([]);
-  const [agreed, setAgreed] = useState(false);
+  // Only a page rendered from a no-JS submission starts with sent-back values.
+  const kept = 'values' in state ? state.values : null;
+  const [email, setEmail] = useState(kept?.email ?? '');
+  const [studentStatus, setStudentStatus] = useState(kept?.studentStatus ?? '');
+  const [sqldStatus, setSqldStatus] = useState(kept?.sqldStatus ?? '');
+  const [subscriptions, setSubscriptions] = useState<string[]>(kept?.aiSubscriptions ?? []);
+  const [agreed, setAgreed] = useState(kept?.consent ?? false);
   const [attribution, setAttribution] = useState<Attribution>({});
   const formRef = useRef<HTMLFormElement>(null);
   const started = useRef(false);
@@ -39,10 +49,10 @@ export function SignupForm({ variant }: { variant: HeroVariant }) {
     }
   }, [state, variant]);
 
-  if (state.status === 'success') return <SignupSuccess />;
+  if (state.status === 'success') return <SignupSuccess copy={copy.done} />;
 
   const fieldErrors = state.status === 'invalid' ? state.fieldErrors : {};
-  const errorFor = (f: SignupField) => (fieldErrors[f] ? signup.errors[f] : undefined);
+  const errorFor = (f: SignupField) => (fieldErrors[f] ? copy.errors[f] : undefined);
 
   const toggleSubscription = (value: string, checked: boolean) => {
     setSubscriptions((prev) => {
@@ -65,12 +75,16 @@ export function SignupForm({ variant }: { variant: HeroVariant }) {
       action={formAction}
       noValidate
       onInput={onFirstInput}
-      onSubmit={() => {
+      onSubmit={(e) => {
+        // Dispatching the action here skips React's automatic form reset, which unchecks the chips after a failed submit.
+        e.preventDefault();
         submittedSqld.current = sqldStatus;
+        const data = new FormData(e.currentTarget);
+        startTransition(() => formAction(data));
       }}
     >
       <div className="field">
-        <label htmlFor="f-email">{signup.fields.email}</label>
+        <label htmlFor="f-email">{copy.fields.email}</label>
         <input
           className="inp"
           id="f-email"
@@ -93,28 +107,28 @@ export function SignupForm({ variant }: { variant: HeroVariant }) {
 
       <ChoiceChips
         name="student_status"
-        legend={signup.fields.studentStatus}
+        legend={copy.fields.studentStatus}
         type="radio"
-        options={signup.options.studentStatus}
+        options={copy.options.studentStatus}
         selected={[studentStatus]}
         onToggle={(v) => setStudentStatus(v)}
         error={errorFor('student_status')}
       />
       <ChoiceChips
         name="sqld_status"
-        legend={signup.fields.sqldStatus}
+        legend={copy.fields.sqldStatus}
         type="radio"
-        options={signup.options.sqldStatus}
+        options={copy.options.sqldStatus}
         selected={[sqldStatus]}
         onToggle={(v) => setSqldStatus(v)}
         error={errorFor('sqld_status')}
       />
       <ChoiceChips
         name="ai_subscriptions"
-        legend={signup.fields.aiSubscriptions}
-        hint={signup.fields.aiSubscriptionsHint}
+        legend={copy.fields.aiSubscriptions}
+        hint={copy.fields.aiSubscriptionsHint}
         type="checkbox"
-        options={signup.options.aiSubscriptions}
+        options={copy.options.aiSubscriptions}
         selected={subscriptions}
         onToggle={toggleSubscription}
         error={errorFor('ai_subscriptions')}
@@ -151,7 +165,7 @@ export function SignupForm({ variant }: { variant: HeroVariant }) {
 
       <div className="hp" aria-hidden="true">
         <label>
-          {signup.fields.honeypot}
+          {copy.fields.honeypot}
           <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
         </label>
       </div>
@@ -163,11 +177,11 @@ export function SignupForm({ variant }: { variant: HeroVariant }) {
 
       {state.status === 'error' ? (
         <p className="err" role="alert">
-          {signup.errors.server}
+          {copy.errors.server}
         </p>
       ) : null}
       <button type="submit" className="btn btn-ink" disabled={pending}>
-        {pending ? signup.submitting : signup.submit}
+        {pending ? copy.submitting : copy.submit}
       </button>
     </form>
   );

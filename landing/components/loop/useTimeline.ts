@@ -12,7 +12,6 @@ export interface TimelineEvent {
 export interface TimelineOptions {
   speed?: number;
   total?: number;
-  onTick?: (elapsed: number) => void;
   onEnd?: () => void;
 }
 
@@ -20,8 +19,6 @@ export interface Timeline {
   play(): void;
   pause(): void;
   stop(): void;
-  readonly playing: boolean;
-  readonly done: boolean;
 }
 
 // A frame gap longer than this (throttled or hidden tab) is not counted as elapsed time,
@@ -56,7 +53,6 @@ export function createTimeline(events: TimelineEvent[], opts: TimelineOptions = 
       e.frame?.(p);
       if (p >= 1) active.delete(e);
     });
-    opts.onTick?.(Math.min(elapsed, total));
     if (elapsed >= total && i >= ev.length && active.size === 0) {
       playing = false;
       done = true;
@@ -84,12 +80,6 @@ export function createTimeline(events: TimelineEvent[], opts: TimelineOptions = 
       active.clear();
       cancelAnimationFrame(raf);
     },
-    get playing() {
-      return playing;
-    },
-    get done() {
-      return done;
-    },
   };
 }
 
@@ -99,7 +89,6 @@ export interface TimelineHandle {
   pause(): void;
   stop(): void;
   readonly running: boolean;
-  readonly playing: boolean;
 }
 
 // One rAF clock at a time; stopped on unmount.
@@ -138,9 +127,6 @@ export function useTimeline(): TimelineHandle {
       },
       get running() {
         return ref.current !== null;
-      },
-      get playing() {
-        return ref.current?.playing ?? false;
       },
     }),
     [],

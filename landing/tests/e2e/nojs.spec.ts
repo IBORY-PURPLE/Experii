@@ -10,21 +10,32 @@ test.describe('JS 없음', () => {
     await expect(page.locator('#stage').getByText('LEFT JOIN orders o').first()).toBeVisible();
   });
 
-  test('데스크톱 폭에서 히어로 앱 창은 루프를 마친 마지막 장면으로 멈춰 있다', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
-    const win = page.locator('.hd-win');
-    await expect(win).toBeVisible();
-    const on = win.locator('.hd-scene.on');
-    await expect(on).toHaveCount(1);
-    await expect(on.locator('.revisit-line')).toContainText('다시 본 날');
-    await expect(on.locator('.revisit-line .dot.on')).toHaveCount(3);
-    await expect(on.locator('.xcard .xc-a')).toBeVisible();
-    await expect(on.locator('.follow')).toBeVisible();
-    await expect(win.locator('.aw-count')).toHaveText('4');
-    await expect(win.locator('.aw-bar')).toContainText('예시 화면');
-    await expect(page.locator('.hd-ctrl')).toBeHidden();
-  });
+  for (const size of [
+    { width: 1440, height: 900 },
+    { width: 1280, height: 800 },
+    { width: 1536, height: 730 },
+    { width: 1366, height: 657 },
+    { width: 1280, height: 690 },
+  ]) {
+    test(`데스크톱 폭에서 히어로 앱 창은 루프를 마친 마지막 장면으로 멈춰 있다 (${size.width}×${size.height})`, async ({ page }) => {
+      await page.setViewportSize(size);
+      await page.goto('/');
+      const win = page.locator('.hd-win');
+      await expect(win).toBeVisible();
+      const on = win.locator('.hd-scene.on');
+      await expect(on).toHaveCount(1);
+      await expect(on.locator('.revisit-line')).toContainText('다시 본 날');
+      await expect(on.locator('.revisit-line .dot.on')).toHaveCount(3);
+      await expect(on.locator('.xcard .xc-a')).toBeVisible();
+      await expect(on.locator('.follow')).toBeVisible();
+      await expect(win.locator('.aw-count')).toHaveText('4');
+      await expect(win.locator('.aw-bar')).toContainText('예시 화면');
+      const bar = (await win.locator('.aw-bar').boundingBox())!;
+      expect(bar.y + bar.height, "the window's title bar is whole on the first screen").toBeLessThanOrEqual(size.height);
+      await expect(page.locator('.hd-ctrl')).toBeHidden();
+      await expect(page.locator('.hd-ctrl[data-dock]'), 'nothing docks without JS').toHaveCount(0);
+    });
+  }
 
   test('JS 없이도 다운로드 버튼이 출시 전 안내를 띄운다', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });

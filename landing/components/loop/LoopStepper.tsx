@@ -59,6 +59,7 @@ const T = {
   remindDays: [1, 7, 30],
   dotStart: 420,
   dotGap: 150,
+  seenMs: 1000,
 };
 
 const STEPS: Step[] = [1, 2, 3, 4];
@@ -156,6 +157,8 @@ export function LoopStepper({ topics, shared, copy, variant, cardsBefore }: Prop
   };
   const trackStep = (n: Step) => {
     if (tracked.current.has(n)) return;
+    // Opening a later step means step 1 was on screen first, even before the dwell below counted it.
+    if (n > 1) trackStep(1);
     tracked.current.add(n);
     track('loop_step', { step: n, variant, topic: sRef.current.topic });
   };
@@ -460,16 +463,27 @@ export function LoopStepper({ topics, shared, copy, variant, cardsBefore }: Prop
     window.addEventListener('hashchange', onHash);
     document.addEventListener('click', onClick, true);
 
+    // Step 1 counts as opened once the stage fills half the screen (or half of itself) for a second,
+    // so scrolling past it on the way to #signup is not counted.
     let io: IntersectionObserver | null = null;
+    let dwell = 0;
     if (stageRef.current && 'IntersectionObserver' in window) {
       io = new IntersectionObserver(
         (entries) => {
-          if (entries.some((en) => en.isIntersecting)) {
-            api.current.trackStep(1);
-            io?.disconnect();
+          const en = entries[entries.length - 1];
+          const vh = en.rootBounds?.height ?? innerHeight;
+          const inView = en.intersectionRect.height >= Math.min(en.boundingClientRect.height, vh) / 2;
+          if (inView && !dwell) {
+            dwell = window.setTimeout(() => {
+              api.current.trackStep(1);
+              io?.disconnect();
+            }, T.seenMs);
+          } else if (!inView && dwell) {
+            clearTimeout(dwell);
+            dwell = 0;
           }
         },
-        { threshold: 0.35 },
+        { threshold: Array.from({ length: 21 }, (_, i) => i / 20) },
       );
       io.observe(stageRef.current);
     }
@@ -481,6 +495,7 @@ export function LoopStepper({ topics, shared, copy, variant, cardsBefore }: Prop
       window.removeEventListener('hashchange', onHash);
       document.removeEventListener('click', onClick, true);
       io?.disconnect();
+      clearTimeout(dwell);
       pending.forEach((id) => clearTimeout(id));
       pending.clear();
     };

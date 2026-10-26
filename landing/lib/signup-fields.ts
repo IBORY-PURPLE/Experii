@@ -8,8 +8,18 @@ export const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_conten
 export type HeroVariant = (typeof HERO_VARIANTS)[number];
 export type SignupField = 'email' | 'student_status' | 'sqld_status' | 'ai_subscriptions' | 'consent';
 
+// What the visitor entered, sent back with a failed submission so the form shows it again
+// (without JS the page is rendered anew from this state).
+export type SignupValues = {
+  email: string;
+  studentStatus: string;
+  sqldStatus: string;
+  aiSubscriptions: string[];
+  consent: boolean;
+};
+
 export type SignupState =
   | { status: 'idle' }
   | { status: 'success' }
-  | { status: 'invalid'; fieldErrors: Partial<Record<SignupField, true>> }
-  | { status: 'error' };
+  | { status: 'invalid'; fieldErrors: Partial<Record<SignupField, true>>; values: SignupValues }
+  | { status: 'error'; values: SignupValues };

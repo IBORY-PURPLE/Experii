@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:e2e:prod": "playwright test --project=desktop --project=desktop-1280 --project=nojs"
+    "test:e2e:prod": "playwright test --project=desktop --project=desktop-1280 --project=nojs",
+    "check:bundle": "node scripts/check-bundle.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",

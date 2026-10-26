@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
+import { preload } from 'react-dom';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 import { meta } from '@/content/landing';
 import { SITE_URL, isProductionDeploy } from '@/lib/site';
+import { UMAMI_SRC } from '@/lib/umami';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -28,18 +29,18 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 };
 
+// The download popover opens without JS, so a click can land before hydration. A plain inline script runs
+// as the HTML parses (instrumentation-client.ts waits for the Next runtime) and keeps it for takeEarlyDownloads.
+const EARLY_DOWNLOADS = `(function(){var q=window.__earlyDownloads=[];document.addEventListener('click',function(e){var t=e.target,el=t&&t.closest&&t.closest('[data-download]');if(el&&window.__earlyDownloads===q)q.push(el.getAttribute('data-download'))},true)})()`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const umamiId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+  // instrumentation-client.ts adds the script itself once the page is interactive.
+  if (process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID) preload(UMAMI_SRC, { as: 'script' });
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
-        <Script id="js-flag" strategy="beforeInteractive">
-          {"document.documentElement.classList.add('js')"}
-        </Script>
+        <script dangerouslySetInnerHTML={{ __html: EARLY_DOWNLOADS }} />
         {children}
-        {umamiId ? (
-          <Script src="https://cloud.umami.is/script.js" data-website-id={umamiId} strategy="afterInteractive" />
-        ) : null}
       </body>
     </html>
   );

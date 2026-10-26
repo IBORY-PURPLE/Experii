@@ -263,8 +263,9 @@
     .ticks a:hover span,
     .ticks a:focus-visible span { opacity: 1; transform: translate(0, -50%); }
   }
+  /* The hero card runs edge to edge, so the first label would sit on it; hover and focus still show it. */
   @media (min-width: 1440px) {
-    .ticks a[aria-current="true"] span { opacity: 1; transform: translate(0, -50%); }
+    .ticks a[aria-current="true"]:not(:first-child) span { opacity: 1; transform: translate(0, -50%); }
   }
 
   /* hero: centred copy over a tinted card; the Experii window runs past the card's bottom edge */
@@ -531,26 +532,13 @@
     font-weight: 650;
     text-underline-offset: 4px;
   }
-  .beats { margin-top: 56px; }
-  .beats-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 14px; color: var(--color-ink-3); }
-  .beats ol { display: grid; gap: 22px; margin: 22px 0 0; padding: 0; list-style: none; }
-  .beats li { border-top: 1.5px solid var(--color-ink); padding-top: 12px; display: grid; gap: 2px; }
-  .beat-date { font-size: 13px; color: var(--color-ink-4); font-weight: 600; }
-  .beat-when { font-size: 34px; line-height: 1.1; font-weight: 760; letter-spacing: -0.02em; }
-  .beat-what { font-size: 14px; color: var(--color-ink-3); }
-  @media (min-width: 768px) {
-    .beats ol { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; }
-  }
   @media (min-width: 1024px) {
     .how .sec-head { margin-bottom: 48px; }
     .how-after { margin-top: 32px; max-width: 560px; }
     .how-close { font-size: 22px; }
-    .beat-when { font-size: 48px; }
-    .beats { margin-top: 88px; }
   }
   @media (min-width: 1280px) {
     .how-close { font-size: 24px; }
-    .beat-when { font-size: 56px; }
   }
 
   /* difference */
@@ -684,7 +672,7 @@
   .field { display: grid; gap: 8px; border: 0; margin: 0; padding: 0; min-width: 0; }
   .field > label, .field legend { font-size: 15px; font-weight: 700; padding: 0; margin-bottom: 8px; }
   .field > label { margin: 0; }
-  .field legend small { font-weight: 500; color: var(--color-ink-4); font-size: 13.5px; margin-left: 6px; }
+  .field legend small { font-weight: 500; color: var(--color-ink-4); font-size: 13.5px; margin-left: 2px; }
   .inp {
     justify-self: stretch;
     width: auto;

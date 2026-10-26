@@ -86,16 +86,6 @@ export const how = {
   caption: '예시 화면이에요. 쓰던 GPT를 연결해 이렇게 공부하도록 준비하고 있어요. 지금 보이는 대화는 미리 써 둔 예시예요.',
   close: '공부한 날 한 번 남기면, 그다음은 Experii가 꺼내 줘요.',
   startLink: '먼저 써 보고 싶다면 사전 신청하기',
-  beats: {
-    label: '리마인드 시점',
-    badge: '출시 예정 기능',
-    fact: '알림은 공부한 날로부터 1일, 7일, 30일 뒤, 딱 세 번 와요.',
-    items: [
-      { date: '10월 27일 화요일', when: '1일 뒤', what: '배운 점' },
-      { date: '11월 2일 월요일', when: '7일 뒤', what: '활용 방안' },
-      { date: '11월 25일 수요일', when: '30일 뒤', what: '면접 예상 질문' },
-    ],
-  },
 };
 
 export const difference = {

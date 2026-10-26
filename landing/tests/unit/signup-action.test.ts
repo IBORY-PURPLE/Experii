@@ -21,45 +21,69 @@ function validForm() {
   return fd;
 }
 
-let warn: ReturnType<typeof vi.spyOn>;
+const sent = { email: 'student@example.test', studentStatus: 'undergrad', sqldStatus: 'studying', aiSubscriptions: ['chatgpt_paid'], consent: true };
+
+let error: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
   upsert.mockClear();
-  warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  error = vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
 afterEach(() => {
   vi.unstubAllEnvs();
-  warn.mockRestore();
+  error.mockRestore();
 });
 
 describe('submitSignup write flag', () => {
-  it('on a production deploy with the flag off, warns once and still answers success without writing', async () => {
+  it('on a production deploy with the flag off, answers an error, keeps the input and logs why, without writing', async () => {
     vi.stubEnv('VERCEL_ENV', 'production');
     vi.stubEnv('SIGNUP_WRITE_ENABLED', '');
     const submit = await load();
-    expect(await submit({ status: 'idle' }, validForm())).toEqual({ status: 'success' });
-    expect(await submit({ status: 'idle' }, validForm())).toEqual({ status: 'success' });
+    expect(await submit({ status: 'idle' }, validForm())).toEqual({ status: 'error', values: sent });
     expect(upsert).not.toHaveBeenCalled();
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(String(warn.mock.calls[0][0])).toContain('SIGNUP_WRITE_ENABLED');
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(String(error.mock.calls[0][0])).toContain('SIGNUP_WRITE_ENABLED');
   });
 
-  it('stays quiet on preview and local runs with the flag off', async () => {
-    vi.stubEnv('VERCEL_ENV', 'preview');
-    vi.stubEnv('SIGNUP_WRITE_ENABLED', '');
-    const submit = await load();
-    expect(await submit({ status: 'idle' }, validForm())).toEqual({ status: 'success' });
+  it('answers success without writing on preview and local runs with the flag off', async () => {
+    for (const env of ['preview', '']) {
+      vi.stubEnv('VERCEL_ENV', env);
+      vi.stubEnv('SIGNUP_WRITE_ENABLED', '');
+      const submit = await load();
+      expect(await submit({ status: 'idle' }, validForm())).toEqual({ status: 'success' });
+    }
     expect(upsert).not.toHaveBeenCalled();
-    expect(warn).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
   });
 
-  it('writes without a warning when the flag is on in production', async () => {
+  it('writes when the flag is on in production', async () => {
     vi.stubEnv('VERCEL_ENV', 'production');
     vi.stubEnv('SIGNUP_WRITE_ENABLED', 'true');
     const submit = await load();
     expect(await submit({ status: 'idle' }, validForm())).toEqual({ status: 'success' });
     expect(upsert).toHaveBeenCalledTimes(1);
-    expect(warn).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
+  });
+});
+
+describe('submitSignup sends the input back when it fails', () => {
+  it('a validation failure returns the field errors and what the visitor picked', async () => {
+    const submit = await load();
+    const fd = validForm();
+    fd.delete('consent');
+    expect(await submit({ status: 'idle' }, fd)).toEqual({
+      status: 'invalid',
+      fieldErrors: { consent: true },
+      values: { ...sent, consent: false },
+    });
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it('a failed write keeps the input too', async () => {
+    vi.stubEnv('SIGNUP_WRITE_ENABLED', 'true');
+    upsert.mockResolvedValueOnce({ error: { code: '500' } } as never);
+    const submit = await load();
+    expect(await submit({ status: 'idle' }, validForm())).toEqual({ status: 'error', values: sent });
   });
 });

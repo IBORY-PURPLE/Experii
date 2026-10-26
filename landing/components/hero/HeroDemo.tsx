@@ -11,11 +11,17 @@ import { RichText } from '@/lib/rich';
 import type { ChatItem, HeroDemoCopy, LoopShared, LoopTopic } from '@/content/loop';
 
 type Scene = 'home' | 'study' | 'opened';
-type Play = 'idle' | 'playing' | 'paused' | 'ended';
-type Target = 'input' | 'send' | 'take' | 'answer' | 'save' | 'toast';
+// What the visitor (or autoplay) asked for.
+type Intent = 'idle' | 'playing' | 'paused' | 'ended';
+// What the window shows it does. 'held' is a play request whose window is not watchable: the clock waits,
+// and the control offers play instead of claiming it plays.
+type Play = Intent | 'held';
+type Target = 'input' | 'send' | 'take' | 'answer' | 'save' | 'toast' | 'rest';
 type Count = 0 | 1 | 2 | 3;
 // What the thread keeps in view: its newest line, or the saved card from its head down.
 type Focus = 'end' | 'card';
+// The part of the window a frame is about, as [top, bottom] selectors (bottom defaults to top).
+type Beat = [string, string?];
 
 // One frame of the illustration. The script below only ever sets these fields.
 interface Frame {
@@ -43,62 +49,75 @@ const marks = (t: LoopTopic) => {
   return { q: 1, explain: 2, ask: n + 2, reply: n + 3, offer: n + 4, status: n + 5, task: n + 9, solve: n + 10, result: n + 11, cardAi: n + 12, card: n + 13 };
 };
 
+// The clock runs only while the frame's beat is whole on screen, so each beat keeps its full time however
+// the page is scrolled. The beats are the question box; from the task on, the newest thread item; the card
+// from its head to its answer line, then its save button; the reminders; the reopened card's revisit dots.
+// The opening chat has none.
+function beatOf(f: Frame, M: ReturnType<typeof marks>): Beat | null {
+  if (f.scene === 'home') return ['.hd-ask'];
+  if (f.remind) return ['.hd-toasts'];
+  if (f.scene === 'opened') return ['.revisit-line'];
+  if (f.at === M.card) return f.focus === 'card' ? ['.hd-card', '.hd-card .xc-a'] : ['[data-t="save"]'];
+  return f.at >= M.task ? ['.hd-flow > :last-child'] : null;
+}
+
 const START: Frame = { scene: 'home', ask: '', reply: '', at: 0, focus: 'end', answered: false, saved: false, remind: 0, dots: 0, press: 0 };
 const finalFrame = (t: LoopTopic): Frame => ({ ...START, scene: 'opened', at: marks(t).card, answered: true, saved: true, dots: 3 });
 
-// Each key beat (task card, SQL with its options, result, the card's answer line) stays whole on screen
-// this long before the next one pushes it up.
-const READ = 2800;
-// Playback needs this much of the thread above the fold: the tallest key beat (SQL with options) fits.
-const MIN_ROOM = 200;
+// Each key beat (task card, SQL with its options, result, the card's answer line) is on screen this long,
+// about 450ms of it arriving, before the next one pushes it up.
+const READ = 2600;
+// Every press is followed this long after, once its ring has faded, by the pointer stepping aside to rest
+// off the text it just handled.
+const REST = 450;
 
 function script(t: LoopTopic): { cues: Cue[]; total: number } {
   const M = marks(t);
   const n = t.explain.length;
   const cues: Cue[] = [
-    { t: 700, type: 'ask', dur: 1400 },
-    { t: 2350, move: 'send', dur: 600 },
-    { t: 3000, press: {} },
-    { t: 3250, set: { scene: 'study', ask: '', at: M.q } },
+    { t: 400, type: 'ask', dur: 1100 },
+    { t: 1650, move: 'send', dur: 450 },
+    { t: 2150, press: {} },
+    { t: 2350, set: { scene: 'study', ask: '', at: M.q } },
   ];
-  for (let k = 0; k < n; k++) cues.push({ t: 3750 + 420 * k, set: { at: M.explain + k } });
-  const c = 3750 + 420 * n + 400;
-  const task = c + 4200;
+  for (let k = 0; k < n; k++) cues.push({ t: 2750 + 260 * k, set: { at: M.explain + k } });
+  const c = 2750 + 260 * n + 100;
+  const task = c + 3300;
   const solve = task + READ;
   const result = solve + READ + 100;
-  const card = result + READ + 450;
-  const saved = card + READ + 1200;
+  const card = result + READ + 300;
+  const saved = card + READ + 1000;
   cues.push(
     { t: c, set: { at: M.ask } },
-    { t: c + 500, type: 'reply', dur: 700 },
-    { t: c + 1300, set: { reply: '', at: M.reply } },
-    { t: c + 1800, set: { at: M.offer } },
-    { t: c + 2350, move: 'take', dur: 600 },
-    { t: c + 3000, press: { at: M.status } },
-    { t: c + 3250, set: { at: M.status + 1 } },
-    { t: c + 3500, set: { at: M.status + 2 } },
-    { t: c + 3750, set: { at: M.status + 3 } },
+    { t: c + 400, type: 'reply', dur: 550 },
+    { t: c + 1000, set: { reply: '', at: M.reply } },
+    { t: c + 1400, set: { at: M.offer } },
+    { t: c + 1800, move: 'take', dur: 500 },
+    { t: c + 2350, press: { at: M.status } },
+    { t: c + 2550, set: { at: M.status + 1 } },
+    { t: c + 2750, set: { at: M.status + 2 } },
+    { t: c + 2950, set: { at: M.status + 3 } },
     { t: task, set: { at: M.task } },
     { t: solve, set: { at: M.solve } },
-    { t: solve + 1100, move: 'answer', dur: 700 },
-    { t: solve + 1850, press: { answered: true } },
+    { t: solve + 1000, move: 'answer', dur: 600 },
+    { t: solve + 1650, press: { answered: true } },
     { t: result, set: { at: M.result } },
     { t: result + READ, set: { at: M.cardAi } },
     { t: card, set: { at: M.card, focus: 'card' } },
     { t: card + READ, set: { focus: 'end' } },
-    { t: card + READ + 500, move: 'save', dur: 650 },
+    { t: card + READ + 350, move: 'save', dur: 600 },
     { t: saved, press: { saved: true } },
-    { t: saved + 1250, set: { remind: 1 } },
-    { t: saved + 2650, set: { remind: 2 } },
-    { t: saved + 4050, set: { remind: 3 } },
-    { t: saved + 4750, move: 'toast', dur: 700 },
-    { t: saved + 5500, press: {} },
-    { t: saved + 5700, set: { scene: 'opened', remind: 0 } },
-    { t: saved + 6150, set: { dots: 1 } },
-    { t: saved + 6300, set: { dots: 2 } },
-    { t: saved + 6450, set: { dots: 3 } },
+    { t: saved + 900, set: { remind: 1 } },
+    { t: saved + 2200, set: { remind: 2 } },
+    { t: saved + 3500, set: { remind: 3 } },
+    { t: saved + 4100, move: 'toast', dur: 550 },
+    { t: saved + 4700, press: {} },
+    { t: saved + 4850, set: { scene: 'opened', remind: 0 } },
+    { t: saved + 5250, set: { dots: 1 } },
+    { t: saved + 5400, set: { dots: 2 } },
+    { t: saved + 5550, set: { dots: 3 } },
   );
-  return { cues, total: saved + 7150 };
+  return { cues, total: saved + 6200 };
 }
 
 const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2);
@@ -107,9 +126,11 @@ const translateY = (el: HTMLElement) => {
   return tf === 'none' ? 0 : new DOMMatrixReadOnly(tf).m42;
 };
 
+const PLAY_ICON = <path d="M5 3.2v9.6l7.6-4.8z" fill="currentColor" />;
 const ICONS: Record<Play, ReactNode> = {
-  idle: <path d="M5 3.2v9.6l7.6-4.8z" fill="currentColor" />,
-  paused: <path d="M5 3.2v9.6l7.6-4.8z" fill="currentColor" />,
+  idle: PLAY_ICON,
+  paused: PLAY_ICON,
+  held: PLAY_ICON,
   playing: (
     <>
       <rect x="3.8" y="3.2" width="2.8" height="9.6" rx="1" fill="currentColor" />
@@ -146,10 +167,14 @@ function Explain({ item }: { item: ChatItem }) {
 // switches to the first frame only when it actually starts.
 export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: LoopShared; copy: HeroDemoCopy }) {
   const [f, setFrame] = useState<Frame>(() => finalFrame(topic));
-  const [play, setPlay] = useState<Play>('idle');
+  const [intent, setIntent] = useState<Intent>('idle');
+  const [seen, setSeen] = useState(false);
   const fRef = useRef(f);
-  const playRef = useRef<Play>('idle');
-  const hold = useRef({ hidden: false, off: true });
+  const intentRef = useRef<Intent>('idle');
+  // Whether the window is watchable: tab shown, control on screen, and the frame's beat whole.
+  const seenRef = useRef(false);
+  // The unobscured band of the viewport: below the header (and the docked control), above the fold.
+  const view = useRef({ lo: 0, hi: 0 });
   const reduced = useRef(false);
   const winRef = useRef<HTMLDivElement>(null);
   const ctrlRef = useRef<HTMLButtonElement>(null);
@@ -161,14 +186,15 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
   const aim = useRef<Target | null>(null);
   const tl = useTimeline();
   const M = marks(topic);
+  const play: Play = intent === 'playing' && !seen ? 'held' : intent;
 
   const commit = (patch: Partial<Frame>) => {
     fRef.current = { ...fRef.current, ...patch };
     setFrame(fRef.current);
   };
-  const setMode = (p: Play) => {
-    playRef.current = p;
-    setPlay(p);
+  const setMode = (p: Intent) => {
+    intentRef.current = p;
+    setIntent(p);
   };
   const setCursor = (x: number, y: number) => {
     pos.current = { x, y };
@@ -177,68 +203,80 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
   // Where the pointer should land, measured against the thread's resting scroll offset.
   const point = (target: Target) => {
     const win = winRef.current;
-    const el = win?.querySelector<HTMLElement>(`[data-t="${target}"]`);
-    if (!win || !el) return null;
-    const r = el.getBoundingClientRect();
+    if (!win) return null;
     const w = win.getBoundingClientRect();
+    // between presses the pointer waits at the window's right edge, clear of the thread column
+    if (target === 'rest') return { x: w.width - 24, y: pos.current.y };
+    const el = win.querySelector<HTMLElement>(`[data-t="${target}"]`);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
     let y = r.top - w.top + r.height / 2;
     const flow = flowRef.current;
     if (flow?.contains(el)) y += flowY.current - translateY(flow);
-    const x = r.left - w.left + (target === 'input' ? Math.min(r.width * 0.3, 180) : r.width / 2);
+    // while the question types, the pointer waits by the send button, right of the text
+    const x = target === 'input' ? r.right - w.left - 88 : r.left - w.left + r.width / 2;
     return { x, y };
   };
 
   const events = (cues: Cue[]): TimelineEvent[] =>
-    cues.map((c): TimelineEvent => {
-      if ('set' in c) return { t: c.t, fn: () => commit(c.set) };
+    cues.flatMap((c): TimelineEvent[] => {
+      if ('set' in c) return [{ t: c.t, fn: () => commit(c.set) }];
       if ('press' in c)
-        return {
-          t: c.t,
-          fn: () => {
-            aim.current = null;
-            commit({ ...c.press, press: fRef.current.press + 1 });
-            fit();
+        return [
+          {
+            t: c.t,
+            fn: () => {
+              aim.current = null;
+              commit({ ...c.press, press: fRef.current.press + 1 });
+              update();
+            },
           },
-        };
+          ...events([{ t: c.t + REST, move: 'rest', dur: 400 }]),
+        ];
       if ('type' in c) {
         const field = c.type;
         const text = field === 'ask' ? topic.question : topic.reply;
-        return {
-          t: c.t,
-          dur: c.dur,
-          frame: (p) => {
-            const v = reduced.current ? text : text.slice(0, Math.ceil(text.length * p));
-            if (fRef.current[field] !== v) commit(field === 'ask' ? { ask: v } : { reply: v });
+        return [
+          {
+            t: c.t,
+            dur: c.dur,
+            frame: (p) => {
+              const v = reduced.current ? text : text.slice(0, Math.ceil(text.length * p));
+              if (fRef.current[field] !== v) commit(field === 'ask' ? { ask: v } : { reply: v });
+            },
           },
-        };
+        ];
       }
       let from = pos.current;
       let to = from;
-      return {
-        t: c.t,
-        dur: c.dur,
-        fn: () => {
-          aim.current = c.move;
-          from = pos.current;
-          to = point(c.move) ?? from;
+      return [
+        {
+          t: c.t,
+          dur: c.dur,
+          fn: () => {
+            // a rest has no target to hold the camera for
+            if (c.move !== 'rest') aim.current = c.move;
+            from = pos.current;
+            to = point(c.move) ?? from;
+          },
+          frame: (p) => {
+            const e = reduced.current ? 1 : ease(p);
+            setCursor(from.x + (to.x - from.x) * e, from.y + (to.y - from.y) * e);
+          },
         },
-        frame: (p) => {
-          const e = reduced.current ? 1 : ease(p);
-          setCursor(from.x + (to.x - from.x) * e, from.y + (to.y - from.y) * e);
-        },
-      };
+      ];
     });
 
-  const sync = () => {
-    const held = hold.current.hidden || hold.current.off;
-    if (playRef.current === 'playing' && !held) tl.play();
-    else tl.pause();
+  const sync = () => (intentRef.current === 'playing' && seenRef.current ? tl.play() : tl.pause());
+
+  const reset = (frame: Frame) => {
+    tl.stop();
+    aim.current = null;
+    commit(frame);
   };
 
   const begin = () => {
-    tl.stop();
-    aim.current = null;
-    commit(START);
+    reset(START);
     const p = point('input');
     if (p) setCursor(p.x, p.y);
     const { cues, total } = script(topic);
@@ -247,85 +285,120 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
     sync();
   };
 
-  const onControl = () => {
-    if (playRef.current === 'playing') {
-      setMode('paused');
-      tl.pause();
-    } else if (playRef.current === 'paused') {
-      setMode('playing');
-      sync();
-    } else begin();
+  const finish = () => {
+    reset(finalFrame(topic));
+    setMode('ended');
   };
 
-  // Runs only while the pause control is uncovered (below the sticky header's scroll-padding) and enough
-  // of the thread is above the fold to hold a whole key beat; otherwise the timeline holds where it is.
-  const gate = () => {
-    const ctrl = ctrlRef.current?.getBoundingClientRect();
-    const vp = threadRef.current?.getBoundingClientRect();
-    if (!ctrl || !vp) return;
-    const inset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
-    const off = !ctrl.height || ctrl.top < inset || innerHeight - vp.top < MIN_ROOM;
-    if (off === hold.current.off) return;
-    hold.current.off = off;
-    if (!off && playRef.current === 'idle') begin();
+  const onControl = () => {
+    if (intentRef.current === 'playing' && seenRef.current) {
+      setMode('paused');
+      return sync();
+    }
+    // From the start, play waits like autoplay does: it begins once the question box is watchable.
+    setMode(intentRef.current === 'ended' || intentRef.current === 'idle' ? 'idle' : 'playing');
+    update();
+    // A play the visitor asked for brings the window up under the header, where every beat fits.
+    if (!seenRef.current) winRef.current?.scrollIntoView({ block: 'start' });
+  };
+
+  // Whether the beat sits whole in the unobscured band and inside its clip box. A thread item is judged
+  // where it comes to rest, not mid-slide or mid-rise.
+  const whole = ([a, b = a]: Beat) => {
+    const top = winRef.current?.querySelector<HTMLElement>(a);
+    const bottom = winRef.current?.querySelector<HTMLElement>(b);
+    const clip = top?.closest('.hd-thread, .aw-main')?.getBoundingClientRect();
+    if (!top || !bottom || !clip) return false;
+    const item = top.closest<HTMLElement>('.hd-flow > *');
+    const shift = item ? clip.top + flowY.current + item.offsetTop - item.getBoundingClientRect().top : 0;
+    return (
+      top.getBoundingClientRect().top + shift >= Math.max(view.current.lo, clip.top) - 1 &&
+      bottom.getBoundingClientRect().bottom + shift <= Math.min(view.current.hi, clip.bottom) + 1
+    );
+  };
+
+  // Docks the control under the header while the window shows past it, so pause stays in reach, then lets
+  // the clock run only while the window is watchable. Autoplay starts the first time it is.
+  const update = () => {
+    const ctrl = ctrlRef.current;
+    const slot = ctrl?.parentElement;
+    const end = winRef.current?.querySelector('.hd-scene')?.getBoundingClientRect().bottom;
+    if (!ctrl || !slot || end === undefined) return;
+    const top = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    const s = slot.getBoundingClientRect();
+    const dock = s.top < top && end > top + s.height + 16;
+    slot.style.width = dock ? `${s.width}px` : '';
+    ctrl.style.cssText = dock ? `left:${s.left}px;top:${top}px` : '';
+    ctrl.toggleAttribute('data-dock', dock);
+    view.current = { lo: dock ? top + s.height + 8 : top, hi: innerHeight };
+    fit();
+    const beat = beatOf(intentRef.current === 'idle' ? START : fRef.current, M);
+    // While the pointer travels the camera holds still, so a scroll then cannot be answered by a refit; the
+    // beat is judged again once the press lands.
+    const next =
+      document.visibilityState !== 'hidden' && (dock || (s.top >= top && s.bottom <= innerHeight)) && (!beat || !!aim.current || whole(beat));
+    if (next !== seenRef.current) setSeen((seenRef.current = next));
+    if (next && intentRef.current === 'idle') begin();
     else sync();
   };
 
-  // Slide the thread (not scroll it) so its newest line, or the card's head, sits inside the part of the
-  // window that is on screen. The camera holds still while the pointer travels to a target in the thread.
+  // Slide the thread (not scroll it) so its newest line, or the card's head, sits inside the unobscured
+  // band. The camera holds still while the pointer travels to a target in the thread.
   const fit = () => {
     const vp = threadRef.current;
     const flow = flowRef.current;
     if (!vp || !flow || aim.current) return;
-    const room = Math.min(vp.clientHeight, Math.max(MIN_ROOM, innerHeight - vp.getBoundingClientRect().top - 8));
-    let y = room - flow.offsetHeight;
+    const r = vp.getBoundingClientRect();
+    const lo = Math.max(0, view.current.lo - r.top);
+    const hi = Math.min(vp.clientHeight, view.current.hi - 8 - r.top);
+    if (hi <= lo) return;
+    let y = hi - flow.offsetHeight;
     const lead = fRef.current.focus === 'card' ? flow.querySelector<HTMLElement>('.hd-card') : null;
-    if (lead) y = Math.max(y, flow.getBoundingClientRect().top - lead.getBoundingClientRect().top + 12);
+    if (lead) y = Math.max(y, lo + 12 - lead.offsetTop);
     y = Math.min(0, Math.round(y));
     if (y === flowY.current) return;
     flowY.current = y;
     flow.style.transform = y ? `translateY(${y}px)` : '';
   };
 
-  const api = useRef({ begin, sync, setMode, gate, fit });
-  api.current = { begin, sync, setMode, gate, fit };
+  const api = useRef({ update, finish });
+  api.current = { update, finish };
 
+  // A passive effect, like useTimeline's: autoplay then starts from a frame callback after React's
+  // strict-mode remount of both, so that remount cannot stop the clock it starts.
   useEffect(() => {
     const mq = matchMedia('(prefers-reduced-motion: reduce)');
     reduced.current = mq.matches;
-    hold.current.hidden = document.visibilityState === 'hidden';
-    if (mq.matches) api.current.setMode('ended');
+    if (mq.matches) api.current.finish();
     const onMotion = (e: MediaQueryListEvent) => {
       reduced.current = e.matches;
+      // switched on mid-play, the loop stops on its last frame as if the page had loaded that way
+      if (e.matches) api.current.finish();
     };
-    const onVisibility = () => {
-      hold.current.hidden = document.visibilityState === 'hidden';
-      api.current.sync();
-    };
+    const onVisibility = () => api.current.update();
     let raf = 0;
     const onView = () => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        api.current.gate();
-        api.current.fit();
-      });
+      raf = requestAnimationFrame(onVisibility);
     };
     onView();
     document.fonts?.ready.then(onView);
-    window.addEventListener('scroll', onView, { passive: true });
-    window.addEventListener('resize', onView);
+    addEventListener('scroll', onView, { passive: true });
+    addEventListener('resize', onView);
     mq.addEventListener('change', onMotion);
     document.addEventListener('visibilitychange', onVisibility);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onView);
-      window.removeEventListener('resize', onView);
+      removeEventListener('scroll', onView);
+      removeEventListener('resize', onView);
       mq.removeEventListener('change', onMotion);
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
 
-  useLayoutEffect(() => api.current.fit(), [f.at, f.answered, f.focus]);
+  useLayoutEffect(() => {
+    if (intentRef.current !== 'idle') api.current.update();
+  }, [f]);
 
   const count = copy.recent.length + (f.saved ? 1 : 0);
   const nav: NavId = f.scene === 'opened' ? 'cards' : f.remind > 0 ? 'remind' : 'study';
@@ -337,6 +410,7 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
   const toastOff = (j: number) => (j < f.remind ? String(f.remind - 1 - j) : 'pre');
   // Every label sits in one grid cell, so the button keeps the widest one's width in every state.
   const labels = [...new Set(Object.values(copy.control))];
+  const label = copy.control[play === 'held' ? 'paused' : play];
 
   return (
     <div className="hero-demo" data-play={play} data-scene={f.scene} data-remind={f.remind}>
@@ -350,21 +424,23 @@ export function HeroDemo({ topic, shared, copy }: { topic: LoopTopic; shared: Lo
           bump={f.saved}
           mainClassName="mock"
           tools={
-            <button type="button" className="hd-ctrl" ref={ctrlRef} onClick={onControl}>
-              <i aria-hidden="true">
-                <svg viewBox="0 0 16 16" width="12" height="12">
-                  {ICONS[play]}
-                </svg>
-              </i>
-              <span className="hd-ctrl-l">
-                {labels.map((l) => (
-                  <span key={l} className={l === copy.control[play] ? 'on' : undefined}>
-                    {l}
-                  </span>
-                ))}
-              </span>
-              <span className="sr-only"> · {copy.controlTarget}</span>
-            </button>
+            <span className="hd-slot">
+              <button type="button" className="hd-ctrl" ref={ctrlRef} onClick={onControl}>
+                <i aria-hidden="true">
+                  <svg viewBox="0 0 16 16" width="12" height="12">
+                    {ICONS[play]}
+                  </svg>
+                </i>
+                <span className="hd-ctrl-l">
+                  {labels.map((l) => (
+                    <span key={l} className={l === label ? 'on' : undefined}>
+                      {l}
+                    </span>
+                  ))}
+                </span>
+                <span className="sr-only"> · {copy.controlTarget}</span>
+              </button>
+            </span>
           }
         >
           <div className={scene('home')} aria-hidden="true">

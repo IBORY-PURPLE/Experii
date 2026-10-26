@@ -85,7 +85,6 @@ export const ReminderMock = memo(function ReminderMock({
               </span>
             ))}
           </p>
-          <p className="lock-badge">{shared.lockBadge}</p>
         </div>
         <div className="lock-toasts">
           <ol className="stack">

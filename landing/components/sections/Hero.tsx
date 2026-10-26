@@ -2,7 +2,7 @@ import { download, hero } from '@/content/landing';
 import { heroDemo, loopShared, loopTopics } from '@/content/loop';
 import { DownloadButton } from '@/components/download/Download';
 import { HeroDemo } from '@/components/hero/HeroDemo';
-import type { HeroVariant } from '@/lib/signup-schema';
+import type { HeroVariant } from '@/lib/signup-fields';
 
 export function Hero({ variant }: { variant: HeroVariant }) {
   const [line1, line2] = hero.headlines[variant];

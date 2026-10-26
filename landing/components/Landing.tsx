@@ -11,8 +11,9 @@ import { Footer } from '@/components/sections/Footer';
 import { TickNav } from '@/components/ui/TickNav';
 import { StickyCta } from '@/components/ui/StickyCta';
 import { CtaTracker } from '@/components/ui/CtaTracker';
-import { DownloadButton, DownloadNote } from '@/components/download/Download';
-import type { HeroVariant } from '@/lib/signup-schema';
+import { DownloadButton } from '@/components/download/Download';
+import { DownloadNote } from '@/components/download/DownloadNote';
+import type { HeroVariant } from '@/lib/signup-fields';
 
 export function Landing({ variant }: { variant: HeroVariant }) {
   return (
