@@ -1,0 +1,20 @@
+display_information:
+  name: Experii Bot
+  description: Experii 개발 하네스의 알림·승인 봇
+features:
+  bot_user:
+    display_name: experii-bot
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - channels:read
+      - channels:history
+      - groups:read
+      - groups:history
+      - reactions:read
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
