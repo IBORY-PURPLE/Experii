@@ -125,10 +125,9 @@
   ```bash
   #!/bin/bash
   export PLAYWRIGHT_BROWSERS_PATH=/opt/pw
-  npx -y playwright@1.64.1 install --with-deps chromium
-  apt-get install -y ffmpeg || true
+  npx -y playwright@1.64.1 install --with-deps chromium ffmpeg
   ```
-  Playwright 버전은 `landing/package.json`과 맞춘다. 올릴 때는 두 곳을 같이 바꾼다.
+  Playwright 버전은 `landing/package.json`과 맞춘다. 올릴 때는 두 곳을 같이 바꾼다. 영상 증거(`video: 'on'`)는 Playwright 전용 ffmpeg가 있어야 녹화된다.
 - 예약 작업 3개 모두 이 환경을 쓴다. 각 작업에서 Linear 외의 커넥터는 뺀다. 모델은 Opus이고, 사용량이 부담되면 CoS부터 Sonnet으로 내린다.
 
 ## 단계
@@ -258,4 +257,8 @@
 
 | 날짜 | 단계 | 결과 | 근거 |
 |---|---|---|---|
-| 2026-10-27 | 계획 | 1쪽 요약 승인, 이 파일 작성 | 이 커밋 |
+| 2026-10-27 | 계획 | 1쪽 요약 승인, 이 파일 작성 | f1edf31 |
+| 2026-10-27 | 0단계 | 채널을 학교 Slack으로 확정(Gachon Cocone School, 봇이 관리자 승인 없이 설치됨) | 앱 `A0CCLMWSUAY`, `.agents/hitl.md` |
+| 2026-10-27 | 0단계 | `PRD.md` 색인, CLAUDE.md 하네스 절, pstack 0.15.32 사본 | f1edf31, af82bf1 |
+| 2026-10-27 | 0단계 | Linear 프로젝트 Experii(P-SON-3)와 라벨 5개, GitHub 라벨 `verify:*` 3개 | Linear·GitHub |
+| 2026-10-27 | 1~3단계 준비 | 게이트·증거·판정 스킬·CI·가드 훅·운영 파일 작성 (검증 전) | 다음 커밋 |
