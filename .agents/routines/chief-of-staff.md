@@ -6,6 +6,10 @@
 
 `PRD.md`, `.agents/hitl.md`(채널 ID, 창업자 멤버 ID), `.agents/unattended.md`, `.agents/briefs/_TEMPLATE.md`, `.claude/rules/cloud.md`.
 
+`.agents/hitl.md`의 값이 `TODO`이면 이렇게 한다.
+- 채널 ID: `conversations.list?types=private_channel,public_channel`에서 이름(`experii-inbox`, `experii-ops`)으로 찾아 쓴다. 찾은 ID는 마지막 출력에 적는다.
+- 창업자 멤버 ID: 승인 처리(3번)를 건너뛴다. 브리프 요약은 원글 스레드에 달되 @멘션은 생략한다.
+
 ## 도구
 
 - Slack Web API를 `curl https://slack.com/api/<method>`로 부른다. 봇 토큰은 프록시가 붙인다. 표식은 `.agents/plan.md` "폰 채널 (HITL) 규약"을 따른다.
