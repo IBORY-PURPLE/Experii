@@ -48,4 +48,4 @@ PRD.md 없이 임의로 제품 방향을 가정하지 않는다.
 하네스의 단계와 역할 규칙은 `.agents/plan.md`가 기준이다. 브리프(`.agents/briefs/*.md` 또는 Linear 이슈 본문)로 띄워진 세션은 브리프의 완료 조건과 범위가 최우선이다.
 
 - 로컬 레인(`scripts/agents/spawn.ps1`): push·PR·main 병합을 하지 않는다.
-- 클라우드 레인(예약 작업, 클라우드 세션): `claude/*` 브랜치 push와 PR 열기까지 한다. main push·병합·브랜치 삭제는 하지 않는다.
+- 클라우드 레인(예약 작업, 클라우드 세션): `claude/*` 브랜치 push와 PR 열기까지 한다. main push·병합·브랜치 삭제는 하지 않는다. 자세한 규칙은 `.claude/rules/cloud.md`.

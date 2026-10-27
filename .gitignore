@@ -8,3 +8,4 @@ Thumbs.db
 .audit/
 .claude/worktrees/
 .gstack/
+.session-start.log
