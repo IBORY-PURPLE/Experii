@@ -1,0 +1,178 @@
+{
+  "id": "doctor",
+  "sha": "af82bf197d8790802336f1bdab98bf43e07126cb",
+  "buildId": "VOGxpNfwtJ6Cec39ce3rU",
+  "at": "2026-10-27T12:26:44.716Z",
+  "files": [
+    {
+      "file": "hero-1440x900-01-home.png",
+      "scene": "hero-1440x900-01-home",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "hero-1440x900-02-task.png",
+      "scene": "hero-1440x900-02-task",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "hero-1440x900-03-left-join-press.png",
+      "scene": "hero-1440x900-03-left-join-press",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "hero-1440x900-04-card-saved.png",
+      "scene": "hero-1440x900-04-card-saved",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "hero-1440x900-05-remind-30.png",
+      "scene": "hero-1440x900-05-remind-30",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "hero-1440x900-06-reopened-card.png",
+      "scene": "hero-1440x900-06-reopened-card",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "hero-1440x900.webm",
+      "scene": "hero-1440x900",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "hero-1280x800-01-home.png",
+      "scene": "hero-1280x800-01-home",
+      "viewport": "1280x800"
+    },
+    {
+      "file": "hero-1280x800-02-task.png",
+      "scene": "hero-1280x800-02-task",
+      "viewport": "1280x800"
+    },
+    {
+      "file": "hero-1280x800-03-left-join-press.png",
+      "scene": "hero-1280x800-03-left-join-press",
+      "viewport": "1280x800"
+    },
+    {
+      "file": "hero-1280x800-04-card-saved.png",
+      "scene": "hero-1280x800-04-card-saved",
+      "viewport": "1280x800"
+    },
+    {
+      "file": "hero-1280x800-05-remind-30.png",
+      "scene": "hero-1280x800-05-remind-30",
+      "viewport": "1280x800"
+    },
+    {
+      "file": "hero-1280x800-06-reopened-card.png",
+      "scene": "hero-1280x800-06-reopened-card",
+      "viewport": "1280x800"
+    },
+    {
+      "file": "hero-1280x800.webm",
+      "scene": "hero-1280x800",
+      "viewport": "1280x800"
+    },
+    {
+      "file": "hero-1536x730-01-home.png",
+      "scene": "hero-1536x730-01-home",
+      "viewport": "1536x730"
+    },
+    {
+      "file": "hero-1536x730-02-task.png",
+      "scene": "hero-1536x730-02-task",
+      "viewport": "1536x730"
+    },
+    {
+      "file": "hero-1536x730-03-left-join-press.png",
+      "scene": "hero-1536x730-03-left-join-press",
+      "viewport": "1536x730"
+    },
+    {
+      "file": "hero-1536x730-04-card-saved.png",
+      "scene": "hero-1536x730-04-card-saved",
+      "viewport": "1536x730"
+    },
+    {
+      "file": "hero-1536x730-05-remind-30.png",
+      "scene": "hero-1536x730-05-remind-30",
+      "viewport": "1536x730"
+    },
+    {
+      "file": "hero-1536x730-06-reopened-card.png",
+      "scene": "hero-1536x730-06-reopened-card",
+      "viewport": "1536x730"
+    },
+    {
+      "file": "hero-1536x730.webm",
+      "scene": "hero-1536x730",
+      "viewport": "1536x730"
+    },
+    {
+      "file": "download-1440x900-notice.png",
+      "scene": "download-1440x900-notice",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "download-1440x900.webm",
+      "scene": "download-1440x900",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "before-after-1440x900.png",
+      "scene": "before-after-1440x900",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-1-chat.png",
+      "scene": "s4-1440x900-1-chat",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-2a-task-blank.png",
+      "scene": "s4-1440x900-2a-task-blank",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-2b-wrong-inner-join.png",
+      "scene": "s4-1440x900-2b-wrong-inner-join",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-2c-right-left-join.png",
+      "scene": "s4-1440x900-2c-right-left-join",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-3a-card.png",
+      "scene": "s4-1440x900-3a-card",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-3b-card-list.png",
+      "scene": "s4-1440x900-3b-card-list",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-4a-remind-1day.png",
+      "scene": "s4-1440x900-4a-remind-1day",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-4b-remind-30day.png",
+      "scene": "s4-1440x900-4b-remind-30day",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900-4c-reopened-card.png",
+      "scene": "s4-1440x900-4c-reopened-card",
+      "viewport": "1440x900"
+    },
+    {
+      "file": "s4-1440x900.webm",
+      "scene": "s4-1440x900",
+      "viewport": "1440x900"
+    }
+  ]
+}
