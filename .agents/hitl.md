@@ -10,7 +10,7 @@
 | 인입 채널 | `#experii-inbox` (비공개), 채널 ID `C0CDCA54HEU` |
 | 운영 채널 | `#experii-ops` (비공개), 채널 ID `C0CCMKW1MJ8` |
 | 창업자 멤버 ID | `U0AHC70B249` (승인 ✅는 이 ID가 단 것만 인정) |
-| 바로 실행 중계 | Experii Relay, `.agents/hitl/slack-relay/` (아래) |
+| 바로 실행 중계 | Experii Relay (앱 ID `A0CCCGHSG59`, 트리거 글 `Ft0CCCGQ124B`·✅❌ `Ft0CCGQN7SH4`), `.agents/hitl/slack-relay/` (아래) |
 
 ## 봇이 쓰는 Slack API
 
