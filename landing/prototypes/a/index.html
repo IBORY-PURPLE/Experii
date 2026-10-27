@@ -464,10 +464,10 @@ html:not(.js) .btn-notif{display:none}
 .tl-name{grid-column:1/-1;font-weight:700;color:var(--ink-2);margin-top:8px}
 .nm-ex{grid-row:2}
 .nm-ot{grid-row:4}
-.r-study{grid-column:1/5;grid-row:3;height:14px;background:linear-gradient(var(--card),var(--card)) 0 50%/auto 2px no-repeat,repeating-linear-gradient(90deg,var(--card) 0 1.5px,transparent 1.5px 7px);opacity:.9}
-.r-future{grid-column:5/7;grid-row:3;height:2px;background:repeating-linear-gradient(90deg,var(--card) 0 5px,transparent 5px 9px)}
-.r-dot{grid-row:3;justify-self:center;width:12px;height:12px;border-radius:50%;background:var(--card);box-shadow:0 0 0 3px #fff}
-.rd1{grid-column:1}.rd2{grid-column:2}.rd3{grid-column:3}.rd4{grid-column:4}
+.r-study{grid-column:1/7;grid-row:3;position:relative;height:14px;background:none}
+.r-study::before,.r-study::after{content:"";position:absolute;top:50%}
+.r-study::before{left:0;right:8px;height:2px;background:var(--card);transform:translateY(-50%)}
+.r-study::after{right:0;border-style:solid;border-width:4px 0 4px 7px;border-color:transparent transparent transparent var(--card);transform:translateY(-50%)}
 .r-ot{grid-column:5/7;grid-row:5;height:6px;border-radius:3px;background:#aab3bf}
 .gd{grid-row:1/6;align-self:stretch;justify-self:start;border-left:1px dashed var(--line-2);margin-left:-3px}
 .gd-a{grid-column:5}.gd-b{grid-column:6}
@@ -487,10 +487,7 @@ html:not(.js) .btn-notif{display:none}
   .ax-study{grid-column:2/6}.ax-apply{grid-column:6}.ax-iv{grid-column:7}
   .tl-name{grid-column:1;margin:0}
   .nm-ex{grid-row:2}.nm-ot{grid-row:3}
-  .r-study{grid-column:2/6;grid-row:2}
-  .r-future{grid-column:6/8;grid-row:2}
-  .r-dot{grid-row:2}
-  .rd1{grid-column:2}.rd2{grid-column:3}.rd3{grid-column:4}.rd4{grid-column:5}
+  .r-study{grid-column:2/8;grid-row:2}
   .r-ot{grid-column:6/8;grid-row:3}
   .gd{grid-row:1/4;margin-left:-8px}.gd-a{grid-column:6}.gd-b{grid-column:7}
   .tl-cards{margin-top:18px;gap:16px}
@@ -932,8 +929,7 @@ fieldset[data-invalid] .chip span{border-color:var(--err)}
       <div class="tl-grid" aria-hidden="true">
         <span class="ax ax-study">자격증 공부</span><span class="ax ax-apply">지원</span><span class="ax ax-iv">면접</span>
         <span class="tl-name nm-ex">Experii</span>
-        <i class="r-study"></i><i class="r-future"></i>
-        <i class="r-dot rd1"></i><i class="r-dot rd2"></i><i class="r-dot rd3"></i><i class="r-dot rd4"></i>
+        <i class="r-study"></i>
         <span class="tl-name nm-ot">지원할 때 쓰는 도구</span>
         <i class="r-ot"></i>
         <i class="gd gd-a"></i><i class="gd gd-b"></i>

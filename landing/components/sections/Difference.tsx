@@ -22,11 +22,6 @@ export function Difference() {
             <span className="ax ax-iv">{difference.axis.interview}</span>
             <span className="tl-name nm-ex">{difference.rows.experii}</span>
             <i className="r-study" />
-            <i className="r-future" />
-            <i className="r-dot rd1" />
-            <i className="r-dot rd2" />
-            <i className="r-dot rd3" />
-            <i className="r-dot rd4" />
             <span className="tl-name nm-ot">{difference.rows.other}</span>
             <i className="r-ot" />
             <i className="gd gd-a" />
