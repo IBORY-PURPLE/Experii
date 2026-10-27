@@ -4,7 +4,7 @@
 
 | 층 | 역할 | 어디서 돈다 | 지침 |
 |---|---|---|---|
-| 일 정하기 | Chief of Staff: Slack 인입 → Linear 이슈·브리프 → ✅ 승인 반영 → 상태 알림 | 클라우드 예약 작업, 서울 9~22시 매시 7분 | [routines/chief-of-staff.md](routines/chief-of-staff.md) |
+| 일 정하기 | Chief of Staff: Slack 인입 → Linear 이슈·브리프 → ✅ 승인 반영 → 상태 알림 | 클라우드 루틴. 인입 글·✅가 올라오면 바로(Slack 중계 앱), 그리고 매일 09:07 | [routines/chief-of-staff.md](routines/chief-of-staff.md) |
 | 코딩 | implementer: 승인된 일감 하나 → `claude/son-<n>` → PR | 클라우드 예약 작업 23:07, Claude 앱 "지금 실행" | [routines/implementer.md](routines/implementer.md) |
 | 검증 | verifier: main에서 PR을 재판정 → `verify:pass`·`verify:fail` + 증거 | 클라우드 예약 작업 05:07·07:07 | [routines/verifier.md](routines/verifier.md) |
 
@@ -25,6 +25,7 @@
 | [unattended.md](unattended.md) | 무인 실행을 허용한 kind |
 | [briefs/_TEMPLATE.md](briefs/_TEMPLATE.md) | 브리프 형식(Linear 본문, 로컬 브리프) |
 | [hitl/slack-manifest.yaml](hitl/slack-manifest.yaml) | Experii Bot Slack 앱 매니페스트 |
+| [hitl/slack-relay/](hitl/slack-relay/) | Experii Relay: 인입 이벤트를 받아 CoS 루틴 API를 부르는 Slack 워크플로 앱(Deno) |
 | [pstack/](pstack/) | pstack 0.15.32 사본(클라우드용). 갱신은 `scripts/agents/sync-pstack.ps1` |
 | `scripts/agents/gates.mjs` | 게이트: typecheck → unit → build → bundle → prod E2E |
 | `scripts/agents/verify-doctor.mjs` | 판정 전 읽기 전용 점검 |

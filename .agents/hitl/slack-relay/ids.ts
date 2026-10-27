@@ -1,0 +1,3 @@
+export const INBOX_CHANNEL_ID = "C0CDCA54HEU";
+export const FOUNDER_ID = "U0AHC70B249";
+export const ROUTINE_ID = "trig_01T8LAx8jVSKQKF5QQCE4Rhi";

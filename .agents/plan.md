@@ -61,6 +61,7 @@
 - **표식**: 봇 글은 첫 줄에 표식을 단다. `[cos:brief SON-n]`, `[cos:dup SON-n]`, `[cos:out-of-scope]`, `[ask SON-n]`, `[impl:pr SON-n]`, `[verify:pass SON-n]`, `[verify:fail SON-n]`, `[digest]`.
 - **승인**: 창업자 글의 스레드에 봇이 브리프 요약(목표, 완료 조건, 범위, kind)을 단다. 그 봇 글에 **창업자 ID가 단 ✅**만 승인으로 친다. ❌는 기각이다. 창업자가 스레드에 답글을 달면 수정 요청으로 보고, 브리프를 고친 뒤 새 요약을 단다. 이때 승인은 다시 받는다.
 - **질문**: 막히면 `[ask SON-n]` 글로 창업자를 @멘션한다. Linear에는 `needs:founder`를 붙인다. 그 일감만 멈추고(`wip:` 커밋) 다른 일을 한다.
+- **바로 처리**: 인입 채널의 창업자 글·답글·✅·❌는 Slack 워크플로 앱 Experii Relay(`.agents/hitl/slack-relay/`)가 CoS 루틴 API를 바로 부른다. 그 글에 ⏳가 붙으면 실행이 시작된 것이고, ⚠️면 호출이 실패한 것이다. 놓친 것은 매일 09:07 예약 실행이 처리한다.
 - **즉시 실행**: 승인한 일감을 지금 돌리고 싶으면 창업자가 Claude 앱에서 `experii-implementer`의 "지금 실행"을 누른다. Slack이고 Claude 앱이 설치돼 있으면 스레드에서 `@Claude implementer SON-n`으로도 된다.
 - **판정 결과**: verifier가 PR 댓글을 남기고, CoS가 원래 스레드에 결과와 PR 링크를 단다. 병합은 창업자가 GitHub 앱에서 한다.
 
@@ -68,7 +69,7 @@
 
 운영 파일은 3단계에서 만든다. 아래가 그 내용의 기준이다.
 
-### chief-of-staff (일정 `CRON_TZ=Asia/Seoul 7 9-22 * * *`, 커넥터 Linear, 봇 토큰)
+### chief-of-staff (Slack 이벤트로 바로 실행 + 매일 `CRON_TZ=Asia/Seoul 7 9 * * *`, 커넥터 Linear, 봇 토큰)
 
 1. 읽기: `PRD.md` 색인, `.agents/hitl.md`, `.agents/unattended.md`, `.agents/briefs/_TEMPLATE.md`.
 2. 인입: 인입 채널에서 봇 표식 답이 없는 창업자 최상위 글만 읽는다. 스레드 답글은 일감으로 만들지 않는다.
@@ -222,7 +223,7 @@
 
 ### 5단계: 무인 운영
 
-- implementer `7 23`, verifier `7 5,7`, CoS `7 9-22` 일정을 켠다.
+- implementer `7 23`, verifier `7 5,7` 일정을 켠다. CoS는 3단계부터 켜져 있다(Slack 이벤트 + 매일 09:07).
 - 사흘 밤 연속으로 08시 전에 판정과 증거가 붙은 PR이 오면 implementer를 `7 23,0`(2레인)으로 늘린다.
 - 3레인은 2주 동안 가드 차단 0일 때만 연다.
 - 주 1회 `/correct`·`/reflect`로 반복 실패를 운영 파일·템플릿·verify 스킬에 넣는다.
