@@ -81,7 +81,9 @@
 }
 .mock .typed { color: var(--color-ink); }
 .mock .composer.typing .ph { display: none; }
+/* flex-end keeps the caret in view on long lines; min-width keeps short lines left-aligned like the opening question. */
 .mock .composer.typing .field-mock { justify-content: flex-end; }
+.mock .composer.typing .typed { min-width: 100%; }
 .mock .typed { flex: none; }
 .mock .composer.typing .typed::after { content: ""; display: inline-block; width: 1.5px; height: 15px; background: var(--color-talk); margin-left: 1px; vertical-align: -2px; }
 .mock .send { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--color-ink); display: grid; place-items: center; }
