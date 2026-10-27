@@ -46,6 +46,8 @@
 | 검증 | CI | `.github/workflows/landing-ci.yml` |
 | 공통 | pstack 사본 | `.agents/pstack/` (+ `VERSION`, `scripts/agents/sync-pstack.ps1`) |
 | 공통 | 클라우드 규칙 | `.claude/rules/cloud.md`, `.claude/rules/pstack-models.md` |
+| 공통 | 도구 사용 순서 | `.claude/rules/tool-priority.md` |
+| 공통 | UI 변경 시안 규칙 | `.claude/rules/ui-change.md` |
 | 공통 | 훅 | `scripts/agents/session-start.mjs`, `scripts/agents/guard.mjs` (`.claude/settings.json`에 연결) |
 
 ## 폰 채널 (HITL) 규약

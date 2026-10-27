@@ -42,6 +42,7 @@ PRD.md 없이 임의로 제품 방향을 가정하지 않는다.
 - PRD 범위를 넘는 추상화나 미래를 위한 기능을 추가하지 않는다.
 - 보안 취약점(XSS, SQL injection, command injection 등)을 절대 도입하지 않는다.
 - UI/프론트엔드 변경 시 실제 브라우저에서 동작을 확인한 후 완료를 보고한다.
+- UI를 바꾸기 전에 시안 3개를 내장 브라우저로 띄워 사용자가 고르게 한다. 자세한 규칙은 `.claude/rules/ui-change.md`.
 
 ## 에이전트 작업 (하네스)
 
@@ -49,3 +50,4 @@ PRD.md 없이 임의로 제품 방향을 가정하지 않는다.
 
 - 로컬 레인(`scripts/agents/spawn.ps1`): push·PR·main 병합을 하지 않는다.
 - 클라우드 레인(예약 작업, 클라우드 세션): `claude/*` 브랜치 push와 PR 열기까지 한다. main push·병합·브랜치 삭제는 하지 않는다. 자세한 규칙은 `.claude/rules/cloud.md`.
+- 도구는 CLI → API·MCP 커넥터 → 브라우저 자동화(Playwright) 순서로 고른다. 화면 검증은 예외다. 자세한 규칙은 `.claude/rules/tool-priority.md`.
