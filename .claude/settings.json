@@ -1,5 +1,9 @@
 {
   "enabledPlugins": {
     "pstack@cursor-plugins": true
+  },
+  "attribution": {
+    "commit": "🤖\n\nCo-Authored-By: 채우 <lala1522@gachon.ac.kr>",
+    "pr": ""
   }
 }
