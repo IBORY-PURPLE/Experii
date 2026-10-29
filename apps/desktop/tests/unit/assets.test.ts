@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { resolveAssetPath } from '../../src/main/assets';
+import { allowNavigation, resolveAssetPath } from '../../src/main/assets';
 
 const root = path.resolve('/srv/renderer/main_window');
 
@@ -35,5 +35,20 @@ describe('resolveAssetPath', () => {
     ]) {
       expect(resolveAssetPath(root, url), url).toBeNull();
     }
+  });
+});
+
+describe('allowNavigation', () => {
+  it('blocks every navigation in a production build', () => {
+    expect(allowNavigation('app://main/index.html')).toBe(false);
+    expect(allowNavigation('https://example.com')).toBe(false);
+  });
+
+  it('lets only the dev server origin reload in development', () => {
+    const dev = 'http://localhost:5173';
+    expect(allowNavigation('http://localhost:5173/', dev)).toBe(true);
+    expect(allowNavigation('http://localhost:5174/', dev)).toBe(false);
+    expect(allowNavigation('https://example.com/', dev)).toBe(false);
+    expect(allowNavigation('not a url', dev)).toBe(false);
   });
 });

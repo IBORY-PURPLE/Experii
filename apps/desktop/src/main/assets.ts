@@ -30,6 +30,17 @@ export function cspDev(devServer: string): string {
   ].join('; ');
 }
 
+// Vite's dev client reloads the page itself (full-reload), so development lets the dev server's own origin navigate.
+// Production passes no dev server and allows no navigation at all.
+export function allowNavigation(url: string, devServer?: string): boolean {
+  if (!devServer) return false;
+  try {
+    return new URL(url).origin === new URL(devServer).origin;
+  } catch {
+    return false;
+  }
+}
+
 // Maps app://main/<path> onto the renderer build folder; anything that would leave it is refused.
 export function resolveAssetPath(root: string, rawUrl: string): string | null {
   let url: URL;
