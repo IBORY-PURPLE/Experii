@@ -276,7 +276,7 @@ npx create-electron-app@latest apps/desktop --template=vite-typescript --skip-gi
 |---|---|
 | `auth:status`, `auth:signIn`, `auth:signOut` | `signIn`은 진행 중인 Promise 하나를 공유한다(중복 클릭 방지). 오류: `not_eligible_plan`, `cancelled`, `timeout` |
 | `subjects:list`, `subjects:create {title}` | |
-| `roadmap:get {subjectId}` | `{subject, nodes: Done \| Locked (+ O5에 따라 Current)}` |
+| `roadmap:get {subjectId}` | `{subject, nodes: Done \| Current \| Locked}` (Current는 O5) |
 | `conversations:open {subjectId, recommendedNodeId?}` | 추천 칸에서 시작하면 입력창 초안을 함께 준다. DB 행은 첫 턴을 저장할 때 만든다 |
 | `conversations:get {id}` | 표시용 메시지와 카드 ID |
 | `chat:send {conversationId, streamId, text}`, `chat:cancel {streamId}` | `streamId`는 renderer가 만든다. 같은 대화에 스트림이 이미 진행 중이면 거부한다 |
@@ -635,11 +635,11 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
 
 ### 열린 항목 (창업자 결정, 괄호 안은 제안)
 
-- **O1** 잠긴 추천 칸을 눌렀을 때 동작. (설명과 "이걸로 시작" 버튼으로 새 대화와 초안. D에서 확정)
-- **O4** 유닛 헤더("섹션 n, 유닛 m")를 무엇에 대응시킬지. (과목명과 경험 수. D에서 확정)
-- **O5** 카드를 아직 만들지 않은 진행 중 대화를 경로의 "진행 중" 칸으로 보일지, 사이드바 목록에만 둘지. (D에서 확정. 어느 쪽이든 item이 0개인 대화는 보이지 않는다)
+- **O1** (확정, D) 잠긴 추천 칸을 누르면 그 칸 아래에 말풍선이 뜬다. "GPT가 추천한 다음 공부", 제목, 추천 이유(`recommended_next.reason`), [이걸로 시작]이 보인다. 누르면 새 대화가 열리고 입력창에 초안이 채워진다. 보내기는 사용자가 누른다.
+- **O4** (확정, D) 유닛 헤더는 과목명과 경험 수다. 가운데 위 고정 막대가 이 역할을 한다. "섹션 n, 유닛 m" 묶음은 쓰지 않는다.
+- **O5** (확정, D) 카드를 아직 만들지 않은 진행 중 대화는 경로에 "진행 중" 칸으로 보인다. 마지막 완료 칸과 잠긴 칸 사이에 놓인다. item이 0개인 대화는 보이지 않는다.
 - **O8** 추적되지 않는 Codex 변환본(`.agents/skills/verify-landing`, `.codex/agents/*`)을 커밋할지 지울지.
-- **O9** 채팅 답변을 마크다운으로 렌더할지(`react-markdown`, raw HTML 끔, 링크는 텍스트), 평문으로 둘지. (D에서 확정)
+- **O9** (확정, D) 채팅 답변은 마크다운으로 렌더한다. `react-markdown`을 쓰고 raw HTML은 끄며, 링크는 텍스트로만 둔다. 코드 블록은 줄바꿈해 가로 스크롤을 만들지 않는다.
 - **O10** M0 S1이 실패했을 때 Phase A를 무엇으로 대신할지.
 - **O11** 기본 모델 ID. (M0의 `/v1/models` 결과를 보고 정함)
 - **O12** 앱 이름과 ID(Experii/Experi). `appUserModelId`, userData 폴더 이름, 설치 파일 이름에 쓰인다.
@@ -787,3 +787,52 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
 | `app://` 위 Vite 자산 경로 | **통과**(개발 빌드와 fuse가 켜진 패키지 exe 모두). renderer 출력 `../renderer/main_window`를 `protocol.handle`로 내보냈고 콘솔 오류와 로드 실패가 0건이다 | **app:// 채택** |
 | Playwright `_electron` 실행 | **통과**. `npm run package` 뒤 `electron .`을 실행하는 스모크가 2.2초에 끝난다. dev 모드에서는 템플릿이 DevTools 창을 따로 열어서 `firstWindow()`가 DevTools를 잡을 수 있다 | e2e는 빌드 결과로 돌린다. M1에서 DevTools 자동 열기를 뺀다 |
 | 템플릿이 추가한 것과 모듈 형식(`type`, 설정 확장자) | `package.json`에 `type`이 없다. 설정은 `.mts`, main과 preload 출력은 `.vite/build/{main,preload}.cjs`다. 템플릿이 oxlint와 oxfmt(`lint` 스크립트), maker 4종(squirrel, zip, rpm, deb), FusesPlugin을 넣었다. 템플릿 oxfmt 0.41의 하위 패키지 tinypool에 치명 취약점 2건이 있어 최신으로 올렸다. 운영 의존성 취약점은 0건이다 | 엔트리는 `src/main.ts`, `src/preload.ts`로 둔다. `index.ts`로 바꾸면 출력 이름이 겹친다. 모듈은 `src/main/*`에 둔다. 패키지 이름과 productName(`desktop`)은 O12 결정 뒤 바꾼다 |
+
+---
+
+## D 화면 시안 결정 (2026-10-29)
+
+창업자가 내장 브라우저에서 A·B·C 세 안을 1440·1280 폭으로 보고 **B "카드가 주인공"**을 섞지 않고 골랐다. 시안 파일은 지웠다. M2·M3의 renderer는 아래 명세를 따른다. 열린 항목 O1·O4·O5·O9의 결정은 6장에 있다.
+
+- **3단 배치**: 왼쪽 사이드바 248px, 가운데 경로(가변, 최대 640px), 오른쪽 채팅 380px.
+- **사이드바**
+  - 과목 목록: 색 점, 이름, 경험 수 칩.
+  - 그 아래 "〈과목〉에 쌓인 경험" 목록: 최신순, 날짜와 평가 상태. 평가 점은 쓸 만해요=초록 채움, 아니에요=회색 채움, 평가 전=빈 원.
+  - 맨 아래 계정: "ChatGPT Plus · 로그아웃".
+- **가운데 고정 막대**: 과목명, "쌓인 경험 n", "쓸 만해요 y/평가한 수"와 진행 막대, "평가 전 n". O4의 유닛 헤더 역할을 한다.
+- **가운데 경로**: 왼쪽 세로 줄 위의 둥근 칸과 오른쪽 넓은 타일.
+
+  | 칸 | 둥근 칸 | 타일 |
+  |---|---|---|
+  | 완료 | 파랑 체크 | 제목, 평가 칩(쓸 만해요/아니에요/평가 전), 한 줄 요약, "면접 한 마디" 상자 |
+  | 진행 중 | 흰 바탕 파랑 테두리 "…" | 제목, "진행 중" 칩, "n턴 대화 중 · 마치면 '경험으로 남기기'를 눌러 주세요" |
+  | 잠김 | 회색 자물쇠 | 점선 테두리, 제목, "추천 · 잠김" 칩. 누르면 O1 말풍선 |
+
+- **카드 보기**: 타일을 누르면 그 자리에서 펼쳐진다(모달 아님). 순서는 다음과 같다.
+  1. 머리: "경험 카드 · 과목 · 날짜", 제목, 한 줄 요약
+  2. 가림 알림
+  3. 면접 한 마디
+  4. STAR(S/T/A/R). result가 null이면 "(대화에서 결과를 확인하지 못함)"
+  5. 배운 개념 칩, 다음 할 일
+  6. "이 카드, 면접에 쓸 만한가요?" [면접에 쓸 만해요] [아니에요]
+  7. 바닥줄: prompt 버전, [대화 다시 열기], [카드 다시 만들기]
+- **채팅**
+  - 머리: "과목 · 대화", 대화 제목, 오른쪽 위 [경험으로 남기기](호박색 주 버튼).
+  - 입력창 아래: 왼쪽 "Using ChatGPT plan", 오른쪽 "Manage usage" 링크.
+  - 스트리밍 중에는 보내기 버튼이 멈추기 버튼으로 바뀐다.
+- **오류·안내 배너**: 채팅 입력창 바로 위에 띄운다. 보낸 메시지는 그대로 남는다고 알린다.
+
+  | 상황 | 문구 | 버튼 |
+  |---|---|---|
+  | 재로그인 필요 | | [다시 로그인] |
+  | 네트워크 오류 | | [다시 보내기] |
+  | 컨텍스트 초과 | "대화가 너무 길어요" | [경험으로 남기기] [새 대화] |
+  | 학습 없음 | "카드로 남길 학습 내용이 없어요" | [계속 대화하기] |
+
+- **대화 상자**
+  - 덮어쓰기 확인: "카드를 다시 만들까요?" 평가가 지워지고, 최신 대화면 추천 칸도 바뀐다고 적는다. [취소] [다시 만들기].
+  - 과목 만들기: "새 과목", 과목 이름 입력, [취소] [만들기].
+- **첫 실행 빈 상태**: 사이드바 "아직 과목이 없어요"와 [+ 과목 만들기], 가운데 "과목을 만들면 여기에 길이 생겨요"와 [첫 과목 만들기], 채팅 입력 비활성 "대화는 늘 과목 안에서 시작해요".
+- **로그인 화면**: 가운데 카드. "공부한 과정이 면접 경험으로 쌓여요", [Continue with ChatGPT](검정), 아래에 "ChatGPT Plus·Pro 계정으로 로그인해요"와 "대화와 카드는 이 PC에만 저장돼요. 답을 받으려고 대화 내용은 OpenAI로 보내요".
+- **Plus·Pro 필요 화면**: 같은 카드 틀. 제목 "ChatGPT Plus·Pro 계정이 필요해요", 로그인한 계정의 플랜 표시, [다른 계정으로 Continue with ChatGPT].
+- **토큰**: `landing/design/DESIGN.md` 3.1의 색(ink, surface, talk=칸·사용자 말풍선, task=쓸 만해요, card=경험 카드·남기기 버튼, err)과 Pretendard Variable. 칸은 아래 그림자 5px로 눌리는 느낌을 준다.
