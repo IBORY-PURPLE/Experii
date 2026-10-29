@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { StoredCard } from '../shared/card';
 import type {
   AuthStatus,
   ChatEvent,
   ConversationView,
   DoneNode,
+  LockedNode,
   Result,
   Roadmap as RoadmapData,
   Subject,
 } from '../shared/ipc';
+import { CardView } from './CardView';
 import { ChatPanel, type Banner } from './ChatPanel';
-import { NewSubjectDialog } from './Dialog';
+import { NewSubjectDialog, RegenerateDialog } from './Dialog';
 import { Gate } from './Gate';
-import { Roadmap } from './Roadmap';
+import { LockedBubble, Roadmap } from './Roadmap';
 import { Sidebar } from './Sidebar';
 
 const api = window.experii;
@@ -35,6 +38,12 @@ type Stream = {
   sent: string;
 };
 
+type Making = { conversationId: string; subjectId: string; title: string };
+
+type DialogState =
+  | { kind: 'subject' }
+  | { kind: 'regenerate'; conversationId: string };
+
 export function App() {
   const [auth, setAuth] = useState<AuthStatus | null>(null);
   const [gate, setGate] = useState({
@@ -49,9 +58,18 @@ export function App() {
   const [stream, setStream] = useState<Stream | null>(null);
   const [input, setInput] = useState('');
   const [banner, setBanner] = useState<Banner | null>(null);
-  const [dialog, setDialog] = useState<'subject' | null>(null);
+  const [dialog, setDialog] = useState<DialogState | null>(null);
+  const [card, setCard] = useState<StoredCard | null>(null);
+  const [openLockedId, setOpenLockedId] = useState<string | null>(null);
+  const [making, setMaking] = useState<Making | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const streamRef = useRef<Stream | null>(null);
   streamRef.current = stream;
+  // Card generation outlives clicks, so its result checks where the user is now, not where they started.
+  const convRef = useRef<ConversationView | null>(null);
+  convRef.current = conv;
+  const subjectRef = useRef<string | null>(null);
+  subjectRef.current = subjectId;
 
   const loadRoadmap = useCallback(async (id: string) => {
     const [map, list] = await Promise.all([
@@ -91,10 +109,17 @@ export function App() {
     [stopStream, showConversation],
   );
 
+  const showCard = useCallback(async (cardId: string) => {
+    setCard(await call(api.getCard(cardId)));
+    setOpenLockedId(null);
+  }, []);
+
   const selectSubject = useCallback(
     async (id: string) => {
       stopStream();
       setSubjectId(id);
+      setCard(null);
+      setOpenLockedId(null);
       const map = await loadRoadmap(id);
       const current = [...map.nodes]
         .reverse()
@@ -139,6 +164,8 @@ export function App() {
     setSubjectId(null);
     setRoadmap(null);
     setConv(null);
+    setCard(null);
+    setOpenLockedId(null);
   }, [stopStream]);
 
   const send = useCallback(
@@ -170,38 +197,58 @@ export function App() {
     [conv, input],
   );
 
-  const bannerFor = (code: string, sent: string): Banner | null => {
+  const focusInput = () => inputRef.current?.focus();
+
+  const reloginBanner = (body: string): Banner => ({
+    tone: 'err',
+    title: '다시 로그인해 주세요',
+    body,
+    actions: [
+      { label: '다시 로그인', primary: true, run: () => void signIn() },
+    ],
+  });
+
+  const usageBanner = (body: string): Banner => ({
+    tone: 'err',
+    title: '사용량 한도에 걸렸어요',
+    body,
+    actions: [{ label: 'Manage usage', run: () => void api.openUsage() }],
+  });
+
+  const newConversationAction = (primary: boolean) => ({
+    label: '새 대화',
+    primary,
+    run: () => {
+      if (subjectRef.current) void newConversation(subjectRef.current);
+    },
+  });
+
+  const bannerFor = (code: string, sent: string): Banner => {
     const kept = '보낸 메시지는 입력창에 그대로 있어요.';
+    const target = convRef.current;
     switch (code) {
       case 'unauthorized':
-        return {
-          tone: 'err',
-          title: '다시 로그인해 주세요',
-          body: `로그인이 만료됐어요. ${kept}`,
-          actions: [
-            { label: '다시 로그인', primary: true, run: () => void signIn() },
-          ],
-        };
+        return reloginBanner(`로그인이 만료됐어요. ${kept}`);
       case 'context_too_long':
         return {
           tone: 'err',
           title: '대화가 너무 길어요',
-          body: 'GPT가 한 번에 읽을 수 있는 길이를 넘었어요. 새 대화로 이어 가 주세요.',
+          body: 'GPT가 한 번에 읽을 수 있는 길이를 넘었어요. 지금까지를 경험으로 남기거나 새 대화로 이어 가 주세요.',
           actions: [
-            {
-              label: '새 대화',
-              primary: true,
-              run: () => subjectId && void newConversation(subjectId),
-            },
+            ...(target?.saved
+              ? [
+                  {
+                    label: '경험으로 남기기',
+                    primary: true,
+                    run: () => void makeCard(target.id),
+                  },
+                ]
+              : []),
+            newConversationAction(!target?.saved),
           ],
         };
       case 'rate_limited':
-        return {
-          tone: 'err',
-          title: '사용량 한도에 걸렸어요',
-          body: `잠시 뒤 다시 보내 주세요. ${kept}`,
-          actions: [{ label: 'Manage usage', run: () => void api.openUsage() }],
-        };
+        return usageBanner(`잠시 뒤 다시 보내 주세요. ${kept}`);
       case 'busy':
         return {
           tone: 'info',
@@ -219,6 +266,147 @@ export function App() {
           ],
         };
     }
+  };
+
+  const cardBanner = (code: string, conversationId: string): Banner => {
+    const failed = (body: string): Banner => ({
+      tone: 'err',
+      title: '카드를 만들지 못했어요',
+      body,
+      actions: [
+        {
+          label: '다시 만들기',
+          primary: true,
+          run: () => void makeCard(conversationId, true),
+        },
+      ],
+    });
+    switch (code) {
+      case 'no_learning':
+        return {
+          tone: 'info',
+          title: '카드로 남길 학습 내용이 없어요',
+          body: '배우거나 확인한 내용이 대화에 더 쌓이면 다시 눌러 주세요.',
+          actions: [
+            {
+              label: '계속 대화하기',
+              primary: true,
+              run: () => {
+                setBanner(null);
+                focusInput();
+              },
+            },
+          ],
+        };
+      case 'too_long':
+        return {
+          tone: 'err',
+          title: '대화가 너무 길어요',
+          body: '최근 대화만 남겨도 GPT가 읽을 수 있는 길이를 넘어서 카드를 만들지 못했어요. 새 대화로 이어 가 주세요.',
+          actions: [newConversationAction(true)],
+        };
+      case 'invalid':
+        return failed('GPT 답이 카드 형식에 맞지 않았어요. 다시 눌러 주세요.');
+      case 'timeout':
+        return failed('2분 안에 답이 오지 않았어요. 다시 눌러 주세요.');
+      case 'unauthorized':
+        return reloginBanner(
+          '로그인이 만료됐어요. 로그인한 뒤 다시 눌러 주세요.',
+        );
+      case 'rate_limited':
+        return usageBanner('잠시 뒤 다시 눌러 주세요.');
+      case 'busy':
+        return {
+          tone: 'info',
+          title: '답을 다 받은 뒤 눌러 주세요',
+          body: 'GPT가 아직 이 대화에 답하는 중이에요.',
+          actions: [],
+        };
+      default:
+        return failed(
+          '네트워크가 끊겼거나 응답이 중간에 멈췄어요. 다시 눌러 주세요.',
+        );
+    }
+  };
+
+  const makeCard = async (conversationId: string, confirmed = false) => {
+    if (making || !subjectId || !roadmap) return;
+    const node = roadmap.nodes.find(
+      (n) => n.kind !== 'locked' && n.conversationId === conversationId,
+    );
+    if (node?.kind === 'done' && !confirmed) {
+      setDialog({ kind: 'regenerate', conversationId });
+      return;
+    }
+    setDialog(null);
+    setBanner(null);
+    const sid = subjectId;
+    setMaking({
+      conversationId,
+      subjectId: sid,
+      title:
+        node && node.kind !== 'locked'
+          ? node.title
+          : (convRef.current?.title ?? ''),
+    });
+    const r = await api.generateCard(conversationId);
+    setMaking(null);
+    if (subjectRef.current !== sid) return;
+    if (r.ok && r.data.kind === 'card') {
+      const { cardId } = r.data;
+      await loadRoadmap(sid);
+      await showCard(cardId);
+      setConv((c) => (c && c.id === conversationId ? { ...c, cardId } : c));
+      return;
+    }
+    if (convRef.current?.id !== conversationId) return;
+    if (!r.ok && r.code === 'cancelled') return;
+    if (!r.ok && r.code === 'not_eligible_plan') {
+      setGate({ waiting: false, error: null, planRequired: true });
+      return;
+    }
+    setBanner(cardBanner(r.ok ? r.data.kind : r.code, conversationId));
+  };
+
+  const openDone = async (node: DoneNode, toggle: boolean) => {
+    if (toggle && card?.id === node.cardId) {
+      setCard(null);
+      return;
+    }
+    await showCard(node.cardId);
+    if (convRef.current?.id !== node.conversationId)
+      await openConversation(node.conversationId);
+  };
+
+  const rate = async (useful: boolean) => {
+    if (!card || !subjectId) return;
+    await call(api.rateCard(card.id, useful));
+    setCard(await call(api.getCard(card.id)));
+    await loadRoadmap(subjectId);
+  };
+
+  const reopen = async (target: StoredCard) => {
+    if (convRef.current?.id !== target.conversationId)
+      await openConversation(target.conversationId);
+    focusInput();
+  };
+
+  const regenerate = async (target: StoredCard) => {
+    if (convRef.current?.id !== target.conversationId)
+      await openConversation(target.conversationId);
+    await makeCard(target.conversationId);
+  };
+
+  const toggleLocked = (node: LockedNode) => {
+    setCard(null);
+    setOpenLockedId((id) => (id === node.id ? null : node.id));
+  };
+
+  const startRecommended = async (node: LockedNode) => {
+    if (!subjectId) return;
+    setOpenLockedId(null);
+    await newConversation(subjectId, node.id);
+    focusInput();
   };
 
   function onStreamError(ev: ChatEvent, sent: string) {
@@ -310,6 +498,35 @@ export function App() {
   const subject = subjects.find((s) => s.id === subjectId) ?? null;
   const done = (roadmap?.nodes.filter((n) => n.kind === 'done') ??
     []) as DoneNode[];
+  const lockedNode = roadmap?.nodes.find(
+    (n): n is LockedNode => n.kind === 'locked' && n.id === openLockedId,
+  );
+  const makingHere = making?.subjectId === subjectId ? making : null;
+
+  const headAction = conv?.saved ? (
+    making?.conversationId === conv.id ? (
+      <>
+        <button className="btn small amber" disabled aria-busy="true">
+          <i className="spin" aria-hidden />
+          카드 만드는 중…
+        </button>
+        <button
+          className="btn small"
+          onClick={() => void api.cancelCard(conv.id)}
+        >
+          취소
+        </button>
+      </>
+    ) : (
+      <button
+        className="btn small amber"
+        disabled={!!stream || !!making}
+        onClick={() => void makeCard(conv.id)}
+      >
+        경험으로 남기기
+      </button>
+    )
+  ) : null;
 
   return (
     <div className="app">
@@ -317,11 +534,12 @@ export function App() {
         subjects={subjects}
         subjectId={subjectId}
         experiences={[...done].reverse()}
-        openCardId={null}
+        making={makingHere}
+        openCardId={card?.id ?? null}
         account="ChatGPT Plus"
         onSelect={(id) => void selectSubject(id)}
-        onNewSubject={() => setDialog('subject')}
-        onOpenCard={(n) => void openConversation(n.conversationId)}
+        onNewSubject={() => setDialog({ kind: 'subject' })}
+        onOpenCard={(n) => void openDone(n, false)}
         onSignOut={() => void signOut()}
       />
       <main className="middle">
@@ -329,13 +547,33 @@ export function App() {
           <Roadmap
             roadmap={roadmap}
             activeConversationId={conv?.id ?? null}
-            openCardId={null}
-            openLockedId={null}
-            cardView={null}
-            lockedBubble={null}
+            makingConversationId={makingHere?.conversationId ?? null}
+            openCardId={card?.id ?? null}
+            openLockedId={lockedNode?.id ?? null}
+            cardView={
+              card && (
+                <CardView
+                  card={card}
+                  subjectTitle={subject.title}
+                  regenerating={making?.conversationId === card.conversationId}
+                  onRate={(useful) => void rate(useful)}
+                  onReopen={() => void reopen(card)}
+                  onRegenerate={() => void regenerate(card)}
+                  onClose={() => setCard(null)}
+                />
+              )
+            }
+            lockedBubble={
+              lockedNode && (
+                <LockedBubble
+                  node={lockedNode}
+                  onStart={() => void startRecommended(lockedNode)}
+                />
+              )
+            }
             onOpenConversation={(id) => void openConversation(id)}
-            onOpenCard={(n) => void openConversation(n.conversationId)}
-            onOpenLocked={() => {}}
+            onOpenCard={(n) => void openDone(n, true)}
+            onOpenLocked={toggleLocked}
           />
         ) : (
           <div className="path-empty">
@@ -343,7 +581,7 @@ export function App() {
             <p>공부한 대화가 경험 카드가 되어 이 길에 하나씩 쌓여요.</p>
             <button
               className="btn primary"
-              onClick={() => setDialog('subject')}
+              onClick={() => setDialog({ kind: 'subject' })}
             >
               첫 과목 만들기
             </button>
@@ -358,16 +596,23 @@ export function App() {
         }
         banner={banner}
         input={input}
-        headAction={null}
+        inputRef={inputRef}
+        headAction={headAction}
         onInput={setInput}
         onSend={() => void send()}
         onStop={stopStream}
         onNewConversation={() => subjectId && void newConversation(subjectId)}
         onOpenUsage={() => void api.openUsage()}
       />
-      {dialog === 'subject' && (
+      {dialog?.kind === 'subject' && (
         <NewSubjectDialog
           onCreate={createSubject}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.kind === 'regenerate' && (
+        <RegenerateDialog
+          onConfirm={() => void makeCard(dialog.conversationId, true)}
           onClose={() => setDialog(null)}
         />
       )}

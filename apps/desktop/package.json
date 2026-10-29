@@ -24,7 +24,8 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
     "test": "vitest run",
-    "dev:mock": "node scripts/dev-mock.mjs"
+    "dev:mock": "node scripts/dev-mock.mjs",
+    "h2": "node scripts/h2.mjs"
   },
   "devDependencies": {
     "@electron-forge/cli": "^8.0.1",
