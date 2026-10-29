@@ -2,6 +2,7 @@ import { app, BrowserWindow, net, safeStorage, shell } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { EVENT_AUTH } from './shared/ipc';
+import { CardService } from './main/cards';
 import { ChatService } from './main/chat';
 import { Store } from './main/db';
 import { registerHandlers } from './main/handlers';
@@ -85,12 +86,14 @@ app.whenReady().then(() => {
     testAccount(),
   );
   const chat = new ChatService(store, session, streams, fetchImpl);
+  const cards = new CardService(store, session, streams, fetchImpl);
   applySessionPolicy();
   handleAppProtocol();
   registerHandlers({
     store,
     session,
     chat,
+    cards,
     streams,
     isTrusted: makeSenderCheck(() => mainWindow),
     openExternal,

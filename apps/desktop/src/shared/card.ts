@@ -70,6 +70,18 @@ function strictify(node: unknown): unknown {
 
 export type Redactions = Record<string, number>;
 
+export const REDACTION_LABELS: Record<string, string> = {
+  private_key: '개인키',
+  bearer_token: 'Bearer 토큰',
+  jwt: 'JWT',
+  openai_key: 'API 키',
+  github_token: 'GitHub 토큰',
+  aws_key: 'AWS 키',
+  google_key: 'Google API 키',
+  slack_token: 'Slack 토큰',
+  resident_id: '주민등록번호',
+};
+
 export type StoredCard = CardBody & {
   id: string;
   conversationId: string;
