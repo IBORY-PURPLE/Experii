@@ -1,3 +1,39 @@
-// oxlint-disable eslint-plugin-unicorn/no-empty-file
-// See the Electron documentation for details on how to use preload scripts:
-// https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
+import type { ExperiiApi } from './shared/api';
+import type { ChatEvent } from './shared/ipc';
+
+const invoke = (channel: string, payload?: unknown) =>
+  ipcRenderer.invoke(channel, payload);
+
+const subscribe = <T>(channel: string, listener: (value: T) => void) => {
+  const wrapped = (_event: IpcRendererEvent, value: T) => listener(value);
+  ipcRenderer.on(channel, wrapped);
+  return () => {
+    ipcRenderer.removeListener(channel, wrapped);
+  };
+};
+
+const api: ExperiiApi = {
+  authStatus: () => invoke('auth:status'),
+  signIn: () => invoke('auth:signIn'),
+  signOut: () => invoke('auth:signOut'),
+  listSubjects: () => invoke('subjects:list'),
+  createSubject: (title) => invoke('subjects:create', { title }),
+  getRoadmap: (subjectId) => invoke('roadmap:get', { subjectId }),
+  openConversation: (subjectId, recommendedNodeId) =>
+    invoke('conversations:open', { subjectId, recommendedNodeId }),
+  getConversation: (id) => invoke('conversations:get', { id }),
+  send: (conversationId, streamId, text) =>
+    invoke('chat:send', { conversationId, streamId, text }),
+  cancel: (streamId) => invoke('chat:cancel', { streamId }),
+  generateCard: (conversationId) =>
+    invoke('cards:generate', { conversationId }),
+  cancelCard: (conversationId) => invoke('cards:cancel', { conversationId }),
+  getCard: (id) => invoke('cards:get', { id }),
+  rateCard: (id, useful) => invoke('cards:rate', { id, useful }),
+  openUsage: () => invoke('links:openUsage'),
+  onChatEvent: (listener) => subscribe<ChatEvent>('chat:event', listener),
+  onAuthChanged: (listener) => subscribe<void>('auth:changed', listener),
+};
+
+contextBridge.exposeInMainWorld('experii', api);
