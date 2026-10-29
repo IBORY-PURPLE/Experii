@@ -3,7 +3,7 @@
     "pstack@cursor-plugins": true
   },
   "attribution": {
-    "commit": "🤖\n\nCo-Authored-By: 채우 <lala1522@gachon.ac.kr>",
+    "commit": "🤖\n\nCo-Authored-By: 채우 <lala1522@gachon.ac.kr>\nCo-Authored-By: Claude <noreply@anthropic.com>",
     "pr": ""
   },
   "hooks": {
