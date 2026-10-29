@@ -6,20 +6,20 @@ Chief of Staff가 Linear 이슈 본문으로 채우는 브리프 템플릿이다
 -->
 
 ## 목표
-<한 문장. PRD.md 색인 기준 어느 영역(landing/ 또는 skill/)의 어떤 항목인지 적는다>
+<한 문장. PRD.md 색인 기준 어느 영역(landing/ 또는 apps/desktop/)의 어떤 항목인지 적는다>
 
 ## kind
 <`.agents/unattended.md`의 kind 중 하나. 예: landing-bugfix. 처음 보는 종류면 새 kind 이름을 제안하고, 이 일감은 지켜보는 실행으로 돌린다>
 
 ## 완료 조건 (done means)
 <!-- 에이전트가 매 반복마다 직접 돌려서 통과/실패를 판정할 수 있는 것만 쓴다. "4시간 작업" 같은 기간은 완료 조건이 아니다 -->
-- [ ] `node scripts/agents/gates.mjs` 통과 (typecheck, unit, build, bundle, prod E2E)
+- [ ] `node scripts/agents/gates.mjs` 통과 (landing: typecheck, unit, build, bundle, prod E2E. desktop 게이트는 `docs/desktop/tsd.md` 단계 3에서 추가)
 - [ ] <이 일감에만 해당하는 검사. 예: 1440×770에서 히어로가 스크롤 없이 `data-play="ended"`까지 재생>
-- [ ] UI가 바뀌면 `verify-landing` 증거(바뀐 기능의 전후)를 `publish-evidence.mjs`로 올림
+- [ ] UI가 바뀌면 증거(바뀐 기능의 전후)를 `publish-evidence.mjs`로 올림. landing은 `verify-landing`, desktop은 `_electron` 스모크 스크린샷
 
 ## 범위
 - 건드려도 되는 파일: <경로>
-- 건드리면 안 되는 파일: 보호 경로(`.agents/`, `.claude/`, `.github/`, `scripts/agents/`, `landing/playwright.config.ts`, `CLAUDE.md`, `AGENTS.md`, `PRD.md`), PRD·TSD 문서, 다른 진행 중 일감의 파일
+- 건드리면 안 되는 파일: 보호 경로(`.agents/`, `.claude/`, `.github/`, `scripts/agents/`, `landing/playwright.config.ts`, `CLAUDE.md`, `AGENTS.md`, `PRD.md`, `docs/desktop/`), PRD·TSD 문서, 다른 진행 중 일감의 파일
 
 ## 권한
 - 클라우드 레인: `claude/son-<n>` 브랜치에 반복마다 커밋·push, PR 열기(ready). main push·병합·브랜치 삭제는 하지 않는다

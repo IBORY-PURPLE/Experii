@@ -18,7 +18,7 @@
 
 1. **받기**: `git fetch origin claude/son-<n> && git worktree add ../pr-<n> FETCH_HEAD`. head sha 7자리를 적어 둔다.
 2. **바로 fail**: `git diff --name-only origin/main...FETCH_HEAD`에 다음이 있으면 재판정하지 않고 fail로 판정한다.
-   - 보호 경로를 바꿨다: `.agents/`, `.claude/`, `.github/`, `scripts/agents/`, `landing/playwright.config.ts`, `CLAUDE.md`, `AGENTS.md`, `PRD.md`.
+   - 보호 경로를 바꿨다: `.agents/`, `.claude/`, `.github/`, `scripts/agents/`, `landing/playwright.config.ts`, `CLAUDE.md`, `AGENTS.md`, `PRD.md`, `docs/desktop/`.
    - 기존 테스트의 `expect(`나 테스트 케이스를 지웠다.
 3. **브리프 읽기**: PR 본문의 `Fixes SON-<n>`으로 Linear 이슈를 찾아 완료 조건과 범위를 읽는다. 범위 밖 파일을 바꿨으면 결함으로 적는다.
 4. **직접 재판정**: 구현자의 보고, 스크린샷, `gates.json`은 증거로 치지 않는다.

@@ -56,6 +56,7 @@
 ## 금지
 
 - main push, 병합, 강제 push, 브랜치 삭제. 가드 훅이 막는다.
-- 보호 경로 수정: `.agents/`, `.claude/`, `.github/`, `scripts/agents/`, `landing/playwright.config.ts`, `CLAUDE.md`, `AGENTS.md`, `PRD.md`.
+- 보호 경로 수정: `.agents/`, `.claude/`, `.github/`, `scripts/agents/`, `landing/playwright.config.ts`, `CLAUDE.md`, `AGENTS.md`, `PRD.md`, `docs/desktop/`.
 - `package.json` 의존성 변경. 브리프가 허용한 경우만 예외다.
 - PRD 범위 밖 기능.
+- kind가 `desktop-*`인 일감. 데스크톱 앱은 Windows에서 확인해야 해서, PC↔클라우드 이어달리기(`docs/desktop/tsd.md` 트랙 B)가 생기기 전까지 로컬 레인에서만 한다.

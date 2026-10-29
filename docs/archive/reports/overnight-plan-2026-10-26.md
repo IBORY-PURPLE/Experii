@@ -12,7 +12,7 @@
 
 인터뷰로 확정한 것: 목표는 **검증까지 끝난 완성본**, 방식은 **pstack poteto-mode + /loop**, 반복마다 **커밋**(push 없음), **새 브랜치**에서 작업, 막히면 **3회 연속 실패 시 중단**, 아침에 **결정 로그 + 요약 + 주의 항목**. 기준선은 지금 미커밋 상태 전부를 커밋해서 만든다.
 
-에이전트가 읽을 브리프: [.agents/briefs/landing-overnight.md](../.agents/briefs/landing-overnight.md)
+에이전트가 읽을 브리프: [.agents/briefs/landing-overnight.md](../../../.agents/briefs/landing-overnight.md)
 
 ## 0. 지금 상태 (사실)
 

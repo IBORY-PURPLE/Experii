@@ -12,7 +12,7 @@
 
 - **목적**: USP를 검증하고 초기 사용자를 모은다. 1차 지표는 사전 신청 수다(PRD 10장 `[제안]`). 목표 숫자는 Q5(운영 계획)에서 정한다.
 - **형태**: 한 페이지(`/`), 서비스 가이드(`/docs/[slug]`), 개인정보 처리방침(`/privacy`). 가이드는 랜딩에 다 담지 못한 설명을 맡고, 페이지마다 사전 신청으로 돌아가는 길을 둔다. 모바일과 카카오톡 인앱 브라우저를 기본 환경으로 둔다.
-- **스택**: Next.js App Router(정적 생성) on Vercel, 신청 저장은 Supabase Postgres, 방문 분석은 쿠키를 쓰지 않는 Umami Cloud. [TSD_MVP_V1.md](../TSD_MVP_V1.md)와 같은 계열이지만 코드와 DB는 따로 둔다.
+- **스택**: Next.js App Router(정적 생성) on Vercel, 신청 저장은 Supabase Postgres, 방문 분석은 쿠키를 쓰지 않는 Umami Cloud. [TSD_MVP_V1.md](../docs/archive/TSD_MVP_V1.md)와 같은 계열이지만 코드와 DB는 따로 둔다.
 - **신청**: Server Action 하나. 이메일, 질문 3개(신분·SQLD 상태·유료 AI 구독), 필수 동의를 받는다. 유입 경로(UTM)와 본 히어로 문구를 같은 행에 남긴다.
 - **카피 원칙**: 모든 문구를 `content/` 한곳에 모으고, PRD 7장의 금지 표현을 테스트로 막는다. AI 연동은 "Experii 앱에 내 ChatGPT 계정을 등록한다"로만 쓰고 Claude 연동은 약속하지 않는다(D1). 출시 전 기능은 출시 예정임을 밝힌다.
 
@@ -44,8 +44,8 @@
 
 | 문서 | 제품 형태 | 이 문서와의 관계 |
 |---|---|---|
-| [PRD_MVP_V1.md](../PRD_MVP_V1.md) · [TSD_MVP_V1.md](../TSD_MVP_V1.md) | 웹 + 원격 MCP, Claude Code 중심, 세션 요약 누적 | 스택(Next.js·Vercel·Supabase)만 맞춘다. 기능은 가져오지 않는다 |
-| [Pre_MVP/](../Pre_MVP/) prd·tsd·plan | Claude Code Skill, 로컬 파일 | 무관. 랜딩 일정은 Pre-MVP와 독립이다 |
+| [PRD_MVP_V1.md](../docs/archive/PRD_MVP_V1.md) · [TSD_MVP_V1.md](../docs/archive/TSD_MVP_V1.md) (보관) | 웹 + 원격 MCP, Claude Code 중심, 세션 요약 누적 | 스택(Next.js·Vercel·Supabase)만 맞춘다. 기능은 가져오지 않는다 |
+| [Pre_MVP/](../docs/archive/Pre_MVP/) prd·tsd·plan (보관) | Claude Code Skill, 로컬 파일 | 무관. 랜딩 일정은 Pre-MVP와 독립이다 |
 | [Experii_PRD_v0.1.md](Experii_PRD_v0.1.md) | 모바일 앱, GPT·Claude 구독 연동, 면접 중심 학습 | 이 문서의 기준 |
 
 **충돌**: 랜딩 PRD는 모바일 앱과 ChatGPT 연동을 내세운다. 기존 개발 문서는 Claude Code·웹 기준이고 모바일 앱과 ChatGPT를 범위 밖에 둔다. 랜딩은 아직 없는 제품을 소개하므로 화면은 모두 "예시 화면"으로 표시하고, 약속하는 기능은 6.3의 근거 표를 따른다. 제품 문서를 어떻게 맞출지는 랜딩과 별개로 정한다(17.1 D8).
@@ -105,7 +105,7 @@ flowchart LR
 | 프레임워크 | Next.js App Router, React 19, TypeScript. 버전은 구현 시점 최신 안정판으로 고정 **(확인 필요)** | TSD_MVP_V1과 같은 계열이라 나중에 제품 웹과 배포 방식을 공유한다. 정적 생성 + Server Action 하나로 별도 백엔드 없이 신청을 받는다 | Astro (더 가볍지만 스택이 하나 늘어난다) |
 | 런타임 | Node.js 22 LTS 이상 | Node.js 20은 2026-04에 지원이 끝났다 | — |
 | 호스팅 | Vercel | PR마다 미리보기 URL이 생겨 카피 검토가 쉽다. 서울 리전(icn1) 함수 | Cloudflare Pages |
-| 스타일 | Tailwind CSS v4 + CSS 변수 토큰 | 토큰을 데모(`demo/experii-demo.html`) 팔레트에서 시작한다 | CSS Modules |
+| 스타일 | Tailwind CSS v4 + CSS 변수 토큰 | 토큰을 데모(`docs/archive/demo/experii-demo.html`) 팔레트에서 시작한다 | CSS Modules |
 | 폰트 | Pretendard Variable 동적 서브셋, npm 패키지로 자체 호스팅 **(확인 필요)** | 한글 웹폰트를 unicode-range 조각으로 나눠 필요한 글자만 받는다. 외부 CDN이 없어 CSP가 단순해진다 | 시스템 폰트만 |
 | 신청 저장 | Supabase Postgres, 랜딩 전용 프로젝트, 서울 리전 | MVP와 같은 도구. 제약 조건·뷰·CSV 내보내기를 대시보드에서 바로 쓴다 | Tally 폼 임베드: 반나절이면 되지만 디자인, UTM·변형 연결, 데이터 위치 통제가 약하다 |
 | 검증 | Zod 4 | MVP와 같다. 서버 검증 스키마를 테스트에서 그대로 쓴다 | Valibot |
@@ -483,7 +483,7 @@ CSV가 필요하면 대시보드 테이블 화면에서 내보낸다.
 ## 11. 디자인·반응형·접근성
 
 - **기준 폭**: 360px부터 설계한다. 중단점은 640px·1024px, 콘텐츠 최대 폭은 1080px.
-- **토큰**: `demo/experii-demo.html` 팔레트에서 시작한다. 배경 `#f7f6f2`, 글자 `#1d1d1b`, 강조 `#2f6f5e`, 사용자 말풍선 `#3d5a99`, 경험 카드 `#9a5b13`. 브랜드가 정해지기 전 임시값이다. 라이트 테마 하나로 간다(`color-scheme: light`).
+- **토큰**: `docs/archive/demo/experii-demo.html` 팔레트에서 시작한다. 배경 `#f7f6f2`, 글자 `#1d1d1b`, 강조 `#2f6f5e`, 사용자 말풍선 `#3d5a99`, 경험 카드 `#9a5b13`. 브랜드가 정해지기 전 임시값이다. 라이트 테마 하나로 간다(`color-scheme: light`).
 - **한글 타이포**: 본문 16px·행간 1.65. 히어로는 모바일 28~32px, 데스크톱 48~56px. 본문과 제목에 `word-break: keep-all`을 걸어 단어 중간에서 줄이 바뀌지 않게 하고, 제목에는 `text-wrap: balance`를 쓴다.
 - **폰 목업**: CSS로 그린 프레임. 래스터 이미지를 쓰지 않는다.
 - **접근성 (WCAG 2.2 AA)**: 본문 대비 4.5:1 이상, 모든 입력에 `<label>`, 오류는 `aria-invalid`와 `aria-describedby`, 눈에 보이는 포커스 링, 터치 영역 44px 이상, `prefers-reduced-motion` 존중.

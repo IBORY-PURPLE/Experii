@@ -36,7 +36,7 @@
 
 ## 로컬 레인 (Windows에서만 확인할 수 있는 일)
 
-Pre-MVP 스킬의 M0 스파이크나 M4 E2E처럼 실제 Windows 세션이 필요한 일은 로컬 백그라운드 세션으로 돌린다.
+데스크톱 앱의 M0 스파이크나 도그푸딩 검증처럼 실제 Windows 세션이 필요한 일은 로컬 백그라운드 세션으로 돌린다.
 
 ```powershell
 .\scripts\agents\spawn.ps1 -Brief .agents\briefs\<slug>.md

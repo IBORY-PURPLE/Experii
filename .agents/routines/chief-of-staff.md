@@ -40,6 +40,7 @@
    2. `PRD.md` 색인 기준으로 범위를 본다.
       - 범위 밖이면 `[cos:out-of-scope]`로 이유 한 줄을 답하고 끝낸다.
       - question이면 레포와 문서로 답할 수 있을 때 `[cos:answer]`로 짧게 답하고 끝낸다.
+      - `apps/desktop/` 영역이면 이슈와 브리프는 만들되 kind를 `desktop-*`로 두고, 브리프 요약에 "로컬 레인(spawn.ps1) 일감, 클라우드 implementer는 집지 않음"을 적는다.
    3. 중복을 찾는다. `chat.getPermalink`의 permalink와 제목 키워드로 프로젝트 Experii를 검색한다. 같은 일감이 있으면 그 이슈에 새 정보를 댓글로 달고 `[cos:dup SON-n]`으로 답한다.
    4. 새 일감이면 Backlog 이슈를 만든다.
       - 본문: `_TEMPLATE.md`를 채우고, 출처(채널 ID, 원글 ts, permalink)를 적는다.

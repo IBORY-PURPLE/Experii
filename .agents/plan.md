@@ -102,7 +102,7 @@
    - 라벨 `verify:pending`을 붙인다. Linear에 PR 링크 댓글을 단다.
 7. 질문이 생기면 `[ask SON-n]` + `needs:founder`를 남기고 `wip:` 커밋을 push한 뒤 이 일감을 끝낸다. 되돌릴 수 있는 사소한 가정이면 PR 본문에 적고 계속 간다.
 8. 같은 검사가 3회 연속 실패하면 `agent:blocked`를 붙이고 시도한 것과 이유를 댓글로 남긴다. `wip:` 커밋을 push하고 멈춘다. 완료 조건은 완화하지 않는다.
-9. 금지: main push, 병합, 강제 push, 브랜치 삭제, 보호 경로(`.agents/`·`.claude/`·`.github/`·`scripts/agents/`·`landing/playwright.config.ts`·`CLAUDE.md`·`AGENTS.md`·`PRD.md`) 수정, `package.json` 의존성 변경(브리프가 허용한 경우 제외).
+9. 금지: main push, 병합, 강제 push, 브랜치 삭제, 보호 경로(`.agents/`·`.claude/`·`.github/`·`scripts/agents/`·`landing/playwright.config.ts`·`CLAUDE.md`·`AGENTS.md`·`PRD.md`·`docs/desktop/`) 수정, `package.json` 의존성 변경(브리프가 허용한 경우 제외).
 
 ### verifier (일정 `CRON_TZ=Asia/Seoul 7 5,7 * * *`, 커넥터 Linear, 봇 토큰)
 
@@ -228,7 +228,7 @@
 - 3레인은 2주 동안 가드 차단 0일 때만 연다.
 - 주 1회 `/correct`·`/reflect`로 반복 실패를 운영 파일·템플릿·verify 스킬에 넣는다.
 - `.agents/README.md`를 새 구조로 다시 쓴다. 쓰인 적 없는 `.agents/chief-of-staff.md`는 지운다.
-- `spawn.ps1`은 Windows에서만 확인할 수 있는 일(Pre-MVP M0·M4)용으로 남긴다.
+- `spawn.ps1`은 Windows에서만 확인할 수 있는 일(데스크톱 앱 M0 스파이크와 도그푸딩 검증)용으로 남긴다.
 
 ## 범위 밖
 
@@ -239,7 +239,6 @@
 - Claude Projects.
 - 서드파티 Linear 러너.
 - 클라우드에서 Codex 교차 리뷰.
-- Windows CI 잡, Pre-MVP 스킬용 verify·CI: `skill/` 코드가 생기면 한다.
 - evidence 브랜치 자동 정리.
 - 3레인 이상(조건 충족 전).
 
