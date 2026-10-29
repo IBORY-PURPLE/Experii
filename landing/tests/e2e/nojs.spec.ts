@@ -65,4 +65,12 @@ test.describe('JS 없음', () => {
     await form.getByRole('button', { name: '사전 신청하기' }).click();
     await expect(page.getByText('신청됐어요.')).toBeVisible();
   });
+
+  test('가이드 목차는 JS 없이도 펼쳐서 다른 페이지로 갈 수 있다', async ({ page }) => {
+    await page.goto('/docs/intro');
+    await page.locator('.docs-mtoc summary').click();
+    await page.locator('.docs-mtoc').getByRole('link', { name: '자주 묻는 질문' }).click();
+    await expect(page).toHaveURL(/\/docs\/faq$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('자주 묻는 질문');
+  });
 });

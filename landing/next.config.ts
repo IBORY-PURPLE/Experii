@@ -16,6 +16,9 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  async redirects() {
+    return [{ source: '/docs', destination: '/docs/intro', permanent: false }];
+  },
   async headers() {
     return [
       {

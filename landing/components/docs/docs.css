@@ -1,0 +1,114 @@
+.docs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-bottom: 72px;
+}
+.docs-side, .docs-toc { display: none; }
+
+/* mobile: the guide index folds into a bar under the header (works without JS) */
+.docs-mtoc {
+  position: sticky;
+  top: 61px;
+  z-index: 20;
+  margin: 0 calc(var(--gut) * -1) 24px;
+  padding: 0 var(--gut);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-line);
+}
+.docs-mtoc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  font-weight: 650;
+  cursor: pointer;
+  list-style: none;
+}
+.docs-mtoc summary::-webkit-details-marker { display: none; }
+.docs-mtoc summary span { font-size: 14px; font-weight: 500; color: var(--color-ink-4); }
+.docs-mtoc summary span::after { content: ' ▾'; }
+.docs-mtoc[open] summary span::after { content: ' ▴'; }
+.docs-mtoc .docs-nav { padding-bottom: 12px; max-height: 60svh; overflow: auto; }
+
+.docs-nav-g + .docs-nav-g { margin-top: 18px; }
+.docs-nav-t { margin: 0 0 4px; padding: 0 12px; font-size: 13px; font-weight: 700; color: var(--color-ink-4); }
+.docs-nav ul { list-style: none; margin: 0; padding: 0; }
+.docs-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-btn-sm);
+  font-size: 15px;
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+.docs-nav a:hover { color: var(--color-ink); }
+.docs-nav a[aria-current] { background: var(--color-surface); color: var(--color-ink); font-weight: 700; }
+.docs-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--dot); }
+.is-talk { --dot: var(--color-talk); }
+.is-task { --dot: var(--color-task); }
+.is-card { --dot: var(--color-card); }
+.is-remind { --dot: var(--color-remind); }
+
+/* article */
+.doc { min-width: 0; max-width: 720px; }
+.doc-crumb { margin: 0 0 12px; font-size: 14px; color: var(--color-ink-4); }
+.doc-crumb a { color: inherit; text-decoration: none; }
+.doc-crumb a:hover { color: var(--color-ink); }
+.doc h1 { margin: 0; font-size: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.doc-lead { margin: 12px 0 0; font-size: 18px; line-height: 1.62; color: var(--color-ink-3); }
+.doc h2 { margin: 44px 0 12px; font-size: 22px; scroll-margin-top: 120px; }
+.doc p { margin: 0 0 12px; }
+.doc b { font-weight: 650; }
+
+.doc-list { margin: 0 0 12px; padding-left: 1.25em; }
+.doc-list li + li { margin-top: 6px; }
+
+.doc-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.doc-steps li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 14px 16px; border-radius: var(--radius-app); background: var(--color-surface); }
+.doc-step-n { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--dot); color: #fff; font-weight: 760; }
+.doc-steps h3 { margin: 0; font-size: 17px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.doc-steps p { margin: 2px 0 0; font-size: 15px; color: var(--color-ink-3); }
+
+.doc-card { margin: 0; padding: 16px 18px; border: 1px solid var(--color-card-line); border-radius: var(--radius-app); background: var(--color-card-tint); }
+.doc-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 650; color: var(--color-card); }
+.doc-card blockquote { margin: 8px 0 6px; font-size: 17px; font-weight: 650; line-height: 1.5; }
+.doc-card figcaption { font-size: 13px; color: var(--color-ink-3); }
+
+.doc-qa { margin: 0; }
+.doc-qa div { padding: 16px 0; border-top: 1px solid var(--color-line); }
+.doc-qa div:first-child { border-top: 0; padding-top: 0; }
+.doc-qa dt { font-weight: 700; }
+.doc-qa dd { margin: 4px 0 0; color: var(--color-ink-3); }
+
+.doc-link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 650; color: var(--color-talk); }
+
+.doc-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 48px; padding: 20px; border-radius: var(--radius-stage-sm); background: var(--color-surface); }
+.doc-cta p { margin: 0; font-weight: 650; }
+
+.doc-pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--color-line); }
+.doc-pager a { display: flex; flex-direction: column; min-height: 44px; font-size: 16px; font-weight: 700; text-decoration: none; }
+.doc-pager a:hover { color: var(--color-talk); }
+.doc-pager small { font-size: 13px; font-weight: 500; color: var(--color-ink-4); }
+.doc-pager .is-next { margin-left: auto; text-align: right; }
+
+/* the right-hand index lists sections; no scroll spy, so it costs no client JS */
+.docs-toc p { margin: 0 0 8px; font-size: 13px; font-weight: 700; color: var(--color-ink-4); }
+.docs-toc ul { list-style: none; margin: 0; padding: 0; }
+.docs-toc a { display: block; padding: 5px 0; font-size: 14px; color: var(--color-ink-3); text-decoration: none; }
+.docs-toc a:hover { color: var(--color-ink); }
+
+@media (min-width: 900px) {
+  .docs { grid-template-columns: 220px minmax(0, 1fr); gap: 48px; padding-top: 40px; }
+  .docs-mtoc { display: none; }
+  .docs-side { display: block; position: sticky; top: 84px; align-self: start; max-height: calc(100svh - 100px); overflow: auto; }
+  .doc h1 { font-size: 40px; }
+}
+@media (min-width: 1200px) {
+  .docs { grid-template-columns: 240px minmax(0, 1fr) 200px; }
+  .docs-toc { display: block; position: sticky; top: 84px; align-self: start; padding-left: 16px; border-left: 1px solid var(--color-line); }
+}

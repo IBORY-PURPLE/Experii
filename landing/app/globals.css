@@ -196,6 +196,24 @@
   }
   .nav-in { display: flex; align-items: center; justify-content: space-between; height: 60px; }
   .nav-act { display: flex; align-items: center; gap: 8px; }
+  .nav-l { display: flex; align-items: center; gap: 12px; }
+  .nav-menu a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: var(--radius-btn-sm);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-ink-3);
+    text-decoration: none;
+  }
+  .nav-menu a:hover { color: var(--color-ink); }
+  .nav-menu a[aria-current] { color: var(--color-ink); background: var(--color-surface); }
+  @media (min-width: 768px) {
+    .nav-l { gap: 24px; }
+  }
+  .wrap-wide { max-width: calc(80rem + var(--gut) * 2); }
   @media (max-width: 767.98px) {
     .nav .btn-dl { display: none; }
   }

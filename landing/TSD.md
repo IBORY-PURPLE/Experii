@@ -11,7 +11,7 @@
 ## 0. 요약
 
 - **목적**: USP를 검증하고 초기 사용자를 모은다. 1차 지표는 사전 신청 수다(PRD 10장 `[제안]`). 목표 숫자는 Q5(운영 계획)에서 정한다.
-- **형태**: 한 페이지(`/`)와 개인정보 처리방침(`/privacy`). 모바일과 카카오톡 인앱 브라우저를 기본 환경으로 둔다.
+- **형태**: 한 페이지(`/`), 서비스 가이드(`/docs/[slug]`), 개인정보 처리방침(`/privacy`). 가이드는 랜딩에 다 담지 못한 설명을 맡고, 페이지마다 사전 신청으로 돌아가는 길을 둔다. 모바일과 카카오톡 인앱 브라우저를 기본 환경으로 둔다.
 - **스택**: Next.js App Router(정적 생성) on Vercel, 신청 저장은 Supabase Postgres, 방문 분석은 쿠키를 쓰지 않는 Umami Cloud. [TSD_MVP_V1.md](../TSD_MVP_V1.md)와 같은 계열이지만 코드와 DB는 따로 둔다.
 - **신청**: Server Action 하나. 이메일, 질문 3개(신분·SQLD 상태·유료 AI 구독), 필수 동의를 받는다. 유입 경로(UTM)와 본 히어로 문구를 같은 행에 남긴다.
 - **카피 원칙**: 모든 문구를 `content/` 한곳에 모으고, PRD 7장의 금지 표현을 테스트로 막는다. AI 연동은 "Experii 앱에 내 ChatGPT 계정을 등록한다"로만 쓰고 Claude 연동은 약속하지 않는다(D1). 출시 전 기능은 출시 예정임을 밝힌다.
@@ -25,6 +25,7 @@
 - 사전 신청 폼, 신청 저장, 개인정보 처리방침 페이지
 - UTM·이벤트 수집, 창업자용 집계 뷰(SQL)
 - 검색·공유 메타데이터(OG, 카카오톡 미리보기)
+- 서비스 가이드(`/docs/[slug]`): 헤더 메뉴 `가이드`로 들어가는 정적 문서 페이지. 왼쪽 목차, 본문, 오른쪽 "이 페이지에서"의 3단 구성(2026-10-29 창업자 결정)
 
 ### 1.2 제외
 
@@ -37,6 +38,7 @@
 | 경쟁사 실명 비교표 | PRD 7장: 경쟁사를 깎아내리는 비교 문구를 쓰지 않는다 |
 | 앱스토어 배지 | 앱이 아직 없다 |
 | 다크 모드, 다국어, 블로그 | 1차 검증에 필요 없다. 채널(Q4)이 정해진 뒤 판단 |
+| 가이드의 API·도구 메뉴 | 공개 API와 체험 도구는 PRD에 없다 |
 
 ### 1.3 다른 문서와의 관계
 
@@ -127,6 +129,8 @@ landing/
     page.tsx                   # 히어로 h1
     v/[variant]/page.tsx       # P1: h2·h3 정적 생성, canonical은 /
     privacy/page.tsx
+    docs/layout.tsx            # 가이드 3단 레이아웃
+    docs/[slug]/page.tsx       # 가이드 페이지 정적 생성
     actions/signup.ts          # Server Action
     api/cron/keepalive/route.ts  # Supabase 무료 플랜일 때만 (14.3)
     opengraph-image.png        # 1200×630
@@ -141,6 +145,7 @@ landing/
     landing.ts                 # 섹션 카피, 히어로 변형, CTA 문구
     loop.ts                    # 루프 4단계 예시 데이터
     privacy.ts                 # 동의 문구, 처리방침 본문, CONSENT_VERSION
+    docs.ts                    # 가이드 목차와 본문
   lib/
     signup-schema.ts           # Zod 스키마 (폼 값 → 행)
     attribution.ts             # UTM·referrer 수집
@@ -195,7 +200,7 @@ SQLD 공부 하나가 면접 답변이 되기까지를 한 이야기로 보여 �
 **규칙**
 
 - 화면 문구는 `content/*.ts`에만 둔다. 컴포넌트에 한국어 문장을 직접 쓰지 않는다(코드 리뷰에서 확인).
-- `tests/unit/content-guard.test.ts`가 `content/landing.ts`와 `content/loop.ts`를 문자열로 펼쳐 금지 표현을 찾는다. 하나라도 있으면 CI가 실패한다. 처리방침(`content/privacy.ts`)은 "권리 보장" 같은 법정 문구가 들어가므로 검사에서 뺀다.
+- `tests/unit/content-guard.test.ts`가 `content/landing.ts`, `content/loop.ts`, `content/docs.ts`를 문자열로 펼쳐 금지 표현을 찾는다. 하나라도 있으면 CI가 실패한다. 처리방침(`content/privacy.ts`)은 "권리 보장" 같은 법정 문구가 들어가므로 검사에서 뺀다.
 
 ```ts
 const BANNED = [
@@ -472,7 +477,7 @@ CSV가 필요하면 대시보드 테이블 화면에서 내보낸다.
 - `app/layout.tsx`의 `metadata`: `title` "Experii · 공부하는 오늘이, 면접에서 말할 경험이 됩니다", `description`은 서브 카피, `metadataBase`는 `NEXT_PUBLIC_SITE_URL`. `<html lang="ko">`.
 - OG: `app/opengraph-image.png`(1200×630, 히어로 문구와 로고), `og:locale` `ko_KR`, `twitter:card` `summary_large_image`.
 - 카카오톡은 OG 태그로 링크 미리보기를 만들고 결과를 캐시한다. OG 문구나 이미지를 바꾸면 카카오 개발자 사이트의 공유 디버거로 캐시를 지운다 **(확인 필요: 도구 위치)**.
-- `robots.ts`: production만 색인을 허용하고, 로컬·미리보기는 `noindex`. `sitemap.ts`: `/`, `/privacy`.
+- `robots.ts`: production만 색인을 허용하고, 로컬·미리보기는 `noindex`. `sitemap.ts`: `/`, `/docs/*`, `/privacy`.
 - 네이버 서치어드바이저 사이트 등록(P1). 소유 확인 메타 태그는 환경 변수로 넣는다.
 
 ## 11. 디자인·반응형·접근성
@@ -498,6 +503,8 @@ CSV가 필요하면 대시보드 테이블 화면에서 내보낸다.
 | Lighthouse | Performance 90 · Accessibility 95 · Best Practices 95 · SEO 95 이상 |
 
 애니메이션 라이브러리는 넣지 않는다. 전환은 CSS transition으로 한다.
+
+가이드 페이지는 서버 컴포넌트만 쓴다. 모바일 목차는 `<details>`로 접어 JS 없이 동작한다.
 
 ## 13. 보안·개인정보
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import * as landing from '@/content/landing';
 import * as loop from '@/content/loop';
+import * as docs from '@/content/docs';
 
 const BANNED = [
   '면접 준비 끝', '합격 보장', '확연한 차이', // PRD 7장
@@ -18,7 +19,7 @@ function strings(value: unknown, path: string, out: { path: string; text: string
   return out;
 }
 
-const all = [...strings(landing, 'landing'), ...strings(loop, 'loop')];
+const all = [...strings(landing, 'landing'), ...strings(loop, 'loop'), ...strings(docs, 'docs')];
 
 describe('content-guard', () => {
   it('문구가 비어 있지 않다', () => {

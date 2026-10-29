@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import type { download as DownloadCopy } from '@/content/landing';
 import { NOTE_ID } from './Download';
 
-export function DownloadNote({ copy }: { copy: typeof DownloadCopy }) {
+export function DownloadNote({ copy, signupHref = '#signup' }: { copy: typeof DownloadCopy; signupHref?: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export function DownloadNote({ copy }: { copy: typeof DownloadCopy }) {
         {copy.noteBody}
       </p>
       <div className="dl-note-act">
-        <a className="btn btn-ink" href="#signup" data-download-signup="" data-cta="download" onClick={toSignup}>
+        <a className="btn btn-ink" href={signupHref} data-download-signup="" data-cta="download" onClick={toSignup}>
           {copy.signup}
         </a>
         <button type="button" className="btn btn-soft" popoverTarget={NOTE_ID} popoverTargetAction="hide">

@@ -1,4 +1,5 @@
-import { download, header, sticky, tickNav, tickNavLabel } from '@/content/landing';
+import { download, sticky, tickNav, tickNavLabel } from '@/content/landing';
+import { SiteHeader } from '@/components/SiteHeader';
 import { Hero } from '@/components/sections/Hero';
 import { BeforeAfter } from '@/components/sections/BeforeAfter';
 import { Problem } from '@/components/sections/Problem';
@@ -11,26 +12,13 @@ import { Footer } from '@/components/sections/Footer';
 import { TickNav } from '@/components/ui/TickNav';
 import { StickyCta } from '@/components/ui/StickyCta';
 import { CtaTracker } from '@/components/ui/CtaTracker';
-import { DownloadButton } from '@/components/download/Download';
 import { DownloadNote } from '@/components/download/DownloadNote';
 import type { HeroVariant } from '@/lib/signup-fields';
 
 export function Landing({ variant }: { variant: HeroVariant }) {
   return (
     <>
-      <header className="nav">
-        <div className="wrap nav-in">
-          <a className="brand" href="#top">
-            {header.brand}
-          </a>
-          <div className="nav-act">
-            <a className="btn btn-soft btn-sm" href="#signup" data-cta="nav">
-              {header.cta}
-            </a>
-            <DownloadButton copy={download} location="nav" small />
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
       <TickNav items={tickNav} label={tickNavLabel} />
       <main>
         <Hero variant={variant} />
