@@ -781,9 +781,9 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
 | `store:false` 2턴 재전송, reasoning item·`include`, item id 유지·제거 | | |
 | 구조화 출력: `json_schema` strict / strict tool / zod 재시도 | | |
 | refresh 회전, 로그아웃 뒤 `client_id` | | |
-| Forge 8 + Vite 8 + plugin-react HMR (Windows) | | |
-| 번들된 main에서 `node:sqlite` WAL, `VACUUM INTO` | | sqlite 드라이버 |
-| `safeStorage` async 왕복 | | |
-| `app://` 위 Vite 자산 경로 | | app:// 또는 loadFile |
-| Playwright `_electron` 실행 | | |
-| 템플릿이 추가한 것과 모듈 형식(`type`, 설정 확장자) | | |
+| Forge 8 + Vite 8 + plugin-react HMR (Windows) | **통과** (2026-10-29). Electron 45.1.0(Node 24.22.1), Forge 8.0.1, Vite 8.3.5, `@vitejs/plugin-react` 6.1.2. 파일을 고치면 새로고침 없이 반영된다(Playwright로 확인). scaffold 명령은 `npx create-electron-app@latest apps/desktop --template vite --typescript --skip-git`이다. `--template=vite-typescript`는 Forge 8에서 없어졌다. `npm start`는 터미널을 탭형 화면으로 바꾼다(`q` 종료, `r` 재시작) | Forge 8 유지. electron-vite로 바꾸지 않는다 |
+| 번들된 main에서 `node:sqlite` WAL, `VACUUM INTO` | **통과**(SQLite 3.53.4, 한글 왕복, 개발 빌드와 패키지 exe 모두). 처음에는 실패했다. Vite가 접두사 전용 내장 모듈 `node:sqlite`를 몰라 빈 객체로 바꿔 넣었다. `vite.main.config.mts`의 `build.rolldownOptions.external`에 `node:sqlite`를 넣어 해결했다 | **`node:sqlite` 채택.** better-sqlite3는 쓰지 않는다 |
+| `safeStorage` async 왕복 | **통과**. `isAsyncEncryptionAvailable()`은 `Promise<boolean>`이고 true였다. `decryptStringAsync`는 `{result, shouldReEncrypt}`를 돌려준다. sync API는 타입 정의에 Deprecated로 표시돼 있다 | 계획대로 async만 쓴다 |
+| `app://` 위 Vite 자산 경로 | **통과**(개발 빌드와 fuse가 켜진 패키지 exe 모두). renderer 출력 `../renderer/main_window`를 `protocol.handle`로 내보냈고 콘솔 오류와 로드 실패가 0건이다 | **app:// 채택** |
+| Playwright `_electron` 실행 | **통과**. `npm run package` 뒤 `electron .`을 실행하는 스모크가 2.2초에 끝난다. dev 모드에서는 템플릿이 DevTools 창을 따로 열어서 `firstWindow()`가 DevTools를 잡을 수 있다 | e2e는 빌드 결과로 돌린다. M1에서 DevTools 자동 열기를 뺀다 |
+| 템플릿이 추가한 것과 모듈 형식(`type`, 설정 확장자) | `package.json`에 `type`이 없다. 설정은 `.mts`, main과 preload 출력은 `.vite/build/{main,preload}.cjs`다. 템플릿이 oxlint와 oxfmt(`lint` 스크립트), maker 4종(squirrel, zip, rpm, deb), FusesPlugin을 넣었다. 템플릿 oxfmt 0.41의 하위 패키지 tinypool에 치명 취약점 2건이 있어 최신으로 올렸다. 운영 의존성 취약점은 0건이다 | 엔트리는 `src/main.ts`, `src/preload.ts`로 둔다. `index.ts`로 바꾸면 출력 이름이 겹친다. 모듈은 `src/main/*`에 둔다. 패키지 이름과 productName(`desktop`)은 O12 결정 뒤 바꾼다 |
