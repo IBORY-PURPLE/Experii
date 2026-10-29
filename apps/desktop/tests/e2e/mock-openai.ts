@@ -19,9 +19,13 @@ export const TRIGGERS = {
   noLearning: '#학습없음',
 } as const;
 
+// Chat answers stream one 6-character delta every `delay` ms, then wait `holdMs` before completing.
+export type Pace = { delay: number; holdMs: number };
+
 export type MockServer = {
   url: string;
   requests: Array<Record<string, unknown>>;
+  pace: Pace;
   close(): Promise<void>;
 };
 
@@ -103,7 +107,7 @@ function send(res: ServerResponse, event: Record<string, unknown>) {
 async function stream(
   res: ServerResponse,
   text: string,
-  opts: { delay: number; cutAfter?: number },
+  opts: { delay: number; holdMs?: number; cutAfter?: number },
 ) {
   res.writeHead(200, {
     'content-type': 'text/event-stream',
@@ -147,6 +151,8 @@ async function stream(
     if (opts.delay) await sleep(opts.delay);
     if (res.destroyed) return;
   }
+  if (opts.holdMs) await sleep(opts.holdMs);
+  if (res.destroyed) return;
   const item = {
     id: msgId,
     type: 'message',
@@ -185,6 +191,7 @@ export async function startMockOpenAI(
   opts: { port?: number; delay?: number } = {},
 ): Promise<MockServer> {
   const requests: Array<Record<string, unknown>> = [];
+  const pace: Pace = { delay: opts.delay ?? 15, holdMs: 0 };
   const server = createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', 'http://127.0.0.1');
     if (req.headers.authorization !== `Bearer ${MOCK_TOKEN}`) {
@@ -250,7 +257,10 @@ export async function startMockOpenAI(
       return;
     }
     const slow = userText.includes(TRIGGERS.slow);
-    await stream(res, answer, { delay: slow ? 250 : (opts.delay ?? 15) });
+    await stream(res, answer, {
+      delay: slow ? 250 : pace.delay,
+      holdMs: pace.holdMs,
+    });
   });
   await new Promise<void>((resolve) =>
     server.listen(opts.port ?? 0, '127.0.0.1', resolve),
@@ -259,6 +269,7 @@ export async function startMockOpenAI(
   return {
     url: `http://127.0.0.1:${port}/v1`,
     requests,
+    pace,
     close: () =>
       new Promise<void>((resolve) => {
         server.closeAllConnections();

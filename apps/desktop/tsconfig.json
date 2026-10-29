@@ -13,10 +13,5 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*",
-    "*.ts",
-    "*.mts"
-  ]
+  "include": ["src/**/*", "tests/**/*", "*.ts", "*.mts"]
 }

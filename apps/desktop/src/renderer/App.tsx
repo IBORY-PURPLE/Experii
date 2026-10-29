@@ -150,7 +150,9 @@ export function App() {
         ...conv,
         messages: [...conv.messages, { role: 'user', text }],
       });
-      setStream({ id, conversationId: conv.id, text: '', sent: text });
+      const next = { id, conversationId: conv.id, text: '', sent: text };
+      streamRef.current = next;
+      setStream(next);
       setInput('');
       setBanner(null);
       const r = await api.send(conv.id, id, text);
@@ -220,6 +222,7 @@ export function App() {
   };
 
   function onStreamError(ev: ChatEvent, sent: string) {
+    streamRef.current = null;
     setStream(null);
     setConv((c) =>
       c && c.id === ev.conversationId
@@ -240,8 +243,14 @@ export function App() {
     const s = streamRef.current;
     if (!s || ev.streamId !== s.id) return;
     if (ev.type === 'delta') {
-      setStream({ ...s, text: s.text + (ev.text ?? '') });
+      // Deltas arrive in bursts between renders, so append to the latest state, not the rendered one.
+      setStream((cur) =>
+        cur?.id === ev.streamId
+          ? { ...cur, text: cur.text + (ev.text ?? '') }
+          : cur,
+      );
     } else if (ev.type === 'done') {
+      streamRef.current = null;
       setStream(null);
       void call(api.getConversation(ev.conversationId)).then((view) =>
         setConv((c) =>
