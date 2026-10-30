@@ -4,11 +4,12 @@ import {
   cardOutputSchema,
   type CardOutput,
 } from '../shared/card';
-import type { CardResult } from '../shared/ipc';
+import type { CardEvent, CardField, CardResult } from '../shared/ipc';
+import { CardFieldReader } from './cardfields';
 import type { ModelSource } from './chat';
 import type { Store } from './db';
 import { IpcError, type StreamRegistry } from './ipc';
-import { redactDeep } from './redact';
+import { redactDeep, redactText } from './redact';
 import {
   ResponsesError,
   buildInput,
@@ -84,7 +85,10 @@ export class CardService {
     private timeoutMs = TIMEOUT_MS,
   ) {}
 
-  async generate(conversationId: string): Promise<CardResult> {
+  async generate(
+    conversationId: string,
+    emit: (event: CardEvent) => void = () => {},
+  ): Promise<CardResult> {
     const conv = this.store.getConversationRow(conversationId);
     const subject = conv && this.store.getSubject(conv.subjectId);
     if (!conv || !subject) throw new IpcError('not_found');
@@ -103,12 +107,19 @@ export class CardService {
     try {
       const transport = await this.models.transport();
       const model = conv.model || (await this.models.resolveModel(transport));
+      // The same trim and redaction as the saved card, so a secret never shows even while the card is being written.
+      const progress = (field: CardField, text: string) => {
+        const shown = redactText(text.trim());
+        if (shown)
+          emit({ conversationId, type: 'progress', field, text: shown });
+      };
       const output = await this.complete(
         transport,
         model,
         turns,
         subject.title,
         signal,
+        progress,
       );
       if (output === 'too_long' || output === 'invalid')
         return { kind: output };
@@ -143,6 +154,7 @@ export class CardService {
     turns: StoredItem[][],
     subject: string,
     signal: AbortSignal,
+    onField: (field: CardField, text: string) => void,
   ): Promise<CardOutput | 'too_long' | 'invalid'> {
     let drop = 0;
     let retried = false;
@@ -155,6 +167,7 @@ export class CardService {
           turns.slice(drop).flat(),
           subject,
           signal,
+          onField,
         );
       } catch (err) {
         if (!(err instanceof ResponsesError) || err.code !== 'context_too_long')
@@ -175,6 +188,7 @@ export class CardService {
     items: StoredItem[],
     subject: string,
     signal: AbortSignal,
+    onField: (field: CardField, text: string) => void,
   ): Promise<CardOutput | null> {
     const body = buildRequestBody({
       model,
@@ -192,13 +206,17 @@ export class CardService {
       },
     });
     const timer = requestTimer(model);
+    const fields = new CardFieldReader(onField);
     let outcome = 'ok';
     try {
       const result = await runTurn(
         timer.events(
           streamResponse(transport, body, signal, timer.fetch(this.fetchImpl)),
         ),
-        () => timer.mark('first_delta'),
+        (delta) => {
+          timer.mark('first_delta');
+          fields.push(delta);
+        },
       );
       timer.mark('completed');
       const message = result.outputItems.find((i) => i.type === 'message');

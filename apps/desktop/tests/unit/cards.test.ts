@@ -23,6 +23,7 @@ import {
   type Transport,
 } from '../../src/main/responses';
 import { PROMPT_VERSION, cardJsonSchema } from '../../src/shared/card';
+import type { CardEvent } from '../../src/shared/ipc';
 import {
   MOCK_CARD,
   MOCK_TOKEN,
@@ -188,8 +189,75 @@ describe('CardService', () => {
 
   it('returns no_learning and saves no card', async () => {
     const id = conversation([[`${TRIGGERS.noLearning} 안녕`, '안녕하세요']]);
-    expect(await service().generate(id)).toEqual({ kind: 'no_learning' });
+    const events: CardEvent[] = [];
+    expect(await service().generate(id, (e) => events.push(e))).toEqual({
+      kind: 'no_learning',
+    });
     expect(store.cardIdForConversation(id)).toBeNull();
+    expect(
+      events,
+      'no progress for a conversation with nothing learned',
+    ).toEqual([]);
+  });
+
+  it('sends title, summary and interview_line as progress before the card is done', async () => {
+    const id = conversation([['LEFT JOIN이 헷갈려요', '설명']]);
+    mock.pace.holdMs = 300;
+    let done = false;
+    const events: Array<CardEvent & { done: boolean }> = [];
+    const result = await service()
+      .generate(id, (e) => events.push({ ...e, done }))
+      .finally(() => (done = true));
+
+    const { card } = MOCK_CARD;
+    expect(events).toEqual([
+      {
+        conversationId: id,
+        type: 'progress',
+        field: 'title',
+        text: card.title,
+        done: false,
+      },
+      {
+        conversationId: id,
+        type: 'progress',
+        field: 'summary',
+        text: card.summary,
+        done: false,
+      },
+      {
+        conversationId: id,
+        type: 'progress',
+        field: 'interview_line',
+        text: card.interview_line,
+        done: false,
+      },
+    ]);
+    const saved = store.getCard(result.kind === 'card' ? result.cardId : '')!;
+    expect(events.map((e) => e.text)).toEqual([
+      saved.title,
+      saved.summary,
+      saved.interview_line,
+    ]);
+  });
+
+  it('trims and redacts progress text the way the saved card is', async () => {
+    const id = conversation([['키를 넣었어요', '지우세요']]);
+    const secret = `sk-${'a1'.repeat(12)}`;
+    const leaky = JSON.stringify({
+      has_learning: true,
+      card: { ...MOCK_CARD.card, title: `  ${secret} 키를 지웠다 ` },
+    });
+    const events: CardEvent[] = [];
+    const result = await service(
+      scripted(() => answer(leaky)).fetchImpl,
+    ).generate(id, (e) => events.push(e));
+    const saved = store.getCard(result.kind === 'card' ? result.cardId : '')!;
+    expect(events[0]).toMatchObject({
+      field: 'title',
+      text: `${REDACTED} 키를 지웠다`,
+    });
+    expect(events[0].text).toBe(saved.title);
   });
 
   it('retries once when the output breaks the schema, then reports invalid', async () => {
