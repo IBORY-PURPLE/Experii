@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
 import type { ExperiiApi } from './shared/api';
-import type { ChatEvent, ToolEvent } from './shared/ipc';
+import type { CardEvent, ChatEvent, ToolEvent } from './shared/ipc';
 
 const invoke = (channel: string, payload?: unknown) =>
   ipcRenderer.invoke(channel, payload);
@@ -38,6 +38,7 @@ const api: ExperiiApi = {
   openUsage: () => invoke('links:openUsage'),
   onChatEvent: (listener) => subscribe<ChatEvent>('chat:event', listener),
   onToolEvent: (listener) => subscribe<ToolEvent>('chat:tool', listener),
+  onCardEvent: (listener) => subscribe<CardEvent>('cards:event', listener),
   onAuthChanged: (listener) => subscribe<void>('auth:changed', listener),
 };
 

@@ -15,10 +15,10 @@ export type ChatErrorCode =
   | 'not_eligible_plan'
   | 'rate_limited'
   | 'context_too_long'
+  | 'unsupported'
   | 'incomplete'
   | 'network'
   | 'cancelled'
-  | 'unsupported'
   | 'tool_limit'
   | 'server';
 
@@ -85,12 +85,15 @@ export function developerMessage(text: string): InputItem {
 
 // The direct-token API rejects instructions, previous_response_id, conversation, temperature,
 // max_output_tokens and truncation, so the body is limited to these keys.
+export type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high';
+
 export type RequestBody = {
   model: string;
   input: InputItem[];
   store: false;
   stream: true;
   include?: string[];
+  reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
   tools?: unknown[];
 };
@@ -108,6 +111,7 @@ export function buildRequestBody(opts: {
   model: string;
   input: InputItem[];
   includeReasoning?: boolean;
+  reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
   tools?: unknown[];
 }): RequestBody {
@@ -118,6 +122,7 @@ export function buildRequestBody(opts: {
     stream: true,
   };
   if (opts.includeReasoning) body.include = ['reasoning.encrypted_content'];
+  if (opts.reasoning) body.reasoning = opts.reasoning;
   if (opts.text) body.text = opts.text;
   if (opts.tools) body.tools = opts.tools;
   return body;
@@ -143,7 +148,6 @@ function errorOfBody(bodyText: string): { code: string; param?: string } {
 }
 
 // Plan-usage errors carry their meaning in error.code, both before the stream opens and as response.failed mid-stream.
-// unsupported_capability names what to leave out in error.param, so the caller can send a different body.
 export function codeForError(
   code: string,
   status = 0,
@@ -151,6 +155,7 @@ export function codeForError(
 ): ChatErrorCode {
   if (code === 'subscription_sharing_user_not_eligible')
     return 'not_eligible_plan';
+  // The plan token refuses the input, tool or feature named in error.param; the caller may resend without it.
   if (code === 'subscription_sharing_unsupported_capability')
     return 'unsupported';
   if (code === 'subscription_sharing_usage_limit_exceeded' || status === 429)

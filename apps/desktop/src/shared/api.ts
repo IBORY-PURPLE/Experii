@@ -1,6 +1,7 @@
 import type { StoredCard } from './card';
 import type {
   AuthStatus,
+  CardEvent,
   CardResult,
   ChatEvent,
   ConversationView,
@@ -39,6 +40,7 @@ export type ExperiiApi = {
   openUsage(): Promise<Result<null>>;
   onChatEvent(listener: (event: ChatEvent) => void): () => void;
   onToolEvent(listener: (event: ToolEvent) => void): () => void;
+  onCardEvent(listener: (event: CardEvent) => void): () => void;
   onAuthChanged(listener: () => void): () => void;
 };
 
@@ -62,5 +64,6 @@ export const API_KEYS: Array<keyof ExperiiApi> = [
   'openUsage',
   'onChatEvent',
   'onToolEvent',
+  'onCardEvent',
   'onAuthChanged',
 ];

@@ -10,6 +10,7 @@ import {
   describe,
   expect,
   it,
+  vi,
 } from 'vitest';
 import { CardService } from '../../src/main/cards';
 import { Store } from '../../src/main/db';
@@ -22,6 +23,7 @@ import {
   type Transport,
 } from '../../src/main/responses';
 import { PROMPT_VERSION, cardJsonSchema } from '../../src/shared/card';
+import type { CardEvent } from '../../src/shared/ipc';
 import {
   MOCK_CARD,
   MOCK_TOKEN,
@@ -52,6 +54,7 @@ beforeEach(() => {
   mock.pace.holdMs = 0;
 });
 afterEach(() => {
+  vi.restoreAllMocks();
   store.close();
   rmSync(dir, { recursive: true, force: true });
 });
@@ -133,6 +136,14 @@ const overflow = () =>
     status: 400,
   });
 
+const refused = (param: string) =>
+  new Response(
+    JSON.stringify({
+      error: { code: 'subscription_sharing_unsupported_capability', param },
+    }),
+    { status: 400 },
+  );
+
 describe('CardService', () => {
   it('sends the message items with the card instructions last and stores a redacted card', async () => {
     const id = conversation([
@@ -160,6 +171,7 @@ describe('CardService', () => {
         schema: cardJsonSchema(),
       },
     });
+    expect(body.reasoning).toEqual({ effort: 'low' });
     const input = body.input as Msg[];
     expect(input.map((m) => [m.type, m.role])).toEqual([
       ['message', 'user'],
@@ -186,8 +198,75 @@ describe('CardService', () => {
 
   it('returns no_learning and saves no card', async () => {
     const id = conversation([[`${TRIGGERS.noLearning} 안녕`, '안녕하세요']]);
-    expect(await service().generate(id)).toEqual({ kind: 'no_learning' });
+    const events: CardEvent[] = [];
+    expect(await service().generate(id, (e) => events.push(e))).toEqual({
+      kind: 'no_learning',
+    });
     expect(store.cardIdForConversation(id)).toBeNull();
+    expect(
+      events,
+      'no progress for a conversation with nothing learned',
+    ).toEqual([]);
+  });
+
+  it('sends title, summary and interview_line as progress before the card is done', async () => {
+    const id = conversation([['LEFT JOIN이 헷갈려요', '설명']]);
+    mock.pace.holdMs = 300;
+    let done = false;
+    const events: Array<CardEvent & { done: boolean }> = [];
+    const result = await service()
+      .generate(id, (e) => events.push({ ...e, done }))
+      .finally(() => (done = true));
+
+    const { card } = MOCK_CARD;
+    expect(events).toEqual([
+      {
+        conversationId: id,
+        type: 'progress',
+        field: 'title',
+        text: card.title,
+        done: false,
+      },
+      {
+        conversationId: id,
+        type: 'progress',
+        field: 'summary',
+        text: card.summary,
+        done: false,
+      },
+      {
+        conversationId: id,
+        type: 'progress',
+        field: 'interview_line',
+        text: card.interview_line,
+        done: false,
+      },
+    ]);
+    const saved = store.getCard(result.kind === 'card' ? result.cardId : '')!;
+    expect(events.map((e) => e.text)).toEqual([
+      saved.title,
+      saved.summary,
+      saved.interview_line,
+    ]);
+  });
+
+  it('trims and redacts progress text the way the saved card is', async () => {
+    const id = conversation([['키를 넣었어요', '지우세요']]);
+    const secret = `sk-${'a1'.repeat(12)}`;
+    const leaky = JSON.stringify({
+      has_learning: true,
+      card: { ...MOCK_CARD.card, title: `  ${secret} 키를 지웠다 ` },
+    });
+    const events: CardEvent[] = [];
+    const result = await service(
+      scripted(() => answer(leaky)).fetchImpl,
+    ).generate(id, (e) => events.push(e));
+    const saved = store.getCard(result.kind === 'card' ? result.cardId : '')!;
+    expect(events[0]).toMatchObject({
+      field: 'title',
+      text: `${REDACTED} 키를 지웠다`,
+    });
+    expect(events[0].text).toBe(saved.title);
   });
 
   it('retries once when the output breaks the schema, then reports invalid', async () => {
@@ -255,6 +334,98 @@ describe('CardService', () => {
       code: 'timeout',
     });
     expect(store.cardIdForConversation(id)).toBeNull();
+  });
+
+  it('drops reasoning at once when the plan token refuses it, and remembers that', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const good = answer(JSON.stringify(MOCK_CARD));
+    const first = scripted((n) =>
+      n === 1 ? refused('reasoning.effort') : good,
+    );
+    expect(
+      await service(first.fetchImpl).generate(conversation([['질문', '답']])),
+    ).toMatchObject({ kind: 'card' });
+    expect(first.bodies.map((b) => b.reasoning)).toEqual([
+      { effort: 'low' },
+      undefined,
+    ]);
+    expect(first.bodies[1]).not.toHaveProperty('reasoning');
+    expect(first.bodies[1].input).toEqual(first.bodies[0].input);
+    expect(store.getSetting('card_reasoning')).toBe('off');
+
+    const later = scripted(() => answer(JSON.stringify(MOCK_CARD)));
+    await service(later.fetchImpl).generate(conversation([['질문 2', '답 2']]));
+    expect(later.bodies, 'no second refusal').toHaveLength(1);
+    expect(later.bodies[0]).not.toHaveProperty('reasoning');
+    expect(
+      warn.mock.calls
+        .map((args) =>
+          String(args[0]).match(/^\[cards\] (\S+) .*reasoning=(\S+)/),
+        )
+        .filter(Boolean)
+        .map((m) => [m![1], m![2]]),
+    ).toEqual([
+      ['unsupported', 'low'],
+      ['ok', 'off'],
+      ['ok', 'off'],
+    ]);
+  });
+
+  it('does not resend when the refusal names something other than reasoning', async () => {
+    const other = scripted(() => refused('text.format'));
+    await expect(
+      service(other.fetchImpl).generate(conversation([['질문', '답']])),
+    ).rejects.toMatchObject({ code: 'unsupported' });
+    expect(other.bodies).toHaveLength(1);
+    expect(store.getSetting('card_reasoning')).toBeNull();
+  });
+
+  it('logs the timings, bytes and model of each request but no card or conversation text', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const logged = () =>
+      warn.mock.calls
+        .map((args) => args.join(' '))
+        .filter((line) => line.startsWith('[cards]'));
+    const id = conversation([['LEFT JOIN이 헷갈려요', 'NULL로 채워져요']]);
+    await service().generate(id);
+
+    expect(logged()).toEqual([
+      expect.stringMatching(
+        /^\[cards\] ok model=gpt-mock reasoning=low first_event=\d+ms first_delta=\d+ms completed=\d+ms parsed=\d+ms bytes=\d+$/,
+      ),
+    ]);
+    expect(Number(logged()[0].match(/bytes=(\d+)/)![1])).toBeGreaterThan(
+      JSON.stringify(MOCK_CARD).length,
+    );
+    const { card } = MOCK_CARD;
+    for (const content of [
+      card.title,
+      card.summary,
+      card.interview_line,
+      'LEFT JOIN',
+      'NULL로',
+      'SQLD',
+      'sk-mock',
+    ])
+      expect(logged()[0]).not.toContain(content);
+
+    warn.mockClear();
+    const overflowing = scripted((n) =>
+      n === 1 ? overflow() : answer('{"has_learning":'),
+    );
+    await service(overflowing.fetchImpl).generate(
+      conversation([
+        ['1번', 'a'],
+        ['2번', 'b'],
+      ]),
+    );
+    expect(logged().map((line) => line.split(' ').slice(0, 2))).toEqual([
+      ['[cards]', 'context_too_long'],
+      ['[cards]', 'invalid'],
+      ['[cards]', 'invalid'],
+    ]);
+    expect(logged()[0]).toContain('first_event=- first_delta=-');
+    expect(logged()[1]).toMatch(/completed=\d+ms parsed=- /);
   });
 
   it('refuses a conversation that is streaming, generating, or unknown', async () => {

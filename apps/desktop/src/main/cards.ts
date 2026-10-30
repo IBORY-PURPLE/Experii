@@ -4,11 +4,12 @@ import {
   cardOutputSchema,
   type CardOutput,
 } from '../shared/card';
-import type { CardResult } from '../shared/ipc';
+import type { CardEvent, CardResult } from '../shared/ipc';
+import { CardFieldReader, type OnField } from './cardfields';
 import type { ModelSource } from './chat';
 import type { Store } from './db';
 import { IpcError, type StreamRegistry } from './ipc';
-import { redactDeep } from './redact';
+import { redactDeep, redactText } from './redact';
 import {
   ResponsesError,
   buildInput,
@@ -19,11 +20,17 @@ import {
   streamResponse,
   type FetchLike,
   type InputItem,
+  type RequestBody,
+  type ResponsesEvent,
   type StoredItem,
   type Transport,
 } from './responses';
 
 const TIMEOUT_MS = 120_000;
+// A card needs structure more than deep thought, and low effort answers sooner. A plan token that refuses the
+// reasoning field gets requests without it from then on.
+const CARD_REASONING = { effort: 'low' } as const;
+const REASONING_SETTING = 'card_reasoning';
 
 export function cardInstructions(subject: string): string {
   return `위 대화는 사용자가 "${subject}" 과목을 공부한 기록이다. 이 대화를 면접에서 쓸 경험 카드 하나로 정리한다.
@@ -83,7 +90,10 @@ export class CardService {
     private timeoutMs = TIMEOUT_MS,
   ) {}
 
-  async generate(conversationId: string): Promise<CardResult> {
+  async generate(
+    conversationId: string,
+    emit: (event: CardEvent) => void = () => {},
+  ): Promise<CardResult> {
     const conv = this.store.getConversationRow(conversationId);
     const subject = conv && this.store.getSubject(conv.subjectId);
     if (!conv || !subject) throw new IpcError('not_found');
@@ -92,6 +102,7 @@ export class CardService {
       this.streams.isActive(conversationId)
     )
       throw new IpcError('busy');
+    // The card is made from the conversation as it is when the button is pressed; turns sent while it runs stay out.
     const turns = turnsOf(this.store.items(conversationId));
     if (turns.length === 0) throw new IpcError('not_found');
 
@@ -102,12 +113,19 @@ export class CardService {
     try {
       const transport = await this.models.transport();
       const model = conv.model || (await this.models.resolveModel(transport));
+      // The same trim and redaction as the saved card, so a secret never shows even while the card is being written.
+      const progress: OnField = (field, text) => {
+        const shown = redactText(text.trim());
+        if (shown)
+          emit({ conversationId, type: 'progress', field, text: shown });
+      };
       const output = await this.complete(
         transport,
         model,
         turns,
         subject.title,
         signal,
+        progress,
       );
       if (output === 'too_long' || output === 'invalid')
         return { kind: output };
@@ -142,18 +160,20 @@ export class CardService {
     turns: StoredItem[][],
     subject: string,
     signal: AbortSignal,
+    onField: OnField,
   ): Promise<CardOutput | 'too_long' | 'invalid'> {
     let drop = 0;
     let retried = false;
     for (;;) {
-      let text: string;
+      let output: CardOutput | null;
       try {
-        text = await this.request(
+        output = await this.request(
           transport,
           model,
           turns.slice(drop).flat(),
           subject,
           signal,
+          onField,
         );
       } catch (err) {
         if (!(err instanceof ResponsesError) || err.code !== 'context_too_long')
@@ -162,7 +182,6 @@ export class CardService {
         drop = Math.min(turns.length - 1, drop * 2 + 1);
         continue;
       }
-      const output = parseCardOutput(text);
       if (output) return output;
       if (retried) return 'invalid';
       retried = true;
@@ -175,27 +194,127 @@ export class CardService {
     items: StoredItem[],
     subject: string,
     signal: AbortSignal,
-  ): Promise<string> {
-    const body = buildRequestBody({
-      model,
-      input: [
-        ...buildInput(items),
-        developerMessage(cardInstructions(subject)),
-      ],
-      text: {
-        format: {
-          type: 'json_schema',
-          name: 'experience_card',
-          strict: true,
-          schema: cardJsonSchema(),
+    onField: OnField,
+  ): Promise<CardOutput | null> {
+    const input = [
+      ...buildInput(items),
+      developerMessage(cardInstructions(subject)),
+    ];
+    for (;;) {
+      const reasoning =
+        this.store.getSetting(REASONING_SETTING) === 'off'
+          ? undefined
+          : CARD_REASONING;
+      const body = buildRequestBody({
+        model,
+        input,
+        reasoning,
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'experience_card',
+            strict: true,
+            schema: cardJsonSchema(),
+          },
         },
-      },
-    });
-    const result = await runTurn(
-      streamResponse(transport, body, signal, this.fetchImpl),
-      () => {},
-    );
-    const message = result.outputItems.find((i) => i.type === 'message');
-    return message ? messageText(message) : result.text;
+      });
+      try {
+        return await this.attempt(transport, body, signal, onField);
+      } catch (err) {
+        // The refusal is a 400 before any output, so resending at once without the field is safe.
+        if (!reasoning || !refusesReasoning(err)) throw err;
+        this.store.setSetting(REASONING_SETTING, 'off');
+      }
+    }
   }
+
+  private async attempt(
+    transport: Transport,
+    body: RequestBody,
+    signal: AbortSignal,
+    onField: OnField,
+  ): Promise<CardOutput | null> {
+    const timer = requestTimer(body);
+    const fields = new CardFieldReader(onField);
+    let outcome = 'ok';
+    try {
+      const result = await runTurn(
+        timer.events(
+          streamResponse(transport, body, signal, timer.fetch(this.fetchImpl)),
+        ),
+        (delta) => {
+          timer.mark('first_delta');
+          fields.push(delta);
+        },
+      );
+      timer.mark('completed');
+      const message = result.outputItems.find((i) => i.type === 'message');
+      const output = parseCardOutput(
+        message ? messageText(message) : result.text,
+      );
+      if (output) timer.mark('parsed');
+      else outcome = 'invalid';
+      return output;
+    } catch (err) {
+      outcome = err instanceof ResponsesError ? err.code : 'error';
+      throw err;
+    } finally {
+      console.warn(timer.line(outcome));
+    }
+  }
+}
+
+function refusesReasoning(err: unknown): boolean {
+  return (
+    err instanceof ResponsesError &&
+    err.code === 'unsupported' &&
+    /^reasoning\b/.test(err.param ?? '')
+  );
+}
+
+const MARKS = ['first_event', 'first_delta', 'completed', 'parsed'] as const;
+type Mark = (typeof MARKS)[number];
+
+// Milliseconds from the request start, response bytes, the model and reasoning effort: never card or conversation text.
+function requestTimer({ model, reasoning }: RequestBody) {
+  const start = performance.now();
+  const at: Partial<Record<Mark, number>> = {};
+  let bytes = 0;
+  const mark = (name: Mark) => {
+    at[name] ??= Math.round(performance.now() - start);
+  };
+  return {
+    mark,
+    fetch:
+      (inner: FetchLike): FetchLike =>
+      async (url, init) => {
+        const res = await inner(url, init);
+        if (!res.body) return res;
+        const counted = res.body.pipeThrough(
+          new TransformStream<Uint8Array, Uint8Array>({
+            transform(chunk, out) {
+              bytes += chunk.byteLength;
+              out.enqueue(chunk);
+            },
+          }),
+        );
+        return new Response(counted, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers,
+        });
+      },
+    async *events(source: AsyncIterable<ResponsesEvent>) {
+      for await (const ev of source) {
+        mark('first_event');
+        yield ev;
+      }
+    },
+    line(outcome: string) {
+      const marks = MARKS.map(
+        (m) => `${m}=${at[m] === undefined ? '-' : `${at[m]}ms`}`,
+      ).join(' ');
+      return `[cards] ${outcome} model=${model} reasoning=${reasoning?.effort ?? 'off'} ${marks} bytes=${bytes}`;
+    },
+  };
 }

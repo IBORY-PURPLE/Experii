@@ -24,8 +24,9 @@ export const TRIGGERS = {
   toolRefused: '#도구거부',
 } as const;
 
-// Chat answers stream one 6-character delta every `delay` ms; chat and card answers wait `holdMs` before completing.
-export type Pace = { delay: number; holdMs: number };
+// Chat answers stream one 6-character delta every `delay` ms and card answers every `cardDelay` ms;
+// chat and card answers wait `holdMs` before completing.
+export type Pace = { delay: number; cardDelay: number; holdMs: number };
 
 export type MockServer = {
   url: string;
@@ -335,10 +336,14 @@ async function readBody(req: IncomingMessage): Promise<string> {
 }
 
 export async function startMockOpenAI(
-  opts: { port?: number; delay?: number } = {},
+  opts: { port?: number; delay?: number; cardDelay?: number } = {},
 ): Promise<MockServer> {
   const requests: Array<Record<string, unknown>> = [];
-  const pace: Pace = { delay: opts.delay ?? 15, holdMs: 0 };
+  const pace: Pace = {
+    delay: opts.delay ?? 15,
+    cardDelay: opts.cardDelay ?? 0,
+    holdMs: 0,
+  };
   const server = createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', 'http://127.0.0.1');
     if (req.headers.authorization !== `Bearer ${MOCK_TOKEN}`) {
@@ -385,7 +390,7 @@ export async function startMockOpenAI(
         : MOCK_CARD;
       await stream(res, JSON.stringify(out), {
         model,
-        delay: 0,
+        delay: pace.cardDelay,
         holdMs: pace.holdMs,
       });
       return;
