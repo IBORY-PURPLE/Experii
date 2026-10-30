@@ -1159,6 +1159,12 @@ test.describe('model picker, tool line and card progress on screen', () => {
   const makingTile = (win: Page) =>
     win.locator('.node:has(.chip.making) .tile');
   const searched = `내 경험 카드 검색 · '${MOCK_TOOL_QUERY}' · `;
+  const cardRequests = () =>
+    mock.requests.filter(
+      (body) =>
+        (body.text as { format?: { name?: string } } | undefined)?.format
+          ?.name === 'experience_card',
+    ).length;
   const lastUserText = (body: Record<string, unknown>) =>
     (body.input as Item[])
       .filter((i) => i.role === 'user')
@@ -1312,19 +1318,30 @@ test.describe('model picker, tool line and card progress on screen', () => {
   test('a card finished while an answer streams stays folded on the path', async () => {
     const { win } = running();
     await expect(doneTile(win)).toHaveCount(1);
+    const chatDelay = mock.pace.delay;
+    const before = cardRequests();
+    // Both answers hold 3 s; the chat starts after the card and streams slower, so it is still going when the card lands.
     mock.pace.holdMs = 3_000;
-    await makeButton(win).click();
-    await expect(makingTile(win)).toBeVisible();
-    await startSend(win, 'JOIN 결과를 하나 더 보여 줘');
+    mock.pace.delay = 120;
+    try {
+      await makeButton(win).click();
+      await expect.poll(cardRequests).toBe(before + 1);
+      await startSend(win, 'JOIN 결과를 하나 더 보여 줘');
 
-    await expect(win.locator('.chip.making')).toHaveCount(0, {
-      timeout: 15_000,
-    });
-    await expect(streaming(win), 'the answer is still streaming').toBeVisible();
-    await expect(doneTile(win)).toHaveCount(2);
-    await expect(cardView(win)).toHaveCount(0);
-    await expect(streaming(win)).toBeHidden({ timeout: 15_000 });
-    mock.pace.holdMs = 0;
+      await expect(win.locator('.chip.making')).toHaveCount(0, {
+        timeout: 15_000,
+      });
+      await expect(
+        streaming(win),
+        'the answer is still streaming',
+      ).toBeVisible();
+      await expect(doneTile(win)).toHaveCount(2);
+      await expect(cardView(win)).toHaveCount(0);
+      await expect(streaming(win)).toBeHidden({ timeout: 15_000 });
+    } finally {
+      mock.pace.holdMs = 0;
+      mock.pace.delay = chatDelay;
+    }
     await expect(win.locator('.msg-ai')).toHaveCount(2);
     await expect(cardView(win), 'nor after the answer ends').toHaveCount(0);
   });
