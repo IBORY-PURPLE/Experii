@@ -7,7 +7,14 @@ import {
 } from 'electron';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { APP_HOST, CSP_PROD, MIME, cspDev, resolveAssetPath } from './assets';
+import {
+  APP_HOST,
+  CSP_PROD,
+  MIME,
+  allowNavigation,
+  cspDev,
+  resolveAssetPath,
+} from './assets';
 
 export const devServerUrl = (): string | undefined =>
   typeof MAIN_WINDOW_VITE_DEV_SERVER_URL === 'string' &&
@@ -69,7 +76,9 @@ export function applySessionPolicy() {
     (_wc, permission) => permission === 'clipboard-sanitized-write',
   );
   app.on('web-contents-created', (_event, contents) => {
-    contents.on('will-navigate', (e) => e.preventDefault());
+    contents.on('will-navigate', (e) => {
+      if (!allowNavigation(e.url, dev)) e.preventDefault();
+    });
     contents.on('will-redirect', (e) => e.preventDefault());
     contents.on('will-attach-webview', (e) => e.preventDefault());
     contents.setWindowOpenHandler(() => ({ action: 'deny' }));
