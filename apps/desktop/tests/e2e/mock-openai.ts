@@ -17,6 +17,7 @@ export const TRIGGERS = {
   plan: '#플랜',
   slow: '#느리게',
   noLearning: '#학습없음',
+  table: '#표',
 } as const;
 
 // Chat answers stream one 6-character delta every `delay` ms; chat and card answers wait `holdMs` before completing.
@@ -69,6 +70,33 @@ function chatAnswer(text: string, turn: number): string {
     '- 다음에는 `ON`과 `WHERE`에 조건을 둘 때 결과가 어떻게 달라지는지 비교해 보면 좋아요.',
   ].join('\n');
 }
+
+// A result set, a SQL block and a table wider than the chat panel, for the GFM table view.
+export const TABLE_ANSWER = [
+  '`LEFT JOIN` 결과를 표로 볼게요. 부서가 없는 사원은 `dept_name`이 비어 있어요.',
+  '',
+  '| emp_id | name | dept_name |',
+  '| ---: | --- | --- |',
+  '| 1 | 김하나 | 영업 |',
+  '| 2 | 이두리 | 개발 |',
+  '| 3 | 박세찌 | NULL |',
+  '',
+  '```sql',
+  'SELECT e.emp_id, e.name, d.name AS dept_name',
+  'FROM emp e',
+  'LEFT JOIN dept d ON d.id = e.dept_id;',
+  '```',
+  '',
+  '열이 많은 결과도 같은 모양으로 보여요.',
+  '',
+  '| emp_id | name | dept_id | dept_name | hire_date | salary | manager_id | location |',
+  '| ---: | --- | ---: | --- | --- | ---: | ---: | --- |',
+  '| 1 | 김하나 | 10 | 영업 | 2021-03-02 | 4,200,000 | NULL | 서울 |',
+  '| 2 | 이두리 | 20 | 개발 | 2022-07-18 | 5,100,000 | 1 | 판교 |',
+  '| 3 | 박세찌 | NULL | NULL | 2024-01-08 | 3,600,000 | 1 | NULL |',
+  '',
+  '**“NULL”**은 값이 없다는 뜻이라 `=`로 비교하지 않고 `IS NULL`로 찾아요.',
+].join('\n');
 
 export const MOCK_CARD = {
   has_learning: true,
@@ -254,7 +282,9 @@ export async function startMockOpenAI(
     const turn = input.filter(
       (i) => i.type === 'message' && i.role === 'user',
     ).length;
-    const answer = chatAnswer(userText, turn);
+    const answer = userText.includes(TRIGGERS.table)
+      ? TABLE_ANSWER
+      : chatAnswer(userText, turn);
     if (userText.includes(TRIGGERS.network)) {
       await stream(res, answer, { delay: 30, cutAfter: 4 });
       return;
