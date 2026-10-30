@@ -73,10 +73,11 @@
   padding: 0 var(--sp-2);
 }
 
+/* Two lines, a 24px title over the 20px meta, inside 4px of padding: 52px rows. */
 .exp {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  padding: calc(var(--sp-3) / 2) var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
 }
 
 :where(.subject, button.exp):hover {
@@ -109,6 +110,10 @@
   flex: 1;
 }
 
+.exp .t {
+  line-height: var(--lh-24);
+}
+
 .subject[aria-current='true'] .name,
 .exp[aria-current='true'] .t {
   font-weight: var(--fw-2);
@@ -123,7 +128,7 @@
 .exp .m {
   display: flex;
   align-items: center;
-  gap: calc(var(--sp-3) / 2);
+  gap: var(--sp-1);
   color: var(--ink-3);
   font-size: var(--fs-13);
   line-height: var(--lh-20);

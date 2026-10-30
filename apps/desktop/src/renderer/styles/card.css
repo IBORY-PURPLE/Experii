@@ -50,9 +50,11 @@
   line-height: var(--lh-24);
 }
 
-/* Ghost buttons hang into the padding so their labels line up with the text edge, as in the footer. */
-.cv-fold {
-  margin: calc(var(--sp-1) / -2) calc(var(--sp-2) * -1) 0 0;
+/* 접기 is as tall as the title's line, so it sits on the knob's centre line with the chip. Like the footer's ghost
+   buttons it hangs into the padding, so its label lines up with the text edge. */
+.cv-head .btn.cv-fold {
+  height: var(--h-24);
+  margin-right: calc(var(--sp-2) * -1);
 }
 
 .cv-band,
@@ -87,8 +89,10 @@
   color: var(--ink-2);
   font-size: var(--fs-13);
   font-weight: var(--fw-2);
+  line-height: var(--lh-20);
 }
 
+/* The 16px icon centres on the note's first 20px line. */
 .cv-redacted svg {
   flex: none;
   margin-top: calc(var(--sp-1) / 2);

@@ -43,12 +43,13 @@
   white-space: nowrap;
 }
 
-/* The 32px buttons centre on the two lines, at 16–48px. */
+/* The actions span both text lines, so the 32px buttons centre on them, at 16–48px. */
 .chat-head .actions {
   display: flex;
   flex: none;
+  align-items: center;
   gap: var(--sp-2);
-  margin-top: calc((var(--lh-24) + var(--lh-20) - var(--h-32)) / 2);
+  height: calc(var(--lh-24) + var(--lh-20));
 }
 
 .chat-head .actions .btn {

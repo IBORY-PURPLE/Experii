@@ -89,15 +89,12 @@
   color: var(--ink-3);
 }
 
-/* A chosen rating shows by a heavier ink edge and a check icon, never by a fill. */
+/* A chosen rating shows by a heavier ink edge and a check icon, never by a fill. The padding gives back the edge's
+   extra pixel, so the button keeps its width and its label stays put when chosen. */
 .btn[aria-pressed='true'] {
   padding: 0 calc(var(--sp-3) - var(--sp-1) / 4);
   border-width: 2px;
   border-color: var(--ink);
-}
-
-.btn .spin {
-  margin-right: calc(var(--sp-1) / 2);
 }
 
 .btn.primary .spin {
