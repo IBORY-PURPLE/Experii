@@ -173,7 +173,7 @@ rg -n "box-shadow:" apps/desktop/src/renderer/*.css | rg -v "var\(--sh|none"
 
 ### 다른 작업과 겹침
 
-- **로그인 작업(siwc-login):** 2026-10-30 17시 기준으로 커밋 `0f1741f`가 로컬 브랜치 `claude/desktop-siwc-login-25d38c`에만 있다. push와 PR은 없다.
+- **로그인 작업(siwc-login):** PR #9로 main에 병합됐다(`b6e4ce5`, 2026-10-30 저녁). 병합 전에는 커밋 `0f1741f`가 로컬 브랜치 `claude/desktop-siwc-login-25d38c`에만 있었고, 아래 목록과 순서는 그때 정한 것이다.
   - main 쪽: `auth.ts`(251줄), `session.ts`, `handlers.ts`, `responses.ts`, `db.ts`, `pkce.ts`, `tokens.ts`, `idtoken.ts`(신규)
   - renderer: `App.tsx`는 `signIn`·`signOut`·`relogin`·배너 동작만, `Gate.tsx`는 오류 문구 표에 5줄을 더했다. 화면 모양(JSX·class·CSS)은 바꾸지 않았다.
   - 공유·preload: `preload.ts`, `shared/api.ts`, `shared/ipc.ts`, 테스트
@@ -183,6 +183,14 @@ rg -n "box-shadow:" apps/desktop/src/renderer/*.css | rg -v "var\(--sh|none"
   - 대신 로그인 커밋이 바꾼 파일 중 `auth.ts`와 main 쪽 파일, `preload.ts`, `shared/*`는 이 작업에서 고치지 않는다. `auth.ts` 완료 페이지 색은 로그인 작업이 합쳐진 뒤 따로 맞춘다.
   - `App.tsx`·`Gate.tsx`는 로그인 커밋이 바꾼 함수와 오류 표 밖의 JSX만 고친다. 먼저 합쳐지는 쪽 뒤에 오는 쪽이 충돌을 푼다.
 - **병합 뒤(2026-10-30 저녁):** 로그인 작업이 PR #9로 main에 들어왔고(`b6e4ce5`), 이 브랜치에 main을 합쳤다. 위 제한은 풀렸다. 로그인 동작(`signIn`·`signOut`·토큰·세션)은 그대로 두고 화면 모양만 고친다. `auth.ts` 로그인 완료 페이지의 인라인 색도 이 작업에서 토큰 값에 맞춘다.
+- **밤 기능 PR(2026-10-30 밤, 창업자 결정):** 다른 세션들이 main 위에서 기능 PR을 따로 만들고, 아침에 이 브랜치보다 먼저 병합한다. 계획은 [PR #10](https://github.com/IBORY-PURPLE/Experii/pull/10)의 `docs/plans/2026-10-30-overnight-desktop/ai.md`다.
+  - 겹치는 파일: `Markdown.tsx`, `App.tsx`, `Sidebar.tsx`, `ChatPanel.tsx`, `Roadmap.tsx`, `CardView` 주변, `styles.css`, 새 화면(필기 페이지), `package.json`·`package-lock.json`(remark-gfm과 캔버스 라이브러리 1개를 더한다). `docs/desktop/tsd.md`는 머리 단락, v1 범위 줄, 3.6 모델 줄만 바꾸고 열린 항목(O9~O13)과 파일 끝은 건드리지 않는다.
+  - 오늘 밤에는 기능 세션들의 브랜치를 이 브랜치에 합치지 않는다. 남은 수정은 TSX를 꼭 필요한 줄만 고쳐 충돌을 줄인다.
+  - 아침에 기능 PR들이 main에 들어가면 이 브랜치가 main을 합치고 충돌을 푼다(뒤에 오는 쪽이 푼다).
+    - `styles.css`: 이 브랜치는 이 파일을 지우고 `styles/*.css`로 나눴으므로 수정/삭제 충돌이 난다. main이 더한 규칙을 맞는 구역 파일로 옮기고 값은 토큰으로 바꾼다.
+    - 새 화면과 새 부품(필기 페이지, 모델 드롭다운, 도구 표시, 표·코드 표시, 좌우 접기)은 DESIGN.md 규칙(파랑 자리, 칠한 버튼 하나, 입체는 칸에만)을 그대로 적용한다. 규칙에 없는 새 배치나 새 색 자리를 정해야 하면 멈추고 묻는다.
+    - `package-lock.json`: main 쪽을 받은 뒤 Terminal 패널에서 `npm install`로 다시 만든다.
+    - 합친 뒤 1장 9번 회귀와 전후 스크린샷을 다시 한다.
 
 ## 3. 단계별 작업
 
@@ -279,6 +287,7 @@ rg -n "box-shadow:" apps/desktop/src/renderer/*.css | rg -v "var\(--sh|none"
   - 브랜치 `claude/desktop-design-system`, base는 main
   - 본문 순서: 핵심 정리 → 전후 스크린샷(`node scripts/agents/publish-evidence.mjs`) → Why / What changed / Scope / Blast Radius / Verification → 완료 조건 표
   - 병합은 창업자가 한다.
+  - 병합 순서: 밤 기능 PR들이 먼저다. 이 PR은 그 뒤 main을 합쳐 충돌을 풀고(2장 "다른 작업과 겹침") 회귀를 다시 통과한 다음 병합한다. 본문에 이 순서를 적는다.
 
 ## 4. 멈춤 조건
 
@@ -321,3 +330,4 @@ rg -n "box-shadow:" apps/desktop/src/renderer/*.css | rg -v "var\(--sh|none"
 | 2026-10-30 | 3단계 로고 | `assets/brand/mark*.svg` 4개, `npm run icons`로 `icon.ico`(16·20·24·32·40·48·64·256)와 `icon.png`, 이름 `experii`/`Experii`, `win32metadata`·`appCopyright`, 기본 제목 표시줄·밝은 테마·메뉴 없음. 계획과 다른 점: `lockup.svg`는 만들지 않았다(로크업은 `Logo.tsx`가 그린다. 글자를 윤곽선으로 바꾸지 않은 SVG는 다른 글꼴로 보인다). `iconUrl`은 공개 주소가 없어 비웠다(5장 위험) | `b296dd6` |
 | 2026-10-30 | 2단계 통합 | legacy 토큰 0, 머리줄 3구역의 글자 기준선을 배율 100~200%에서 차이 0px로 맞췄다. 1장 3번 숫자 검사 통과, e2e 15/15 | `b386470` |
 | 2026-10-30 | 2단계 감사 | 실측 감사 결과: 글자 대비 최저 5.28:1, 조작 경계 최저 3.52:1(아니에요 칩 테두리 1.51→3.85:1로 고침), 칠한 버튼은 장면마다 1개, 허용 자리 밖 파랑 0, 포커스 이동 실패 4→0(1280 폭에서 고정 막대가 가리던 것), 움직임 줄이기에서 남는 움직임 0, 배너 역할 안내=status·오류=alert, impeccable detect 정적·실시간(11장면) 0건 | `f9e1d78` |
+| 2026-10-30 | 병합 순서 | 창업자 결정: 밤 기능 PR들(PR #10 계획)을 아침에 먼저 병합하고, 이 브랜치가 뒤에 main을 합쳐 충돌을 푼다. 오늘 밤에는 기능 브랜치를 합치지 않는다. 2장 "다른 작업과 겹침"과 3장 4단계에 반영했다. 목표·범위는 그대로이고, 병합 전에 main 합치기와 회귀 한 번이 늘었다. 남은 수정에서 `App.tsx`의 쓰지 않는 `primary` 필드 정리(K6)는 충돌을 줄이려고 미뤘다 | 상위 세션 메시지(2026-10-30 밤) |
