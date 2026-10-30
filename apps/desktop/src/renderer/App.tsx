@@ -265,6 +265,11 @@ export function App() {
   const bannerFor = (code: string, sent: string): Banner => {
     const kept = '보낸 메시지는 입력창에 그대로 있어요.';
     const target = convRef.current;
+    const resend = {
+      label: '다시 보내기',
+      primary: true,
+      run: () => void send(sent),
+    };
     switch (code) {
       case 'unauthorized':
         return reloginBanner(`로그인이 만료됐어요. ${kept}`);
@@ -295,14 +300,26 @@ export function App() {
           body: '답이 끝나면 다시 보내 주세요.',
           actions: [],
         };
+      case 'unsupported':
+        return {
+          tone: 'err',
+          title: '이 계정이 받지 않는 기능이 있었어요',
+          body: `로그인한 ChatGPT 계정이 이번 요청에 쓴 기능 하나를 받지 않았어요. ${kept}`,
+          actions: [resend],
+        };
+      case 'tool_limit':
+        return {
+          tone: 'err',
+          title: '도구를 너무 여러 번 불렀어요',
+          body: `GPT가 답을 쓰면서 도구를 계속 불러서 중간에 멈췄어요. ${kept}`,
+          actions: [resend],
+        };
       default:
         return {
           tone: 'err',
           title: '답을 받지 못했어요',
           body: `네트워크가 끊겼거나 응답이 중간에 멈췄어요. ${kept}`,
-          actions: [
-            { label: '다시 보내기', primary: true, run: () => void send(sent) },
-          ],
+          actions: [resend],
         };
     }
   };
