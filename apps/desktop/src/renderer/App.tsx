@@ -192,10 +192,12 @@ export function App() {
       const text = (override ?? input).trim();
       if (!conv || !text || streamRef.current) return;
       const id = crypto.randomUUID();
-      setConv({
-        ...conv,
-        messages: [...conv.messages, { role: 'user', text }],
-      });
+      // A banner's resend runs a send from before the failed question was taken back, so append to the latest state.
+      setConv((c) =>
+        c && c.id === conv.id
+          ? { ...c, messages: [...c.messages, { role: 'user', text }] }
+          : c,
+      );
       const next = {
         id,
         conversationId: conv.id,
