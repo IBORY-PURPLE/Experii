@@ -10,6 +10,7 @@ import type { CardService } from './cards';
 import type { ChatService } from './chat';
 import { DuplicateSubjectError, type Store } from './db';
 import { IpcError, guard, type Handler, type StreamRegistry } from './ipc';
+import type { NoteService } from './notes';
 import type { Session } from './session';
 
 export const USAGE_URL = 'https://chatgpt.com/settings/usage';
@@ -19,13 +20,14 @@ export type Deps = {
   session: Session;
   chat: ChatService;
   cards: CardService;
+  notes: NoteService;
   streams: StreamRegistry;
   isTrusted: (event: IpcMainInvokeEvent) => boolean;
   openExternal: (url: string) => Promise<void>;
 };
 
 export function registerHandlers(deps: Deps) {
-  const { store, session, chat, cards, streams, isTrusted } = deps;
+  const { store, session, chat, cards, notes, streams, isTrusted } = deps;
   const on = <C extends Channel>(channel: C, handler: Handler<C>) =>
     ipcMain.handle(channel, guard(channel, isTrusted, handler));
 
@@ -109,6 +111,11 @@ export function registerHandlers(deps: Deps) {
     store.rateCard(id, useful);
     return null;
   });
+
+  on('notes:list', ({ conversationId }) => notes.list(conversationId));
+  on('notes:create', (payload) => notes.create(payload));
+  on('notes:update', (payload) => notes.update(payload));
+  on('notes:delete', ({ id }) => notes.delete(id));
 
   on('links:openUsage', async () => {
     await deps.openExternal(USAGE_URL);
