@@ -15,6 +15,7 @@ export type ChatErrorCode =
   | 'not_eligible_plan'
   | 'rate_limited'
   | 'context_too_long'
+  | 'unsupported'
   | 'incomplete'
   | 'network'
   | 'cancelled'
@@ -24,6 +25,7 @@ export class ResponsesError extends Error {
   constructor(
     readonly code: ChatErrorCode,
     message: string = code,
+    readonly param?: string,
   ) {
     super(message);
   }
@@ -63,12 +65,15 @@ export function developerMessage(text: string): InputItem {
 
 // The direct-token API rejects instructions, previous_response_id, conversation, temperature,
 // max_output_tokens and truncation, so the body is limited to these keys.
+export type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high';
+
 export type RequestBody = {
   model: string;
   input: InputItem[];
   store: false;
   stream: true;
   include?: string[];
+  reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
 };
 
@@ -85,6 +90,7 @@ export function buildRequestBody(opts: {
   model: string;
   input: InputItem[];
   includeReasoning?: boolean;
+  reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
 }): RequestBody {
   const body: RequestBody = {
@@ -94,6 +100,7 @@ export function buildRequestBody(opts: {
     stream: true,
   };
   if (opts.includeReasoning) body.include = ['reasoning.encrypted_content'];
+  if (opts.reasoning) body.reasoning = opts.reasoning;
   if (opts.text) body.text = opts.text;
   return body;
 }
@@ -101,13 +108,17 @@ export function buildRequestBody(opts: {
 export type ResponsesEvent = { type: string; [key: string]: unknown };
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
-function errorCodeOf(bodyText: string): string {
+function errorOf(bodyText: string): { code: string; param?: string } {
   try {
-    const code = (JSON.parse(bodyText) as { error?: { code?: unknown } }).error
-      ?.code;
-    return typeof code === 'string' ? code : '';
+    const error = (
+      JSON.parse(bodyText) as { error?: { code?: unknown; param?: unknown } }
+    ).error;
+    return {
+      code: typeof error?.code === 'string' ? error.code : '',
+      param: typeof error?.param === 'string' ? error.param : undefined,
+    };
   } catch {
-    return '';
+    return { code: '' };
   }
 }
 
@@ -119,6 +130,9 @@ export function codeForError(
 ): ChatErrorCode {
   if (code === 'subscription_sharing_user_not_eligible')
     return 'not_eligible_plan';
+  // The plan token refuses the input, tool or feature named in error.param; the caller may resend without it.
+  if (code === 'subscription_sharing_unsupported_capability')
+    return 'unsupported';
   if (code === 'subscription_sharing_usage_limit_exceeded' || status === 429)
     return 'rate_limited';
   if (status === 401) return 'unauthorized';
@@ -166,13 +180,14 @@ export async function* streamResponse(
   if (!res) throw new ResponsesError('network');
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '');
-    const code = errorCodeOf(text);
+    const { code, param } = errorOf(text);
     console.warn(
       `[responses] HTTP ${res.status} ${code || '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
     );
     throw new ResponsesError(
       codeForError(code, res.status, text),
       `HTTP ${res.status}`,
+      param,
     );
   }
   try {

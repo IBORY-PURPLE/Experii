@@ -580,6 +580,97 @@ test('without a session the sign-in screen comes first', async () => {
   }
 });
 
+test.describe('card speed', () => {
+  let app: Running | null = null;
+  const cardRequests = () =>
+    mock.requests.filter(
+      (body) =>
+        (body.text as { format?: { name?: string } } | undefined)?.format
+          ?.name === 'experience_card',
+    );
+
+  test.afterAll(async () => {
+    await app?.app.close().catch(() => {});
+    mock.pace.cardDelay = 0;
+    mock.pace.holdMs = 0;
+  });
+
+  test('card fields arrive one at a time, title first, before the card is done', async () => {
+    app = await launch(tempDir());
+    const { win } = app;
+    await win.getByRole('button', { name: '첫 과목 만들기' }).click();
+    const dialog = win.getByRole('dialog', { name: '새 과목' });
+    await dialog.getByLabel('과목 이름').fill('네트워크');
+    await dialog.getByRole('button', { name: '만들기' }).click();
+    await expect(dialog).toBeHidden();
+    await sendAndWait(win, 'TCP 3-way handshake가 헷갈려요');
+
+    mock.pace.cardDelay = 15;
+    mock.pace.holdMs = 1_000;
+    const { conversationId, result, events } = await win.evaluate(async () => {
+      const subjects = await window.experii.listSubjects();
+      const map = subjects.ok
+        ? await window.experii.getRoadmap(subjects.data[0].id)
+        : null;
+      const node = map?.ok
+        ? map.data.nodes.find((n) => n.kind === 'current')
+        : undefined;
+      if (node?.kind !== 'current') throw new Error('no conversation');
+      let done = false;
+      const events: Array<Record<string, unknown>> = [];
+      const off = window.experii.onCardEvent((e) =>
+        events.push({ ...e, done }),
+      );
+      const result = await window.experii.generateCard(node.conversationId);
+      done = true;
+      off();
+      return { conversationId: node.conversationId, result, events };
+    });
+
+    expect(result).toMatchObject({ ok: true, data: { kind: 'card' } });
+    const { card } = MOCK_CARD;
+    expect(events).toEqual(
+      (['title', 'summary', 'interview_line'] as const).map((field) => ({
+        conversationId,
+        type: 'progress',
+        field,
+        text: card[field],
+        done: false,
+      })),
+    );
+    expect(cardRequests().at(-1)!.reasoning).toEqual({ effort: 'low' });
+  });
+
+  test('the conversation goes on while a card is being made', async () => {
+    if (!app) throw new Error('app is not running');
+    const { win } = app;
+    await win.getByRole('button', { name: '새 대화' }).click();
+    await expect(win.locator('.msg-user')).toHaveCount(0);
+    await sendAndWait(win, 'TCP와 UDP는 뭐가 달라요?');
+
+    mock.pace.cardDelay = 50;
+    mock.pace.holdMs = 0;
+    const before = cardRequests().length;
+    await makeButton(win).click();
+    await expect.poll(() => cardRequests().length).toBe(before + 1);
+
+    await expect(win.getByLabel('메시지')).toBeEnabled();
+    await sendAndWait(win, 'DNS는 왜 UDP를 써요?');
+    await expect(win.locator('.msg-user')).toHaveCount(2);
+    await expect(win.locator('.msg-ai')).toHaveCount(2);
+    await expect(cardView(win), 'the card is still being made').toHaveCount(0);
+
+    await expect(cardView(win)).toBeVisible({ timeout: 20_000 });
+    const users = (cardRequests().at(-1)!.input as Item[])
+      .filter((i) => i.role === 'user')
+      .map(itemText);
+    expect(users, 'only the conversation as it was at the click').toEqual([
+      'TCP와 UDP는 뭐가 달라요?',
+    ]);
+    await expect(win.locator('.msg-user')).toHaveCount(2);
+  });
+});
+
 test.describe('answer tables and folding panels', () => {
   let dir: string;
   const appRoot = (win: Page) => win.locator('.app');

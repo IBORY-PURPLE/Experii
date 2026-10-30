@@ -114,5 +114,16 @@ export type ChatEvent = {
   code?: string;
 };
 
+export type CardField = 'title' | 'summary' | 'interview_line';
+
+// Sent once per field, in the order the strings close; a retried request sends its fields again with the new text.
+export type CardEvent = {
+  conversationId: string;
+  type: 'progress';
+  field: CardField;
+  text: string;
+};
+
 export const EVENT_CHAT = 'chat:event';
+export const EVENT_CARD = 'cards:event';
 export const EVENT_AUTH = 'auth:changed';

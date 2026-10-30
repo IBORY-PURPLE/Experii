@@ -1,5 +1,5 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
-import { EVENT_CHAT, type Channel } from '../shared/ipc';
+import { EVENT_CARD, EVENT_CHAT, type Channel } from '../shared/ipc';
 import { AuthError } from './auth';
 import type { CardService } from './cards';
 import type { ChatService } from './chat';
@@ -71,7 +71,12 @@ export function registerHandlers(deps: Deps) {
     return null;
   });
 
-  on('cards:generate', ({ conversationId }) => cards.generate(conversationId));
+  on('cards:generate', ({ conversationId }, event) => {
+    const sender = event.sender;
+    return cards.generate(conversationId, (ev) => {
+      if (!sender.isDestroyed()) sender.send(EVENT_CARD, ev);
+    });
+  });
   on('cards:cancel', ({ conversationId }) => {
     cards.cancel(conversationId);
     return null;
