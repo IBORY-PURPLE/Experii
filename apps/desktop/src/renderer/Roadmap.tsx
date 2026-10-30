@@ -5,7 +5,7 @@ import type {
   Roadmap as RoadmapData,
 } from '../shared/ipc';
 import { rateLabel } from './format';
-import { Check, Lock } from './icons';
+import { Check, Dots, Lock } from './icons';
 
 type Props = {
   roadmap: RoadmapData;
@@ -20,13 +20,16 @@ type Props = {
   onOpenLocked(node: LockedNode): void;
 };
 
+const rateChip = (useful: boolean | null) =>
+  useful === true ? 'useful' : useful === false ? 'not' : 'unrated';
+
 export function LockedBubble(p: { node: LockedNode; onStart(): void }) {
   return (
     <div className="bubble" role="group" aria-label="GPT가 추천한 다음 공부">
-      <small>GPT가 추천한 다음 공부</small>
       <b>{p.node.title}</b>
+      <small>GPT가 추천한 다음 공부</small>
       <p>{p.node.reason}</p>
-      <button className="btn small primary" onClick={p.onStart}>
+      <button className="btn small" onClick={p.onStart}>
         이걸로 시작
       </button>
     </div>
@@ -61,7 +64,7 @@ export function Roadmap(p: Props) {
             {stats.useful}/{stats.rated}
           </b>
           <span>쓸 만해요</span>
-          <div className="bar" aria-label={`쓸 만해요 비율 ${pct}%`}>
+          <div className="bar" role="img" aria-label={`쓸 만해요 비율 ${pct}%`}>
             <i style={{ width: `${pct}%` }} />
           </div>
         </div>
@@ -72,10 +75,17 @@ export function Roadmap(p: Props) {
       </header>
       {nodes.length === 0 ? (
         <div className="path-empty">
-          <h2>오른쪽에서 첫 대화를 시작해 보세요</h2>
-          <p>
-            대화를 마치고 “경험으로 남기기”를 누르면 이 길에 경험 칸이 생겨요.
-          </p>
+          <div className="ghost-path" aria-hidden>
+            <span />
+            <span />
+            <span />
+          </div>
+          <div>
+            <h2>오른쪽에서 첫 대화를 시작해 보세요</h2>
+            <p>
+              대화를 마치고 “경험으로 남기기”를 누르면 이 길에 경험 칸이 생겨요.
+            </p>
+          </div>
         </div>
       ) : (
         <ol className="path">
@@ -84,14 +94,19 @@ export function Roadmap(p: Props) {
               const open = n.cardId === p.openCardId;
               const making = n.conversationId === p.makingConversationId;
               return (
-                <li key={n.cardId} className="node" id={`node-${n.cardId}`}>
+                <li
+                  key={n.cardId}
+                  className="node"
+                  data-kind="done"
+                  id={`node-${n.cardId}`}
+                >
                   <button
                     className="knob"
                     onClick={() => p.onOpenCard(n)}
                     aria-label={`${n.title} 카드 ${open ? '접기' : '열기'}`}
                     aria-expanded={open}
                   >
-                    <Check />
+                    <Check size={24} />
                   </button>
                   {open && p.cardView ? (
                     p.cardView
@@ -109,9 +124,7 @@ export function Roadmap(p: Props) {
                             다시 만드는 중
                           </span>
                         ) : (
-                          <span
-                            className={`chip ${n.useful === true ? 'useful' : n.useful === null ? 'unrated' : ''}`}
-                          >
+                          <span className={`chip ${rateChip(n.useful)}`}>
                             {rateLabel(n.useful)}
                           </span>
                         )}
@@ -129,13 +142,13 @@ export function Roadmap(p: Props) {
             if (n.kind === 'current') {
               const making = n.conversationId === p.makingConversationId;
               return (
-                <li key={n.conversationId} className="node">
+                <li key={n.conversationId} className="node" data-kind="current">
                   <button
                     className="knob current"
                     onClick={() => p.onOpenConversation(n.conversationId)}
                     aria-label={`${n.title} 대화 열기`}
                   >
-                    …
+                    <Dots size={24} />
                   </button>
                   <button
                     className="tile"
@@ -163,14 +176,19 @@ export function Roadmap(p: Props) {
             }
             const open = n.id === p.openLockedId;
             return (
-              <li key={n.id} className="node" id={`node-${n.id}`}>
+              <li
+                key={n.id}
+                className="node"
+                data-kind="locked"
+                id={`node-${n.id}`}
+              >
                 <button
                   className="knob locked"
                   onClick={() => p.onOpenLocked(n)}
                   aria-label={`${n.title} 추천 보기`}
                   aria-expanded={open}
                 >
-                  <Lock />
+                  <Lock size={20} />
                 </button>
                 <div>
                   <button

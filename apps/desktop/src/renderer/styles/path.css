@@ -1,249 +1,385 @@
+/* The stat bar is the middle third of the 64px header band: line 1 (24px) holds the subject and the values, line 2 (20px) their labels. Its content lines up with the 640px path below. */
 .statbar {
   position: sticky;
   top: 0;
   z-index: 5;
   display: flex;
-  align-items: center;
-  gap: 32px;
-  padding: 18px 28px;
-  background: rgb(255 255 255 / 0.94);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--legacy-line);
+  align-items: flex-start;
+  gap: var(--sp-8);
+  height: var(--band);
+  padding: calc((var(--band) - var(--h-24) - var(--sp-5)) / 2)
+    max(var(--sp-6), calc((100% - 640px) / 2)) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-main);
 }
 
 .statbar .subject-title {
+  display: flex;
   flex: 1;
+  flex-direction: column-reverse;
   min-width: 0;
 }
 
-.statbar .subject-title small {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--legacy-ink-4);
-}
-
 .statbar .subject-title b {
-  display: block;
-  font-size: 17px;
-  font-weight: 760;
   overflow: hidden;
+  font-size: var(--fs-20);
+  font-weight: var(--fw-3);
+  line-height: var(--h-24);
+  letter-spacing: -0.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.statbar small,
+.stat span {
+  font-size: var(--fs-13);
+  line-height: var(--sp-5);
+  color: var(--ink-3);
+}
+
+.stat {
+  display: grid;
+  grid-template:
+    'value meter' var(--h-24)
+    'label label' var(--sp-5) / auto auto;
+  column-gap: var(--sp-2);
+  align-items: center;
+}
+
+/* Smaller line-1 text drops onto the 20px subject title's baseline: 0.71 is Pretendard's ascent minus descent. */
 .stat b {
-  display: block;
-  font-size: 17px;
-  font-weight: 760;
+  grid-area: value;
+  padding-top: calc((var(--fs-20) - 1em) * 0.71);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-3);
+  line-height: calc(var(--h-24) - (var(--fs-20) - 1em) * 0.71);
   font-variant-numeric: tabular-nums;
 }
 
 .stat span {
-  font-size: 13px;
-  color: var(--legacy-ink-3);
+  grid-area: label;
 }
 
 .stat .bar {
-  width: 120px;
-  height: 7px;
-  margin-top: 6px;
-  border-radius: 999px;
-  background: var(--legacy-surface-2);
+  grid-area: meter;
+  width: calc(var(--sp-10) + var(--sp-4));
+  height: var(--sp-1);
+  margin-top: calc((var(--fs-20) - var(--fs-16)) * 0.71);
   overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--line-2);
 }
 
 .stat .bar i {
   display: block;
   height: 100%;
-  background: var(--legacy-task);
-  border-radius: 999px;
+  border-radius: var(--r-pill);
+  background: var(--ink-2);
 }
 
 .path {
-  position: relative;
-  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  max-width: calc(640px + var(--sp-6) * 2);
   margin: 0 auto;
-  padding: 20px 24px 64px;
+  padding: var(--sp-6) var(--sp-6) var(--sp-10);
   list-style: none;
-}
-
-.path::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 51px;
-  width: 4px;
-  background: var(--legacy-surface-2);
 }
 
 .node {
   position: relative;
   display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 18px;
-  margin-bottom: 14px;
-  scroll-margin-top: 96px;
+  grid-template-columns: var(--knob) minmax(0, 1fr);
+  column-gap: var(--sp-5);
+  align-items: start;
+  scroll-margin-top: calc(var(--band) + var(--sp-2));
 }
 
+/* The rail runs from each knob's centre to the next one. It is dotted grey where the way is not walked yet. */
+.node:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--knob) / 2);
+  left: calc((var(--knob) - var(--rail)) / 2);
+  width: var(--rail);
+  height: calc(100% + var(--sp-3));
+  border-left: var(--rail) dotted var(--line-2);
+}
+
+/* It is solid blue from a done knob to the next done knob or to the conversation in progress. */
+.node[data-kind='done']:not(:last-child):not(
+    :has(+ .node[data-kind='locked'])
+  )::before {
+  border-left: 0;
+  border-radius: var(--r-pill);
+  background: var(--blue-rail);
+}
+
+/* Knobs are the one place the app keeps depth. */
 .knob {
   position: relative;
   z-index: 1;
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  margin-top: 10px;
-  border-radius: 50%;
+  width: var(--knob);
+  height: var(--knob);
+  padding: 0;
   border: 0;
-  background: var(--legacy-talk);
-  color: #fff;
-  box-shadow: 0 5px 0 #2b4275;
-  font-size: 20px;
-  font-weight: 800;
+  border-radius: var(--r-pill);
+  background: linear-gradient(
+    180deg,
+    var(--blue-hi) 0%,
+    var(--blue) 52%,
+    var(--blue-lo) 100%
+  );
+  box-shadow: var(--sh-knob-done);
+  color: var(--on-ink);
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out);
+}
+
+.knob:active {
+  transform: translateY(calc(var(--sp-1) / 2));
+  box-shadow: var(--sh-knob-pressed);
 }
 
 .knob.current {
-  background: var(--legacy-bg);
-  border: 3px solid var(--legacy-talk);
-  color: var(--legacy-talk);
-  box-shadow: 0 5px 0 var(--legacy-surface-2);
+  border: 2px solid var(--blue);
+  background: linear-gradient(
+    180deg,
+    var(--knob-now-top),
+    var(--knob-now-bottom)
+  );
+  box-shadow: var(--sh-knob-now);
+  color: var(--blue);
 }
 
 .knob.locked {
-  background: var(--legacy-surface-2);
-  color: var(--legacy-ink-4);
-  box-shadow: 0 5px 0 var(--legacy-line-2);
+  background: linear-gradient(
+    180deg,
+    var(--knob-off-top),
+    var(--knob-off-bottom)
+  );
+  box-shadow: var(--sh-knob-off);
+  color: var(--ink-3);
 }
 
-.knob svg {
-  width: 22px;
-  height: 22px;
+.knob.current:active,
+.knob.locked:active {
+  box-shadow: var(--sh-1);
 }
 
 .tile {
+  display: block;
   width: 100%;
-  padding: 16px 16px 14px;
-  border: 1.5px solid var(--legacy-line);
-  border-radius: 16px;
-  background: var(--legacy-bg);
+  min-width: 0;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-1);
   text-align: left;
-  box-shadow: 0 2px 0 var(--legacy-line);
   transition:
-    border-color 160ms var(--legacy-ease),
-    box-shadow 160ms var(--legacy-ease);
+    box-shadow var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out);
 }
 
 .tile:hover {
-  border-color: var(--legacy-line-2);
+  box-shadow: var(--sh-2);
 }
 
-.tile[aria-current='true'] {
-  border-color: var(--legacy-talk);
-  box-shadow: 0 2px 0 var(--legacy-talk-tint);
+.tile:active {
+  box-shadow: var(--sh-1);
 }
 
-.tile.locked {
-  border-style: dashed;
-  border-color: var(--legacy-line-2);
-  background: var(--legacy-surface);
-  box-shadow: none;
+/* Blue edge = now: the conversation open in the chat and the one in progress. */
+.tile[aria-current='true'],
+.node[data-kind='current'] .tile {
+  border-color: var(--blue-rail);
+}
+
+.node[data-kind='current'] .tile {
+  padding-block: var(--sp-3);
 }
 
 .tile-head {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: var(--sp-3);
 }
 
 .tile-head h3 {
   flex: 1;
+  min-width: 0;
   margin: 0;
-  font-size: 15px;
-  font-weight: 740;
-  line-height: 1.45;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-2);
+  line-height: var(--h-24);
 }
 
 .tile p {
-  margin: 6px 0 0;
-  color: var(--legacy-ink-3);
+  margin: 0;
+  color: var(--ink-2);
 }
 
-.line-box {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--legacy-card-tint);
+.tile .line-box {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  font-weight: var(--fw-2);
 }
 
-.line-box small {
+.tile .line-box small {
   display: block;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--legacy-card);
+  font-weight: var(--fw-2);
+  line-height: var(--sp-5);
 }
 
-.path-empty {
-  max-width: 420px;
-  margin: 96px auto;
-  text-align: center;
-  color: var(--legacy-ink-3);
+.tile.locked {
+  display: flex;
+  align-items: center;
+  min-height: var(--knob);
+  padding-block: var(--sp-2);
+  border-style: dashed;
+  border-color: var(--line-2);
+  background: transparent;
+  box-shadow: none;
 }
 
-.path-empty h2 {
-  margin: 0 0 8px;
-  font-size: 19px;
-  color: var(--legacy-ink);
+.tile.locked:hover,
+.tile.locked[aria-expanded='true'] {
+  background: var(--wash);
 }
 
-.path-empty p {
-  margin: 0 0 18px;
+.tile.locked .tile-head {
+  flex: 1;
+  align-items: center;
+}
+
+.tile.locked h3 {
+  color: var(--ink-3);
+  font-weight: var(--fw-1);
 }
 
 .bubble {
   position: relative;
-  margin-top: 12px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: var(--legacy-talk);
-  color: #fff;
-  box-shadow: 0 12px 24px -14px rgb(26 34 51 / 0.55);
+  margin-top: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-3);
 }
 
+/* The arrow points back up at the locked tile the bubble opened from. */
 .bubble::before {
   content: '';
   position: absolute;
-  top: -6px;
-  left: 26px;
-  width: 14px;
-  height: 14px;
-  border-radius: 2px;
-  background: var(--legacy-talk);
+  top: calc(var(--sp-3) / -2 - 1px);
+  left: var(--sp-6);
+  width: var(--sp-3);
+  height: var(--sp-3);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  background: var(--surface);
   transform: rotate(45deg);
-}
-
-.bubble small {
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  color: rgb(255 255 255 / 0.82);
 }
 
 .bubble b {
   display: block;
-  margin-top: 4px;
-  font-size: 15px;
-  font-weight: 740;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  line-height: var(--h-24);
+}
+
+.bubble small {
+  display: block;
+  line-height: var(--sp-5);
 }
 
 .bubble p {
-  margin: 4px 0 12px;
-  color: rgb(255 255 255 / 0.9);
+  margin: var(--sp-2) 0 var(--sp-4);
+  color: var(--ink-2);
 }
 
-.bubble .btn.primary {
-  border-color: #fff;
-  background: #fff;
-  color: var(--legacy-talk);
+/* Empty path: a faint ghost of the path beside the words, set a little above the middle. */
+.path-empty {
+  display: grid;
+  grid-template-columns: var(--knob) auto;
+  align-content: center;
+  align-items: start;
+  justify-content: center;
+  column-gap: var(--sp-5);
+  min-height: 100%;
+  padding: var(--sp-8) var(--sp-6) calc(var(--sp-10) * 3);
+}
+
+.statbar + .path-empty {
+  min-height: calc(100% - var(--band));
+}
+
+.path-empty h2 {
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-20);
+  font-weight: var(--fw-3);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.path-empty p {
+  margin: var(--sp-1) 0 0;
+  color: var(--ink-3);
+}
+
+.path-empty .btn {
+  margin-top: var(--sp-5);
+}
+
+.ghost-path {
+  position: relative;
+  display: grid;
+  gap: var(--sp-6);
+}
+
+.ghost-path::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--knob) / 2);
+  bottom: calc(var(--knob) / 2);
+  left: calc((var(--knob) - var(--rail)) / 2);
+  border-left: var(--rail) dotted var(--line-2);
+}
+
+.ghost-path span {
+  position: relative;
+  width: var(--knob);
+  height: var(--knob);
+  border-radius: var(--r-pill);
+  background: linear-gradient(
+    180deg,
+    var(--knob-off-top),
+    var(--knob-off-bottom)
+  );
+  box-shadow: var(--sh-knob-off);
+}
+
+.ghost-path span:first-child {
+  border: 2px dashed var(--ink-4);
+  background: linear-gradient(
+    180deg,
+    var(--knob-now-top),
+    var(--knob-now-bottom)
+  );
+  box-shadow: var(--sh-knob-slot);
+}
+
+.ghost-path span:nth-child(2) {
+  opacity: 0.7;
+}
+
+.ghost-path span:nth-child(3) {
+  opacity: 0.4;
 }

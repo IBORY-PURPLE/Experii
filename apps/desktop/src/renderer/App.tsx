@@ -587,14 +587,21 @@ export function App() {
           />
         ) : (
           <div className="path-empty">
-            <h2>과목을 만들면 여기에 길이 생겨요</h2>
-            <p>공부한 대화가 경험 카드가 되어 이 길에 하나씩 쌓여요.</p>
-            <button
-              className="btn primary"
-              onClick={() => setDialog({ kind: 'subject' })}
-            >
-              첫 과목 만들기
-            </button>
+            <div className="ghost-path" aria-hidden>
+              <span />
+              <span />
+              <span />
+            </div>
+            <div>
+              <h2>과목을 만들면 여기에 길이 생겨요</h2>
+              <p>공부한 대화가 경험 카드가 되어 이 길에 하나씩 쌓여요.</p>
+              <button
+                className="btn primary large"
+                onClick={() => setDialog({ kind: 'subject' })}
+              >
+                첫 과목 만들기
+              </button>
+            </div>
           </div>
         )}
       </main>
