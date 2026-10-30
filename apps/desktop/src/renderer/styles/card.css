@@ -43,7 +43,7 @@
 }
 
 /* A 24px first line keeps the title, chip and 접기 on the knob's centre line. */
-.cv-head h3 {
+.cv-head h2 {
   margin: 0;
   font-size: var(--fs-18);
   font-weight: var(--fw-3);

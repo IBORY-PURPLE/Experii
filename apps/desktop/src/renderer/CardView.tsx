@@ -27,7 +27,7 @@ export function CardView(p: Props) {
   return (
     <article className="card-view" aria-label={`경험 카드: ${c.title}`}>
       <header className="cv-head">
-        <h3>{c.title}</h3>
+        <h2>{c.title}</h2>
         <span className={`chip ${rateChip(c.useful)}`}>
           {rateLabel(c.useful)}
         </span>

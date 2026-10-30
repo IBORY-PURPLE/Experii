@@ -214,8 +214,9 @@ textarea.input {
   color: var(--ink);
 }
 
+/* 아니에요 has a solid ring and 평가 전 a dashed one, both in the control-edge grey so the ring reads at 3:1. */
 .chip.not {
-  border-color: var(--line-2);
+  border-color: var(--ink-4);
   background: transparent;
 }
 

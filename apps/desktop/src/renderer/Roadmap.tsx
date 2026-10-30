@@ -51,7 +51,7 @@ export function Roadmap(p: Props) {
         <div className="stats">
           <div className="subject-title">
             <small>과목</small>
-            <b className="band-title">{subject.title}</b>
+            <h1 className="band-title">{subject.title}</h1>
           </div>
           <div className="stat">
             <b className="band-title">{stats.cards}</b>
@@ -120,7 +120,7 @@ export function Roadmap(p: Props) {
                       onClick={() => p.onOpenCard(n)}
                     >
                       <div className="tile-head">
-                        <h3>{n.title}</h3>
+                        <h2>{n.title}</h2>
                         {making ? (
                           <span className="chip making">
                             <i className="spin" aria-hidden />
@@ -159,7 +159,7 @@ export function Roadmap(p: Props) {
                     onClick={() => p.onOpenConversation(n.conversationId)}
                   >
                     <div className="tile-head">
-                      <h3>{n.title}</h3>
+                      <h2>{n.title}</h2>
                       {making ? (
                         <span className="chip making">
                           <i className="spin" aria-hidden />
@@ -200,7 +200,7 @@ export function Roadmap(p: Props) {
                     onClick={() => p.onOpenLocked(n)}
                   >
                     <div className="tile-head">
-                      <h3>{n.title}</h3>
+                      <h2>{n.title}</h2>
                       <span className="chip">추천 · 잠김</span>
                     </div>
                   </button>

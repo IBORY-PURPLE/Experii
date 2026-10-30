@@ -116,10 +116,12 @@ button:disabled {
   height: 100%;
 }
 
+/* Scrolling to a node or to a focused control stops below the sticky stat bar and leaves room for the focus ring. */
 .middle {
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
+  scroll-padding: calc(var(--band) + var(--sp-2)) 0 var(--sp-2);
   background: var(--bg-main);
 }
 
@@ -135,13 +137,14 @@ button:disabled {
   }
 }
 
+/* Nothing moves or fades: states change at once, and a spinner stands still beside the words that say what is running.
+   A near-zero duration instead would still start a transition on every property of every element. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }
