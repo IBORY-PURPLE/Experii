@@ -63,6 +63,12 @@ export function App() {
   const [openLockedId, setOpenLockedId] = useState<string | null>(null);
   const [making, setMaking] = useState<Making | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  // Unsent text of the conversations the chat has left, so opening a card never throws a half-typed question away.
+  const drafts = useRef(new Map<string, string>());
+  const typed = useRef(input);
+  typed.current = input;
+  // Set the moment the chat switches, so replies that arrive before the next render still see where the user is.
+  const shownId = useRef<string | null>(null);
   const streamRef = useRef<Stream | null>(null);
   streamRef.current = stream;
   // Card generation outlives clicks, so its result checks where the user is now, not where they started.
@@ -86,13 +92,24 @@ export function App() {
   }, []);
 
   const showConversation = useCallback((view: ConversationView) => {
+    const left = shownId.current;
+    if (left && left !== view.id) {
+      if (typed.current.trim()) drafts.current.set(left, typed.current);
+      else drafts.current.delete(left);
+    }
+    shownId.current = view.id;
     setConv(view);
     setBanner(null);
-    setInput(view.draft ?? '');
+    setInput(drafts.current.get(view.id) ?? view.draft ?? '');
   }, []);
 
   const openConversation = useCallback(
     async (id: string) => {
+      // The conversation already in the chat keeps its text, its banner and an answer in progress.
+      if (shownId.current === id) {
+        inputRef.current?.focus();
+        return;
+      }
       stopStream();
       showConversation(await call(api.getConversation(id)));
     },
@@ -419,7 +436,10 @@ export function App() {
         ? { ...c, messages: c.messages.slice(0, -1) }
         : c,
     );
-    setInput((cur) => cur || sent);
+    // A stream stopped by leaving its conversation hands the text back to that conversation, not to the one shown.
+    if (shownId.current === ev.conversationId) setInput((cur) => cur || sent);
+    else if (!drafts.current.get(ev.conversationId))
+      drafts.current.set(ev.conversationId, sent);
     if (ev.code === 'cancelled') return;
     if (ev.code === 'not_eligible_plan') {
       setGate({ waiting: false, error: null, planRequired: true });
