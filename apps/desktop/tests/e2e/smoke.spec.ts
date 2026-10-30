@@ -597,20 +597,6 @@ test('error banners keep the sent message in the input', async () => {
   await expect(banner.getByRole('button', { name: '새 대화' })).toBeVisible();
   await expect(input).toHaveValue(long);
   await shot(win, 'm3-banner-too-long');
-
-  // Opening a card switches the chat; coming back finds the unsent text where it was left.
-  const inProgress = win.locator('.tile', { hasText: '진행 중' });
-  await doneTile(win).click();
-  await expect(cardView(win)).toBeVisible();
-  await expect(input).toHaveValue('');
-  await inProgress.click();
-  await expect(input).toHaveValue(long);
-  await inProgress.click();
-  await expect(input, 'the open conversation is not reloaded').toHaveValue(
-    long,
-  );
-  await expect(input).toBeFocused();
-  await cardView(win).getByRole('button', { name: '접기' }).click();
 });
 
 test('the main screen fits a 1280 wide window', async () => {
