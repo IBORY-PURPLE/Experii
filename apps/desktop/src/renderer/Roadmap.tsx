@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import type {
+  CardField,
   DoneNode,
   LockedNode,
   Roadmap as RoadmapData,
@@ -11,6 +12,7 @@ type Props = {
   roadmap: RoadmapData;
   activeConversationId: string | null;
   makingConversationId: string | null;
+  makingFields: Partial<Record<CardField, string>> | null;
   openCardId: string | null;
   openLockedId: string | null;
   cardView: ReactNode;
@@ -83,6 +85,7 @@ export function Roadmap(p: Props) {
             if (n.kind === 'done') {
               const open = n.cardId === p.openCardId;
               const making = n.conversationId === p.makingConversationId;
+              const fill = making ? p.makingFields : null;
               return (
                 <li key={n.cardId} className="node" id={`node-${n.cardId}`}>
                   <button
@@ -102,7 +105,7 @@ export function Roadmap(p: Props) {
                       onClick={() => p.onOpenCard(n)}
                     >
                       <div className="tile-head">
-                        <h3>{n.title}</h3>
+                        <h3>{fill?.title ?? n.title}</h3>
                         {making ? (
                           <span className="chip making">
                             <i className="spin" aria-hidden />
@@ -116,10 +119,10 @@ export function Roadmap(p: Props) {
                           </span>
                         )}
                       </div>
-                      <p>{n.summary}</p>
+                      <p>{fill?.summary ?? n.summary}</p>
                       <div className="line-box">
                         <small>면접 한 마디</small>
-                        {n.interviewLine}
+                        {fill?.interview_line ?? n.interviewLine}
                       </div>
                     </button>
                   )}
@@ -128,6 +131,7 @@ export function Roadmap(p: Props) {
             }
             if (n.kind === 'current') {
               const making = n.conversationId === p.makingConversationId;
+              const fill = making ? p.makingFields : null;
               return (
                 <li key={n.conversationId} className="node">
                   <button
@@ -143,7 +147,7 @@ export function Roadmap(p: Props) {
                     onClick={() => p.onOpenConversation(n.conversationId)}
                   >
                     <div className="tile-head">
-                      <h3>{n.title}</h3>
+                      <h3>{fill?.title ?? n.title}</h3>
                       {making ? (
                         <span className="chip making">
                           <i className="spin" aria-hidden />
@@ -154,9 +158,15 @@ export function Roadmap(p: Props) {
                       )}
                     </div>
                     <p>
-                      {n.turns}턴 대화 중 · 마치면 “경험으로 남기기”를 눌러
-                      주세요
+                      {fill?.summary ??
+                        `${n.turns}턴 대화 중 · 마치면 “경험으로 남기기”를 눌러 주세요`}
                     </p>
+                    {fill?.interview_line && (
+                      <div className="line-box">
+                        <small>면접 한 마디</small>
+                        {fill.interview_line}
+                      </div>
+                    )}
                   </button>
                 </li>
               );

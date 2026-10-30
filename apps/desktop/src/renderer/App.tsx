@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { StoredCard } from '../shared/card';
 import type {
   AuthStatus,
+  CardField,
   ChatEvent,
   ConversationView,
   DoneNode,
@@ -43,7 +44,12 @@ type Stream = {
   tools: LiveToolLine[];
 };
 
-type Making = { conversationId: string; subjectId: string; title: string };
+type Making = {
+  conversationId: string;
+  subjectId: string;
+  title: string;
+  fields: Partial<Record<CardField, string>>;
+};
 
 type DialogState =
   | { kind: 'subject' }
@@ -404,14 +410,18 @@ export function App() {
         node && node.kind !== 'locked'
           ? node.title
           : (convRef.current?.title ?? ''),
+      fields: {},
     });
     const r = await api.generateCard(conversationId);
+    const cardId = r.ok && r.data.kind === 'card' ? r.data.cardId : null;
+    // The tile keeps the fields it streamed until the reloaded path has the card, so it never flashes back.
+    if (cardId && subjectRef.current === sid)
+      await loadRoadmap(sid).catch(() => null);
     setMaking(null);
     if (subjectRef.current !== sid) return;
-    if (r.ok && r.data.kind === 'card') {
-      const { cardId } = r.data;
-      await loadRoadmap(sid);
-      await showCard(cardId);
+    if (cardId) {
+      // A card that lands while an answer streams waits folded on the path, so the reader keeps their place.
+      if (!streamRef.current) await showCard(cardId);
       setConv((c) => (c && c.id === conversationId ? { ...c, cardId } : c));
       return;
     }
@@ -516,6 +526,13 @@ export function App() {
           : cur,
       ),
     );
+    const offCard = api.onCardEvent((ev) =>
+      setMaking((m) =>
+        m?.conversationId === ev.conversationId
+          ? { ...m, fields: { ...m.fields, [ev.field]: ev.text } }
+          : m,
+      ),
+    );
     const offAuth = api.onAuthChanged(() => {
       void call(api.authStatus()).then(setAuth);
     });
@@ -526,6 +543,7 @@ export function App() {
     return () => {
       offChat();
       offTool();
+      offCard();
       offAuth();
     };
   }, [enterApp]);
@@ -636,6 +654,7 @@ export function App() {
             roadmap={roadmap}
             activeConversationId={conv?.id ?? null}
             makingConversationId={makingHere?.conversationId ?? null}
+            makingFields={makingHere?.fields ?? null}
             openCardId={card?.id ?? null}
             openLockedId={lockedNode?.id ?? null}
             cardView={

@@ -371,6 +371,16 @@ button:not(:disabled):active {
   color: var(--ink-4);
 }
 
+.exp .sum {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
 .rate-dot {
   width: 8px;
   height: 8px;

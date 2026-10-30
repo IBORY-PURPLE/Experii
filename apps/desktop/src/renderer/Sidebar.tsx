@@ -1,4 +1,4 @@
-import type { DoneNode, Subject } from '../shared/ipc';
+import type { CardField, DoneNode, Subject } from '../shared/ipc';
 import { SUBJECT_COLORS, dayLabel, rateLabel } from './format';
 import { PaneToggle } from './Panes';
 
@@ -6,7 +6,11 @@ type Props = {
   subjects: Subject[];
   subjectId: string | null;
   experiences: DoneNode[];
-  making: { conversationId: string; title: string } | null;
+  making: {
+    conversationId: string;
+    title: string;
+    fields?: CardFields;
+  } | null;
   openCardId: string | null;
   account: string;
   onSelect(id: string): void;
@@ -15,6 +19,18 @@ type Props = {
   onSignOut(): void;
   onFold(): void;
 };
+
+type CardFields = Partial<Record<CardField, string>>;
+
+// While a card is being made, its streamed title replaces the old one and its summary shows under it.
+function ExpText(p: { title: string; fields?: CardFields }) {
+  return (
+    <>
+      <span className="t">{p.fields?.title ?? p.title}</span>
+      {p.fields?.summary && <span className="sum">{p.fields.summary}</span>}
+    </>
+  );
+}
 
 export function Sidebar(p: Props) {
   const current = p.subjects.find((s) => s.id === p.subjectId);
@@ -72,7 +88,7 @@ export function Sidebar(p: Props) {
               <div className="exp loading" role="status">
                 <i className="spin" aria-hidden />
                 <span>
-                  <span className="t">{fresh.title}</span>
+                  <ExpText title={fresh.title} fields={fresh.fields} />
                   <span className="m">경험 카드를 만드는 중…</span>
                 </span>
               </div>
@@ -95,7 +111,14 @@ export function Sidebar(p: Props) {
                   />
                 )}
                 <span>
-                  <span className="t">{n.title}</span>
+                  <ExpText
+                    title={n.title}
+                    fields={
+                      n.conversationId === p.making?.conversationId
+                        ? p.making.fields
+                        : undefined
+                    }
+                  />
                   <span className="m">
                     {n.conversationId === p.making?.conversationId
                       ? '카드를 다시 만드는 중…'
