@@ -1,0 +1,5430 @@
+{
+  "route": "/v/h3",
+  "viewport": {
+    "name": "phone",
+    "width": 390,
+    "height": 844,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "meta": {
+    "title": "Experii · 공부하는 오늘이, 면접에서 말할 경험이 됩니다",
+    "description": "내 ChatGPT 계정을 Experii 앱에 등록하면, 이제 공부만 하세요. 면접 소재는 Experii가 쌓아 둡니다.",
+    "ogTitle": "Experii · 공부하는 오늘이, 면접에서 말할 경험이 됩니다",
+    "ogDescription": "내 ChatGPT 계정을 Experii 앱에 등록하면, 이제 공부만 하세요. 면접 소재는 Experii가 쌓아 둡니다.",
+    "twitterTitle": "Experii · 공부하는 오늘이, 면접에서 말할 경험이 됩니다",
+    "twitterDescription": "내 ChatGPT 계정을 Experii 앱에 등록하면, 이제 공부만 하세요. 면접 소재는 Experii가 쌓아 둡니다."
+  },
+  "shots": {
+    "fold": "h3-phone-fold.png",
+    "full": "h3-phone-full.png"
+  },
+  "blocks": [
+    {
+      "tag": "a",
+      "text": "Experii",
+      "section": "header",
+      "top": 8,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "가이드",
+      "section": "nav",
+      "top": 8,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "사전 신청하기",
+      "section": "header",
+      "top": 8,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "button",
+      "text": "Windows 앱 다운로드출시 예정",
+      "section": "header",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "출시 예정",
+      "section": "header",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "처음",
+      "section": "nav",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "문제",
+      "section": "nav",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "질문이 달라졌어요",
+      "section": "nav",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "작동 방식",
+      "section": "nav",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "언제 시작하나요",
+      "section": "nav",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "귀찮지 않은 시작",
+      "section": "nav",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "사전 신청",
+      "section": "nav",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "면접에 집중한 학습 앱",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 113,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "자격증 공부하면서",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 146,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접 답변도 같이 쌓으세요",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 185,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "내 ChatGPT 계정을 Experii 앱에 등록하면, 이제 공부만 하세요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 241,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접 소재는 Experii가 쌓아 둡니다.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 269,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "button",
+      "text": "Windows 앱 다운로드 출시 예정",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 345,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "출시 예정",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 360,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "사전 신청하기",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 405,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "앱 예시 화면은 데스크톱 화면에서 볼 수 있어요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 477,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "예시 화면: SQLD 공부 중 막힌 걸 물으면 AI가 예시 표로 설명하고, 현장 과제를 풀면 면접 답변 한 줄이 경험 카드로 저장돼요. 1일, 7일, 30일 뒤 리마인드 알림(출시 예정 기능)이 오고, 30일 알림을 누르면 같은 카드가 다시 열려요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "E경험 카드재생일시정지다시 보기 · 앱 예시 화면예시 화면",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "경험 카드",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "재생",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "일시정지",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "다시 보기",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "· 앱 예시 화면",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "예시 화면",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "Experii",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "SQLD · 2과목",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "오늘 공부",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "내 경험 카드4",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "4",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "리마인드",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "E오늘 공부하다 막힌 걸 물어보세요내 GPT · 연결 준비 중",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "오늘 공부하다 막힌 걸 물어보세요",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "내 GPT · 연결 준비 중",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "최근 경험 카드",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "7일 전",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "7일 전SQLD 2과목 · GROUP BY",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "결제 2건 이상인 재구매 회원을 뽑는 과제",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "30일 전",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "30일 전SQLD 2과목 · 서브쿼리",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "평균보다 많이 주문한 회원을 찾는 과제",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "3개월 전",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "3개월 전SQLD 1과목 · 정규화",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "주문서 엑셀을 회원·주문 테이블로 나누는 과제",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "10월 26일 (월)",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN이랑 INNER JOIN 차이가 헷갈려",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "membersmember_idmember_name1민지2서준3하린ordersorder_idmember_id101110211033",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "member_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "member_name",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "1",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "2",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "서준",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "3",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "하린",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "order_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "member_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "101",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "1",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "102",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "1",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "103",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "3",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "INNER JOIN",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "INNER JOIN은 양쪽에 짝이 있는 행만 남겨요. 주문이 없는 서준은 빠져서 결과가 3행이에요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "AI둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요.membersmember_idmember_name1민지2서준3하린ordersorder_idmember_id101110211033INNER JOIN은 양쪽에 짝이 있는 행만 남겨요. 주문이 없는 서준은 빠져서 결과가 3행이에요.결과 표 A (INNER JOIN, 3행)member_nameorder_id민지101민지102하린103LEFT JOIN은 왼쪽(회원) 행을 모두 남기고, 짝이 없으면 주문 칸을 NULL로 채워요. 그래서 4행이에요.결과 표 B (LEFT JOIN, 4행)member_nameorder_id민지101민지102서준NULL하린103",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "member_name",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "order_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "101",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "102",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "하린",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "103",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "LEFT JOIN",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN은 왼쪽(회원) 행을 모두 남기고, 짝이 없으면 주문 칸을 NULL로 채워요. 그래서 4행이에요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "member_name",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "order_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "101",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "102",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "서준",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "NULL",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "하린",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "103",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "AI그럼 하나 물어볼게요. 주문을 한 번도 안 한 회원만 뽑으려면, 결과 표 B에서 어떤 행을 고르면 될까요?",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN 하고 주문 칸이 NULL인 행?",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "과제 받기",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "방금 대화에서 과제를 만드는 중…",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "대화에서 개념 찾기",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "대화에서 개념 찾기 · LEFT JOIN, IS NULL",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "상황 고르기",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "상황 고르기 · 쇼핑몰 회원·주문 데이터",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "현장 과제 만들기",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "현장 과제",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "쇼핑몰 마케팅팀 요청 (가상 상황)",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "가입은 했지만 아직 한 번도 주문하지 않은 회원에게 첫 구매 쿠폰을 보내려고 해요. 대상 회원의 아이디, 이름, 가입일을 뽑아 주세요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "쓰는 테이블",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "쓰는 테이블members(member_id, member_name, joined_at)orders(order_id, member_id, ordered_at)",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "SELECT",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "SELECT m.member_id, m.member_name, m.joined_at",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "FROM",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "FROM members m",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN orders o",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "ON",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "ON m.member_id = o.member_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "WHERE",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "WHERE o.order_id IS NULL;",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "IS NULL",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "INNER JOIN",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "결과 2행member_idmember_namejoined_at2서준2026-09-104도윤2026-10-12AI맞아요. 주문이 없는 회원은 주문 칸이 NULL로 남아서 WHERE에서 골라져요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "member_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "member_name",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "th",
+      "text": "joined_at",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "2",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "서준",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "2026-09-10",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "4",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "도윤",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "td",
+      "text": "2026-10-12",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "AI맞아요. 주문이 없는 회원은 주문 칸이 NULL로 남아서 WHERE에서 골라져요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "AI방금 푼 과제를 면접 답변 한 줄로 정리했어요. 내 말투에 맞게 고쳐도 돼요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "경험 카드 · 2026.10.26 (월)",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접 질문",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQL을 써 본 적 있나요?",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "내 답변 한 줄",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "배운 점",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "내가 쓴 쿼리",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "내가 쓴 쿼리LEFT JOIN … IS NULL",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "다시 볼 날",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "경험 카드로 저장",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "내 GPT · 연결 준비 중",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "질문을 입력하세요",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "저장했어요. 내일 다시 꺼내 드릴게요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "경험 카드",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일 (수)",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "다시 본 날 · 10월 27일 · 11월 2일 · 11월 25일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "경험 카드 · 2026.10.26 (월)",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접 질문",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQL을 써 본 적 있나요?",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "내 답변 한 줄",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "배운 점",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "내가 쓴 쿼리",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "내가 쓴 쿼리LEFT JOIN … IS NULL",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "SQLD",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "2과목",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "JOIN",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "출처 · 10월 26일 SQLD 대화",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "공부 30일 뒤 · 면접 예상 질문",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "면접 질문: \"SQL을 실제로 써 본 적 있나요?\"",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "꼬리질문 대비",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "같은 결과를 다른 방법으로도 낼 수 있나요? → NOT EXISTS로도 찾을 수 있어요.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "SELECT",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "SELECT m.member_id, m.member_name, m.joined_at",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "FROM",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "FROM members m",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "WHERE NOT EXISTS",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "WHERE NOT EXISTS (",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "SELECT",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "SELECT 1",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "FROM",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "FROM orders o",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "WHERE",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "WHERE o.member_id = m.member_id",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": ");",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "화요일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "월요일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "수요일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "출시 예정 기능",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "EExperii · 공부 1일 뒤 · 배운 점",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "· 공부 1일 뒤 · 배운 점",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일 화요일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN은 왼쪽 표의 행을 모두 남겨요. 주문이 없는 회원은 주문 칸이 NULL이라 IS NULL로 찾았죠.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "EExperii · 공부 7일 뒤 · 활용 방안",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "· 공부 7일 뒤 · 활용 방안",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일 월요일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "'한 번도 ~하지 않은' 대상을 찾을 땐 같은 모양이에요. 예: 강의를 결제하고 한 번도 듣지 않은 수강생 찾기.",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "EExperii · 공부 30일 뒤 · 면접 예상 질문",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "· 공부 30일 뒤 · 면접 예상 질문",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일 수요일",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접 질문: \"SQL을 실제로 써 본 적 있나요?\" 내 답변 한 줄 다시 보기 →",
+      "section": "section#top | 자격증 공부하면서 면접 답변도 같이 쌓으세요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "예시",
+      "section": "section",
+      "top": 618,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접관",
+      "section": "section",
+      "top": 624,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQL 써 보셨어요?",
+      "section": "section",
+      "top": 650,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "자격증만 있을 때",
+      "section": "section",
+      "top": 704,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "자격증 있어요.",
+      "section": "section",
+      "top": 731,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "과제를 풀어 봤을 때",
+      "section": "section",
+      "top": 787,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "주문 없는 회원을 찾는 과제에서 LEFT JOIN으로 이렇게 써 봤어요.",
+      "section": "section",
+      "top": 813,
+      "visible": true,
+      "inFold": true,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "10월 26일 SQLD 대화에서",
+      "section": "section",
+      "top": 894,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "h2",
+      "text": "공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1036,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "blockquote",
+      "text": "“AI와 공부하며 공부 시간은 늘어났는데 이해도는 떨어지는 느낌”",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1146,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "blockquote",
+      "text": "“웹 리서치로 얻은 정보가 노션과 카톡에 누적만 되어 있고 실제로 다시 보지 않음”",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1243,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "blockquote",
+      "text": "“웹 리서치 시간이 너무 아까움”",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1339,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "창업자와 주변 대학생 2명이 실제로 한 말이에요.",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1404,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "SQL JOIN 정리",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1496,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "저장함 · 9월 3일",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1497,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "다시 연 날",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1576,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "SQL JOIN 정리",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1536,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "저장함 · 9월 17일",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1538,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "다시 연 날",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1619,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "SQL JOIN 정리",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1576,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "저장함 · 10월 2일",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1578,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "다시 연 날",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1662,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "정리해서 저장은 했는데,",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1747,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "정리해서 저장은 했는데, 다시 열어 본 적은 없어요.",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1744,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "공부는 했는데,",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1821,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "공부는 했는데, 면접에서 꺼낼 경험으로는 남지 않아요.",
+      "section": "section#problem | 공부 시간은 늘었는데, 면접에서 꺼낼 게 없어요",
+      "top": 1818,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "서류는 AI가 도와줘요.",
+      "section": "section#shift | 서류는 AI가 도와줘요. 면접에서 나누는 대화는요?",
+      "top": 2055,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접에서 나누는 대화는요?",
+      "section": "section#shift | 서류는 AI가 도와줘요. 면접에서 나누는 대화는요?",
+      "top": 2092,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "“자격증 있어요”는 첫 질문까지만 답이 돼요.",
+      "section": "section#shift | 서류는 AI가 도와줘요. 면접에서 나누는 대화는요?",
+      "top": 2149,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "“자격증 있어요”는 첫 질문까지만 답이 돼요. 그다음 질문에 답하려면 직접 써 본 경험이 있어야 해요.",
+      "section": "section#shift | 서류는 AI가 도와줘요. 면접에서 나누는 대화는요?",
+      "top": 2145,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접관",
+      "section": "section#shift | 서류는 AI가 도와줘요. 면접에서 나누는 대화는요?",
+      "top": 2237,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQLD 있으시네요.",
+      "section": "section#shift | 서류는 AI가 도와줘요. 면접에서 나누는 대화는요?",
+      "top": 2269,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "그럼 SQL을 어떤 과제에서 어떻게 써 봤어요?",
+      "section": "section#shift | 서류는 AI가 도와줘요. 면접에서 나누는 대화는요?",
+      "top": 2322,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "h2",
+      "text": "공부하고, 풀고, 남기고, 다시 꺼내요",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2570,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQLD 공부 하루가 면접 답변 한 줄이 되기까지",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2619,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "다른 질문으로 보기",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2683,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "JOIN 차이가 헷갈려",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2714,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "GROUP BY랑 HAVING",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2714,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "ROW_NUMBER랑 RANK",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2766,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "E LEFT JOIN이랑 INNER JOIN 차이가 헷갈려 예시 화면",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2918,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN이랑 INNER JOIN 차이가 헷갈려",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2927,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "예시 화면",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2925,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "Experii",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "SQLD · 2과목",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "오늘 공부",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "내 경험 카드3",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "3",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "리마인드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "1",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "공부한 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2855,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "학습 대화",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2873,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "2",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "공부한 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2855,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "현장 과제",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2873,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "3",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "공부한 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2855,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "경험 카드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2873,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "4",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "1·7·30일 뒤",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2855,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "리마인드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2873,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "small",
+      "text": "공부한 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "h3",
+      "text": "공부한 날1 학습 대화",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "b",
+      "text": "AI와 평소처럼 공부해요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3513,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "AI와 평소처럼 공부해요. 막힌 개념을 물으면 예시 표로 풀어 주고, 거꾸로 질문도 던져요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3510,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "예시 화면",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "SQLD · 2과목",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2967,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "10월 26일 (월)",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 2969,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN이랑 INNER JOIN 차이가 헷갈려",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3016,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3074,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3095,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "div",
+      "text": "members member_id member_name 1 민지 2 서준 3 하린 orders order_id member_id 101 1 102 1 103 3",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3145,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "member_id",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3166,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "member_name",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3166,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "1",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3192,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3192,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "2",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3219,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "서준",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3219,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "3",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3245,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "하린",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3245,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "order_id",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3301,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "member_id",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3301,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "101",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3327,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "1",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3327,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "102",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3354,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "1",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3354,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "103",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3380,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "3",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3380,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "b",
+      "text": "INNER JOIN",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3416,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "INNER JOIN은 양쪽에 짝이 있는 행만 남겨요. 주문이 없는 서준은 빠져서 결과가 3행이에요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3414,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "div",
+      "text": "AI 둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요. members member_id member_name 1 민지 2 서준 3 하린 orders order_id member_id 101 1 102 1 103 3 INNER JOIN은 양쪽에 짝이 있는 행만 남겨요. 주문이 없는 서준은 빠져서 결과가 3행이에요. 결과 표 A (INNER JOIN, 3행) member_name order_id 민지 101 민지 102 하린 103 LEFT JOIN은 왼쪽(회원) 행을 모두 남기고, 짝이 없으면 주문 칸을 NULL로 채워요. 그래서 4행이에요. 결과 표 B (LEFT JOIN, 4행) member_name order_id 민지 101 민지 102 서준 NULL ",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3065,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "member_name",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3487,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "order_id",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3487,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3513,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "101",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3513,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3540,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "102",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3540,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "하린",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3566,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "103",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3566,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "b",
+      "text": "LEFT JOIN",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3602,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN은 왼쪽(회원) 행을 모두 남기고, 짝이 없으면 주문 칸을 NULL로 채워요. 그래서 4행이에요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3600,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "member_name",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3673,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "th",
+      "text": "order_id",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3673,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3699,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "101",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3699,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "민지",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3726,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "102",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3726,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "서준",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3752,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "NULL",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3752,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "하린",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3779,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "td",
+      "text": "103",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3779,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3833,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "AI 그럼 하나 물어볼게요. 주문을 한 번도 안 한 회원만 뽑으려면, 결과 표 B에서 어떤 행을 고르면 될까요?",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3824,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN 하고 주문 칸이 NULL인 행?",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3916,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "AI",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3975,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "p",
+      "text": "맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요?",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3996,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "내 GPT 연결 준비 중",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3386,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "small",
+      "text": "연결 준비 중",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3407,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "span",
+      "text": "질문을 입력하세요",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3396,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "button",
+      "text": "다음 단계: 현장 과제",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3450,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": "loop-panel-1"
+    },
+    {
+      "tag": "small",
+      "text": "공부한 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "h3",
+      "text": "공부한 날2 현장 과제",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "b",
+      "text": "배운 걸 바로 써 봐요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "p",
+      "text": "배운 걸 바로 써 봐요. 방금 대화에서 실무 상황 과제가 나와요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "span",
+      "text": "예시 화면",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "span",
+      "text": "SQLD · 2과목",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "span",
+      "text": "10월 26일 (월)",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "p",
+      "text": "앱 화면의 빈칸에 들어갈 JOIN을 직접 골라 보세요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-2"
+    },
+    {
+      "tag": "small",
+      "text": "공부한 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "h3",
+      "text": "공부한 날3 경험 카드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "b",
+      "text": "푼 경험이 답변 한 줄로.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "푼 경험이 답변 한 줄로. 면접에서 꺼낼 한 줄을 카드로 저장해요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "예시 화면",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "SQLD · 2과목",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "10월 26일 (월)",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "b",
+      "text": "FROM",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "FROM members m",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "b",
+      "text": "LEFT JOIN",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN orders o",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "b",
+      "text": "ON",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "ON m.member_id = o.member_id",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "b",
+      "text": "WHERE",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "WHERE o.order_id IS NULL;",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "b",
+      "text": "IS NULL",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "내 경험 카드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "10월 26일 (월)",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "오늘",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "오늘SQLD 2과목 · JOIN",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "경험 카드 · 2026.10.26 (월)",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "면접 질문",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "SQL을 써 본 적 있나요?",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "내 답변 한 줄",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "배운 점",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "내가 쓴 쿼리",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "내가 쓴 쿼리LEFT JOIN … IS NULL",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "li",
+      "text": "SQLD",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "li",
+      "text": "2과목",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "li",
+      "text": "JOIN",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "출처 · 10월 26일 SQLD 대화",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "다시 볼 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "7일 전",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "7일 전SQLD 2과목 · GROUP BY",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "결제 2건 이상인 재구매 회원을 뽑는 과제",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "30일 전",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "30일 전SQLD 2과목 · 서브쿼리",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "평균보다 많이 주문한 회원을 찾는 과제",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "p",
+      "text": "저장했어요. 내일 다시 꺼내 드릴게요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN … IS NULL",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "button",
+      "text": "다음 단계: 리마인드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-3"
+    },
+    {
+      "tag": "small",
+      "text": "1·7·30일 뒤",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "h3",
+      "text": "1·7·30일 뒤4 리마인드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "b",
+      "text": "잊을 즈음 다시 꺼내 줘요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "잊을 즈음 다시 꺼내 줘요. 배운 점, 활용 방안, 면접 예상 질문이 알림으로 와요. 출시 예정 기능",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "출시 예정 기능",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "예시 화면",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "경험 카드",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일 (수)",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "다시 본 날 · 10월 27일 · 11월 2일 · 11월 25일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "경험 카드 · 2026.10.26 (월)",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "면접 질문",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "SQL을 써 본 적 있나요?",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "내 답변 한 줄",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "배운 점",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "내가 쓴 쿼리",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "내가 쓴 쿼리LEFT JOIN … IS NULL",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "li",
+      "text": "SQLD",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "li",
+      "text": "2과목",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "li",
+      "text": "JOIN",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "출처 · 10월 26일 SQLD 대화",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "공부 30일 뒤 · 면접 예상 질문",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "면접 질문: \"SQL을 실제로 써 본 적 있나요?\"",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "꼬리질문 대비",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "같은 결과를 다른 방법으로도 낼 수 있나요? → NOT EXISTS로도 찾을 수 있어요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "b",
+      "text": "SELECT",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "SELECT m.member_id, m.member_name, m.joined_at",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "b",
+      "text": "FROM",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "FROM members m",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "b",
+      "text": "WHERE NOT EXISTS",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "WHERE NOT EXISTS (",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "b",
+      "text": "SELECT",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "SELECT 1",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "b",
+      "text": "FROM",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "FROM orders o",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "b",
+      "text": "WHERE",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "WHERE o.member_id = m.member_id",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": ");",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "화요일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "월요일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "수요일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "10월 27일 화요일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "EExperii · 공부 1일 뒤 · 배운 점",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "· 공부 1일 뒤 · 배운 점",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "LEFT JOIN은 왼쪽 표의 행을 모두 남겨요. 주문이 없는 회원은 주문 칸이 NULL이라 IS NULL로 찾았죠.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "어제 쓴 쿼리 다시 보기 →",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 2일 월요일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "EExperii · 공부 7일 뒤 · 활용 방안",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "· 공부 7일 뒤 · 활용 방안",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "'한 번도 ~하지 않은' 대상을 찾을 땐 같은 모양이에요. 예: 강의를 결제하고 한 번도 듣지 않은 수강생 찾기.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "IS NULL 조건은 ON이 아니라 WHERE에 둬요. ON에 넣으면 회원이 모두 그대로 나와요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일 수요일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "EExperii · 공부 30일 뒤 · 면접 예상 질문",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "· 공부 30일 뒤 · 면접 예상 질문",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "면접 질문: \"SQL을 실제로 써 본 적 있나요?\" 내 답변 한 줄 다시 보기 →",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "알림을 눌러 넘겨 보세요",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "button",
+      "text": "다음 알림",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "10월 26일 공부한 날",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "span",
+      "text": "11월 25일",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "알림은 공부한 날로부터 1일, 7일, 30일 뒤, 딱 세 번 와요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "hidden-attr/aria-hidden",
+      "tabpanel": "loop-panel-4"
+    },
+    {
+      "tag": "p",
+      "text": "예시 화면이에요. 쓰던 GPT를 연결해 이렇게 공부하도록 준비하고 있어요. 지금 보이는 대화는 미리 써 둔 예시예요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3628,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "공부한 날 한 번 남기면, 그다음은 Experii가 꺼내 줘요.",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3688,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "먼저 써 보고 싶다면 사전 신청하기",
+      "section": "section#how | 공부하고, 풀고, 남기고, 다시 꺼내요",
+      "top": 3760,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "h2",
+      "text": "지원할 때가 아니라, 공부하는 날마다",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 3980,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "몇 달 치 기록은 나중에 한꺼번에 만들 수 없어요.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4032,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "몇 달 치 기록은 나중에 한꺼번에 만들 수 없어요. 공부한 그날 남긴 카드에는 날짜와 내가 쓴 쿼리, 푼 과제가 그대로 있어요.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4029,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "자격증 공부",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4155,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "지원",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4155,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4155,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4196,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "지원할 때 쓰는 도구",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4251,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "figcaption",
+      "text": "Experii의 경험 카드는 자격증 공부 첫날부터 쌓이고, 지원할 때 쓰는 도구는 지원 시점부터 시작해요.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4283,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "3개월 전",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4307,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQLD 1과목 · 정규화",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4341,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "주문서 엑셀을 회원·주문 테이블로 나누는 과제를 풀어 봤습니다.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4372,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "30일 전",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4446,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQLD 2과목 · 서브쿼리",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4479,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "평균보다 많이 주문한 회원을 서브쿼리로 찾는 과제를 풀어 봤습니다.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4511,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "7일 전",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4584,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQLD 2과목 · GROUP BY",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4618,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "취소 주문은 빼고 결제 2건 이상인 재구매 회원을 뽑는 과제를 풀어 봤습니다.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4649,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "오늘",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4723,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQLD 2과목 · JOIN",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4756,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "주문 없는 회원을 LEFT JOIN과 IS NULL로 추리는 과제를 풀어 봤습니다.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4787,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "예시",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4868,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "면접 날짜가 정해지기 전부터, 공부한 날마다 한 칸씩.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4904,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "지원할 때 쓰는 도구와 같이 써도 돼요.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4973,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "지원할 때 쓰는 도구와 같이 써도 돼요. Experii는 그 전 몇 달을 맡아요.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 4970,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "꾸준히 공부한 만큼 쌓여요.",
+      "section": "section#difference | 지원할 때가 아니라, 공부하는 날마다",
+      "top": 5029,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "h2",
+      "text": "출시하면 이렇게 시작해요",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5231,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "예시 화면",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5322,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "1",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5328,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "가입은 짧게",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5369,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "가입은 짧게 바로 공부를 시작할 수 있게 만들고 있어요.",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5366,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5445,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "시작하기",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5517,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "2",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5595,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "쓰던 AI 그대로",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5636,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "쓰던 AI 그대로 이미 구독 중인 ChatGPT를 Experii 앱에 등록할 수 있게 준비하고 있어요.",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5633,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "내 AI 연결",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5718,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "ChatGPT",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5760,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "준비 중",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5759,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "3",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5840,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "첫 질문 하나",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5881,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "첫 질문 하나 오늘 막힌 SQLD 개념 하나를 물어보면 시작이에요.",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5878,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "SQLD",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5985,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "오늘 공부하다 막힌 걸 물어보세요",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 5988,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "b",
+      "text": "Experii 이용료는 받지 않아요.",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 6105,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "Experii 이용료는 받지 않아요. AI는 내 ChatGPT 구독(Plus·Pro)으로 써요.",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 6101,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "사전 신청하기",
+      "section": "section#start | 출시하면 이렇게 시작해요",
+      "top": 6173,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "h2",
+      "text": "SQLD 공부 중이라면, 먼저 만나 보세요",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6429,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "SQLD를 공부 중인 대학생께 먼저 연락드려요",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6511,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "label",
+      "text": "이메일",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6585,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "div",
+      "text": "이메일 지금 상황 대학생 졸업 후 취업 준비 기타 SQLD 공부 상태 지금 공부 중 공부할 계획 이미 취득 해당 없음 유료 AI 구독 여러 개 고를 수 있어요 ChatGPT 유료 Claude 유료 유료 구독 없음 [필수] 개인정보 수집·이용 동의 수집 항목: 이메일, 신분, SQLD 공부 상태, 유료 AI 구독 여부 이용 목적: Experii 출시·시범 사용 안내, 서비스 기획을 위한 응답 집계 보유 기간: 수집일로부터 1년 또는 철회 요청 시 즉시 파기 동의하지 않을 수 있으며, 동의하지 않으면 사전 신청이 되지 않습니다. 개인정보 처리방침 전문 만 14세 이상이며 위 내용에 동의합니다. 웹사이트 사전 신청하기",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6563,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "대학생",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6727,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "졸업 후 취업 준비",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6727,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "기타",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6727,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "지금 공부 중",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6827,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "공부할 계획",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6827,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "이미 취득",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6879,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "해당 없음",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6879,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "small",
+      "text": "여러 개 고를 수 있어요",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6951,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "ChatGPT 유료",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6980,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "Claude 유료",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6980,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "유료 구독 없음",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7032,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "[필수] 개인정보 수집·이용 동의",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7114,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "수집 항목: 이메일, 신분, SQLD 공부 상태, 유료 AI 구독 여부",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7143,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "이용 목적: Experii 출시·시범 사용 안내, 서비스 기획을 위한 응답 집계",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7191,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "보유 기간: 수집일로부터 1년 또는 철회 요청 시 즉시 파기",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7240,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "li",
+      "text": "동의하지 않을 수 있으며, 동의하지 않으면 사전 신청이 되지 않습니다.",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7288,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "개인정보 처리방침 전문",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7334,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "label",
+      "text": "만 14세 이상이며 위 내용에 동의합니다.",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7382,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "label",
+      "text": "웹사이트",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 6588,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "button",
+      "text": "사전 신청하기",
+      "section": "section#signup | SQLD 공부 중이라면, 먼저 만나 보세요",
+      "top": 7464,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "Experii",
+      "section": "footer",
+      "top": 7685,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "출시 전 제품이며 화면은 예시입니다.",
+      "section": "footer",
+      "top": 7695,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "개인정보 처리방침",
+      "section": "footer",
+      "top": 7737,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "span",
+      "text": "문의 이메일 (준비 중)",
+      "section": "footer",
+      "top": 7747,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "사전 신청하기",
+      "section": null,
+      "top": 862,
+      "visible": true,
+      "inFold": false,
+      "hidden": null,
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "Experii 데스크톱 앱은 출시 전이에요.",
+      "section": null,
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "p",
+      "text": "사전 신청하면 출시할 때 다운로드 링크를 이메일로 보내 드려요.",
+      "section": null,
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "a",
+      "text": "사전 신청하기",
+      "section": null,
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    },
+    {
+      "tag": "button",
+      "text": "닫기",
+      "section": null,
+      "top": 0,
+      "visible": false,
+      "inFold": false,
+      "hidden": "css",
+      "tabpanel": null
+    }
+  ],
+  "tabs": [
+    {
+      "index": 1,
+      "label": "공부한 날 학습 대화",
+      "panelText": "AI와 평소처럼 공부해요. 막힌 개념을 물으면 예시 표로 풀어 주고, 거꾸로 질문도 던져요. SQLD · 2과목 10월 26일 (월) LEFT JOIN이랑 INNER JOIN 차이가 헷갈려 AI 둘 다 member_id로 두 테이블을 잇는 건 같아요. 차이는 짝이 없는 행을 어떻게 하느냐예요. members member_id member_name 1 민지 2 서준 3 하린 orders order_id member_id 101 1 102 1 103 3 INNER JOIN은 양쪽에 짝이 있는 행만 남겨요. 주문이 없는 서준은 빠져서 결과가 3행이에요. 결과 표 A (INNER JOIN, 3행) member_name order_id 민지 101 민지 102 하린 103 LEFT JOIN은 왼쪽(회원) 행을 모두 남기고, 짝이 없으면 주문 칸을 NULL로 채워요. 그래서 4행이에요. 결과 표 B (LEFT JOIN, 4행) member_name order_id 민지 101 민지 102 서준 NULL 하린 103 AI 그럼 하나 물어볼게요. 주문을 한 번도 안 한 회원만 뽑으려면, 결과 표 B에서 어떤 행을 고르면 될까요? LEFT JOIN 하고 주문 칸이 NULL인 행? AI 맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요? 내 GPT 연결 준비 중 질문을 입력하세요 다음 단계: 현장 과제",
+      "shot": "h3-phone-tab1.png"
+    },
+    {
+      "index": 2,
+      "label": "공부한 날 현장 과제",
+      "panelText": "배운 걸 바로 써 봐요. 방금 대화에서 실무 상황 과제가 나와요. SQLD · 2과목 10월 26일 (월) AI 맞아요. 회원 데이터를 다룰 때 자주 나오는 모양이에요. 방금 배운 걸로 현장 과제 하나 풀어 볼래요? 방금 대화에서 과제를 만드는 중… 대화에서 개념 찾기 · LEFT JOIN, IS NULL 상황 고르기 · 쇼핑몰 회원·주문 데이터 앱 화면의 빈칸에 들어갈 JOIN을 직접 골라 보세요.",
+      "shot": "h3-phone-tab2.png"
+    },
+    {
+      "index": 3,
+      "label": "공부한 날 경험 카드",
+      "panelText": "푼 경험이 답변 한 줄로. 면접에서 꺼낼 한 줄을 카드로 저장해요. SQLD · 2과목 10월 26일 (월) FROM members m LEFT JOIN orders o ON m.member_id = o.member_id WHERE o.order_id IS NULL; AI 방금 푼 과제를 면접 답변 한 줄로 정리했어요. 내 말투에 맞게 고쳐도 돼요. 경험 카드 · 2026.10.26 (월) 면접 질문 SQL을 써 본 적 있나요? 내 답변 한 줄 쇼핑몰 회원·주문 데이터에서 한 번도 주문하지 않은 회원을 LEFT JOIN과 IS NULL로 추려, 첫 구매 쿠폰 대상 목록을 만드는 과제를 풀어 봤습니다. 배운 점 LEFT JOIN은 왼쪽 테이블 행을 모두 남기고, 짝이 없으면 NULL로 채운다. 내가 쓴 쿼리 LEFT JOIN … IS NULL 다시 볼 날 10월 27일 11월 2일 11월 25일 경험 카드로 저장 LEFT JOIN … IS NULL 다음 단계: 리마인드",
+      "shot": "h3-phone-tab3.png"
+    },
+    {
+      "index": 4,
+      "label": "1·7·30일 뒤 리마인드",
+      "panelText": "잊을 즈음 다시 꺼내 줘요. 배운 점, 활용 방안, 면접 예상 질문이 알림으로 와요. 출시 예정 기능 10월 27일 화요일 11월 2일 월요일 11월 25일 수요일 10월 27일 화요일 E Experii · 공부 1일 뒤 · 배운 점 LEFT JOIN은 왼쪽 표의 행을 모두 남겨요. 주문이 없는 회원은 주문 칸이 NULL이라 IS NULL로 찾았죠. 어제 쓴 쿼리 다시 보기 → 알림을 눌러 넘겨 보세요 다음 알림 10월 26일 공부한 날 11월 25일 알림은 공부한 날로부터 1일, 7일, 30일 뒤, 딱 세 번 와요.",
+      "shot": "h3-phone-tab4.png"
+    }
+  ]
+}
