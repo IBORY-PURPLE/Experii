@@ -15,7 +15,7 @@
 - 학습자: 추천 칸, 다른 칸, GPT와 상의 중에서 자유롭게 고른다. 선수 칸을 안 했다고 막지 않는다 [55].
 - "면접에 쓸 만해요" 평가는 숙달이 아니다 [105][107]. 조건이 같은 후보 사이의 우선순위로만 쓴다(우리 추론).
 
-GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기록만 주고 학습자가 다음 문제를 맞힐지 바로 예측시키면, 문제 풀이 자료 세 개에서 AUC(맞힐지 틀릴지 가려내는 능력, 0.5는 동전 던지기 수준) 0.49~0.50이었다. 최신 모델로 다시 잰 연구는 찾지 못했다 [13]. 맞는 답에 "확실해?"라고 되물으면 GPT-4도 42%의 질문에서 틀렸다고 물러섰다 [93]. 후보 목록을 줘도 답의 5~10%가 목록 밖이었다(프리프린트) [98]. 개인 학습자의 다음 공부를 GPT로 추천하고 학습 결과로 검증한 연구는 없다. 그래서 이 조합은 이웃한 근거를 이어 붙인 우리 추론이다.
+GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기록만 주고 학습자가 다음 문제를 맞힐지 바로 예측시키면, 문제 풀이 자료 세 개에서 AUC(맞힐지 틀릴지 가려내는 능력, 0.5는 동전 던지기 수준) 0.49~0.50이었다. 최신 모델로 다시 잰 연구는 찾지 못했다 [13]. 맞는 답에 "확실해?"라고 되물으면 GPT-4도 42%의 질문에서 틀렸다고 물러섰다 [93]. 후보 목록을 줘도 데이터에 없는 항목을 5~10% 냈다(상품 추천 자료 1개, 프리프린트) [98]. 개인 학습자의 다음 공부를 LLM으로 추천하고 학습 결과로 잰 연구는 작은 프리프린트 하나만 찾았다. 지식 추적과 검색을 합친 LLM 추천이 일반 LLM만 쓸 때보다 퀴즈 점수가 5% 높았다(초록만 확인) [118]. GPT 단독 추천을 학습 결과로 검증한 연구는 찾지 못했다. 그래서 이 조합은 이웃한 근거를 이어 붙인 우리 추론이다.
 
 **GPT의 역할.** 추천하는 순간에는 고르고 설명한다. 미리 하는 일은 초안 쓰기다(선수 관계, 카드 개념→칸 연결, 회상 질문). 초안은 사람이 확인한다. 숙달 판정과 복습 날짜는 GPT가 정하지 않는다.
 
@@ -25,8 +25,8 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 
 **근거가 가장 강한 3개.** 효과 크기(g, d)는 두 집단 점수 차이를 표준편차로 나눈 값이다. 메타분석은 여러 연구를 모아 다시 계산한 연구, 무작위 대조 실험은 제비뽑기로 집단을 나눠 비교한 실험이다.
 1. 인출 연습: 교실 퀴즈 메타분석(222개 연구, 48,478명)에서 g = 0.499였다 [28]. 평균 학생이 비교 집단의 약 69백분위에 서는 크기다(우리 계산, 표준정규 변환). 다른 형식과 새 문제로도 옮겨 갔다(전체 d = 0.40, 10,382명. 응용·추론 문제는 d = 0.32) [29].
-2. 간격 반복: 나눠 공부와 몰아 공부를 직접 비교한 271개 차이(14,811명)에서 기억률이 47.3% 대 36.7%였다 [22]. 최적 간격은 기억해야 할 기간이 길수록 늘었지만, 그 기간에 대한 비율은 줄었다(7일이면 약 43%, 350일이면 약 8%, 1,354명 실험) [23].
-3. GPT 단독의 위험: 고교생 약 1,000명 무작위 대조 실험에서 일반 GPT-4로 연습하면 연습 점수는 48% 올랐지만 혼자 보는 시험은 17% 떨어졌다. 교사 풀이를 넣고 답을 아낀 GPT는 시험 손해가 없었다 [73].
+2. 간격 반복: 나눠 공부와 몰아 공부를 직접 비교한 271개 차이(14,811명)에서 기억률이 47.3% 대 36.7%였다. 비교의 85%는 10분 안에 본 시험이었지만, 한 달 넘게 지나 시험한 연구에서도 나눠 공부가 평균 15% 나았다 [22]. 최적 간격은 기억해야 할 기간이 길수록 늘었지만, 그 기간에 대한 비율은 줄었다(7일이면 약 43%, 350일이면 약 8%, 1,354명 실험) [23].
+3. GPT 단독의 위험: 고교생 약 1,000명 무작위 대조 실험에서 일반 GPT-4로 연습한 학생은 연습 점수가 48% 높았지만, 책과 노트북을 닫고 보는 시험에서는 AI 없이 공부한 대조군보다 17% 낮았다. 교사 풀이를 넣고 답을 아낀 GPT는 시험 손해가 없었다 [73].
 
 **창업자가 정할 것** (답이 없으면 추천안으로 간다. 자세한 내용은 5장)
 1. 회상 점검을 v1에 넣나: 넣는다 **(추천)** / 앱 밖 측정용으로만 / 넣지 않는다. 넣으면 PRD를 고친다.
@@ -51,16 +51,16 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 
 | 기법 | 핵심 주장 | 근거(효과 크기·표본·조건) | 대표 출처 | Experii 데이터로 지금 가능? | 한계 |
 |---|---|---|---|---|---|
-| 지식 추적(BKT, DKT, LLM) | 맞힘·틀림 기록으로 개념별 숙달 확률을 고치고, 0.95가 될 때까지 연습시킨다 | 중간: 개념 목록을 고친 튜터 d = 0.47(91명 분석) [6]. 강함: 묶음 제품 2년차 고등학교 약 0.2 SD(중학교는 유의하지 않음) [50]. 중간: GPT-3.5 제로샷 예측 AUC 0.49~0.50 [13] | [2][4][6][10][13] | 아니다. 채점된 풀이가 없다 | 맞춤 매개변수는 학습자 25명 이상 필요 [5]. 딥 모델은 수천 명 규모 [10] |
+| 지식 추적(BKT, DKT, LLM) | 맞힘·틀림 기록으로 개념별 숙달 확률을 고치고, 0.95가 될 때까지 연습시킨다 | 중간: 개념 목록을 고친 튜터 d = 0.47(91명 분석) [6]. 강함: 묶음 제품 2년차 고등학교 약 0.2 SD(중학교는 유의하지 않음) [50]. 중간: GPT-3.5 제로샷 예측 AUC 0.49~0.50 [13] | [2][4][6][10][13] | 아니다. 채점된 풀이가 없다 | 맞춤 매개변수는 학습자 25명 이상 필요 [5]. 딥 모델은 문항당 학습자와 기록이 많은 큰 자료(기록 약 100만 건 이상)에서만 앞섰다 [10] |
 | 지식 공간 이론(ALEKS) | 선수 관계와 숙달 상태가 있으면 "배울 준비가 된 칸"이 정해진다 | 참고: 바깥 경계 항목 학습 성공률 0.809~0.943(개발사 자료, 비교 조건 없음) [18]. 강함: ALEKS 전체 g = 0.05, 보충용 g = 0.43 [20] | [17][18][20] | 일부. 출제기준 칸은 있다. 선수 관계와 숙달은 없다 | 개발사 자료, 수학. 고르는 규칙만 따로 본 연구 없음 |
-| 간격 반복 | 같은 시간이면 나눠서 복습해야 오래 남는다 | 강함: 47.3% 대 36.7%(271개 비교, 14,811명) [22]. 중간: 최적 간격은 7일 기한에 약 43%, 350일에 약 8%(1,354명) [23]. 강함: 수학 g = 0.28 [25] | [22][23][25] | 시간 기준 복습은 된다. 맞춤 조정은 못 한다 | 단어·사실 자료 위주. SQL 연구 없음 |
+| 간격 반복 | 같은 시간이면 나눠서 복습해야 오래 남는다 | 강함: 47.3% 대 36.7%(271개 비교, 14,811명, 대부분 10분 안 시험) [22]. 중간: 최적 간격은 7일 기한에 약 43%, 350일에 약 8%(1,354명) [23]. 강함: 수학 g = 0.28 [25] | [22][23][25] | 시간 기준 복습은 된다. 맞춤 조정은 못 한다 | 단어·사실 자료 위주. SQL 연구 없음 |
 | 인출 연습 | 다시 읽기보다 떠올려 보기가 더 배운다 | 강함: 교실 g = 0.499(48,478명) [28]. 전이 d = 0.40(10,382명) [29]. 수학은 g = 0.18로 불안정 [25] | [26][27][28][29] | 아니다. 점검 기록이 없다 | 응용 문제로 옮기려면 설명이 붙은 피드백이 필요 [29] |
-| 복습 스케줄러(FSRS 등) | 복습마다 기억 여부와 경과 시간을 넣으면 다음 날짜를 계산한다 | 공식 문서: 1만 명 안키 기록에서 FSRS-7 기본값 log loss 0.3620, 맞춤 0.3401, HLR 0.4694 [35] | [33][35][37][38] | 아니다. 복습 결과가 없다 | 예측 지표이지 학습 실험이 아니다. 플래시카드 자료 |
+| 복습 스케줄러(FSRS 등) | 복습마다 기억 여부와 경과 시간을 넣으면 다음 날짜를 계산한다 | 공식 문서: 안키 기록(같은 날 복습을 뺀 표, 9,999명)에서 FSRS-7 기본값 log loss 0.3620, 맞춤 0.3401, HLR 0.4694 [35] | [33][35][37][38] | 아니다. 복습 결과가 없다 | 예측 지표이지 학습 실험이 아니다. 플래시카드 자료 |
 | 숙달 학습 | 점검·교정·재점검으로 기준을 넘어야 다음으로 간다 | 강함(시험 종류 편향 주의): 108개 통제 평가에서 긍정 [41]. 표준화 시험 중앙값 +.04, 연구자 시험 +.255 [42]. 약함: 연속 3개 정답과 BKT 0.95가 비슷 [43] | [40][41][42][43][44] | 아니다. 점검이 없다 | 어떤 시험으로 재느냐에 따라 효과가 크게 달라진다 |
 | 지능형 튜터 메타분석·학습자 선택권 | 피드백과 숙달 연습을 묶은 지능형 튜터는 효과가 있다. 다음 과제 고르기만 떼어 본 근거는 실험실 수준이다. 학습자가 골라도 프로그램이 정할 때와 차이가 거의 없다 | 강함(묶음 효과): 튜터 d = 0.76, 사람 튜터 0.79 [45]. 현장 약 0.2 SD(1~2년) [50][51]. 강함: 학습자 통제 대 프로그램 통제 g = 0.05 [55]. 중간(고르기만, 실험실): 무작위 순서 대비 모델 전략 중 나은 쪽 +108%, 학습자 선택 +53% [56] | [45][47][50][51][55][56][57] | 틀은 있다(추천 칸과 선택). 고르는 근거가 없다 | 묶음 효과. 고르기만 떼어 본 현장 실험 없음 |
 | 선수 관계 그래프·학습 경로 추천 | 권위 있는 항목 목록에 선수 관계를 붙이면 범위와 순서를 지킬 수 있다 | 중간: GPT 바로 판정 정밀도 83.33~86.70%, 재현율 35.80~44.77%, 설명 글을 주면 F1 50.70→71.92 [65]. 사람끼리 κ 0.59~0.65 [66]. 학습 효과를 잰 추천 연구 37.5% [63] | [62][63][65][66][67][68] | 일부. 출제기준 칸은 바로 쓸 수 있다 | 경로가 자유 선택보다 낫다는 통제 근거는 약하고 엇갈린다 |
-| LLM 튜터 | 답을 주는 열린 GPT는 연습 점수만 올리고 혼자 푸는 점수를 떨어뜨릴 수 있다. 정답 자료에 묶은 GPT는 시험 손해가 없었다 | 강함: 약 1,000명, 연습 +48%, 시험 −17% [73]. 약함: 대학 2,379명 성적 −0.37 SD(워킹페이퍼) [75] | [73][74][75][77][83] | 해당한다. Experii 대화가 이 상황이다 | 성인 자격시험·SQL 연구 없음 |
-| LLM 추천의 신뢰성 | GPT는 지어내고, 근거 없이 확신하고, 사용자에 맞추고, 순서에 흔들린다 | 중간: 지어낸 인용 GPT-4 18% [89]. "확실해?" 한마디에 42~98%가 맞는 답을 버림 [93]. 순서만 바꿔도 판정 변경 ChatGPT 82.5%, GPT-4 46.3% [99]. 약함: 목록 밖 5~10% [98] | [89][91][92][93][94][98][99] | 해당한다 | 2023~2025년 모델. 추천이 아닌 과제가 많다 |
+| LLM 튜터 | 답을 주는 열린 GPT는 연습 점수만 올리고 혼자 푸는 점수를 떨어뜨릴 수 있다. 교사 풀이를 넣고 답을 아낀 GPT는 시험 손해가 없었다 | 강함: 약 1,000명, 연습 +48%, 시험 −17%(대조군 대비) [73]. 약함: 같은 과목끼리 비교한 대학생 1,353명에서 최종 성적 −0.37 SD, 전체 2,379명에서는 유의하지 않음(워킹페이퍼) [75] | [73][74][75][77][83] | 해당한다. Experii 대화가 이 상황이다 | 성인 자격시험·SQL 연구 없음 |
+| LLM 추천의 신뢰성 | GPT는 지어내고, 근거 없이 확신하고, 사용자에 맞추고, 순서에 흔들린다 | 중간: 지어낸 인용 GPT-4 18% [89]. "확실해?" 한마디에 맞게 답한 문제의 42~98%에서 틀렸다고 인정함(답을 실제로 바꾼 비율은 32~86%) [93]. 순서만 바꿔도 판정 변경 ChatGPT 82.5%, GPT-4 46.3% [99]. 약함: 목록 밖 5~10% [98] | [89][91][92][93][94][98][99] | 해당한다 | 2023~2025년 모델. 추천이 아닌 과제가 많다 |
 | 자기 평가 | 공부 직후의 "안다, 쓸모 있다" 느낌은 며칠 뒤 기억과 어긋난다 | 중간: 78%가 섞어 배울 때 더 잘했는데 78%가 몰아 배우기가 같거나 낫다고 답함(120명) [105] | [105][106][107][108] | 해당한다. H2 평가가 이 종류다 | "면접 쓸모" 평가 자체를 본 연구 없음 |
 
 ### 2.1 지식 추적: BKT, DKT와 후속 모델, LLM 기반
@@ -105,7 +105,7 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 **주장.** 같은 시간을 쓰더라도 나눠서 복습하고(간격 반복), 다시 읽는 대신 떠올려 보면(인출 연습) 오래 남는다. 복습 스케줄러는 복습마다 기억났는지와 지난 시간을 받아 다음 복습일을 정한다.
 
 **근거: 간격.** (강함)
-- 언어 회상 과제 317개 실험의 측정 839개를 모은 메타분석에서, 나눠 공부와 몰아 공부를 직접 비교한 271개 차이(14,811명)의 기억률은 47.3% 대 36.7%였다. 한 달 넘게 지나 시험한 연구에서는 나눠 공부가 평균 15% 나았다 [22].
+- 언어 회상 과제 317개 실험의 측정 839개를 모은 메타분석에서, 나눠 공부와 몰아 공부를 직접 비교한 271개 차이(14,811명)의 기억률은 47.3% 대 36.7%였다. 이 271개 중 85%는 10분 안에 본 시험이고, 하루 이상 지난 비교는 31개다. 한 달 넘게 지나 시험한 연구에서는 나눠 공부가 평균 15% 나았다 [22].
 - 간격을 점점 늘리는 방식이 같은 간격보다 낫다는 증거는 없었다(62.0% 대 58.6%, p = .61) [22].
 - 1,354명 실험에서 최적 간격은 기억해야 할 기간이 길수록 늘었지만 그 기간에 대한 비율은 줄었다. 회상 기준으로 7일 뒤 시험이면 약 3일(43%), 350일 뒤면 약 27일(8%)이었다. 실제로 시험한 간격 중에서는 7일 뒤 시험에 1일, 35일 뒤 시험에 11일이 가장 좋았다 [23]. 성적은 간격이 늘면 오르다가 천천히 떨어졌다 [23]. 그래서 너무 이른 복습보다 조금 늦은 복습이 낫다고 본다(우리 추론).
 - 수학에서 간격 효과는 g = 0.28(27개 연구)로 확실하지만 작거나 중간 크기였다 [25]. 절차가 있는 다른 과목도 비슷하리라는 것은 우리 추론이다.
@@ -123,7 +123,7 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 - Duolingo의 반감기 회귀(HLR, 단어를 반쯤 잊는 데 걸리는 시간을 예측하는 모델) 실험은 기억이 아니라 "다음 날 다시 왔는가"를 쟀다. 첫 실험(HLR 대 기존 Leitner 상자, 6주, 약 100만 명)에서 다음 날 활동은 +0.3%, 연습 세션은 −7.3%였다. 자주 인용되는 "+12%"는 두 번째 실험(단어 특징을 뺀 HLR 대 전체 HLR, 2주, 330만 명)에서 다음 날 어떤 활동이든 한 비율이다 [33]. (중간, 참여 지표)
 - 새 항목이 복습 처리 속도보다 빨리 들어오면 학습량이 갑자기 무너진다는 대기열 모델이 있고, MTurk 331명 실험에서 그 전환이 보였다 [34].
 - FSRS는 항목마다 기억 안정성, 난이도, 회상 확률을 두고 복습마다 등급(다시, 어려움, 좋음, 쉬움)과 지난 시간을 받는다. "다시"만 실패로, 나머지는 통과로 본다 [36]. 기본 목표 기억률은 90%다 [37].
-- 공개 벤치마크(srs-benchmark README, 2026-09-18 커밋, 2026-10-30 확인): 안키 사용자 1만 명 기록에서 FSRS-7은 개인 맞춤 없이 기본값만으로 log loss 0.3620, 개인 최적화 0.3401, HLR 0.4694였다 [35]. 예측 지표다. 매개변수가 없는 이동평균 기준이 0.3369로 FSRS-7보다 낮게 나오기도 했다 [35]. 그래서 작은 log loss 차이가 곧 더 나은 일정이라고 보지 않는다(우리 추론). (공식 문서)
+- 공개 벤치마크(srs-benchmark README, 2026-09-18 커밋, 2026-10-30 확인): 안키 사용자 기록(같은 날 복습을 뺀 표, 9,999명)에서 FSRS-7은 개인 맞춤 없이 기본값만으로 log loss 0.3620, 개인 최적화 0.3401, HLR 0.4694였다 [35]. 예측 지표다. 매개변수가 없는 이동평균 기준이 0.3369로 FSRS-7보다 낮게 나오기도 했다 [35]. 그래서 작은 log loss 차이가 곧 더 나은 일정이라고 보지 않는다(우리 추론). (공식 문서)
 - 개인 최적화는 복습이 "수백 회"보다 적으면 잘 안 될 수 있고, 한 달에 한 번이면 충분하다 [37]. 안키 24.06부터는 최소 횟수 제한이 없다 [36].
 - SM-2(안키의 예전 방식)와의 비교는 벤치마크 표에 행이 없다 [35]. FSRS 기여자의 블로그에만 최근 기록 가중을 쓴 FSRS-6이 사용자의 99.6%에서 SM-2보다 log loss가 낮았다는 결과가 있고, 글쓴이도 완전히 공정한 비교는 없다고 밝힌다 [39]. (참고)
 - ts-fsrs(TypeScript, MIT): 6.0.0은 2026-10-28에 나왔고 Node 24 이상이 필요하며 기본이 FSRS-7이다. 5.4.2는 Node 20 이상이다 [38].
@@ -195,19 +195,19 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 **주장.** 답을 그대로 주는 열린 GPT 대화는 GPT와 함께일 때 점수를 올리지만 혼자 푸는 점수를 떨어뜨릴 수 있고, 학습자는 이를 알아채지 못한다. 정답 자료에 묶이고, 답을 아끼고, 사람이나 정해진 구조가 결정하는 설계는 중립에서 큰 이득까지 냈다.
 
 **근거.**
-- Bastani 등(PNAS 2025, 강함): 튀르키예 고교생 약 1,000명, 학급 단위 무작위, 90분 4회. 일반 GPT-4로 연습하면 연습 점수 +48%, 책과 노트북을 닫고 보는 시험 −17%(P<0.05)였다. 교사가 쓴 풀이, 흔한 실수, 힌트를 넣고 답을 바로 주지 말라고 한 GPT 튜터는 연습 +127%에 시험 차이가 없었다(−0.004, 유의하지 않음). 일반 GPT-4 학생들은 덜 배웠다고 느끼지 않았다 [73].
+- Bastani 등(PNAS 2025, 강함): 튀르키예 고교생 약 1,000명, 학급 단위 무작위, 90분 4회. 일반 GPT-4로 연습하면 대조군보다 연습 점수 +48%, 책과 노트북을 닫고 보는 시험 −17%(P<0.05)였다. 교사가 쓴 풀이, 흔한 실수, 힌트를 넣고 답을 바로 주지 말라고 한 GPT 튜터는 연습 +127%에 시험 차이가 없었다(−0.004, 유의하지 않음). 일반 GPT-4 학생들은 덜 배웠다고 느끼지 않았다 [73].
 - Lehmann 등(프리프린트, 독일 대학 파이썬, 107명·69명 실험실 실험): 전체 효과는 유의하지 않았다. 풀이를 달라는 질문은 이해와 음의 관계(−0.312), 설명을 달라는 질문은 양의 관계(0.249)였다. 체감 학습은 올랐다(5점 척도 +0.338) [74].
-- Liu 등(2026 워킹페이퍼, 미국 대학 2,379명): 과목에 붙인 AI 튜터가 최종 성적을 0.37 SD, 학습관리시스템 참여를 0.90 SD 낮췄다 [75]. (약함)
+- Liu 등(2026 워킹페이퍼, 미국 공립대 학생 2,379명·강사 30명, 강사 단위 무작위): 강의 자료를 찾아 답하는 GPT-4o 튜터였고, 기본은 바로 답을 주는 방식이었으며, 배정된 학생의 약 15%만 썼다. 전체 표본에서는 성적 차이가 유의하지 않았고, 같은 과목끼리 비교한 1,353명에서 최종 성적 −0.37 SD, 학습관리시스템 참여 −0.90 SD였다 [75]. (약함)
 - Fan 등(BJET 2025, 117명): ChatGPT는 에세이 점수를 올렸지만 지식 향상과 전이에는 차이가 없었다 [76].
 - Kestin 등(Scientific Reports 2025, 하버드 물리, 교차 설계): 미리 쓴 단계별 풀이를 넣은 GPT-4 튜터가 사후 시험 중앙값 4.5 대 3.5였고, 논문은 0.73~1.3 SD(분위 회귀)를 보고했다 [77]. 공개 데이터를 다시 분석한 블로그 글(동료 심사 아님)은 AI 쪽이 약 12~26% 나았다며 논문의 "두 배 넘음"보다 작다고 본다 [78]. 사후 시험 때 AI를 쓸 수 있었는지는 논문에 없다.
-- 구조가 있는 설계의 다른 결과: 나이지리아 교사 주도 6주 방과후 수업 +0.31 SD(워킹페이퍼) [79], 영국 GCSE 과학 복습 플랫폼 4주 g = 0.33(프리프린트) [80], 튜터가 AI 초안을 승인한 수학 튜터링 새 문제 성공 66.2% 대 사람 튜터 60.7%(프리프린트, 165명) [81], AI가 튜터에게만 제안한 경우 숙달 +4%p(프리프린트) [82].
+- 구조가 있는 설계의 다른 결과: 나이지리아 교사 주도 6주 방과후 수업(Copilot, GPT-4 기반) 영어 +0.23 SD, AI·디지털 기술을 더한 종합 평가 +0.31 SD(워킹페이퍼) [79], 영국 GCSE 과학 복습 플랫폼 4주 g = 0.33(프리프린트) [80], 튜터가 AI 초안을 승인한 수학 튜터링 새 문제 성공 66.2% 대 사람 튜터 60.7%(프리프린트, 165명) [81], AI가 튜터에게만 제안한 경우 숙달 +4%p(프리프린트) [82].
 - 먼저 풀고 설명 읽기(Kumar 등, 1,200명, 사전 등록): LLM 설명은 정답만 보는 것보다 나았고, 먼저 시도한 뒤 읽을 때 이득이 가장 컸다 [83].
 - GPT 내용의 오류율: Bastani의 문제에서 GPT-4 정답률은 51%였다 [73]. ChatGPT 힌트는 평균 32%가 부적합했고, 10번 생성해 다수결로 고르면 0~13%로 줄었다 [84]. 대학 대수 튜터링 대화 중 처음부터 끝까지 맞은 대화는 56.6%였다(프리프린트) [85].
 - 메타분석 주의: Deng 등(Computers & Education 2025)은 감사 연구에서 63개 비교 중 6개만 교수 방법, 연습, 시간을 맞췄다는 지적을 받았다(감사 원문의 비율로 보아 Deng 등의 비교다) [86][88]. Wang & Fan(2025)은 2026-04-22에 철회됐다 [87]. 이 둘의 종합 효과는 근거로 쓰지 않는다.
 
 **출처.** [73]~[88]
 
-**Experii에서 할 수 있나.** Experii의 공부 대화는 일반 GPT-4 조건에 가장 가깝다(우리 추론). 혼자 푸는 점검이 없으면 "GPT와 함께 잘한 것"과 "배운 것"을 가를 수 없다. GPT를 다음 주제 추천기로 시험한 무작위 대조 실험은 없다. 오류율 연구와 "AI가 제안하고 사람이나 구조가 결정한다" 연구를 합치면, GPT 추천은 출제기준 같은 바깥 구조 안에 두고 학습자가 승인해야 한다(우리 추론).
+**Experii에서 할 수 있나.** Experii의 공부 대화는 일반 GPT-4 조건에 가장 가깝다(우리 추론). 혼자 푸는 점검이 없으면 "GPT와 함께 잘한 것"과 "배운 것"을 가를 수 없다. GPT를 다음 주제 추천기로 시험한 무작위 대조 실험은 찾지 못했다. 오류율 연구와 "AI가 제안하고 사람이나 구조가 결정한다" 연구를 합치면, GPT 추천은 출제기준 같은 바깥 구조 안에 두고 학습자가 승인해야 한다(우리 추론).
 
 **한계.** 성인 자격시험이나 SQL을 다룬 무작위 대조 실험은 없다. 몇 주 이상 뒤의 기억을 잰 실험도 없다. 여러 연구가 시험 때 AI를 쓸 수 있었는지 밝히지 않았다. 시험된 모델은 2023~2025년 것이다.
 
@@ -219,15 +219,15 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 - 지어내기: GPT에게 문헌 인용을 쓰게 하면 지어낸 인용이 GPT-3.5 55%, GPT-4 18%였다 [89]. 이론 프리프린트는 학습 자료에 한 번만 나온 사실일수록 지어낼 위험이 크고, 맞음·틀림으로만 채점하는 평가에서는 "모르겠다"가 늘 손해라 모델이 추측하게 된다고 설명한다 [90]. SQLD의 세부 범위처럼 드문 사실이 위험하다(우리 추론).
 - 근거 없는 자신감: 말로 표현한 확신은 대부분 80~100%에 몰렸다. GPT-4 기본 설정의 ECE(확신과 실제 정답률의 차이, 낮을수록 좋다)는 18.0, AUROC는 62.7이었다(×10² 척도) [91]. 사람은 LLM 답의 정확도를 과대평가했다(GPT-3.5에서 사람 ECE 0.264, 모델 0.104). 긴 설명은 정확히 가려내는 힘 없이 신뢰만 높였고, 설명 문구를 모델의 실제 확신에 맞추자 사람의 판단이 나아졌다 [92].
 - 아첨: 맞는 답에 "확실해?"라고 되물으면 틀렸다고 인정한 비율이 GPT-4 42%에서 Claude 1.3 98%까지였다. 사용자가 틀린 답을 내비치면 정확도가 최대 27% 떨어졌다 [93]. "윈도우 함수가 다음이죠?" 같은 말이 추천을 움직일 수 있다(우리 추론).
-- 순서와 인기 편향: 후보 20개를 순위 매기게 하면 정답이 뒤쪽에 있을 때 성능이 크게 떨어졌고, 인기 항목을 위로 올렸다. 과거 기록의 순서를 섞어도 결과가 비슷했다 [94]. 정답을 후보 첫 자리에 두면 지표가 약 10배였고, 목록에 없는 항목을 지어내기도 했다 [95]. 사용자의 성별이나 나이 같은 속성을 말하면 추천이 바뀌었다 [96]. 후보 목록을 프롬프트에 넣어도 답의 5~10%가 목록 밖이었다(프리프린트) [98]. LLM 판정자는 두 답의 순서만 바꿔도 ChatGPT가 80건 중 66건(82.5%), GPT-4가 37건(46.3%)에서 판정을 바꿨다 [99].
+- 순서와 인기 편향: 후보 20개를 순위 매기게 하면 정답이 뒤쪽에 있을 때 성능이 크게 떨어졌고, 인기 항목을 위로 올렸다. 과거 기록의 순서를 섞어도 결과가 비슷했다 [94]. 정답을 후보 첫 자리에 두면 지표가 약 10배였고, 목록에 없는 항목을 지어내기도 했다 [95]. 사용자의 성별이나 나이 같은 속성을 말하면 추천이 바뀌었다 [96]. 후보 목록을 프롬프트에 넣어도 데이터에 없는 항목을 낸 비율이 5~10%였다(게임 상품 추천 자료 1개, gpt-4o-mini, 프리프린트) [98]. LLM 판정자는 두 답의 순서만 바꿔도 ChatGPT가 80건 중 66건(82.5%), GPT-4가 37건(46.3%)에서 판정을 바꿨다 [99].
 - 교육 추천: 온라인 공개 강좌(MOOC) 추천에서 바로 쓴 GPT-4o의 HR@10(정답이 상위 10개 안에 든 비율)은 0.815%, 인기순 기준은 15.165%였다(프리프린트) [97]. 사람은 ChatGPT의 추천 설명을 정답 설명보다 자주 1위로 골랐다(62.0% 대 38.0%) [95]. 설명이 그럴듯한 것과 추천이 좋은 것은 따로 봐야 한다.
 - 효과가 잰 완화책: 근거 자료 넣기(대화 환각 68.2% → 7.9% [100], 참조 풀이를 주면 오류 판별 F1 0.59 → 0.97 [101]). 근거 문서는 많다고 좋지 않았다(5개가 25개보다 나음) [100]. 라벨 붙은 객관식 형식에서 확신이 가장 잘 맞았지만 "해당 없음" 선택지는 정확도와 확신 보정을 해쳤다(프리프린트) [102]. 판정 근거를 먼저 쓰게 해 세 번 뽑고 두 순서로 평가해 합치면 ChatGPT 판정 정확도가 44.4%에서 58.7%로 올랐다 [99]. 인용을 달라고만 하면 부족했다. 문장이 인용으로 완전히 뒷받침된 비율은 약 절반이었다 [103][104].
 
-**출처.** [89]~[104]
+**출처.** [89]~[104], [118]
 
 **Experii에서 할 수 있나.** 지금 방식(카드 하나만 보고 GPT가 1~2개를 자유롭게 씀)은 네 문제에 모두 열려 있다. 대응은 3.5에 적었다. 규칙이 후보를 만들고, GPT는 섞은 후보 ID 중에서 고르고 근거 ID를 달고, 코드가 검사한다. 최소 추가: 추천 기록(규칙 순위, 섞은 순서, GPT 선택, 근거 ID, 학습자 최종 선택).
 
-**한계.** 시험된 모델이 2023~2025년 것이고, 과제가 대부분 추천이 아니다(질의응답, 판정, 상품 추천). 개인 학습자의 다음 공부를 GPT로 추천하고 학습 결과나 전문가 정답과 비교한 연구는 찾지 못했다.
+**한계.** 시험된 모델이 2023~2025년 것이고, 과제가 대부분 추천이 아니다(질의응답, 판정, 상품 추천). 개인 학습자의 다음 공부를 GPT 단독으로 추천하고 학습 결과나 전문가 정답과 비교한 연구는 찾지 못했다. 지식 추적과 검색을 합친 LLM 추천을 일반 LLM과 비교한 작은 프리프린트만 있다(퀴즈 +5%, 만족도 +10%, 초록만 확인) [118].
 
 ### 2.9 자기 평가의 한계
 
@@ -265,7 +265,7 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 
 | 빈 곳 | 왜 문제인가 | 메우는 방법 |
 |---|---|---|
-| 범위를 모른다 | GPT는 출제기준을 모른다. 2024년 개편으로 빠졌다고 알려진 주제(옵티마이저와 실행계획, 인덱스, 절차형 SQL. 비공식 [71])를 추천할 수 있다. 드문 사실일수록 지어낼 위험이 크다 [90] | 출제기준 칸 목록을 후보의 범위로 쓴다 [70] |
+| 범위를 모른다 | GPT는 출제기준을 모른다. 지금 출제기준에 없지만 공식 교재 목차에는 남은 주제(옵티마이저와 실행계획, 인덱스, 절차형 SQL)를 추천할 수 있다 [70][71]. 드문 사실일수록 지어낼 위험이 크다 [90] | 출제기준 칸 목록을 후보의 범위로 쓴다 [70] |
 | 기억이 없다 | 이전 카드, 공부 순서, 지난 시간을 모른다. 이미 한 칸을 또 추천하거나 복습할 때를 놓친다. LLM은 기록 순서를 잘 보지 않는다 [94] | 규칙이 카드-칸 연결과 시각으로 계산한다 |
 | 숙달을 모른다 | 채점된 점검이 없다. GPT-3.5 제로샷의 정답 예측은 우연 수준이었다 [13]. 지금 GPT의 숙달 추측도 믿기 어렵다는 것은 우리 추론이다. 평가는 숙달이 아니다 [105][107] | 칸별 회상 점검 |
 | 검사가 없다 | 자유 텍스트 제목이라 코드가 맞는지 확인할 수 없다. 목록을 줘도 5~10%가 밖으로 나간다 [98] | 후보 ID로만 받고 코드가 검사한다 |
@@ -288,7 +288,7 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 | SQL 기본 및 활용 | 관리 구문 | DML, TCL, DDL, DCL |
 
 - 세부항목 수: "GROUP BY, HAVING 절"을 한 항목으로 세면 30개, 둘로 세면 31개다. 공식 페이지는 쉼표가 든 한 항목으로 보여 준다.
-- 공식 페이지에는 개정 이력이 없다. 2024년 개편 내용은 커뮤니티 위키에만 있다(비공식) [71]. 위키는 지금 세부항목을 옛 'SQL 전문가 가이드' 목차와 비교했고, 2024년 시험부터 적용됐다고 '알려져 있다'고만 썼다. 그에 따르면 과목 1의 둘째 주요항목이 "데이터 모델과 성능"에서 "데이터 모델과 SQL"로 바뀌었고, "절차형 SQL"과 "SQL 최적화 기본 원리"(옵티마이저와 실행계획, 인덱스 기본, 조인 수행 원리)가 빠졌고, 과목 2에 "관리 구문"이 생겼다. 옛 교재로 배운 GPT가 빠진 주제를 추천할 수 있다는 뜻이다(우리 추론).
+- 공식 페이지에는 개정 이력이 없다. 다만 같은 페이지에 실린 공식 교재 'SQL 전문가 가이드' 목차에는 지금 출제기준에 없는 "데이터 모델과 성능", "절차형 SQL", "SQL 최적화 기본 원리"(옵티마이저와 실행계획, 인덱스 기본, 조인 수행 원리)가 남아 있다 [70]. 바뀐 때와 내용은 커뮤니티 위키에만 정리돼 있다(비공식) [71]. 위키는 지금 세부항목을 'SQL 전문가 가이드' 목차와 비교했고, 2024년 시험부터 적용됐다고 '알려져 있다'고만 썼다. 그에 따르면 과목 1의 둘째 주요항목이 "데이터 모델과 성능"에서 "데이터 모델과 SQL"로 바뀌었고, "절차형 SQL"과 "SQL 최적화 기본 원리"(옵티마이저와 실행계획, 인덱스 기본, 조인 수행 원리)가 빠졌고, 과목 2에 "관리 구문"이 생겼다. 옛 교재로 배운 GPT가 빠진 주제를 추천할 수 있다는 뜻이다(우리 추론).
 - 다음 시험: 제63회 시험일 2026-11-14(토)는 교육업체 공지에만 있다 [72]. 공식 페이지에서 확인 필요.
 
 만드는 순서 (단계마다 근거를 붙인 우리 추론).
@@ -348,7 +348,7 @@ GPT만으로는 안 되는 이유: 2024년 연구에서 GPT-3.5에게 풀이 기
 
 ### 3.5 GPT는 후보를 만드는 쪽인가, 고르고 설명하는 쪽인가
 
-추천하는 순간에는 고르고 설명하는 쪽이다. GPT가 후보를 지어내면 범위 밖 추천과 목록에 없는 항목이 생긴다 [89][95]. 목록을 줘도 순서·인기 편향과 5~10% 이탈은 남고 [94][98], 사용자 말에 맞추기도 한다 [93]. 그래서 목록 안에서 고르게 하고 코드가 검사한다(아래 GPT 호출 규칙). GPT-3.5는 학습자가 다음 문제를 맞힐지 가려내지 못했다 [13]. GPT의 다음 공부 추천을 학습 결과로 시험한 연구는 없다.
+추천하는 순간에는 고르고 설명하는 쪽이다. GPT가 후보를 지어내면 범위 밖 추천과 목록에 없는 항목이 생긴다 [89][95]. 목록을 줘도 순서·인기 편향과 5~10% 이탈은 남고 [94][98], 사용자 말에 맞추기도 한다 [93]. 그래서 목록 안에서 고르게 하고 코드가 검사한다(아래 GPT 호출 규칙). GPT-3.5는 학습자가 다음 문제를 맞힐지 가려내지 못했다 [13]. GPT 단독의 다음 공부 추천을 학습 결과로 시험한 연구는 찾지 못했다. 지식 추적을 합친 LLM 추천이 일반 LLM보다 퀴즈 점수가 5% 높았다는 작은 프리프린트가 있다(초록만 확인) [118].
 
 | 일 | 누가 | 근거 |
 |---|---|---|
@@ -405,7 +405,7 @@ flow-v2의 "다음 공부 정하기"에 반영할 점. 같은 폴더의 `flow-v2
 
 ### 4.1 2주 도그푸딩
 
-먼저 분명히 한다. 학습자 1명, 2주로는 학습 효과를 통계로 증명할 수 없다. 결정이 12번 안팎이라 우연을 가려낼 힘이 없다. 한 사람 실험의 결과를 일반화하려면 WWC(미국 교육부 산하 근거 평가 기관) 기준으로 논문 5편, 연구팀 3곳, 실험 20개가 필요하다 [109].
+먼저 분명히 한다. 학습자 1명, 2주로는 학습 효과를 통계로 증명할 수 없다. 결정이 12번 안팎이라 우연을 가려낼 힘이 없다. 2010년 WWC(미국 교육부 산하 근거 평가 기관) 단일 사례 설계 시범 기준은 한 사람 실험의 결과를 묶어 일반화하려면 논문 5편, 연구팀 3곳, 실험 20개를 요구했다 [109]. 현행 5.0판에는 이 기준이 없다.
 
 2주로 판단할 수 있는 것.
 - 고리가 실제로 도는가: 회상 점검과 복습을 실제로 하는가.
@@ -507,7 +507,7 @@ M7의 바탕: 범위 제한을 보정한 메타분석에서 정해진 질문과 
   - A. 규칙이 만든 후보 안에서만 고르고 근거 ID를 단다. 코드가 검사한다 **(추천)**
   - B. GPT가 자유롭게 제안하고, 코드는 출제기준 범위만 검사한다
   - C. 지금처럼 카드를 만들 때 자유롭게 제안한다
-- 이유: 자유 생성은 지어내고 목록에 없는 항목을 낸다 [89][95]. 목록을 줘도 5~10%가 밖으로 나가고 후보 순서에 흔들린다 [94][98]. 사용자 말에도 흔들린다 [93]. 그래서 코드 검사와 순서 섞기가 함께 필요하다. GPT-3.5 제로샷의 정답 예측은 우연 수준이었다 [13]. GPT 추천을 학습 결과로 시험한 연구는 없다. B는 범위 문제만 막고, 기억과 숙달을 모르는 문제는 남긴다.
+- 이유: 자유 생성은 지어내고 목록에 없는 항목을 낸다 [89][95]. 목록을 줘도 5~10%가 밖으로 나가고 후보 순서에 흔들린다 [94][98]. 사용자 말에도 흔들린다 [93]. 그래서 코드 검사와 순서 섞기가 함께 필요하다. GPT-3.5 제로샷의 정답 예측은 우연 수준이었다 [13]. GPT 단독 추천을 학습 결과로 시험한 연구는 찾지 못했다(지식 추적을 합친 쪽이 나았다는 작은 프리프린트는 있다 [118]). B는 범위 문제만 막고, 기억과 숙달을 모르는 문제는 남긴다.
 - PRD에서 바뀌는 것: 3장 6단계의 "그전까지는 카드를 만들 때 GPT가 1~2개를 제안한다"를 "규칙이 만든 후보에서 GPT가 1~2개를 고르고 근거를 단다"로 바꾼다. 구현에서는 카드 지시문 규칙 6을 떼고 추천을 별도 요청으로 옮긴다. 이때 `prompt_version`이 한 번 오르니 H2 집계를 그 경계에서 나눈다.
 
 ### 결정 4. 2주 측정 방식
@@ -544,7 +544,7 @@ M7의 바탕: 범위 제한을 보정한 메타분석에서 정해진 질문과 
 - [12] Abdelrahman, G., Wang, Q., & Nunes, B. P. (2023). Knowledge tracing: A survey. ACM Computing Surveys, 55(11), 1–37. https://doi.org/10.1145/3569576. 동료 심사(분류 체계는 arXiv:2201.06953 v1). 확인 2026-10-30.
 - [13] Neshaei, S. P., Davis, R. L., Hazimeh, A., Lazarevski, B., Dillenbourg, P., & Käser, T. (2024). Towards modeling learner performance with large language models. EDM 2024 포스터. https://doi.org/10.5281/zenodo.12729942. 동료 심사(포스터 전문, 표 수치는 arXiv:2403.14661 v1). 확인 2026-10-30.
 - [14] Scarlatos, A., Baker, R. S., & Lan, A. (2025). Exploring knowledge tracing in tutor-student dialogues using LLMs. LAK 2025, 249–259. https://doi.org/10.1145/3706468.3706501. 동료 심사(수치는 arXiv:2409.16490 v2 본문). 확인 2026-10-30.
-- [15] Moore, S., Schmucker, R., Mitchell, T., & Stamper, J. (2024). Automated generation and tagging of knowledge components from multiple-choice questions. L@S 2024(arXiv 주석 기준). arXiv:2405.20526. 동료 심사(초록). 확인 2026-10-30.
+- [15] Moore, S., Schmucker, R., Mitchell, T., & Stamper, J. (2024). Automated generation and tagging of knowledge components from multiple-choice questions. L@S '24, 122–133. https://doi.org/10.1145/3657604.3662030. arXiv:2405.20526. 동료 심사(초록). 확인 2026-10-30.
 - [16] Wang, C., Lin, J., & Koedinger, K. R. (2025). Leveraging large language models for identifying knowledge components. LAK'25 워크숍 확장 초록(arXiv 주석 기준). arXiv:2511.09935. 프리프린트·워킹페이퍼(초록). 확인 2026-10-30.
 
 지식 공간 이론, ALEKS
@@ -560,7 +560,7 @@ M7의 바탕: 범위 제한을 보정한 메타분석에서 정해진 질문과 
 - [24] Dunlosky, J., Rawson, K. A., Marsh, E. J., Nathan, M. J., & Willingham, D. T. (2013). Improving students' learning with effective learning techniques: Promising directions from cognitive and educational psychology. Psychological Science in the Public Interest, 14(1), 4–58. https://doi.org/10.1177/1529100612453266. 동료 심사(초록). 확인 2026-10-30.
 - [25] Murray, E., Horner, A. J., & Göbel, S. M. (2025). A meta-analytic review of the effectiveness of spacing and retrieval practice for mathematics learning. Educational Psychology Review, 논문 번호 75. https://doi.org/10.1007/s10648-025-10035-1. 동료 심사(저자 수락 원고 https://eprints.whiterose.ac.uk/id/eprint/229807). 확인 2026-10-30.
 - [26] Rowland, C. A. (2014). The effect of testing versus restudy on retention: A meta-analytic review of the testing effect. Psychological Bulletin, 140(6), 1432–1463. https://doi.org/10.1037/a0037559. 동료 심사(초록. 전체 효과 크기는 [29][30]에 인용된 값). 확인 2026-10-30.
-- [27] Adesope, O. O., Trevisan, D. A., & Sundararajan, N. (2017). Rethinking the use of tests: A meta-analysis of practice testing. Review of Educational Research, 87(3), 659–701. https://doi.org/10.3102/0034654316689306. 동료 심사(초록. 전체 효과 크기는 [29][30]에 인용된 값). 확인 2026-10-30.
+- [27] Adesope, O. O., Trevisan, D. A., & Sundararajan, N. (2017). Rethinking the use of tests: A meta-analysis of practice testing. Review of Educational Research, 87(3), 659–701. https://doi.org/10.3102/0034654316689306. 동료 심사(초록. 전체 효과 크기는 [29][30]에 인용된 값. 2017년 정정 공지 있음, 쓴 수치와 무관). 확인 2026-10-30.
 - [28] Yang, C., Luo, L., Vadillo, M. A., Yu, R., & Shanks, D. R. (2021). Testing (quizzing) boosts classroom learning: A systematic and meta-analytic review. Psychological Bulletin, 147(4), 399–435. https://doi.org/10.1037/bul0000309. 동료 심사(초록). 확인 2026-10-30.
 - [29] Pan, S. C., & Rickard, T. C. (2018). Transfer of test-enhanced learning: Meta-analytic review and synthesis. Psychological Bulletin, 144(7), 710–756. https://doi.org/10.1037/bul0000151. 동료 심사(전문 https://sc-pan.github.io/pdf/PR_2018.pdf). 확인 2026-10-30.
 - [30] Fraundorf, S. H., Caddick, Z. A., Nokes-Malach, T. J., & Rottman, B. M. (2023). Cognitive perspectives on maintaining physicians' medical expertise: IV. Best practices and open questions in using testing to enhance learning and retention. Cognitive Research: Principles and Implications, 8(1), 53. https://doi.org/10.1186/s41235-023-00508-8. 동료 심사(전문, 2차 출처로 사용). 확인 2026-10-30.
@@ -570,7 +570,7 @@ M7의 바탕: 범위 제한을 보정한 메타분석에서 정해진 질문과 
 - [34] Reddy, S., Labutov, I., Banerjee, S., & Joachims, T. (2016). Unbounded human learning: Optimal scheduling for spaced repetition. KDD '16. https://doi.org/10.1145/2939672.2939850 (arXiv:1602.07032 v2). 동료 심사(전문). 확인 2026-10-30.
 - [35] Open Spaced Repetition. srs-benchmark README(마지막 커밋 bd9110f, 2026-09-18). https://github.com/open-spaced-repetition/srs-benchmark. 공식 문서(오픈소스 저장소, 동료 심사 아님. 수치는 2026-10-30에 본 README 기준). 확인 2026-10-30.
 - [36] Open Spaced Repetition. FSRS 알고리즘 위키와 fsrs4anki 튜토리얼. https://github.com/open-spaced-repetition/awesome-fsrs/wiki/The-Algorithm , https://raw.githubusercontent.com/open-spaced-repetition/fsrs4anki/main/docs/tutorial.md. 공식 문서. 확인 2026-10-30.
-- [37] Ankitects. Anki Manual, Deck Options(FSRS). https://docs.ankiweb.net/deck-options.html. 공식 문서. 확인 2026-10-30.
+- [37] Ankitects. Anki Manual, Deck Options(FSRS). https://docs.ankiweb.net/manual/deck-options (옛 주소 https://docs.ankiweb.net/deck-options.html 에서 넘어감). 공식 문서. 확인 2026-10-30.
 - [38] Open Spaced Repetition. ts-fsrs(GitHub README, npm 레지스트리). https://github.com/open-spaced-repetition/ts-fsrs , https://registry.npmjs.org/ts-fsrs. 공식 문서(6.0.0은 2026-10-28, 5.4.2는 2026-09-01 공개, MIT). 확인 2026-10-30.
 - [39] Expertium. Benchmark of spaced repetition algorithms(날짜 없음). https://expertium.github.io/Benchmark.html. 블로그(FSRS 기여자). 확인 2026-10-30.
 
@@ -588,15 +588,15 @@ M7의 바탕: 범위 제한을 보정한 메타분석에서 정해진 질문과 
 - [48] Steenbergen-Hu, S., & Cooper, H. (2013). A meta-analysis of the effectiveness of intelligent tutoring systems on K–12 students' mathematical learning. Journal of Educational Psychology, 105(4), 970–987. https://doi.org/10.1037/a0032447. 동료 심사(초록). 확인 2026-10-30.
 - [49] Steenbergen-Hu, S., & Cooper, H. (2014). A meta-analysis of the effectiveness of intelligent tutoring systems on college students' academic learning. Journal of Educational Psychology, 106(2), 331–347. https://doi.org/10.1037/a0034752. 동료 심사(초록). 확인 2026-10-30.
 - [50] Pane, J. F., Griffin, B. A., McCaffrey, D. F., & Karam, R. (2014). Effectiveness of Cognitive Tutor Algebra I at scale. Educational Evaluation and Policy Analysis, 36(2), 127–144. https://doi.org/10.3102/0162373713507480. 동료 심사(ERIC 초록과 IES 과제 페이지). 확인 2026-10-30.
-- [51] Roschelle, J., Feng, M., Murphy, R. F., & Mason, C. A. (2016). Online mathematics homework increases student achievement. AERA Open, 2(4), 1–12. https://doi.org/10.1177/2332858416673968. 동료 심사(전문). 확인 2026-10-30.
+- [51] Roschelle, J., Feng, M., Murphy, R. F., & Mason, C. A. (2016). Online mathematics homework increases student achievement. AERA Open, 2(4), 1–12. https://doi.org/10.1177/2332858416673968. 동료 심사(전문. 2017년 정정 공지 있음, 내용 미확인). 확인 2026-10-30.
 - [52] Nickow, A., Oreopoulos, P., & Quan, V. (2024). The promise of tutoring for PreK–12 learning: A systematic review and meta-analysis of the experimental evidence. American Educational Research Journal, 61(1), 74–107. https://doi.org/10.3102/00028312231208687. 동료 심사(초록). 이전 판은 NBER Working Paper 27476(2020), https://doi.org/10.3386/w27476(프리프린트·워킹페이퍼). 확인 2026-10-30.
 - [53] Kraft, M. A. (2020). Interpreting effect sizes of education interventions. Educational Researcher, 49(4), 241–253. https://doi.org/10.3102/0013189X20912798. 동료 심사(수치는 워킹페이퍼판 EdWorkingPaper 19-10, https://www.edworkingpapers.com/sites/default/files/Interpreting%20Effect%20Sizes%20-%20August%2019%20FINAL_0.pdf 기준). 확인 2026-10-30.
 - [54] Cheung, A. C. K., & Slavin, R. E. (2016). How methodological features affect effect sizes in education. Educational Researcher, 45(5), 283–292. https://doi.org/10.3102/0013189X16656615. 동료 심사(초록). 확인 2026-10-30.
 - [55] Karich, A. C., Burns, M. K., & Maki, K. E. (2014). Updated meta-analysis of learner control within educational technology. Review of Educational Research, 84(3), 392–410. https://doi.org/10.3102/0034654314526064 (ERIC EJ1034262). 동료 심사(초록). 확인 2026-10-30.
 - [56] Atkinson, R. C. (1972). Optimizing the learning of a second-language vocabulary. Journal of Experimental Psychology, 96(1), 124–129. https://doi.org/10.1037/h0033475. 동료 심사(전문 재인쇄본). 확인 2026-10-30.
 - [57] Corbalan, G., Kester, L., & van Merriënboer, J. J. G. (2008). Selecting learning tasks: Effects of adaptation and shared control on learning efficiency and task involvement. Contemporary Educational Psychology, 33(4), 733–756. https://doi.org/10.1016/j.cedpsych.2008.02.003. 동료 심사(초록). 확인 2026-10-30.
-- [58] Taminiau, E. M. C., Kester, L., Corbalan, G., Spector, J. M., Kirschner, P. A., & van Merriënboer, J. J. G. (2015). Designing on-demand education for simultaneous development of domain-specific and self-directed learning skills. Journal of Computer Assisted Learning(권·쪽 미확인), ERIC EJ1074738. 동료 심사(초록). 확인 2026-10-30.
-- [59] Doroudi, S., Aleven, V., & Brunskill, E. (2019). Where's the reward? A review of reinforcement learning for instructional sequencing. International Journal of Artificial Intelligence in Education, 29(4), 568–620. https://doi.org/10.1007/s40593-019-00187-x. 동료 심사(초록). 확인 2026-10-30.
+- [58] Taminiau, E. M. C., Kester, L., Corbalan, G., Spector, J. M., Kirschner, P. A., & van Merriënboer, J. J. G. (2015). Designing on-demand education for simultaneous development of domain-specific and self-directed learning skills. Journal of Computer Assisted Learning, 31(5), 405–421. https://doi.org/10.1111/jcal.12076 (ERIC EJ1074738). 동료 심사(초록). 확인 2026-10-30.
+- [59] Doroudi, S., Aleven, V., & Brunskill, E. (2019). Where's the reward? A review of reinforcement learning for instructional sequencing. International Journal of Artificial Intelligence in Education, 29(4), 568–620. https://doi.org/10.1007/s40593-019-00187-x. 동료 심사(초록. 2020년 정정 공지 있음). 확인 2026-10-30.
 - [60] Leite, W. L., Zhang, H., Rana, S., Hao, Y., Hatch, A. D., Kong, L., & Kuang, H. (2025). Do intelligent tutoring systems benefit K-12 students? A meta-analysis and evaluation of heterogeneity of treatment effects in the U.S. arXiv:2511.04997v1. 프리프린트·워킹페이퍼(초록과 전문). 확인 2026-10-30.
 - [61] Bull, S. (2020). There are open learner models about! IEEE Transactions on Learning Technologies, 13(2), 425–448. https://doi.org/10.1109/TLT.2020.2978473. 동료 심사(초록). 확인 2026-10-30.
 
@@ -616,9 +616,9 @@ SQLD
 - [72] wowpass. 제63회 SQLD 원서접수 안내(공지 266782). https://wowpass.com/Wafull/Notice/266782. 블로그(비공식 교육업체 공지). 확인 2026-10-30.
 
 LLM 튜터
-- [73] Bastani, H., Bastani, O., Sungu, A., Ge, H., Kabakcı, Ö., & Mariman, R. (2025). Generative AI without guardrails can harm learning: Evidence from high school mathematics. PNAS, 122(26), e2422633122. https://doi.org/10.1073/pnas.2422633122. 동료 심사(PMC 전문 PMC12232635). 확인 2026-10-30.
+- [73] Bastani, H., Bastani, O., Sungu, A., Ge, H., Kabakcı, Ö., & Mariman, R. (2025). Generative AI without guardrails can harm learning: Evidence from high school mathematics. PNAS, 122(26), e2422633122. https://doi.org/10.1073/pnas.2422633122. 동료 심사(PMC 전문 PMC12232635. 2025-08-20 정정은 저자 소속만 고침). 확인 2026-10-30.
 - [74] Lehmann, M., Cornelius, P. B., & Sting, F. J. AI meets the classroom: When do large language models harm learning? arXiv:2409.09047(v2, 2025-03-08). 프리프린트·워킹페이퍼(v2 본문). 확인 2026-10-30.
-- [75] Liu, J., Sweet, T., Chen, M. H., Engelberg, J., Masters, M., Clark, M., Persaud, A., Lancaster, A., Hollingsworth, J., & Rice, J. K. (2026). The effects of course-integrated AI tutoring on student performance and engagement: A randomized university trial. EdWorkingPaper 26-1598. https://doi.org/10.26300/y3f8-vh05. 프리프린트·워킹페이퍼(초록). 확인 2026-10-30.
+- [75] Liu, J., Sweet, T., Chen, M. H., Engelberg, J., Masters, M., Clark, M., Persaud, A., Lancaster, A., Hollingsworth, J., & Rice, J. K. (2026). The effects of course-integrated AI tutoring on student performance and engagement: A randomized university trial. EdWorkingPaper 26-1598. https://doi.org/10.26300/y3f8-vh05. 프리프린트·워킹페이퍼(초록과 전문). 확인 2026-10-30.
 - [76] Fan, Y., Tang, L., Le, H., Shen, K., Tan, S., Zhao, Y., Shen, Y., Li, X., & Gašević, D. (2025). Beware of metacognitive laziness: Effects of generative artificial intelligence on learning motivation, processes, and performance. British Journal of Educational Technology, 56(2), 489–530. https://doi.org/10.1111/bjet.13544. 동료 심사(arXiv PDF 본문, 학술지 페이지는 접근 막힘). 확인 2026-10-30.
 - [77] Kestin, G., Miller, K., Klales, A., Milbourne, T., & Ponti, G. (2025). AI tutoring outperforms in-class active learning: An RCT introducing a novel research-based design in an authentic educational setting. Scientific Reports, 15, 17458. https://doi.org/10.1038/s41598-025-97652-6. 동료 심사(PMC 전문 PMC12179260). 확인 2026-10-30.
 - [78] Ford, C. (2026-01-31). AI tutoring outperforms in-class active learning: A re-analysis. https://www.clayford.net/posts/ai_tutoring_nature/. 블로그(동료 심사 아님). 확인 2026-10-30.
@@ -631,7 +631,7 @@ LLM 튜터
 - [85] Gupta, A., Reddig, J., Calo, T., Weitekamp, D., & MacLellan, C. J. (2025). Beyond final answers: Evaluating large language models for math tutoring. arXiv:2503.16460v1. 프리프린트·워킹페이퍼(초록). 확인 2026-10-30.
 - [86] Deng, R., Jiang, M., Yu, X., Lu, Y., & Liu, S. (2025). Does ChatGPT enhance student learning? A systematic review and meta-analysis of experimental studies. Computers & Education, 227, 105224. https://doi.org/10.1016/j.compedu.2024.105224. 동료 심사(서지 정보만. [88]의 감사 결과와 함께만 인용). 확인 2026-10-30.
 - [87] Wang, J., & Fan, W. (2025). The effect of ChatGPT on students' learning performance, learning perception, and higher-order thinking: Insights from a meta-analysis. Humanities and Social Sciences Communications. https://doi.org/10.1057/s41599-025-04787-y. 철회됨(철회 공지 2026-04-22, https://doi.org/10.1057/s41599-026-07310-z). 결과를 근거로 쓰지 않는다. 확인 2026-10-30.
-- [88] Lawson, A. P., Martella, A. M., Weidlich, J., Mulders, M., & Buchner, J. (2026). Color me confounded: A critical analysis of media comparisons on ChatGPT in education. Computers & Education, 105701(게재 예정 원고, 2026-06-24 수락). https://doi.org/10.1016/j.compedu.2026.105701. 동료 심사(저자 기관 사본 전문). 확인 2026-10-30.
+- [88] Lawson, A. P., Martella, A. M., Weidlich, J., Mulders, M., & Buchner, J. (2026). Color me confounded: A critical analysis of media comparisons on ChatGPT in education. Computers & Education, 254, 105701(2026-06-24 수락). https://doi.org/10.1016/j.compedu.2026.105701. 동료 심사(저자 기관 사본 전문). 확인 2026-10-30.
 
 LLM 추천의 신뢰성
 - [89] Walters, W. H., & Wilder, E. I. (2023). Fabrication and errors in the bibliographic citations generated by ChatGPT. Scientific Reports, 13, 14045. https://doi.org/10.1038/s41598-023-41032-5. 동료 심사(Europe PMC 초록). 확인 2026-10-30.
@@ -653,7 +653,7 @@ LLM 추천의 신뢰성
 
 자기 평가
 - [105] Kornell, N., & Bjork, R. A. (2008). Learning concepts and categories: Is spacing the "enemy of induction"? Psychological Science, 19(6), 585–592. https://doi.org/10.1111/j.1467-9280.2008.02127.x. 동료 심사(전문). 확인 2026-10-30.
-- [106] Dunlosky, J., & Rawson, K. A. (2012). Overconfidence produces underachievement: Inaccurate self evaluations undermine students' learning and retention. Learning and Instruction, 22, 271–280(호수 미확인). https://doi.org/10.1016/j.learninstruc.2011.08.003. 동료 심사(초록). 확인 2026-10-30.
+- [106] Dunlosky, J., & Rawson, K. A. (2012). Overconfidence produces underachievement: Inaccurate self evaluations undermine students' learning and retention. Learning and Instruction, 22(4), 271–280. https://doi.org/10.1016/j.learninstruc.2011.08.003. 동료 심사(초록). 확인 2026-10-30.
 - [107] Soderstrom, N. C., & Bjork, R. A. (2015). Learning versus performance: An integrative review. Perspectives on Psychological Science, 10(2), 176–199. https://doi.org/10.1177/1745691615569000. 동료 심사(초록). 확인 2026-10-30.
 - [108] Deslauriers, L., McCarty, L. S., Miller, K., Callaghan, K., & Kestin, G. (2019). Measuring actual learning versus feeling of learning in response to being actively engaged in the classroom. PNAS, 116(39), 19251–19257. https://doi.org/10.1073/pnas.1821936116. 동료 심사(초록). 확인 2026-10-30.
 
@@ -661,12 +661,15 @@ LLM 추천의 신뢰성
 - [109] Kratochwill, T. R., Hitchcock, J., Horner, R. H., Levin, J. R., Odom, S. L., Rindskopf, D. M., & Shadish, W. R. (2010). Single-case designs technical documentation(Version 1.0, Pilot). What Works Clearinghouse. https://ies.ed.gov/ncee/wwc/Docs/ReferenceResources/wwc_scd.pdf. 공식 문서. 확인 2026-10-30.
 - [110] What Works Clearinghouse (2022). Procedures and standards handbook, version 5.0. https://ies.ed.gov/ncee/wwc/Docs/referenceresources/Final_WWC-HandbookVer5_0-0-508.pdf. 공식 문서. 확인 2026-10-30.
 - [111] Barlow, D. H., & Hayes, S. C. (1979). Alternating treatments design: One strategy for comparing the effects of two treatments in a single subject. Journal of Applied Behavior Analysis, 12(2), 199–210. https://doi.org/10.1901/jaba.1979.12-199. 동료 심사(초록). 확인 2026-10-30.
-- [112] Vohra, S., Shamseer, L., Sampson, M., et al. (2015). CONSORT extension for reporting N-of-1 trials (CENT) 2015 Statement. BMJ, 350, h1738. https://doi.org/10.1136/bmj.h1738. 동료 심사(보고 지침, 초록). 확인 2026-10-30.
+- [112] Vohra, S., Shamseer, L., Sampson, M., et al. (2015). CONSORT extension for reporting N-of-1 trials (CENT) 2015 Statement. BMJ, 350, h1738. https://doi.org/10.1136/bmj.h1738. 동료 심사(보고 지침, 초록. 2016년 정정은 체크리스트 인쇄 오류). 확인 2026-10-30.
 - [113] Bloom, H. S. (2006). The core analytics of randomized experiments for social research. MDRC Working Papers on Research Methodology. https://www.mdrc.org/sites/default/files/full_533.pdf. 프리프린트·워킹페이퍼(표 1, 20쪽). 확인 2026-10-30.
 - [114] Richland, L. E., Kornell, N., & Kao, L. S. (2009). The pretesting effect: Do unsuccessful retrieval attempts enhance learning? Journal of Experimental Psychology: Applied, 15(3), 243–257. https://doi.org/10.1037/a0016496. 동료 심사(초록). 확인 2026-10-30.
 - [115] Levashina, J., Hartwell, C. J., Morgeson, F. P., & Campion, M. A. (2014). The structured employment interview: Narrative and quantitative review of the research literature. Personnel Psychology, 67(1), 241–293. https://doi.org/10.1111/peps.12052. 동료 심사(초록). 확인 2026-10-30.
 - [116] Sackett, P. R., Zhang, C., Berry, C. M., & Lievens, F. (2022). Revisiting meta-analytic estimates of validity in personnel selection: Addressing systematic overcorrection for restriction of range. Journal of Applied Psychology, 107(11), 2040–2068. https://doi.org/10.1037/apl0000994. 동료 심사(초록). 확인 2026-10-30.
 - [117] Smith, P. C., & Kendall, L. M. (1963). Retranslation of expectations: An approach to the construction of unambiguous anchors for rating scales. Journal of Applied Psychology, 47(2), 149–155. https://doi.org/10.1037/h0047060. 동료 심사(서지 정보만). 확인 2026-10-30.
+
+2차 확인에서 더한 것
+- [118] Li, Z., Yazdanpanah, V., Wang, J., Gu, W., Shi, L., Cristea, A. I., Kiden, S., & Stein, S. (2025). TutorLLM: Customizing learning recommendations with knowledge tracing and retrieval-augmented generation. arXiv:2502.15709(v2, 2025-04-27). 프리프린트·워킹페이퍼(초록만. 참가자 수와 설계는 초록에 없어 미확인). 확인 2026-10-30.
 
 ## 7. 확인하지 못해 쓰지 않은 것
 
@@ -686,6 +689,6 @@ LLM 추천의 신뢰성
 - Nickow 등: 종합 효과가 2020년판 0.37에서 2024년판 0.288로 바뀐 이유는 확인하지 않았다.
 - Cohen(1992)의 표본 크기 표, Taylor & Small(2002)의 면접 질문 타당도 수치, Pane 등(2014)에 대한 WWC 검토 수치: 원문을 열지 못했다.
 - OpenAI 블로그 글(환각, GPT-4o 아첨): 자동 접근이 막혔다.
-- SQLD: 2024년 개편 공식 공지, 제63회 공식 일정, 응시료, 공식 교재 목차, 문항당 보기 개수, 공식 샘플 문제 공개 여부.
-- GPT의 SQLD 문항 정답률, SQL 개념 태깅·선수 관계 판정 정확도, GPT가 만든 학습 경로를 학습 결과로 검증한 연구: 찾지 못했다. 검색 결과에만 보인 연구(30명 규모 TutorLLM 등)는 열지 못해 쓰지 않았다.
+- SQLD: 2024년 개편 공식 공지, 제63회 공식 일정, 응시료, 문항당 보기 개수, 공식 샘플 문제 공개 여부.
+- GPT의 SQLD 문항 정답률, SQL 개념 태깅·선수 관계 판정 정확도, GPT가 만든 학습 경로를 학습 결과로 검증한 연구: 찾지 못했다. TutorLLM은 arXiv 초록만 확인해 [118]로 썼다. 참가자 수와 설계(검색 요약에 보인 30명, 2주)는 원문을 열지 못해 쓰지 않았다.
 - Electron 45.1.0에 든 Node 버전: 오늘 밤 확인하지 않았다. 구현할 때 확인한다.
