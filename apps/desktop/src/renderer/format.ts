@@ -9,5 +9,3 @@ export function rateLabel(useful: boolean | null): string {
   if (useful === null) return '평가 전';
   return useful ? '쓸 만해요' : '아니에요';
 }
-
-export const SUBJECT_COLORS = ['#3d5a99', '#2f6f5e', '#a3325c', '#9a5b13'];

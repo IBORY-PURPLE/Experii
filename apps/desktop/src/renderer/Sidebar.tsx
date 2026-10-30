@@ -1,5 +1,7 @@
 import type { DoneNode, Subject } from '../shared/ipc';
-import { SUBJECT_COLORS, dayLabel, rateLabel } from './format';
+import { dayLabel, rateLabel } from './format';
+import { Plus } from './icons';
+import { Wordmark } from './Logo';
 
 type Props = {
   subjects: Subject[];
@@ -23,94 +25,86 @@ export function Sidebar(p: Props) {
       : null;
   return (
     <aside className="sidebar">
-      <div className="brand">Experii</div>
+      <div className="side-brand">
+        <Wordmark />
+      </div>
       <div className="side-scroll">
         <div className="side-head">
           과목
-          <button
-            className="icon-btn"
-            onClick={p.onNewSubject}
-            aria-label="과목 만들기"
-          >
-            +
-          </button>
+          {p.subjects.length > 0 && (
+            <button
+              className="icon-btn"
+              onClick={p.onNewSubject}
+              aria-label="과목 만들기"
+            >
+              <Plus />
+            </button>
+          )}
         </div>
-        {p.subjects.length === 0 && (
+        {p.subjects.length === 0 ? (
           <div className="side-empty">
             <p>아직 과목이 없어요</p>
             <button className="btn small" onClick={p.onNewSubject}>
-              + 과목 만들기
+              <Plus />
+              과목 만들기
             </button>
           </div>
-        )}
-        {p.subjects.map((s, i) => (
-          <button
-            key={s.id}
-            className="subject"
-            aria-current={s.id === p.subjectId}
-            onClick={() => p.onSelect(s.id)}
-          >
-            <span
-              className="dot"
-              style={{ background: SUBJECT_COLORS[i % SUBJECT_COLORS.length] }}
-            />
-            <span className="name">{s.title}</span>
-            <span className="count" aria-label={`경험 ${s.cardCount}개`}>
-              {s.cardCount}
-            </span>
-          </button>
-        ))}
-        {current && (
-          <>
-            <div className="exp-head">{current.title}에 쌓인 경험</div>
-            {fresh && (
-              <div className="exp loading" role="status">
-                <i className="spin" aria-hidden />
-                <span>
-                  <span className="t">{fresh.title}</span>
-                  <span className="m">경험 카드를 만드는 중…</span>
-                </span>
-              </div>
-            )}
-            {p.experiences.length === 0 && !fresh && (
-              <div className="legend">아직 경험 카드가 없어요</div>
-            )}
-            {p.experiences.map((n) => (
+        ) : (
+          <div className="side-list">
+            {p.subjects.map((s) => (
               <button
-                key={n.cardId}
-                className="exp"
-                aria-current={n.cardId === p.openCardId}
-                onClick={() => p.onOpenCard(n)}
+                key={s.id}
+                className="subject"
+                aria-current={s.id === p.subjectId}
+                onClick={() => p.onSelect(s.id)}
               >
-                {n.conversationId === p.making?.conversationId ? (
-                  <i className="spin" aria-hidden />
-                ) : (
-                  <i
-                    className={`rate-dot ${n.useful === true ? 'useful' : n.useful === false ? 'not' : ''}`}
-                  />
-                )}
-                <span>
-                  <span className="t">{n.title}</span>
-                  <span className="m">
-                    {n.conversationId === p.making?.conversationId
-                      ? '카드를 다시 만드는 중…'
-                      : `${dayLabel(n.createdAt)} · ${rateLabel(n.useful)}`}
-                  </span>
+                <span className="name">{s.title}</span>
+                <span className="count" aria-label={`경험 ${s.cardCount}개`}>
+                  {s.cardCount}
                 </span>
               </button>
             ))}
-            {p.experiences.length > 0 && (
-              <div className="legend">
-                <span>
-                  <i className="rate-dot useful" /> 쓸 만해요
-                </span>
-                <span>
-                  <i className="rate-dot not" /> 아니에요
-                </span>
-                <span>
-                  <i className="rate-dot" /> 평가 전
-                </span>
+          </div>
+        )}
+        {current && (
+          <>
+            <div className="side-head exp-head">
+              {current.title}에 쌓인 경험
+            </div>
+            {fresh || p.experiences.length > 0 ? (
+              <div className="side-list">
+                {fresh && (
+                  <div className="exp loading" role="status">
+                    <span className="t">{fresh.title}</span>
+                    <span className="m">
+                      <i className="spin" aria-hidden />
+                      경험 카드를 만드는 중…
+                    </span>
+                  </div>
+                )}
+                {p.experiences.map((n) => (
+                  <button
+                    key={n.cardId}
+                    className="exp"
+                    aria-current={n.cardId === p.openCardId}
+                    onClick={() => p.onOpenCard(n)}
+                  >
+                    <span className="t">{n.title}</span>
+                    {n.conversationId === p.making?.conversationId ? (
+                      <span className="m">
+                        <i className="spin" aria-hidden />
+                        카드를 다시 만드는 중…
+                      </span>
+                    ) : (
+                      <span className="m">
+                        {`${dayLabel(n.createdAt)} · ${rateLabel(n.useful)}`}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
+            ) : (
+              <div className="side-empty">아직 경험 카드가 없어요</div>
             )}
           </>
         )}
@@ -118,8 +112,8 @@ export function Sidebar(p: Props) {
       <div className="account">
         <span className="avatar">나</span>
         <span className="who">
-          <b>{p.account}</b>
-          <span>로그인됨</span>
+          <span className="name">{p.account}</span>
+          <span className="state">로그인됨</span>
         </span>
         <button className="link" onClick={p.onSignOut}>
           로그아웃
