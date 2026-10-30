@@ -9,6 +9,7 @@ import { TokenStore, type Tokens, type Vault } from '../../src/main/tokens';
 const tokens: Tokens = {
   access_token: 'acc-secret',
   refresh_token: 'ref-secret',
+  id_token: null,
   expires_at: 1,
   scopes: ['a'],
   email: null,
@@ -75,6 +76,7 @@ describe('createPkce', () => {
     const a = createPkce();
     const b = createPkce();
     expect(a.verifier).not.toBe(b.verifier);
+    expect(a.nonce).not.toBe(b.nonce);
     expect(a.challenge).toBe(
       createHash('sha256').update(a.verifier).digest('base64url'),
     );

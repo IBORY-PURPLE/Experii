@@ -93,6 +93,10 @@ export class Store {
       .run(key, value);
   }
 
+  deleteSetting(key: string) {
+    this.db.prepare('DELETE FROM settings WHERE key = ?').run(key);
+  }
+
   listSubjects(): Subject[] {
     const rows = this.db
       .prepare(

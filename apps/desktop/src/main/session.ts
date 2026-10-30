@@ -1,21 +1,35 @@
 import { randomUUID } from 'node:crypto';
-import type { AuthStatus } from '../shared/ipc';
+import type { AuthStatus, SignOutResult } from '../shared/ipc';
 import {
+  API_RESOURCE,
   AuthError,
-  CLIENT_ID,
+  REQUIRED_SCOPE,
   authorizeUrl,
   exchangeCode,
+  grantedScopes,
+  issuedClientId,
   refreshTokens,
+  revokeToken,
   singleFlight,
   startLoopback,
-  type FetchLike,
+  tokensFrom,
 } from './auth';
 import type { Store } from './db';
+import { jwksFrom, verifyIdToken } from './idtoken';
 import { createPkce } from './pkce';
-import { ResponsesError, type Transport } from './responses';
+import { ResponsesError, type FetchLike, type Transport } from './responses';
 import type { TokenStore, Tokens } from './tokens';
 
 export type TestAccount = { baseUrl: string; token: string };
+
+// The issued client and the account it belongs to outlive sign-out, so the next sign-in skips registration.
+type Registration = { clientId: string; sub: string; email: string | null };
+
+const REGISTRATION_KEYS = [
+  'issued_client_id',
+  'account_sub',
+  'account_email',
+] as const;
 
 const REFRESH_MARGIN_MS = 60_000;
 
@@ -23,6 +37,7 @@ const REFRESH_MARGIN_MS = 60_000;
 export class Session {
   private model: string | null = null;
   private pending: AbortController | null = null;
+  private jwks = jwksFrom((url, init) => this.fetchImpl(url, init));
 
   constructor(
     private store: Store,
@@ -42,29 +57,58 @@ export class Session {
       : { state: 'signed_out' };
   }
 
-  signIn = singleFlight(async (): Promise<AuthStatus> => {
-    const pkce = createPkce();
+  // newAccount registers a new client even when one is saved: the "다른 계정으로" path.
+  signIn = singleFlight(async (newAccount = false): Promise<AuthStatus> => {
+    const saved = this.registration();
+    const returning = newAccount ? null : saved;
+    const current = await this.tokens.load();
+    const attempt = createPkce();
     this.pending = new AbortController();
-    const loop = await startLoopback(pkce.state, {
+    const loop = await startLoopback(attempt.state, {
       signal: this.pending.signal,
     });
     try {
       await this.openExternal(
         authorizeUrl({
           port: loop.port,
-          pkce,
-          clientId: this.clientId(),
+          pkce: attempt,
           hostId: this.hostId(),
+          returning: returning && {
+            clientId: returning.clientId,
+            idTokenHint: current?.id_token,
+            loginHint: returning.email,
+          },
         }),
       );
-      const code = await loop.code;
-      const tokens = await exchangeCode(this.fetchImpl, {
-        code,
-        verifier: pkce.verifier,
+      const callback = await loop.callback;
+      const clientId = issuedClientId(returning, callback.clientId);
+      const body = await exchangeCode(this.fetchImpl, {
+        code: callback.code,
+        verifier: attempt.verifier,
         port: loop.port,
-        clientId: this.clientId(),
+        clientId,
       });
-      await this.tokens.save(tokens);
+      const claims = await verifyIdToken(body.id_token, {
+        clientId,
+        nonce: attempt.nonce,
+        jwks: this.jwks,
+      }).catch(() => {
+        throw new AuthError('id_token_invalid');
+      });
+      if (returning && claims.sub !== returning.sub)
+        throw new AuthError('account_mismatch');
+      if (!grantedScopes(body).includes(REQUIRED_SCOPE))
+        throw new AuthError('not_eligible_plan');
+      if (current && saved && saved.clientId !== clientId)
+        await revokeToken(this.fetchImpl, {
+          refreshToken: current.refresh_token,
+          clientId: saved.clientId,
+        });
+      this.saveRegistration({ clientId, sub: claims.sub, email: claims.email });
+      await this.tokens.save(
+        tokensFrom(body, { scopes: [], id_token: null, email: claims.email }),
+      );
+      this.model = null;
       this.onChange();
       return this.status();
     } finally {
@@ -77,10 +121,20 @@ export class Session {
     this.pending?.abort();
   }
 
-  async signOut() {
+  async signOut(): Promise<SignOutResult> {
+    const current = await this.tokens.load();
+    const saved = this.registration();
+    const revoked =
+      current && saved
+        ? await revokeToken(this.fetchImpl, {
+            refreshToken: current.refresh_token,
+            clientId: saved.clientId,
+          })
+        : !current;
     await this.tokens.clear();
     this.model = null;
     this.onChange();
+    return { revoked };
   }
 
   async transport(): Promise<Transport> {
@@ -95,7 +149,7 @@ export class Session {
     }
     if (!(await this.tokens.load())) throw new ResponsesError('unauthorized');
     return {
-      baseUrl: 'https://api.openai.com/v1',
+      baseUrl: API_RESOURCE,
       headers: async () => {
         let t = await this.tokens.load();
         if (t && t.expires_at - Date.now() < REFRESH_MARGIN_MS)
@@ -108,22 +162,26 @@ export class Session {
     };
   }
 
+  // A temporary failure keeps the tokens; an unusable refresh token ends the session (and invalid_client the registration).
   private refresh = singleFlight(async (): Promise<Tokens | null> => {
     const current = await this.tokens.load();
-    if (!current) return null;
-    const next = await refreshTokens(this.fetchImpl, {
+    const saved = this.registration();
+    if (!current || !saved) return null;
+    const result = await refreshTokens(this.fetchImpl, {
       refreshToken: current.refresh_token,
-      clientId: this.clientId(),
-    }).catch((err) => {
-      if (err instanceof AuthError) return null;
-      throw err;
+      clientId: saved.clientId,
     });
-    if (next === 'invalid_grant') {
-      await this.signOut();
-      return null;
+    if (result.ok) {
+      const next = tokensFrom(result.body, current);
+      await this.tokens.save(next);
+      return next;
     }
-    if (next) await this.tokens.save(next);
-    return next;
+    if (result.reason === 'transient') throw new ResponsesError('network');
+    if (result.reason === 'invalid_client') this.clearRegistration();
+    await this.tokens.clear();
+    this.model = null;
+    this.onChange();
+    return null;
   });
 
   async resolveModel(transport: Transport): Promise<string> {
@@ -135,24 +193,41 @@ export class Session {
       res = await this.fetchImpl(`${transport.baseUrl}/models`, {
         headers: await transport.headers(),
       });
-    } catch {
+    } catch (err) {
+      if (err instanceof ResponsesError) throw err;
       throw new ResponsesError('network');
     }
     if (res.status === 401) throw new ResponsesError('unauthorized');
     if (!res.ok)
       throw new ResponsesError('server', `models HTTP ${res.status}`);
     const body = (await res.json()) as {
-      data?: Array<{ id: string; visibility?: string }>;
+      models?: Array<{ slug?: string; visibility?: string }>;
     };
-    const listed = (body.data ?? []).filter((m) => m.visibility === 'list');
-    const first = (listed.length ? listed : (body.data ?? []))[0];
-    if (!first) throw new ResponsesError('server', 'no models');
-    this.model = first.id;
-    return first.id;
+    const first = (body.models ?? []).find(
+      (m) => m.visibility === 'list' && m.slug,
+    );
+    if (!first?.slug) throw new ResponsesError('server', 'no models');
+    this.model = first.slug;
+    return first.slug;
   }
 
-  private clientId() {
-    return this.store.getSetting('issued_client_id') ?? CLIENT_ID;
+  private registration(): Registration | null {
+    const clientId = this.store.getSetting('issued_client_id');
+    const sub = this.store.getSetting('account_sub');
+    return clientId && sub
+      ? { clientId, sub, email: this.store.getSetting('account_email') }
+      : null;
+  }
+
+  private saveRegistration(r: Registration) {
+    this.store.setSetting('issued_client_id', r.clientId);
+    this.store.setSetting('account_sub', r.sub);
+    if (r.email) this.store.setSetting('account_email', r.email);
+    else this.store.deleteSetting('account_email');
+  }
+
+  private clearRegistration() {
+    for (const key of REGISTRATION_KEYS) this.store.deleteSetting(key);
   }
 
   private hostId() {

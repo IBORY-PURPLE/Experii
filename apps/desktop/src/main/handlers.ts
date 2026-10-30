@@ -7,7 +7,7 @@ import { DuplicateSubjectError, type Store } from './db';
 import { IpcError, guard, type Handler, type StreamRegistry } from './ipc';
 import type { Session } from './session';
 
-export const USAGE_URL = 'https://chatgpt.com/codex/settings/usage';
+export const USAGE_URL = 'https://chatgpt.com/settings/usage';
 
 export type Deps = {
   store: Store;
@@ -25,9 +25,9 @@ export function registerHandlers(deps: Deps) {
     ipcMain.handle(channel, guard(channel, isTrusted, handler));
 
   on('auth:status', () => session.status());
-  on('auth:signIn', async () => {
+  on('auth:signIn', async (payload) => {
     try {
-      return await session.signIn();
+      return await session.signIn(payload?.newAccount ?? false);
     } catch (err) {
       if (err instanceof AuthError) throw new IpcError(err.code);
       throw err;
@@ -35,8 +35,8 @@ export function registerHandlers(deps: Deps) {
   });
   on('auth:signOut', async () => {
     session.cancelSignIn();
-    await session.signOut();
-    return null;
+    streams.cancelAll();
+    return session.signOut();
   });
 
   on('subjects:list', () => store.listSubjects());

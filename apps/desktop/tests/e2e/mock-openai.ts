@@ -200,9 +200,9 @@ export async function startMockOpenAI(
     }
     if (req.method === 'GET' && url.pathname === '/v1/models') {
       json(res, 200, {
-        data: [
-          { id: 'hidden-model', visibility: 'hidden' },
-          { id: MOCK_MODEL, visibility: 'list' },
+        models: [
+          { slug: 'hidden-model', display_name: 'Hidden', visibility: 'hide' },
+          { slug: MOCK_MODEL, display_name: 'Mock', visibility: 'list' },
         ],
       });
       return;
