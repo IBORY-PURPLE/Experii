@@ -1147,3 +1147,226 @@ test.describe('answer tables and folding panels', () => {
     await win.emulateMedia({ reducedMotion: null });
   });
 });
+
+test.describe('model picker, tool line and card progress on screen', () => {
+  let app: Running | null = null;
+  const running = () => {
+    if (!app) throw new Error('app is not running');
+    return app;
+  };
+  const picker = (win: Page) => win.getByRole('combobox', { name: '모델' });
+  const streaming = (win: Page) => win.locator('.msg-ai[aria-live]');
+  const makingTile = (win: Page) =>
+    win.locator('.node:has(.chip.making) .tile');
+  const searched = `내 경험 카드 검색 · '${MOCK_TOOL_QUERY}' · `;
+  const lastUserText = (body: Record<string, unknown>) =>
+    (body.input as Item[])
+      .filter((i) => i.role === 'user')
+      .map(itemText)
+      .at(-1);
+
+  async function startSend(win: Page, text: string) {
+    const input = win.getByLabel('메시지');
+    await input.fill(text);
+    await input.press('Enter');
+    await expect(streaming(win)).toBeVisible();
+  }
+
+  test.afterAll(async () => {
+    await app?.app.close().catch(() => {});
+    mock.pace.cardDelay = 0;
+    mock.pace.holdMs = 0;
+  });
+
+  test('the model picker shows the conversation model, locks while an answer streams, and the next request uses it', async () => {
+    await run?.app.close().catch(() => {});
+    run = null;
+    app = await launch(tempDir());
+    const { win } = app;
+    await win.getByRole('button', { name: '첫 과목 만들기' }).click();
+    const dialog = win.getByRole('dialog', { name: '새 과목' });
+    await dialog.getByLabel('과목 이름').fill('SQLD');
+    await dialog.getByRole('button', { name: '만들기' }).click();
+    await expect(dialog).toBeHidden();
+
+    const select = picker(win);
+    await expect(select).toHaveValue(MOCK_MODEL);
+    await expect(select.locator('option')).toHaveText(['Mock', 'Mock mini']);
+    await expect(select).toBeEnabled();
+    await select.selectOption(MOCK_MODEL_ALT);
+    await expect(select).toHaveValue(MOCK_MODEL_ALT);
+
+    mock.requests.length = 0;
+    mock.pace.holdMs = 1_500;
+    await startSend(win, 'LEFT JOIN이 헷갈려요');
+    await expect(select, 'no switching while an answer streams').toBeDisabled();
+    await expect(streaming(win)).toBeHidden({ timeout: 15_000 });
+    mock.pace.holdMs = 0;
+    await expect(select).toBeEnabled();
+    await expect(select).toHaveValue(MOCK_MODEL_ALT);
+    expect(mock.requests.map((b) => b.model)).toEqual([MOCK_MODEL_ALT]);
+    await shot(win, 'night-view2-model-picker');
+    await win
+      .locator('.chat .composer')
+      .screenshot({
+        path: path.join(shots, 'night-view2-model-picker-row.png'),
+      });
+
+    await win.getByRole('button', { name: '새 대화' }).click();
+    await expect(win.locator('.msg-user')).toHaveCount(0);
+    await expect(select, 'the pick is the new default').toHaveValue(
+      MOCK_MODEL_ALT,
+    );
+    await select.selectOption(MOCK_MODEL);
+    await win.locator('.tile', { hasText: '진행 중' }).click();
+    await expect(win.locator('.msg-user')).toHaveCount(1);
+    await expect(select, 'a saved conversation keeps its model').toHaveValue(
+      MOCK_MODEL_ALT,
+    );
+    mock.requests.length = 0;
+    await sendAndWait(win, 'ON 조건도 알려 주세요');
+    expect(mock.requests.map((b) => b.model)).toEqual([MOCK_MODEL_ALT]);
+  });
+
+  test('a card being made shows its title, summary and interview line on its tile and in the sidebar before it is done', async () => {
+    const { win } = running();
+    const { card } = MOCK_CARD;
+    await win.evaluate((c) => {
+      const w = window as unknown as { seen: string[] };
+      w.seen = [];
+      const note = (what: string, shown: boolean) => {
+        if (shown && !w.seen.includes(what)) w.seen.push(what);
+      };
+      const observer = new MutationObserver(() => {
+        const tile = document.querySelector('.node:has(.chip.making) .tile');
+        const text = tile?.textContent ?? '';
+        note('title', tile?.querySelector('h3')?.textContent === c.title);
+        note('summary', text.includes(c.summary));
+        note('interview_line', text.includes(c.interview_line));
+        note('card', !!document.querySelector('article.card-view'));
+        if (w.seen.includes('card')) observer.disconnect();
+      });
+      observer.observe(document.body, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+      });
+    }, card);
+
+    mock.pace.cardDelay = 25;
+    mock.pace.holdMs = 1_500;
+    await makeButton(win).click();
+    const tile = makingTile(win);
+    await expect(tile.locator('h3')).toHaveText(card.title);
+    await expect(tile).toContainText(card.summary);
+    await expect(tile.locator('.line-box')).toContainText(card.interview_line);
+    const item = win
+      .getByRole('status')
+      .filter({ hasText: '경험 카드를 만드는 중…' });
+    await expect(item).toContainText(card.title);
+    await expect(item).toContainText(card.summary);
+    await expect(cardView(win), 'the card is not done yet').toHaveCount(0);
+    await shot(win, 'night-view2-card-progress');
+
+    await expect(cardView(win)).toBeVisible({ timeout: 20_000 });
+    mock.pace.cardDelay = 0;
+    mock.pace.holdMs = 0;
+    expect(
+      await win.evaluate(() => (window as unknown as { seen: string[] }).seen),
+      'each field showed on the tile before the card opened',
+    ).toEqual(['title', 'summary', 'interview_line', 'card']);
+  });
+
+  test('a #도구 search shows one status line above the streaming answer, and in the same place after a reopen', async () => {
+    const { win } = running();
+    await cardView(win).getByRole('button', { name: '접기' }).click();
+    await win.getByRole('button', { name: '새 대화' }).click();
+    await expect(win.locator('.msg-user')).toHaveCount(0);
+
+    mock.pace.holdMs = 1_500;
+    await startSend(win, `${TRIGGERS.tool} 내 카드에서 JOIN 찾아줘`);
+    const live = streaming(win).locator('.tool-line');
+    await expect(live).toHaveText(`${searched}1장`);
+    await expect(live).toHaveAttribute('role', 'status');
+    await expect(streaming(win)).toContainText('1장을 찾았어요');
+    await shot(win, 'night-view2-tool-line');
+    await expect(streaming(win)).toBeHidden({ timeout: 15_000 });
+    mock.pace.holdMs = 0;
+
+    const answer = win.locator('.msg-ai', { hasText: '1장을 찾았어요' });
+    await expect(answer.locator('.tool-line')).toHaveText(`${searched}1장`);
+    await expect(win.locator('.tool-line')).toHaveCount(1);
+
+    await win.getByRole('button', { name: '새 대화' }).click();
+    await expect(win.locator('.tool-line')).toHaveCount(0);
+    await win.locator('.tile', { hasText: '진행 중' }).click();
+    await expect(win.locator('.msg-user')).toHaveCount(1);
+    await expect(answer.locator('.tool-line')).toHaveText(`${searched}1장`);
+    expect(
+      await answer.evaluate((el) =>
+        [...el.children].map((c) => c.className.split(' ')[0]),
+      ),
+      'the line sits between the speaker and the text',
+    ).toEqual(['who', 'tool-lines', 'md']);
+    await shot(win, 'night-view2-tool-line-reopened');
+  });
+
+  test('a card finished while an answer streams stays folded on the path', async () => {
+    const { win } = running();
+    await expect(doneTile(win)).toHaveCount(1);
+    mock.pace.holdMs = 3_000;
+    await makeButton(win).click();
+    await expect(makingTile(win)).toBeVisible();
+    await startSend(win, 'JOIN 결과를 하나 더 보여 줘');
+
+    await expect(win.locator('.chip.making')).toHaveCount(0, {
+      timeout: 15_000,
+    });
+    await expect(streaming(win), 'the answer is still streaming').toBeVisible();
+    await expect(doneTile(win)).toHaveCount(2);
+    await expect(cardView(win)).toHaveCount(0);
+    await expect(streaming(win)).toBeHidden({ timeout: 15_000 });
+    mock.pace.holdMs = 0;
+    await expect(win.locator('.msg-ai')).toHaveCount(2);
+    await expect(cardView(win), 'nor after the answer ends').toHaveCount(0);
+  });
+
+  test('unsupported and tool_limit errors get their own banners that send again', async () => {
+    const { win } = running();
+    const input = win.getByLabel('메시지');
+    const banner = win.getByRole('alert');
+    const questions = win.locator('.msg-user');
+    await expect(questions).toHaveCount(2);
+
+    const refused = `${TRIGGERS.unsupported} 이 그림도 같이 봐 줘`;
+    mock.requests.length = 0;
+    await input.fill(refused);
+    await input.press('Enter');
+    await expect(banner).toContainText('이 계정이 받지 않는 기능이 있었어요');
+    await expect(input).toHaveValue(refused);
+    await expect(questions).toHaveCount(2);
+    await shot(win, 'night-view2-banner-unsupported');
+    await banner.getByRole('button', { name: '다시 보내기' }).click();
+    await expect.poll(() => mock.requests.length).toBe(2);
+    expect(lastUserText(mock.requests[1])).toBe(refused);
+    await expect(banner).toContainText('이 계정이 받지 않는 기능이 있었어요');
+    await expect(questions, 'the resent question is not doubled').toHaveCount(
+      2,
+    );
+
+    const looping = `${TRIGGERS.toolLoop} 카드를 계속 찾아줘`;
+    mock.requests.length = 0;
+    await input.fill(looping);
+    await input.press('Enter');
+    await expect(banner).toContainText('도구를 너무 여러 번 불렀어요');
+    await expect(
+      banner.getByRole('button', { name: '다시 보내기' }),
+    ).toBeVisible();
+    await expect(input).toHaveValue(looping);
+    expect(
+      mock.requests.length,
+      'three rounds of tool calls, then the fourth call stops the answer',
+    ).toBe(4);
+    await shot(win, 'night-view2-banner-tool-limit');
+  });
+});

@@ -22,6 +22,8 @@ export const TRIGGERS = {
   noLearning: '#학습없음',
   tool: '#도구',
   toolRefused: '#도구거부',
+  toolLoop: '#도구반복',
+  unsupported: '#기능거부',
   table: '#표',
 } as const;
 
@@ -442,6 +444,20 @@ export async function startMockOpenAI(
       });
       return;
     }
+    // A refused feature that is not a tool, so the app cannot fall back and shows the error.
+    if (userText.includes(TRIGGERS.unsupported)) {
+      const at = input.findLastIndex(
+        (i) => i.type === 'message' && i.role === 'user',
+      );
+      json(res, 400, {
+        error: {
+          code: 'subscription_sharing_unsupported_capability',
+          message: 'This capability is not available with a plan token.',
+          param: `input[${at}].content[0]`,
+        },
+      });
+      return;
+    }
     const tool = offeredTool(body);
     if (tool && userText.includes(TRIGGERS.toolRefused)) {
       json(res, 400, {
@@ -451,6 +467,11 @@ export async function startMockOpenAI(
           param: tool.param,
         },
       });
+      return;
+    }
+    // Calls the tool again after every output, so the app hits its round limit.
+    if (tool && userText.includes(TRIGGERS.toolLoop)) {
+      callTool(res, model, tool);
       return;
     }
     if (tool && userText.includes(TRIGGERS.tool)) {
