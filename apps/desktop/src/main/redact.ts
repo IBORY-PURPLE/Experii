@@ -1,6 +1,7 @@
 import type { Redactions } from '../shared/card';
+import { REDACTED } from '../shared/redaction';
 
-export const REDACTED = '***REDACTED***';
+export { REDACTED };
 
 // Order matters: wider shapes first so a Bearer header holding a JWT counts once, as a Bearer token.
 const PATTERNS: Array<[string, RegExp]> = [

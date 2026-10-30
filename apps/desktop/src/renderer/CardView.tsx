@@ -1,5 +1,6 @@
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 import { REDACTION_LABELS, type StoredCard } from '../shared/card';
+import { REDACTED } from '../shared/redaction';
 import { dayLabel, rateChip, rateLabel } from './format';
 import { Check, Shield } from './icons';
 
@@ -20,12 +21,30 @@ const STAR = [
   ['result', 'R', '결과'],
 ] as const;
 
+// A masked secret shows as a small code chip, so it reads as something Experii hid rather than as the user's words.
+function masked(text: string): ReactNode[] {
+  return text.split(REDACTED).flatMap((part, i) =>
+    i === 0
+      ? [part]
+      : [
+          <code key={i} className="redacted">
+            {REDACTED}
+          </code>,
+          part,
+        ],
+  );
+}
+
 export function CardView(p: Props) {
   const c = p.card;
   const rateQuestion = useId();
   const hidden = Object.entries(c.redactions).filter(([, n]) => n > 0);
   return (
-    <article className="card-view" aria-label={`경험 카드: ${c.title}`}>
+    <article
+      className="card-view"
+      id={`card-${c.id}`}
+      aria-label={`경험 카드: ${c.title}`}
+    >
       <header className="cv-head">
         <h2>{c.title}</h2>
         <span className={`chip ${rateChip(c.useful)}`}>
@@ -37,7 +56,7 @@ export function CardView(p: Props) {
         <p className="cv-band">
           경험 카드 · {p.subjectTitle} · {dayLabel(c.createdAt)}
         </p>
-        <p className="cv-summary">{c.summary}</p>
+        <p className="cv-summary">{masked(c.summary)}</p>
       </header>
       <div className="cv-body">
         {hidden.length > 0 && (
@@ -53,7 +72,7 @@ export function CardView(p: Props) {
         )}
         <div className="line-box">
           <small>면접 한 마디</small>
-          <p>{c.interview_line}</p>
+          <p>{masked(c.interview_line)}</p>
         </div>
         <dl className="star">
           {STAR.map(([key, letter, label]) => {
@@ -64,7 +83,9 @@ export function CardView(p: Props) {
                   <b>{letter}</b> {label}
                 </dt>
                 <dd className={value === null ? 'missing' : undefined}>
-                  {value ?? '(대화에서 결과를 확인하지 못함)'}
+                  {value === null
+                    ? '(대화에서 결과를 확인하지 못함)'
+                    : masked(value)}
                 </dd>
               </div>
             );
@@ -85,7 +106,7 @@ export function CardView(p: Props) {
           )}
           <div>
             <dt>다음 할 일</dt>
-            <dd className="cv-next">{c.next_steps}</dd>
+            <dd className="cv-next">{masked(c.next_steps)}</dd>
           </div>
         </dl>
       </div>

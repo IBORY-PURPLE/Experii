@@ -22,7 +22,12 @@ type Props = {
 
 export function LockedBubble(p: { node: LockedNode; onStart(): void }) {
   return (
-    <div className="bubble" role="group" aria-label="GPT가 추천한 다음 공부">
+    <div
+      className="bubble"
+      id={`bubble-${p.node.id}`}
+      role="group"
+      aria-label="GPT가 추천한 다음 공부"
+    >
       <b>{p.node.title}</b>
       <small>GPT가 추천한 다음 공부</small>
       <p>{p.node.reason}</p>
@@ -108,6 +113,7 @@ export function Roadmap(p: Props) {
                     onClick={() => p.onOpenCard(n)}
                     aria-label={`${n.title} 카드 ${open ? '접기' : '열기'}`}
                     aria-expanded={open}
+                    aria-controls={open ? `card-${n.cardId}` : undefined}
                   >
                     <Check size={24} />
                   </button>
@@ -146,8 +152,10 @@ export function Roadmap(p: Props) {
               const making = n.conversationId === p.makingConversationId;
               return (
                 <li key={n.conversationId} className="node" data-kind="current">
+                  {/* The tile beside it does the same, so the keyboard stops there only. */}
                   <button
                     className="knob current"
+                    tabIndex={-1}
                     onClick={() => p.onOpenConversation(n.conversationId)}
                     aria-label={`${n.title} 대화 열기`}
                   >
@@ -187,9 +195,11 @@ export function Roadmap(p: Props) {
               >
                 <button
                   className="knob locked"
+                  tabIndex={-1}
                   onClick={() => p.onOpenLocked(n)}
                   aria-label={`${n.title} 추천 보기`}
                   aria-expanded={open}
+                  aria-controls={open ? `bubble-${n.id}` : undefined}
                 >
                   <Lock size={20} />
                 </button>
@@ -197,6 +207,7 @@ export function Roadmap(p: Props) {
                   <button
                     className="tile locked"
                     aria-expanded={open}
+                    aria-controls={open ? `bubble-${n.id}` : undefined}
                     onClick={() => p.onOpenLocked(n)}
                   >
                     <div className="tile-head">

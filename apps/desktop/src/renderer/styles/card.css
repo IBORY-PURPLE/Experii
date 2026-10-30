@@ -94,11 +94,9 @@
   margin-top: calc(var(--sp-1) / 2);
 }
 
-/* The interview line sits between two hairlines instead of in a tinted box. */
+/* The card's sections part by space alone; the interview line stands out by its size and weight. */
 .card-view .line-box {
   margin: 0;
-  padding: var(--sp-3) 0;
-  border-block: 1px solid var(--line);
 }
 
 .card-view .line-box small {
@@ -117,16 +115,13 @@
   text-wrap: balance;
 }
 
-/* STAR and the facts share one label column, so every value starts on the same line. */
+/* STAR and the facts share one label column, so every value starts on the same line. Each block sits a step further
+   from the one above than the body's gap, which keeps the label rows apart from the quote and from each other. */
 .card-view .star,
 .cv-facts {
   display: grid;
   gap: var(--sp-2);
-  margin: 0;
-}
-
-.cv-facts {
-  margin-top: var(--sp-1);
+  margin: var(--sp-1) 0 0;
 }
 
 .card-view .star > div,
@@ -168,6 +163,16 @@
 
 .card-view .star dd.missing {
   color: var(--ink-3);
+}
+
+/* A secret the app masked, set apart from the user's words like inline code in an answer. */
+.card-view .redacted {
+  padding: calc(var(--sp-1) / 4) var(--sp-1);
+  border-radius: var(--r-1);
+  background: var(--wash-2);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
 }
 
 .card-view .concepts {

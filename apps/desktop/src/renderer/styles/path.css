@@ -108,13 +108,14 @@
   border-left: var(--rail) dotted var(--line-2);
 }
 
-/* It is solid blue from a done knob to the next done knob or to the conversation in progress. */
+/* It is solid blue from a done knob to the next done knob or to the conversation in progress. Drawn as a border
+   rather than a fill, it also stays a solid line beside the dotted one in Windows high contrast. */
 .node[data-kind='done']:not(:last-child):not(
     :has(+ .node[data-kind='locked'])
   )::before {
-  border-left: 0;
+  border-left-style: solid;
+  border-left-color: var(--blue-rail);
   border-radius: var(--r-pill);
-  background: var(--blue-rail);
 }
 
 /* Knobs are the one place the app keeps depth. */
@@ -172,6 +173,17 @@
   box-shadow: var(--sh-1);
 }
 
+/* Windows high contrast drops the knobs' gradients and shadows, so every knob keeps its circle as a real edge and
+   an opaque face that hides the rail behind it. */
+@media (forced-colors: active) {
+  .knob,
+  .knob.current,
+  .knob.locked {
+    border: 2px solid;
+    background-color: var(--surface);
+  }
+}
+
 .tile {
   display: block;
   width: 100%;
@@ -196,9 +208,8 @@
   box-shadow: var(--sh-1);
 }
 
-/* Blue edge = now: the conversation open in the chat and the one in progress. */
-.tile[aria-current='true'],
-.node[data-kind='current'] .tile {
+/* Blue edge = now: the tile of the conversation open in the chat, so it marks one tile at most. */
+.tile[aria-current='true'] {
   border-color: var(--blue-rail);
 }
 
@@ -217,7 +228,7 @@
   min-width: 0;
   margin: 0;
   font-size: var(--fs-15);
-  font-weight: var(--fw-2);
+  font-weight: var(--fw-3);
   line-height: var(--lh-24);
 }
 
@@ -262,7 +273,7 @@
 
 .tile.locked h2 {
   color: var(--ink-3);
-  font-weight: var(--fw-1);
+  font-weight: var(--fw-2);
 }
 
 .bubble {
