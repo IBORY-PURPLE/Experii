@@ -10,6 +10,7 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { CONTEXT_VERSION } from '../../src/main/context';
 import { API_KEYS } from '../../src/shared/api';
 import { PROMPT_VERSION } from '../../src/shared/card';
 import {
@@ -337,6 +338,7 @@ test('restores the conversation from its node after a restart and resends the wh
     .filter((i) => i.type === 'message')
     .map((i) => [i.role, itemText(i)]);
   expect(messages).toEqual([
+    ['developer', expect.stringContaining(`맥락 버전: ${CONTEXT_VERSION}`)],
     ['user', 'LEFT JOIN이 헷갈려요'],
     ['assistant', expect.stringContaining('핵심 정리')],
     ['user', '행이 3개 나왔어요'],

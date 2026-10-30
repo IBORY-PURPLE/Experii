@@ -12,6 +12,7 @@ import {
 } from 'vitest';
 import type { ChatEvent } from '../../src/shared/ipc';
 import { ChatService } from '../../src/main/chat';
+import { CONTEXT_VERSION } from '../../src/main/context';
 import { Store } from '../../src/main/db';
 import { StreamRegistry } from '../../src/main/ipc';
 import type { Transport } from '../../src/main/responses';
@@ -96,6 +97,28 @@ describe('ChatService', () => {
       'user',
       'assistant',
     ]);
+  });
+
+  it('puts the app context first on every request and never saves it', async () => {
+    const s = store.createSubject('SQLD');
+    const view = chat.open(s.id);
+    await turn(view.id, 'LEFT JOIN이 헷갈려요');
+    await turn(view.id, '행이 3개 나왔어요');
+    expect(mock.requests).toHaveLength(2);
+    for (const body of mock.requests) {
+      const [first] = body.input as Array<{
+        role?: string;
+        content: Array<{ text: string }>;
+      }>;
+      expect(first.role).toBe('developer');
+      const lines = first.content[0].text.split('\n');
+      expect(lines).toContain('지금 과목: SQLD');
+      expect(lines.at(-1)).toBe(`맥락 버전: ${CONTEXT_VERSION}`);
+    }
+    const roles = store
+      .items(view.id)
+      .map((i) => (JSON.parse(i.item_json) as { role?: string }).role);
+    expect(roles).not.toContain('developer');
   });
 
   it('saves nothing when the stream breaks, and maps the error', async () => {

@@ -1,11 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import type { ChatEvent, ConversationView } from '../shared/ipc';
+import { appContext } from './context';
 import type { NewConversation, Store } from './db';
 import { IpcError, type StreamRegistry } from './ipc';
 import {
   ResponsesError,
   buildInput,
   buildRequestBody,
+  developerMessage,
   runTurn,
   streamResponse,
   userMessage,
@@ -16,6 +18,7 @@ import {
 export type ModelSource = {
   transport(): Promise<Transport>;
   resolveModel(transport: Transport): Promise<string>;
+  modelName?(slug: string): string;
 };
 
 const NEW_TITLE = '새 대화';
@@ -101,16 +104,26 @@ export class ChatService {
   ) {
     const row = this.store.getConversationRow(conversationId);
     const pending = this.pending.get(conversationId);
-    if (!row && !pending) throw new IpcError('not_found');
+    const conv = row ?? pending;
+    if (!conv) throw new IpcError('not_found');
     const controller = this.streams.start(conversationId, streamId);
     const base = { streamId, conversationId };
     void (async () => {
       try {
         const transport = await this.models.transport();
-        const model = row?.model || (await this.models.resolveModel(transport));
+        const model = conv.model || (await this.models.resolveModel(transport));
+        const context = appContext({
+          subject: this.store.getSubject(conv.subjectId)?.title ?? '',
+          model,
+          modelName: this.models.modelName?.(model) ?? model,
+          toolsOn: false,
+        });
         const body = buildRequestBody({
           model,
-          input: buildInput(this.store.items(conversationId), text),
+          input: [
+            developerMessage(context),
+            ...buildInput(this.store.items(conversationId), text),
+          ],
         });
         const result = await runTurn(
           streamResponse(transport, body, controller.signal, this.fetchImpl),
