@@ -76,15 +76,14 @@ export type ToolCallView = {
   count: number | null;
 };
 
-// An excerpt keeps an answer's words as they were, with the answer's seq and question number; a memo is the user's own.
+// A note keeps an answer's words as they were, with the answer's seq and question number.
 export type Note = {
   id: string;
   conversationId: string;
-  kind: 'excerpt' | 'memo';
   format: 'plain' | 'md';
   text: string;
-  sourceSeq: number | null;
-  questionNo: number | null;
+  sourceSeq: number;
+  questionNo: number;
   x: number;
   y: number;
   w: number | null;
@@ -153,8 +152,7 @@ export const channels = {
   'notes:create': z.object({
     conversationId: id,
     text: noteText,
-    kind: z.enum(['excerpt', 'memo']).default('excerpt'),
-    sourceSeq: z.number().int().positive().optional(),
+    sourceSeq: z.number().int().positive(),
     questionNo: z.number().int().positive().optional(),
     x: coord,
     y: coord,
@@ -165,7 +163,6 @@ export const channels = {
     y: coord.optional(),
     w: size.optional(),
     h: size.optional(),
-    text: noteText.optional(),
   }),
   'notes:delete': z.object({ id }),
   'links:openUsage': z.undefined(),

@@ -569,9 +569,9 @@ test('the main screen fits a 1280 wide window', async () => {
   await win.getByRole('button', { name: '새 대화' }).click();
   await expect(win.locator('.msg-user')).toHaveCount(0);
   await expect(
-    doneTile(win),
-    'a new conversation sends the middle back to the roadmap',
-  ).toBeVisible();
+    win.locator('.tab.active'),
+    'a new conversation from a page opens its own page tab',
+  ).toContainText('새 페이지');
   await win.getByRole('button', { name: '뒤로' }).click();
   await expect(win.locator('.msg-user')).toHaveCount(3);
   await openWholeCard(win);
@@ -1346,6 +1346,7 @@ test.describe('model picker, tool line and card progress on screen', () => {
 
     await win.getByRole('button', { name: '새 대화' }).click();
     await expect(win.locator('.tool-line')).toHaveCount(0);
+    await roadmapTab(win).click();
     await win.locator('.tile', { hasText: '진행 중' }).click();
     await expect(win.locator('.msg-user')).toHaveCount(1);
     await expect(answer.locator('.tool-line')).toHaveText(`${searched}1장`);
@@ -1732,9 +1733,14 @@ test.describe('note pages', () => {
     await win.keyboard.press('Delete');
     await expect(kept).toHaveCount(0);
     await expect.poll(() => savedNotes().length).toBe(2);
-    await toast(win).getByRole('button', { name: '되돌리기' }).click();
-    await expect(kept).toHaveCount(1);
+    await win.keyboard.press('Control+KeyZ');
+    await expect(kept, 'Ctrl+Z puts it back').toHaveCount(1);
     await expect.poll(() => savedNotes().length).toBe(3);
+    await win.keyboard.press('Control+KeyZ');
+    await win.waitForTimeout(300);
+    expect(savedNotes(), 'only once').toHaveLength(3);
+    await toast(win).getByRole('button', { name: '되돌리기' }).click();
+    expect(savedNotes(), 'nor from the toast after Ctrl+Z').toHaveLength(3);
   });
 
   test('the pinned card summary rates the card, and the next study panel drafts a question for GPT', async () => {
@@ -1797,13 +1803,24 @@ test.describe('note pages', () => {
     const { card } = MOCK_CARD;
     await win.getByRole('button', { name: '새로운 대화 시작' }).click();
     await expect(
-      roadmapTab(win),
-      'a new conversation brings the roadmap to the front',
-    ).toHaveAttribute('aria-current', 'page');
+      activeTab(win),
+      'a new conversation has its own tab',
+    ).toContainText('새 페이지');
+    await expect(activeTab(win)).toContainText('필기 0개 · 첫 답 전');
+    await expect(win.locator('.board-empty')).toContainText(
+      '첫 답을 받으면 여기에 필기할 수 있어요',
+    );
     await expect(win.getByLabel('메시지')).toBeFocused();
     await expect(win.locator('.msg-user')).toHaveCount(0);
     const other = 'GROUP BY가 궁금해요';
     await sendAndWait(win, other);
+    await expect(activeTab(win), 'the tab carries on once saved').toContainText(
+      other,
+    );
+    await expect(win.locator('.board-empty')).toContainText(
+      '아직 필기가 없어요',
+    );
+    await roadmapTab(win).click();
     await expect(win.locator('.tile', { hasText: other })).toContainText(
       '필기 0개',
     );
@@ -1882,5 +1899,33 @@ test.describe('note pages', () => {
     await expect(stickies(win).filter({ hasText: words })).toHaveCount(1);
     await expect(toast(win)).toHaveText('Q2 답에서 필기를 남겼어요');
     expect(savedNotes()).toHaveLength(4);
+  });
+
+  test('a sentence marked in the chat leads to its note', async () => {
+    const { win } = running();
+    await roadmapTab(win).click();
+    await expect.poll(() => marked(win)).toBe(4);
+    const words = '왼쪽 행을 모두 남기고';
+    const at = await win
+      .locator('.msg-ai')
+      .nth(0)
+      .evaluate((el, w) => {
+        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+          const i = n.textContent?.indexOf(w) ?? -1;
+          if (i < 0) continue;
+          const range = document.createRange();
+          range.setStart(n, i + 2);
+          range.setEnd(n, i + 3);
+          const r = range.getBoundingClientRect();
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+        }
+        throw new Error(`no "${w}"`);
+      }, words);
+    await win.mouse.click(at.x, at.y);
+    await expect(activeTab(win)).toContainText(MOCK_CARD.card.title);
+    await expect(stickies(win).filter({ hasText: words })).toHaveClass(
+      /\bflash\b/,
+    );
   });
 });

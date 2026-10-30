@@ -57,7 +57,7 @@ export const MIGRATIONS: string[] = [
     rank INTEGER NOT NULL
   );
   `,
-  // kind and format get no CHECK: SQLite changes one only by rebuilding the table, so zod checks them.
+  // Every note is an answer excerpt for now; kind and format get no CHECK because SQLite changes one only by rebuilding the table.
   `
   CREATE TABLE notes (
     id TEXT PRIMARY KEY,

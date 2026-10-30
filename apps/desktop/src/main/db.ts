@@ -35,26 +35,18 @@ const SEARCHED = `(c.title || ' ' || c.summary || ' ' || c.interview_line || ' '
 
 export type NewNote = Pick<
   Note,
-  | 'conversationId'
-  | 'kind'
-  | 'format'
-  | 'text'
-  | 'sourceSeq'
-  | 'questionNo'
-  | 'x'
-  | 'y'
+  'conversationId' | 'format' | 'text' | 'sourceSeq' | 'questionNo' | 'x' | 'y'
 >;
-export type NoteChange = Partial<Pick<Note, 'x' | 'y' | 'w' | 'h' | 'text'>>;
-const NOTE_COLUMNS = ['x', 'y', 'w', 'h', 'text'] as const;
+export type NoteChange = Partial<Pick<Note, 'x' | 'y' | 'w' | 'h'>>;
+const NOTE_COLUMNS = ['x', 'y', 'w', 'h'] as const;
 
 const noteOf = (r: Row): Note => ({
   id: String(r.id),
   conversationId: String(r.conversation_id),
-  kind: r.kind === 'memo' ? 'memo' : 'excerpt',
   format: r.format === 'md' ? 'md' : 'plain',
   text: String(r.text),
-  sourceSeq: r.source_seq == null ? null : Number(r.source_seq),
-  questionNo: r.question_no == null ? null : Number(r.question_no),
+  sourceSeq: Number(r.source_seq),
+  questionNo: Number(r.question_no),
   x: Number(r.x),
   y: Number(r.y),
   w: r.w == null ? null : Number(r.w),
@@ -292,15 +284,14 @@ export class Store {
     const at = this.now();
     this.db
       .prepare(
-        `INSERT INTO notes(id, conversation_id, source_seq, question_no, kind, format, text, x, y, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO notes(id, conversation_id, source_seq, question_no, format, text, x, y, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         id,
         n.conversationId,
         n.sourceSeq,
         n.questionNo,
-        n.kind,
         n.format,
         n.text,
         n.x,

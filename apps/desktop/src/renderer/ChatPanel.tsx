@@ -47,6 +47,7 @@ type Props = {
   onAddNote?(pick: Pick): void;
   onNoteRefused?(why: Refusal): void;
   noted?: Note[];
+  onOpenNote?(note: Note): void;
 };
 
 export function ChatPanel(p: Props) {
@@ -64,7 +65,7 @@ export function ChatPanel(p: Props) {
     onAdd: p.onAddNote,
     onRefuse: p.onNoteRefused,
   });
-  useNotedMarks(scroller, p.noted, p.conversation?.messages);
+  useNotedMarks(scroller, p.noted, p.conversation?.messages, p.onOpenNote);
 
   useEffect(() => {
     const el = scroller.current;

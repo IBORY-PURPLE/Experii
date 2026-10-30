@@ -6,7 +6,7 @@ const clean = (text: string) => text.replace(/\r\n?/g, '\n').trim();
 const sameWords = (a: string, b: string) =>
   a.replace(/\s+/g, ' ') === b.replace(/\s+/g, ' ');
 
-// A note page belongs to a saved conversation. An excerpt keeps an answer's words as they were and which answer they came from.
+// A note page belongs to a saved conversation. A note keeps an answer's words as they were and which answer they came from.
 export class NoteService {
   constructor(
     private store: Store,
@@ -20,55 +20,29 @@ export class NoteService {
 
   create(p: Payload<'notes:create'>): NoteCreated {
     this.ensureSaved(p.conversationId);
-    const text = clean(p.text);
-    const at = { conversationId: p.conversationId, x: p.x, y: p.y };
-    if (p.kind === 'memo') {
-      const note = this.store.insertNote({
-        ...at,
-        kind: 'memo',
-        format: 'plain',
-        text,
-        sourceSeq: null,
-        questionNo: null,
-      });
-      return { note, duplicate: false };
-    }
     // The question number the screen sends is not trusted; the answer's place among the saved items decides it.
-    const questionNo =
-      p.sourceSeq === undefined
-        ? null
-        : this.store.questionNo(p.conversationId, p.sourceSeq);
-    if (p.sourceSeq === undefined || questionNo === null)
-      throw new IpcError('invalid_source');
+    const questionNo = this.store.questionNo(p.conversationId, p.sourceSeq);
+    if (questionNo === null) throw new IpcError('invalid_source');
+    const text = clean(p.text);
     const same = this.store
       .listNotes(p.conversationId)
-      .find(
-        (n) =>
-          n.kind === 'excerpt' &&
-          n.sourceSeq === p.sourceSeq &&
-          sameWords(n.text, text),
-      );
+      .find((n) => n.sourceSeq === p.sourceSeq && sameWords(n.text, text));
     if (same) return { note: same, duplicate: true };
     const note = this.store.insertNote({
-      ...at,
-      kind: 'excerpt',
+      conversationId: p.conversationId,
       format: 'plain',
       text,
       sourceSeq: p.sourceSeq,
       questionNo,
+      x: p.x,
+      y: p.y,
     });
     return { note, duplicate: false };
   }
 
-  update({ id, text, ...place }: Payload<'notes:update'>): Note {
-    const note = this.store.getNote(id);
-    if (!note) throw new IpcError('not_found');
-    if (text !== undefined && note.kind !== 'memo')
-      throw new IpcError('not_editable');
-    return this.store.updateNote(id, {
-      ...place,
-      text: text === undefined ? undefined : clean(text),
-    })!;
+  update({ id, ...place }: Payload<'notes:update'>): Note {
+    if (!this.store.getNote(id)) throw new IpcError('not_found');
+    return this.store.updateNote(id, place)!;
   }
 
   delete(id: string): Note {

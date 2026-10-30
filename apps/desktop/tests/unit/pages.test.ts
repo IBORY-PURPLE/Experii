@@ -210,10 +210,10 @@ describe('the draft for deciding the next study with GPT', () => {
     title,
     reason: '',
   });
-  const note = (text: string, createdAt: number, kind = 'excerpt') =>
-    ({ text, createdAt, kind }) as Note;
+  const note = (text: string, createdAt: number) =>
+    ({ text, createdAt }) as Note;
 
-  it('names the candidates and the latest five excerpts, each cut to a line', () => {
+  it('names the candidates and the latest five notes, each cut to a line', () => {
     const draft = consultDraft(
       [
         lockedNode('외부 조인과 NULL 함수'),
@@ -223,7 +223,6 @@ describe('the draft for deciding the next study with GPT', () => {
       [
         note('가장 오래된 필기', 1),
         ...[2, 3, 4, 5].map((n) => note(`필기 ${n}`, n)),
-        note('내가 쓴 메모', 7, 'memo'),
         note(`긴\n필기 ${'가'.repeat(80)}`, 6),
       ],
     );

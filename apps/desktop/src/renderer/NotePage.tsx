@@ -33,6 +33,8 @@ export type PageInfo = {
   order: number;
   turns: number;
   card: DoneNode | null;
+  // false for a new conversation whose first answer is not saved yet
+  saved: boolean;
 };
 
 type Tool = 'select' | 'hand';
@@ -89,8 +91,7 @@ export function consultDraft(locked: LockedNode[], notes: Note[]): string {
     .map((n, i) => `${'①②'[i]} ${n.title}`)
     .join(' ');
   if (picks) lines.push(`추천 후보: ${picks}`);
-  const kept = notes
-    .filter((n) => n.kind === 'excerpt')
+  const kept = [...notes]
     .sort((a, b) => a.createdAt - b.createdAt)
     .slice(-5)
     .map((n) => `“${clip(n.text, 60)}”`)
@@ -598,12 +599,11 @@ export function NotePage(p: Props) {
         >
           {order.map((n) => {
             const at = moved?.id === n.id ? moved.at : n;
-            const memo = n.kind === 'memo';
             return (
               <div
                 key={n.id}
                 data-id={n.id}
-                className={`sticky ${n.kind}${moved?.id === n.id ? ' moving' : ''}${p.flash === n.id ? ' flash' : ''}`}
+                className={`sticky${moved?.id === n.id ? ' moving' : ''}${p.flash === n.id ? ' flash' : ''}`}
                 style={{
                   left: at.x,
                   top: at.y,
@@ -612,23 +612,19 @@ export function NotePage(p: Props) {
                 }}
                 tabIndex={0}
                 role="group"
-                aria-label={memo ? '내 메모' : `필기, Q${n.questionNo} 답에서`}
+                aria-label={`필기, Q${n.questionNo} 답에서`}
               >
                 <p className="sticky-text">{n.text}</p>
-                {memo ? (
-                  <p className="sticky-src">내 메모</p>
-                ) : (
-                  <button
-                    className="sticky-src"
-                    title="대화에서 이 답 보기"
-                    onClick={() => p.onSource(n)}
-                  >
-                    <Speech />Q{n.questionNo} · {timeLabel(n.createdAt)}
-                  </button>
-                )}
+                <button
+                  className="sticky-src"
+                  title="대화에서 이 답 보기"
+                  onClick={() => p.onSource(n)}
+                >
+                  <Speech />Q{n.questionNo} · {timeLabel(n.createdAt)}
+                </button>
                 <button
                   className="sticky-del"
-                  aria-label={memo ? '메모 지우기' : '필기 지우기'}
+                  aria-label="필기 지우기"
                   title="지우기 (Delete)"
                   onClick={() => p.onDelete(n)}
                 >
@@ -642,11 +638,20 @@ export function NotePage(p: Props) {
       {p.notes?.length === 0 && (
         <div className="board-empty">
           <Page />
-          <b>아직 필기가 없어요</b>
-          <p>
-            GPT 답에서 남기고 싶은 부분을 골라 여기로 끌어 오세요. 글을 고르면
-            [필기에 추가]도 떠요.
-          </p>
+          {p.page.saved ? (
+            <>
+              <b>아직 필기가 없어요</b>
+              <p>
+                GPT 답에서 남기고 싶은 부분을 골라 여기로 끌어 오세요. 글을
+                고르면 [필기에 추가]도 떠요.
+              </p>
+            </>
+          ) : (
+            <>
+              <b>첫 답을 받으면 여기에 필기할 수 있어요</b>
+              <p>오른쪽에서 이 페이지의 첫 질문을 보내 주세요.</p>
+            </>
+          )}
         </div>
       )}
       <Pin

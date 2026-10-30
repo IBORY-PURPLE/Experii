@@ -69,7 +69,6 @@ const draft = (
 ): Payload<'notes:create'> => ({
   conversationId,
   text: 'ON은 조인할 때 거르고',
-  kind: 'excerpt',
   sourceSeq: 6,
   x: 40,
   y: 80,
@@ -105,30 +104,26 @@ describe('question numbers', () => {
 });
 
 describe('Store notes', () => {
+  const excerpt = (conversationId: string, text: string, x = 0) => ({
+    conversationId,
+    format: 'plain' as const,
+    text,
+    sourceSeq: 2,
+    questionNo: 1,
+    x,
+    y: 0,
+  });
+
   it('creates, lists in order, moves and deletes, returning the removed row', () => {
     const { id } = studied();
-    const a = store.insertNote({
-      conversationId: id,
-      kind: 'excerpt',
-      format: 'plain',
-      text: '하나',
-      sourceSeq: 2,
-      questionNo: 1,
-      x: 1,
-      y: 2,
-    });
-    const b = store.insertNote({
-      conversationId: id,
-      kind: 'memo',
-      format: 'plain',
-      text: '내 메모',
-      sourceSeq: null,
-      questionNo: null,
-      x: 3,
-      y: 4,
-    });
+    const a = store.insertNote(excerpt(id, '하나', 1));
+    const b = store.insertNote(excerpt(id, '둘', 3));
     expect(a).toMatchObject({ w: null, h: null, createdAt: a.updatedAt });
-    expect(store.listNotes(id).map((n) => n.text)).toEqual(['하나', '내 메모']);
+    expect(store.listNotes(id).map((n) => n.text)).toEqual(['하나', '둘']);
+    expect(
+      store.db.prepare('SELECT DISTINCT kind FROM notes').all(),
+      'every note is an answer excerpt',
+    ).toEqual([{ kind: 'excerpt' }]);
 
     const moved = store.updateNote(a.id, { x: 120.5, y: -40 })!;
     expect(moved).toMatchObject({ x: 120.5, y: -40, text: '하나' });
@@ -145,17 +140,7 @@ describe('Store notes', () => {
 
   it('refuses text the table cannot hold', () => {
     const { id } = studied();
-    const insert = (text: string) => () =>
-      store.insertNote({
-        conversationId: id,
-        kind: 'memo',
-        format: 'plain',
-        text,
-        sourceSeq: null,
-        questionNo: null,
-        x: 0,
-        y: 0,
-      });
+    const insert = (text: string) => () => store.insertNote(excerpt(id, text));
     expect(insert('')).toThrow(/CHECK/);
     expect(insert('가'.repeat(4001))).toThrow(/CHECK/);
     expect(insert('가'.repeat(4000))).not.toThrow();
@@ -177,7 +162,7 @@ describe('Store notes', () => {
 });
 
 describe('NoteService', () => {
-  it('keeps an excerpt word for word with the question its answer belongs to', () => {
+  it('keeps the words as they were with the question their answer belongs to', () => {
     const { id } = studied();
     const { note, duplicate } = notes.create(
       draft(id, {
@@ -189,7 +174,6 @@ describe('NoteService', () => {
     expect(duplicate).toBe(false);
     expect(note).toMatchObject({
       conversationId: id,
-      kind: 'excerpt',
       format: 'plain',
       text: 'LEFT JOIN은\n왼쪽 행을',
       sourceSeq: 4,
@@ -214,9 +198,9 @@ describe('NoteService', () => {
     expect(notes.list(id)).toHaveLength(3);
   });
 
-  it('refuses an excerpt whose source is not a saved answer', () => {
+  it('refuses a note whose source is not a saved answer', () => {
     const { id } = studied();
-    for (const sourceSeq of [undefined, 1, 3, 99])
+    for (const sourceSeq of [1, 3, 99])
       expect(code(() => notes.create(draft(id, { sourceSeq })))).toBe(
         'invalid_source',
       );
@@ -233,27 +217,14 @@ describe('NoteService', () => {
     );
   });
 
-  it('lets a memo change its words but never an excerpt', () => {
+  it('moves and sizes a note, keeping its words', () => {
     const { id } = studied();
-    const excerpt = notes.create(draft(id)).note;
-    const memo = notes.create(
-      draft(id, { kind: 'memo', text: '내 생각', sourceSeq: 6 }),
-    ).note;
-    expect(memo).toMatchObject({
-      kind: 'memo',
-      sourceSeq: null,
-      questionNo: null,
-    });
-    expect(notes.update({ id: memo.id, text: '고친\r\n생각 ' })).toMatchObject({
-      text: '고친\n생각',
-    });
-    expect(code(() => notes.update({ id: excerpt.id, text: '바꾼 글' }))).toBe(
-      'not_editable',
-    );
-    expect(notes.update({ id: excerpt.id, x: 7, y: 8 })).toMatchObject({
+    const note = notes.create(draft(id)).note;
+    expect(notes.update({ id: note.id, x: 7, y: 8, w: 300 })).toMatchObject({
       x: 7,
       y: 8,
-      text: excerpt.text,
+      w: 300,
+      text: note.text,
     });
     expect(code(() => notes.update({ id: crypto.randomUUID(), x: 1 }))).toBe(
       'not_found',
@@ -280,29 +251,21 @@ describe('notes channels', () => {
       (payload) => payload,
     );
 
-  it('trims the text, fills in the kind and takes 1 to 4000 characters', async () => {
+  it('trims the text, needs the source answer and takes 1 to 4000 characters', async () => {
     const create = echo('notes:create');
-    expect(
-      await create(event, { conversationId: uuid, text: ' 글 ', x: 1, y: 2 }),
-    ).toEqual({
+    const ok = { conversationId: uuid, text: '글', sourceSeq: 2, x: 0, y: 0 };
+    expect(await create(event, { ...ok, text: ' 글 ', x: 1, y: 2 })).toEqual({
       ok: true,
-      data: { conversationId: uuid, text: '글', kind: 'excerpt', x: 1, y: 2 },
+      data: { ...ok, x: 1, y: 2 },
     });
-    expect(
-      (
-        await create(event, {
-          conversationId: uuid,
-          text: '가'.repeat(4000),
-          x: 0,
-          y: 0,
-        })
-      ).ok,
-    ).toBe(true);
+    expect((await create(event, { ...ok, text: '가'.repeat(4000) })).ok).toBe(
+      true,
+    );
     for (const bad of [
       { text: '   ' },
       { text: '가'.repeat(4001) },
-      { kind: 'refined' },
       { conversationId: 'not-a-uuid' },
+      { sourceSeq: undefined },
       { sourceSeq: 0 },
       { sourceSeq: 1.5 },
       { x: Number.POSITIVE_INFINITY },
@@ -310,13 +273,7 @@ describe('notes channels', () => {
       { x: undefined },
     ])
       expect(
-        await create(event, {
-          conversationId: uuid,
-          text: '글',
-          x: 0,
-          y: 0,
-          ...bad,
-        }),
+        await create(event, { ...ok, ...bad }),
         JSON.stringify(bad),
       ).toEqual({ ok: false, code: 'invalid_payload' });
   });
@@ -327,7 +284,11 @@ describe('notes channels', () => {
       ok: true,
       data: { id: uuid, x: -3.5, w: null },
     });
-    for (const bad of [{ w: 0 }, { h: -1 }, { text: '' }, { id: 'x' }])
+    expect(
+      await update(event, { id: uuid, text: '바꾼 글' }),
+      'the words are not part of an update',
+    ).toEqual({ ok: true, data: { id: uuid } });
+    for (const bad of [{ w: 0 }, { h: -1 }, { x: 'a' }, { id: 'x' }])
       expect(await update(event, { id: uuid, ...bad })).toEqual({
         ok: false,
         code: 'invalid_payload',
@@ -350,21 +311,14 @@ describe('notes channels', () => {
       () => true,
       (p) => notes.create(p),
     );
-    expect(
-      await create(event, { conversationId: waiting, text: '글', x: 0, y: 0 }),
-    ).toEqual({
+    const note = { text: '글', sourceSeq: 2, x: 0, y: 0 };
+    expect(await create(event, { ...note, conversationId: waiting })).toEqual({
       ok: false,
       code: 'not_saved',
       message: '첫 답을 받은 뒤 필기할 수 있어요',
     });
     expect(
-      await create(event, {
-        conversationId: id,
-        text: '글',
-        sourceSeq: 5,
-        x: 0,
-        y: 0,
-      }),
+      await create(event, { ...note, conversationId: id, sourceSeq: 5 }),
     ).toMatchObject({ ok: false, code: 'invalid_source' });
   });
 });

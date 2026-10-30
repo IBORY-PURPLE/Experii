@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
   type DragEvent,
   type RefObject,
@@ -112,28 +113,55 @@ export function findText(root: Element, text: string): Range | null {
   return range;
 }
 
-// The words already kept as notes are marked in the chat in grey, without touching the answer's DOM.
+// The words already kept as notes are marked in the chat in grey, without touching the answer's DOM. A click on them
+// (not the end of a selection) opens their note.
 export function useNotedMarks(
   root: RefObject<HTMLElement | null>,
   notes: Note[] | undefined,
   drawn: unknown,
+  onOpen?: (note: Note) => void,
 ) {
+  const marks = useRef<Array<{ note: Note; range: Range }>>([]);
+  const open = useRef(onOpen);
+  open.current = onOpen;
+
   useEffect(() => {
     const box = root.current;
     if (!box || typeof Highlight === 'undefined' || !CSS.highlights) return;
-    const ranges = (notes ?? []).flatMap((n) => {
-      const answer =
-        n.kind === 'excerpt'
-          ? box.querySelector(`.msg-ai[data-seq="${n.sourceSeq}"]`)
-          : null;
-      const range = answer && findText(answer, n.text);
-      return range ? [range] : [];
+    marks.current = (notes ?? []).flatMap((note) => {
+      const answer = box.querySelector(`.msg-ai[data-seq="${note.sourceSeq}"]`);
+      const range = answer && findText(answer, note.text);
+      return range ? [{ note, range }] : [];
     });
-    CSS.highlights.set('noted', new Highlight(...ranges));
+    CSS.highlights.set(
+      'noted',
+      new Highlight(...marks.current.map((m) => m.range)),
+    );
     return () => {
+      marks.current = [];
       CSS.highlights.delete('noted');
     };
   }, [root, notes, drawn]);
+
+  useEffect(() => {
+    const box = root.current;
+    if (!box) return;
+    const onClick = (e: MouseEvent) => {
+      if (!open.current || !getSelection()?.isCollapsed) return;
+      const at = document.caretPositionFromPoint?.(e.clientX, e.clientY);
+      if (!at) return;
+      const hit = marks.current.find(({ range }) => {
+        try {
+          return range.isPointInRange(at.offsetNode, at.offset);
+        } catch {
+          return false;
+        }
+      });
+      if (hit) open.current(hit.note);
+    };
+    box.addEventListener('click', onClick);
+    return () => box.removeEventListener('click', onClick);
+  }, [root]);
 }
 
 type Shown = { pick: Pick | Refusal; left: number; top: number };

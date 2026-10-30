@@ -156,6 +156,8 @@ export function App() {
   const notesRef = useRef(notes);
   notesRef.current = notes;
   const pickSeq = useRef(0);
+  // the last removed note, to put back once
+  const undoRef = useRef<{ page: string; run(): void } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const roadEl = useRef<HTMLDivElement>(null);
   const roadScroll = useRef(0);
@@ -202,19 +204,6 @@ export function App() {
     [stopStream, showConversation],
   );
 
-  // The chat always shows the page in the middle, so a new conversation sends the middle back to the roadmap.
-  const newConversation = useCallback(
-    async (sid: string, recommendedNodeId?: string) => {
-      stopStream();
-      if (activePlace(pagesRef.current).kind === 'page')
-        setPages(visit(pagesRef.current, ROADMAP));
-      showConversation(
-        await call(api.openConversation(sid, recommendedNodeId)),
-      );
-    },
-    [stopStream, showConversation, setPages],
-  );
-
   const showCard = useCallback(async (cardId: string) => {
     setCard(await call(api.getCard(cardId)));
     setOpenLockedId(null);
@@ -246,6 +235,20 @@ export function App() {
   const openPage = useCallback(
     (id: string) => go(visit(pagesRef.current, { kind: 'page', id })),
     [go],
+  );
+
+  // A new conversation gets its own page tab when asked for one (the tab strip's +) or when a page is in front, so the
+  // chat keeps showing the page in the middle; from the roadmap it stays on the roadmap.
+  const newConversation = useCallback(
+    async (sid: string, recommendedNodeId?: string, tab = false) => {
+      stopStream();
+      const view = await call(api.openConversation(sid, recommendedNodeId));
+      showConversation(view);
+      if (!tab && activePlace(pagesRef.current).kind !== 'page') return;
+      convRef.current = view;
+      go(visit(pagesRef.current, { kind: 'page', id: view.id }));
+    },
+    [stopStream, showConversation, go],
   );
 
   // Past conversations reopen only from the path or a card; entering a subject, at launch too, always starts a new one.
@@ -674,8 +677,7 @@ export function App() {
     const r = await api.createNote({
       conversationId: old.conversationId,
       text: old.text,
-      kind: old.kind,
-      sourceSeq: old.sourceSeq ?? undefined,
+      sourceSeq: old.sourceSeq,
       x: old.x,
       y: old.y,
     });
@@ -697,10 +699,17 @@ export function App() {
       return;
     }
     refreshPath();
-    showToast(note.kind === 'memo' ? '메모를 지웠어요' : '필기를 지웠어요', {
-      label: '되돌리기',
-      run: () => void restoreNote(r.data),
-    });
+    // One step back, from the toast or Ctrl+Z, whichever comes first.
+    const undo = {
+      page: note.conversationId,
+      run: () => {
+        if (undoRef.current !== undo) return;
+        undoRef.current = null;
+        void restoreNote(r.data);
+      },
+    };
+    undoRef.current = undo;
+    showToast('필기를 지웠어요', { label: '되돌리기', run: undo.run });
   };
 
   // The answer a note came from, brought into view in the chat beside it.
@@ -851,7 +860,7 @@ export function App() {
         n.kind === 'locked' ? [] : [n.conversationId],
       ),
     );
-    if (convRef.current?.saved) alive.add(convRef.current.id);
+    if (convRef.current) alive.add(convRef.current.id);
     const next = keepOnly(pagesRef.current, alive);
     if (next !== pagesRef.current) setPages(next);
   }, [roadmap, setPages]);
@@ -863,8 +872,19 @@ export function App() {
   useEffect(() => {
     if (!signedIn) return;
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       if (e.isComposing || e.keyCode === 229) return;
+      if (e.ctrlKey && !e.altKey && !e.shiftKey && e.code === 'KeyZ') {
+        // Text boxes keep their own undo; elsewhere Ctrl+Z puts back the note just removed from the page in front.
+        const t = e.target as HTMLElement | null;
+        if (t?.closest?.('input, textarea, [contenteditable="true"]')) return;
+        const undo = undoRef.current;
+        const front = activePlace(pagesRef.current);
+        if (!undo || front.kind !== 'page' || front.id !== undo.page) return;
+        e.preventDefault();
+        undo.run();
+        return;
+      }
+      if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       e.preventDefault();
       stepRef.current(e.key === 'ArrowLeft' ? -1 : 1);
@@ -936,20 +956,22 @@ export function App() {
       null,
     )?.kind === 'done';
 
-  // A page just saved may be in the chat before the path has reloaded with it.
+  // A conversation in the chat may have no node yet: not saved (a new page) or just saved before the path reloads.
   const pageInfo = (id: string): PageInfo | null => {
     const i = path.findIndex((n) => n.conversationId === id);
     const node = path[i];
-    const chat = conv?.id === id && conv.saved ? conv : null;
+    const chat = conv?.id === id ? conv : null;
     if (!subject || (!node && !chat)) return null;
+    const saved = !!node || !!chat?.saved;
     return {
       conversationId: id,
-      title: node?.title ?? chat!.title,
+      title: node?.title ?? (saved ? chat!.title : '새 페이지'),
       subjectTitle: subject.title,
       order: (i < 0 ? path.length : i) + 1,
       turns:
         node?.turns ?? chat!.messages.filter((m) => m.role === 'user').length,
       card: node?.kind === 'done' ? node : null,
+      saved,
     };
   };
 
@@ -963,7 +985,11 @@ export function App() {
         title: info.title,
         notes: notes[id]?.length ?? node?.notes ?? 0,
         done: !!info.card,
-        state: info.card ? dayLabel(info.card.createdAt) : '진행 중',
+        state: info.card
+          ? dayLabel(info.card.createdAt)
+          : info.saved
+            ? '진행 중'
+            : '첫 답 전',
       },
     ];
   });
@@ -1050,7 +1076,9 @@ export function App() {
               onOpen={openPage}
               onClose={(id) => go(closeTab(pagesRef.current, id))}
               onNew={() =>
-                void newConversation(subject.id).then(() => focusInput())
+                void newConversation(subject.id, undefined, true).then(() =>
+                  focusInput(),
+                )
               }
             />
             <div className="view">
@@ -1058,7 +1086,7 @@ export function App() {
                 <NotePage
                   key={page.conversationId}
                   page={page}
-                  notes={notes[page.conversationId] ?? null}
+                  notes={notes[page.conversationId] ?? (page.saved ? null : [])}
                   view={saved.views[page.conversationId] ?? DEFAULT_VIEW}
                   making={
                     makingHere?.conversationId === page.conversationId
@@ -1219,6 +1247,10 @@ export function App() {
           onAddNote={collect}
           onNoteRefused={(why) => showToast(REFUSALS[why])}
           noted={conv ? notes[conv.id] : undefined}
+          onOpenNote={(note) => {
+            openPage(note.conversationId);
+            showNote(note.id);
+          }}
         />
       </Pane>
       {dialog?.kind === 'subject' && (
