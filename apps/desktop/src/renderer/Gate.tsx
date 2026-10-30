@@ -30,8 +30,8 @@ export function Gate(p: Props) {
     <main className="gate">
       <div className="gate-card">
         <div className="gate-brand">
-          <LogoMark size={40} />
-          <Wordmark size={32} />
+          <LogoMark size={40} ink />
+          <Wordmark />
         </div>
         {p.mode === 'sign_in' ? (
           <h1 className="gate-title">공부한 과정이 면접 경험으로 쌓여요</h1>
@@ -54,7 +54,12 @@ export function Gate(p: Props) {
               <i className="spin" aria-hidden />
               브라우저에서 로그인을 마쳐 주세요…
             </button>
-            <button className="btn ghost gate-cancel" onClick={p.onCancel}>
+            {/* This state replaces the button that had focus, so focus moves on to 취소. */}
+            <button
+              className="btn ghost gate-cancel"
+              onClick={p.onCancel}
+              autoFocus
+            >
               취소
             </button>
           </>

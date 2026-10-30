@@ -91,19 +91,23 @@
   width: var(--w-gate);
   max-width: 100%;
   margin: auto;
-  padding: var(--sp-6) var(--sp-8);
+  padding: var(--sp-8) var(--sp-8) var(--sp-6);
   border-radius: var(--r-4);
   background: var(--surface);
   box-shadow: var(--ring), var(--sh-3);
   text-align: center;
 }
 
-/* The mark's ink sits 6px inside its 40px box and the capitals start about 4px into the wordmark's line box,
-   so this gap leaves 18px from mark to capital, the nearest the 4px grid gets to logo-e.md's 16px. */
+/* logo-e.md's lockup: the mark is drawn to its 28px ink, so the card's top padding meets the strokes, and the
+   capitals start about 4px into the wordmark's line box, so this gap leaves 16px from mark to capital. */
 .gate-brand {
   display: grid;
   justify-items: center;
-  row-gap: var(--sp-2);
+  row-gap: var(--sp-3);
+}
+
+.gate-brand .wordmark {
+  font-size: var(--fs-logo);
 }
 
 .gate-title {
@@ -154,4 +158,12 @@
   color: var(--ink-3);
   font-size: var(--fs-13);
   line-height: 1.65;
+}
+
+/* Windows high contrast drops shadows, so the dialog and the sign-in card take a real edge there. */
+@media (forced-colors: active) {
+  .dialog,
+  .gate-card {
+    border: 1px solid;
+  }
 }

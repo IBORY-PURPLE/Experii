@@ -42,6 +42,7 @@
   --fs-16: 16px;
   --fs-18: 18px;
   --fs-20: 20px;
+  --fs-logo: 32px; /* the sign-in lockup's wordmark only: part of the logo, outside the six text sizes */
   --fw-1: 400;
   --fw-2: 500;
   --fw-3: 600;
