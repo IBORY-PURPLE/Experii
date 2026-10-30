@@ -26,6 +26,7 @@ type Props = {
   input: string;
   inputRef: RefObject<HTMLTextAreaElement | null>;
   headAction: ReactNode;
+  modelPicker: ReactNode;
   onInput(text: string): void;
   onSend(): void;
   onStop(): void;
@@ -151,7 +152,8 @@ export function ChatPanel(p: Props) {
           )}
         </div>
         <div className="plan-row">
-          <span>Using ChatGPT plan</span>
+          {p.modelPicker}
+          <span className="plan">Using ChatGPT plan</span>
           <button className="link" onClick={p.onOpenUsage}>
             Manage usage
           </button>

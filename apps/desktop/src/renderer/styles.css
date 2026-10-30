@@ -1335,14 +1335,51 @@ button:not(:disabled):active {
 
 .plan-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
   margin-top: 8px;
   font-size: 13px;
   color: var(--ink-3);
 }
 
-.plan-row span::before {
+.plan-row .plan {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-row .link {
+  flex: none;
+  margin-left: auto;
+}
+
+.model-select {
+  min-width: 0;
+  max-width: 140px;
+  height: 26px;
+  padding: 0 2px 0 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink-2);
+  font: inherit;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.model-select:hover:not(:disabled) {
+  border-color: var(--line-3);
+}
+
+.model-select:disabled {
+  background: var(--surface);
+  color: var(--ink-4);
+  cursor: default;
+}
+
+.plan-row .plan::before {
   content: '';
   display: inline-block;
   width: 7px;

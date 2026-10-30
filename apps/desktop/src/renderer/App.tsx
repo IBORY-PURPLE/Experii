@@ -6,6 +6,7 @@ import type {
   ConversationView,
   DoneNode,
   LockedNode,
+  ModelList,
   Result,
   Roadmap as RoadmapData,
   Subject,
@@ -14,6 +15,7 @@ import { CardView } from './CardView';
 import { ChatPanel, type Banner } from './ChatPanel';
 import { NewSubjectDialog, RegenerateDialog } from './Dialog';
 import { Gate } from './Gate';
+import { ModelSelect } from './ModelSelect';
 import { Pane, useLayout } from './Panes';
 import { LockedBubble, Roadmap } from './Roadmap';
 import { Sidebar } from './Sidebar';
@@ -63,6 +65,7 @@ export function App() {
   const [card, setCard] = useState<StoredCard | null>(null);
   const [openLockedId, setOpenLockedId] = useState<string | null>(null);
   const [making, setMaking] = useState<Making | null>(null);
+  const [models, setModels] = useState<ModelList | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const streamRef = useRef<Stream | null>(null);
   streamRef.current = stream;
@@ -204,6 +207,17 @@ export function App() {
     },
     [conv, input],
   );
+
+  const pickModel = async (model: string) => {
+    const target = convRef.current;
+    if (!target || streamRef.current || target.model === model) return;
+    const set = (value: string | null) =>
+      setConv((c) => (c && c.id === target.id ? { ...c, model: value } : c));
+    set(model);
+    const r = await api.setConversationModel(target.id, model);
+    if (!r.ok) set(target.model);
+    else setModels((l) => l && { ...l, current: model });
+  };
 
   const focusInput = () => {
     setOpen('chat', true);
@@ -483,6 +497,19 @@ export function App() {
     };
   }, [enterApp]);
 
+  // Main keeps the list once the server sends it, so asking per conversation is cheap and recovers from a failure.
+  const convId = conv?.id;
+  useEffect(() => {
+    if (!convId) return;
+    let live = true;
+    void api.listModels().then((r) => {
+      if (live) setModels(r.ok ? r.data : null);
+    });
+    return () => {
+      live = false;
+    };
+  }, [convId]);
+
   const createSubject = async (title: string) => {
     const r = await api.createSubject(title);
     if (!r.ok)
@@ -631,6 +658,16 @@ export function App() {
           input={input}
           inputRef={inputRef}
           headAction={headAction}
+          modelPicker={
+            conv && (
+              <ModelSelect
+                list={models}
+                model={conv.model}
+                busy={!!stream}
+                onPick={(model) => void pickModel(model)}
+              />
+            )
+          }
           onInput={setInput}
           onSend={() => void send()}
           onStop={stopStream}
