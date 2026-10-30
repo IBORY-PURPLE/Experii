@@ -634,9 +634,7 @@ export function App() {
           onInput={setInput}
           onSend={() => void send()}
           onStop={stopStream}
-          onNewConversation={() =>
-            subjectId && void newConversation(subjectId)
-          }
+          onNewConversation={() => subjectId && void newConversation(subjectId)}
           onOpenUsage={() => void api.openUsage()}
           onFold={() => setOpen('chat', false)}
         />
