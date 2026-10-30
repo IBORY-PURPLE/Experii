@@ -263,6 +263,22 @@ describe('ChatService', () => {
     );
   });
 
+  it('keeps a model picked while the first answer streams', async () => {
+    const s = store.createSubject('SQLD');
+    const view = chat.open(s.id);
+    mock.pace.holdMs = 300;
+    try {
+      const done = turn(view.id, '질문');
+      await expect.poll(() => mock.requests.length).toBe(1);
+      chat.setModel(view.id, MOCK_MODEL_ALT);
+      expect((await done).at(-1)?.type).toBe('done');
+    } finally {
+      mock.pace.holdMs = 0;
+    }
+    expect(mock.requests[0].model).toBe(MOCK_MODEL);
+    expect(store.getConversationRow(view.id)!.model).toBe(MOCK_MODEL_ALT);
+  });
+
   it('saves nothing when the stream breaks, and maps the error', async () => {
     const s = store.createSubject('SQLD');
     const view = chat.open(s.id);

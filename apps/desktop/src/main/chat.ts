@@ -159,8 +159,13 @@ export class ChatService {
           onTool: (call) => emitTool({ ...base, ...call }),
         });
         if (controller.signal.aborted) throw new ResponsesError('cancelled');
+        // A model picked while the first answer streamed is the one the new conversation keeps.
         this.store.saveTurn(
-          row ?? { ...pending!, model, title: titleFrom(text) },
+          row ?? {
+            ...pending!,
+            model: pending!.model || model,
+            title: titleFrom(text),
+          },
           user,
           turn,
         );
