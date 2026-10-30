@@ -26,27 +26,24 @@ export function Sidebar(p: Props) {
   return (
     <aside className="sidebar">
       <div className="side-brand">
-        <Wordmark />
+        <Wordmark className="band-title" />
       </div>
       <div className="side-scroll">
         <div className="side-head">
           과목
-          {p.subjects.length > 0 && (
-            <button
-              className="icon-btn"
-              onClick={p.onNewSubject}
-              aria-label="과목 만들기"
-            >
-              <Plus />
-            </button>
-          )}
+          <button
+            className="icon-btn"
+            onClick={p.onNewSubject}
+            aria-label="과목 만들기"
+          >
+            <Plus />
+          </button>
         </div>
         {p.subjects.length === 0 ? (
           <div className="side-empty">
             <p>아직 과목이 없어요</p>
             <button className="btn small" onClick={p.onNewSubject}>
-              <Plus />
-              과목 만들기
+              + 과목 만들기
             </button>
           </div>
         ) : (

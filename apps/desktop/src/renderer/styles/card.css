@@ -5,17 +5,18 @@
 
   position: relative;
   min-width: 0;
+  border: 1px solid var(--line);
   border-radius: var(--r-3);
   background: var(--surface);
-  box-shadow: var(--ring), var(--sh-2);
+  box-shadow: var(--sh-2);
   animation: cv-open var(--dur-3) var(--ease-out);
 }
 
-/* Points at the knob's centre, which sits at the top of the node. */
+/* Points at the knob's centre, which sits at the top of the node; the 1px offsets step back over the card's edge. */
 .card-view::before {
   content: '';
   position: absolute;
-  top: calc(var(--knob) / 2 - var(--sp-3) / 2);
+  top: calc(var(--knob) / 2 - var(--sp-3) / 2 - 1px);
   left: calc(var(--sp-3) / -2 - 1px);
   width: var(--sp-3);
   height: var(--sp-3);
@@ -28,7 +29,7 @@
 /* Opening lifts the card off the path from the resting tile's height; its text never fades. */
 @keyframes cv-open {
   from {
-    box-shadow: var(--ring), var(--sh-1);
+    box-shadow: var(--sh-1);
     transform: translateY(calc(var(--sp-1) / 2));
   }
 }
@@ -46,7 +47,7 @@
   margin: 0;
   font-size: var(--fs-18);
   font-weight: var(--fw-3);
-  line-height: var(--h-24);
+  line-height: var(--lh-24);
 }
 
 /* Ghost buttons hang into the padding so their labels line up with the text edge, as in the footer. */

@@ -112,7 +112,7 @@ button:disabled {
 
 .app {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr) 380px;
+  grid-template-columns: var(--w-side) minmax(0, 1fr) var(--w-chat);
   height: 100%;
 }
 

@@ -1,16 +1,20 @@
-/* The stat bar is the middle third of the 64px header band: line 1 (24px) holds the subject and the values, line 2 (20px) their labels. Its content lines up with the 640px path below. */
+/* The stat bar is the middle third of the 64px header band: line 1 (24px) holds the subject and the values, line 2 (20px) their labels. Its row lines up with the path below. */
 .statbar {
   position: sticky;
   top: 0;
   z-index: 5;
+  height: var(--band);
+  padding: var(--band-pad) var(--sp-6) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-main);
+}
+
+.statbar .stats {
   display: flex;
   align-items: flex-start;
   gap: var(--sp-8);
-  height: var(--band);
-  padding: calc((var(--band) - var(--h-24) - var(--sp-5)) / 2)
-    max(var(--sp-6), calc((100% - 640px) / 2)) 0;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg-main);
+  max-width: var(--w-path);
+  margin: 0 auto;
 }
 
 .statbar .subject-title {
@@ -24,7 +28,6 @@
   overflow: hidden;
   font-size: var(--fs-20);
   font-weight: var(--fw-3);
-  line-height: var(--h-24);
   letter-spacing: -0.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -33,26 +36,23 @@
 .statbar small,
 .stat span {
   font-size: var(--fs-13);
-  line-height: var(--sp-5);
+  line-height: var(--lh-20);
   color: var(--ink-3);
 }
 
 .stat {
   display: grid;
   grid-template:
-    'value meter' var(--h-24)
-    'label label' var(--sp-5) / auto auto;
+    'value meter' var(--lh-24)
+    'label label' var(--lh-20) / auto auto;
   column-gap: var(--sp-2);
   align-items: center;
 }
 
-/* Smaller line-1 text drops onto the 20px subject title's baseline: 0.71 is Pretendard's ascent minus descent. */
 .stat b {
   grid-area: value;
-  padding-top: calc((var(--fs-20) - 1em) * 0.71);
   font-size: var(--fs-16);
   font-weight: var(--fw-3);
-  line-height: calc(var(--h-24) - (var(--fs-20) - 1em) * 0.71);
   font-variant-numeric: tabular-nums;
 }
 
@@ -60,11 +60,12 @@
   grid-area: label;
 }
 
+/* The figures sit low in their 24px line, so the meter drops 1px from the centre to meet their middle. */
 .stat .bar {
   grid-area: meter;
   width: calc(var(--sp-10) + var(--sp-4));
   height: var(--sp-1);
-  margin-top: calc((var(--fs-20) - var(--fs-16)) * 0.71);
+  margin-top: calc(var(--sp-1) / 2);
   overflow: hidden;
   border-radius: var(--r-pill);
   background: var(--line-2);
@@ -81,7 +82,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
-  max-width: calc(640px + var(--sp-6) * 2);
+  max-width: calc(var(--w-path) + var(--sp-6) * 2);
   margin: 0 auto;
   padding: var(--sp-6) var(--sp-6) var(--sp-10);
   list-style: none;
@@ -217,7 +218,7 @@
   margin: 0;
   font-size: var(--fs-15);
   font-weight: var(--fw-2);
-  line-height: var(--h-24);
+  line-height: var(--lh-24);
 }
 
 .tile p {
@@ -235,7 +236,7 @@
 .tile .line-box small {
   display: block;
   font-weight: var(--fw-2);
-  line-height: var(--sp-5);
+  line-height: var(--lh-20);
 }
 
 .tile.locked {
@@ -292,12 +293,12 @@
   display: block;
   font-size: var(--fs-15);
   font-weight: var(--fw-3);
-  line-height: var(--h-24);
+  line-height: var(--lh-24);
 }
 
 .bubble small {
   display: block;
-  line-height: var(--sp-5);
+  line-height: var(--lh-20);
 }
 
 .bubble p {

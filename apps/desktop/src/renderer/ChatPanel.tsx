@@ -10,11 +10,12 @@ import type { ConversationView } from '../shared/ipc';
 import { ArrowUp, Stop } from './icons';
 import { Markdown } from './Markdown';
 
+// Banner actions are all secondary buttons, so a banner never adds a second filled button to the screen.
 export type Banner = {
   tone: 'err' | 'info';
   title: string;
   body: string;
-  actions: Array<{ label: string; run(): void; primary?: boolean }>;
+  actions: Array<{ label: string; run(): void }>;
 };
 
 type Props = {
@@ -61,7 +62,9 @@ export function ChatPanel(p: Props) {
     <section className="chat" aria-label="GPT 대화">
       <header className="chat-head">
         <div className="ttl">
-          <h2>{p.conversation?.title ?? '과목을 먼저 만들어 주세요'}</h2>
+          <h2 className="band-title">
+            {p.conversation?.title ?? '과목을 먼저 만들어 주세요'}
+          </h2>
           <p>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</p>
         </div>
         {(p.conversation || p.headAction) && (
@@ -111,12 +114,11 @@ export function ChatPanel(p: Props) {
       {p.banner && (
         <div
           className={`banner ${p.banner.tone === 'err' ? 'err' : ''}`}
-          role="alert"
+          role={p.banner.tone === 'err' ? 'alert' : 'status'}
         >
           <b>{p.banner.title}</b>
           <p>{p.banner.body}</p>
           {p.banner.actions.length > 0 && (
-            // Actions flagged primary stay secondary too, so a banner never adds a second filled button to the screen.
             <div className="actions">
               {p.banner.actions.map((a) => (
                 <button key={a.label} className="btn small" onClick={a.run}>

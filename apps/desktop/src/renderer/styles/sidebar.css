@@ -12,13 +12,7 @@
   flex: none;
   align-items: flex-start;
   height: calc(var(--band) - var(--sp-1));
-  padding: calc((var(--band) - var(--h-24) - var(--sp-5)) / 2) var(--sp-4) 0;
-}
-
-/* Pretendard's ascent minus descent (0.71em) puts the wordmark on the baseline of the 20px subject title. */
-.side-brand .wordmark {
-  padding-top: calc((var(--fs-20) - 1em) * 0.71);
-  line-height: calc(var(--h-24) - (var(--fs-20) - 1em) * 0.71);
+  padding: var(--band-pad) var(--sp-4) 0;
 }
 
 .side-scroll {
@@ -120,7 +114,7 @@
   gap: calc(var(--sp-3) / 2);
   color: var(--ink-3);
   font-size: var(--fs-13);
-  line-height: var(--sp-5);
+  line-height: var(--lh-20);
 }
 
 .side-empty {
@@ -130,7 +124,7 @@
   padding: var(--sp-1) var(--sp-2) 0;
   color: var(--ink-3);
   font-size: var(--fs-13);
-  line-height: var(--sp-5);
+  line-height: var(--lh-20);
 }
 
 .side-empty p {
@@ -176,7 +170,7 @@
 .account .state {
   color: var(--ink-3);
   font-size: var(--fs-13);
-  line-height: var(--sp-5);
+  line-height: var(--lh-20);
 }
 
 .account .link {

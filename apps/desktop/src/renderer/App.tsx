@@ -213,21 +213,18 @@ export function App() {
     tone: 'err',
     title: '다시 로그인해 주세요',
     body,
-    actions: [{ label: '다시 로그인', primary: true, run: relogin }],
+    actions: [{ label: '다시 로그인', run: relogin }],
   });
 
   const usageBanner = (body: string): Banner => ({
     tone: 'err',
     title: '사용량 한도에 걸렸어요',
     body,
-    actions: [
-      { label: 'Manage usage', primary: true, run: () => void api.openUsage() },
-    ],
+    actions: [{ label: 'Manage usage', run: () => void api.openUsage() }],
   });
 
-  const newConversationAction = (primary: boolean) => ({
+  const newConversationAction = () => ({
     label: '새 대화',
-    primary,
     run: () => {
       if (subjectRef.current) void newConversation(subjectRef.current);
     },
@@ -249,12 +246,11 @@ export function App() {
               ? [
                   {
                     label: '경험으로 남기기',
-                    primary: true,
                     run: () => void makeCard(target.id),
                   },
                 ]
               : []),
-            newConversationAction(!target?.saved),
+            newConversationAction(),
           ],
         };
       case 'rate_limited':
@@ -271,9 +267,7 @@ export function App() {
           tone: 'err',
           title: '답을 받지 못했어요',
           body: `네트워크가 끊겼거나 응답이 중간에 멈췄어요. ${kept}`,
-          actions: [
-            { label: '다시 보내기', primary: true, run: () => void send(sent) },
-          ],
+          actions: [{ label: '다시 보내기', run: () => void send(sent) }],
         };
     }
   };
@@ -286,7 +280,6 @@ export function App() {
       actions: [
         {
           label: '다시 만들기',
-          primary: true,
           run: () => void makeCard(conversationId, true),
         },
       ],
@@ -300,7 +293,6 @@ export function App() {
           actions: [
             {
               label: '계속 대화하기',
-              primary: true,
               run: () => {
                 setBanner(null);
                 focusInput();
@@ -313,7 +305,7 @@ export function App() {
           tone: 'err',
           title: '대화가 너무 길어요',
           body: '최근 대화만 남겨도 GPT가 읽을 수 있는 길이를 넘어서 카드를 만들지 못했어요. 새 대화로 이어 가 주세요.',
-          actions: [newConversationAction(true)],
+          actions: [newConversationAction()],
         };
       case 'invalid':
         return failed('GPT 답이 카드 형식에 맞지 않았어요. 다시 눌러 주세요.');

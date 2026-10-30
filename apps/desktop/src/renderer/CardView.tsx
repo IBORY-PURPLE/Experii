@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { REDACTION_LABELS, type StoredCard } from '../shared/card';
-import { dayLabel, rateLabel } from './format';
+import { dayLabel, rateChip, rateLabel } from './format';
 import { Check, Shield } from './icons';
 
 type Props = {
@@ -19,9 +19,6 @@ const STAR = [
   ['action', 'A', '행동'],
   ['result', 'R', '결과'],
 ] as const;
-
-const rateChip = (useful: boolean | null) =>
-  useful === null ? 'unrated' : useful ? 'useful' : 'not';
 
 export function CardView(p: Props) {
   const c = p.card;

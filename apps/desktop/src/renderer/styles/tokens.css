@@ -1,36 +1,5 @@
 :root {
   color-scheme: light;
-  --legacy-bg: #ffffff;
-  --legacy-surface: #f2f4f7;
-  --legacy-surface-2: #e8ecf1;
-  --legacy-line: #e3e7ed;
-  --legacy-line-2: #cfd6df;
-  --legacy-line-3: #8a94a3;
-  --legacy-ink: #1a2233;
-  --legacy-ink-2: #4e5968;
-  --legacy-ink-3: #5b6676;
-  --legacy-ink-4: #646e7c;
-  --legacy-talk: #3d5a99;
-  --legacy-talk-tint: #eef2f9;
-  --legacy-task: #2f6f5e;
-  --legacy-task-tint: #ebf4f1;
-  --legacy-card: #9a5b13;
-  --legacy-card-tint: #f8f1e7;
-  --legacy-card-line: #e8d6bf;
-  --legacy-remind: #a3325c;
-  --legacy-err: #b42318;
-  --legacy-err-tint: #fdf1f0;
-  --legacy-code: #f6f8f9;
-  --legacy-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --legacy-font-sans:
-    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
-    system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic',
-    sans-serif;
-  --legacy-font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Consolas, 'D2Coding',
-    'Pretendard Variable', monospace;
-
-  /* New tokens (2026-10-30 design unification). The legacy variables above are removed by the end of stage 2. */
   /* Contrast in comments: white = --surface, side = --bg-side, main = --bg-main, hover = --wash over --bg-side. */
   --ink: #1a2233; /* body text: white 15.90, side 14.57, main 15.08, wash-3 14.44, wash-2 13.69, hover 13.25 */
   --ink-hover: #2d3544; /* filled button hover: --on-ink on it 12.32 */
@@ -66,7 +35,7 @@
     'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif;
   --font-mono:
     'Cascadia Mono', Consolas, ui-monospace, 'Pretendard Variable', monospace;
-  /* 13 meta, 14 body, 15 tile and chat titles, 16 values and quotes, 18 card and dialog titles, 20 subject, empty-state and sign-in titles */
+  /* 13 meta, 14 body, 15 tile and chat titles, 16 values and quotes, 18 card, dialog and sign-in titles, 20 subject and empty-state titles */
   --fs-13: 13px;
   --fs-14: 14px;
   --fs-15: 15px;
@@ -91,9 +60,23 @@
   --h-32: 32px;
   --h-36: 36px;
   --h-44: 44px;
-  --band: 64px;
   --knob: 56px;
   --rail: 6px;
+
+  /* line boxes: 20 for 13px meta and labels, 24 for titles */
+  --lh-20: 20px;
+  --lh-24: 24px;
+
+  /* The header band across all three columns: line 1 (24px, titles) at 10–34px, line 2 (20px, labels) at 34–54px. */
+  --band: 64px;
+  --band-pad: calc((var(--band) - var(--lh-24) - var(--lh-20)) / 2);
+
+  /* layout widths: the sidebar, chat and path columns, the dialog and the sign-in card */
+  --w-side: 248px;
+  --w-chat: 380px;
+  --w-path: 640px;
+  --w-dialog: 440px;
+  --w-gate: 400px;
 
   /* circles use --r-pill */
   --r-1: 4px;

@@ -91,7 +91,7 @@
 
 /* A chosen rating shows by a heavier ink edge and a check icon, never by a fill. */
 .btn[aria-pressed='true'] {
-  padding: 0 calc(var(--sp-3) - 1px);
+  padding: 0 calc(var(--sp-3) - var(--sp-1) / 4);
   border-width: 2px;
   border-color: var(--ink);
 }
@@ -251,4 +251,16 @@ textarea.input {
   letter-spacing: -0.01em;
   line-height: 1;
   white-space: nowrap;
+}
+
+/* Line 1 of the header band. Every title rides on a 20px strut in a 24px line box, the subject title's own metrics,
+   so the sidebar wordmark, the stat bar and the chat title share one baseline at every display scale. */
+.band-title {
+  line-height: 0;
+}
+
+.band-title::before {
+  content: '';
+  font-size: var(--fs-20);
+  line-height: var(--lh-24);
 }

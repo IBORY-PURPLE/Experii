@@ -7,17 +7,15 @@
   background: var(--surface);
 }
 
-/* The header band shared with the sidebar head and the stat bar: a 24px title line at 10–34px, a 20px label line at 34–54px. */
+/* The header band shared with the sidebar head and the stat bar: the title on line 1 (10–34px), its label on line 2 (34–54px).
+   Everything hangs from the top, so a hairline that rounds to a fraction of a pixel at 125% or 150% moves nothing. */
 .chat-head {
-  --title-box: var(--h-24);
-  --label-box: var(--sp-5);
   display: flex;
   flex: none;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--sp-3);
   height: var(--band);
-  /* 1px on top balances the bottom hairline, so the two lines and the buttons centre in the band */
-  padding: 1px var(--sp-4) 0 var(--sp-5);
+  padding: var(--band-pad) var(--sp-4) 0 var(--sp-5);
   border-bottom: 1px solid var(--line);
 }
 
@@ -26,14 +24,11 @@
   min-width: 0;
 }
 
-/* 4px on top of a 20px line puts the 15px title on the 20px subject title's baseline (Pretendard rounds to 14+4 and 19+5px). */
 .chat-head h2 {
   margin: 0;
-  padding-top: var(--sp-1);
   overflow: hidden;
   font-size: var(--fs-15);
   font-weight: var(--fw-3);
-  line-height: calc(var(--title-box) - var(--sp-1));
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -43,15 +38,17 @@
   overflow: hidden;
   color: var(--ink-3);
   font-size: var(--fs-13);
-  line-height: var(--label-box);
+  line-height: var(--lh-20);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* The 32px buttons centre on the two lines, at 16–48px. */
 .chat-head .actions {
   display: flex;
   flex: none;
   gap: var(--sp-2);
+  margin-top: calc((var(--lh-24) + var(--lh-20) - var(--h-32)) / 2);
 }
 
 .chat-head .actions .btn {

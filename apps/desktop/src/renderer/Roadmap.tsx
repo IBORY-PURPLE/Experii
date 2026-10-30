@@ -4,7 +4,7 @@ import type {
   LockedNode,
   Roadmap as RoadmapData,
 } from '../shared/ipc';
-import { rateLabel } from './format';
+import { rateChip, rateLabel } from './format';
 import { Check, Dots, Lock } from './icons';
 
 type Props = {
@@ -19,9 +19,6 @@ type Props = {
   onOpenCard(node: DoneNode): void;
   onOpenLocked(node: LockedNode): void;
 };
-
-const rateChip = (useful: boolean | null) =>
-  useful === true ? 'useful' : useful === false ? 'not' : 'unrated';
 
 export function LockedBubble(p: { node: LockedNode; onStart(): void }) {
   return (
@@ -51,26 +48,32 @@ export function Roadmap(p: Props) {
   return (
     <>
       <header className="statbar">
-        <div className="subject-title">
-          <small>과목</small>
-          <b>{subject.title}</b>
-        </div>
-        <div className="stat">
-          <b>{stats.cards}</b>
-          <span>쌓인 경험</span>
-        </div>
-        <div className="stat">
-          <b>
-            {stats.useful}/{stats.rated}
-          </b>
-          <span>쓸 만해요</span>
-          <div className="bar" role="img" aria-label={`쓸 만해요 비율 ${pct}%`}>
-            <i style={{ width: `${pct}%` }} />
+        <div className="stats">
+          <div className="subject-title">
+            <small>과목</small>
+            <b className="band-title">{subject.title}</b>
           </div>
-        </div>
-        <div className="stat">
-          <b>{stats.unrated}</b>
-          <span>평가 전</span>
+          <div className="stat">
+            <b className="band-title">{stats.cards}</b>
+            <span>쌓인 경험</span>
+          </div>
+          <div className="stat">
+            <b className="band-title">
+              {stats.useful}/{stats.rated}
+            </b>
+            <span>쓸 만해요</span>
+            <div
+              className="bar"
+              role="img"
+              aria-label={`쓸 만해요 비율 ${pct}%`}
+            >
+              <i style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+          <div className="stat">
+            <b className="band-title">{stats.unrated}</b>
+            <span>평가 전</span>
+          </div>
         </div>
       </header>
       {nodes.length === 0 ? (

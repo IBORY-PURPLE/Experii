@@ -9,3 +9,9 @@ export function rateLabel(useful: boolean | null): string {
   if (useful === null) return '평가 전';
   return useful ? '쓸 만해요' : '아니에요';
 }
+
+// The chip modifier class that goes with rateLabel, shared by the path tiles and the open card.
+export function rateChip(useful: boolean | null): string {
+  if (useful === null) return 'unrated';
+  return useful ? 'useful' : 'not';
+}

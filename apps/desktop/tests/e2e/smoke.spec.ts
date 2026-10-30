@@ -54,8 +54,14 @@ function current(): Running {
   return run;
 }
 
-const shot = (win: Page, name: string) =>
-  win.screenshot({ path: path.join(shots, `${name}.png`) });
+// Shots show the settled screen: transitions and fades run to their end, and no hover is left from the last click.
+async function shot(win: Page, name: string) {
+  await win.mouse.move(0, 0);
+  await win.screenshot({
+    path: path.join(shots, `${name}.png`),
+    animations: 'disabled',
+  });
+}
 
 const itemText = (item: Item) =>
   (item.content ?? []).map((c) => c.text ?? '').join('');
@@ -173,6 +179,10 @@ test('creates a subject and streams two turns onto the screen', async () => {
   await expect(win.locator('.subject[aria-current="true"]')).toContainText(
     'SQLD',
   );
+  await expect(
+    win.getByRole('heading', { name: '오른쪽에서 첫 대화를 시작해 보세요' }),
+  ).toBeVisible();
+  await shot(win, 'm2-subject-empty');
 
   await win.getByRole('button', { name: '과목 만들기' }).click();
   await dialog.getByLabel('과목 이름').fill('sqld');
@@ -486,7 +496,7 @@ test('a conversation with nothing learned does not become a card', async () => {
   await win.locator('.tile', { hasText: '진행 중' }).click();
   await sendAndWait(win, `${TRIGGERS.noLearning} 그냥 인사만 할게요`);
   await makeButton(win).click();
-  const banner = win.getByRole('alert');
+  const banner = win.getByRole('status');
   await expect(banner).toContainText('카드로 남길 학습 내용이 없어요');
   await shot(win, 'm3-no-learning');
   await banner.getByRole('button', { name: '계속 대화하기' }).click();
