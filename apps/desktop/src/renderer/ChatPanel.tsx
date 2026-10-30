@@ -26,6 +26,8 @@ type Props = {
   input: string;
   inputRef: RefObject<HTMLTextAreaElement | null>;
   headAction: ReactNode;
+  // The open conversation's card is being made: the head gives 새 대화's room to the title until it lands.
+  makingCard: boolean;
   onInput(text: string): void;
   onSend(): void;
   onStop(): void;
@@ -69,7 +71,7 @@ export function ChatPanel(p: Props) {
         </div>
         {(p.conversation || p.headAction) && (
           <div className="actions">
-            {p.conversation && (
+            {p.conversation && !p.makingCard && (
               <button
                 className="btn small"
                 onClick={p.onNewConversation}

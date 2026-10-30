@@ -528,7 +528,7 @@ export function App() {
   const headAction = conv?.saved ? (
     making?.conversationId === conv.id ? (
       <>
-        <span className="head-status">
+        <span className="head-status" role="status">
           <i className="spin" aria-hidden />
           카드 만드는 중…
         </span>
@@ -627,6 +627,7 @@ export function App() {
         input={input}
         inputRef={inputRef}
         headAction={headAction}
+        makingCard={!!conv && making?.conversationId === conv.id}
         onInput={setInput}
         onSend={() => void send()}
         onStop={stopStream}

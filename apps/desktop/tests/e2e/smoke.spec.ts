@@ -292,13 +292,22 @@ test('turns the conversation into a redacted card and grows the path', async () 
   const { win } = current();
   mock.pace.holdMs = 5_000;
   await makeButton(win).click();
-  await expect(win.locator('.chat-head')).toContainText('카드 만드는 중…');
+  const head = win.locator('.chat-head');
+  await expect(head.getByRole('status')).toHaveText('카드 만드는 중…');
   await expect(makeButton(win)).toHaveCount(0);
-  await expect(win.getByRole('status')).toContainText('경험 카드를 만드는 중…');
+  await expect(head.getByRole('button', { name: '새 대화' })).toHaveCount(0);
+  expect(
+    await head.locator('h2').evaluate((el) => el.scrollWidth <= el.clientWidth),
+    'the conversation title is not cut while its card is made',
+  ).toBe(true);
+  await expect(win.locator('.sidebar').getByRole('status')).toContainText(
+    '경험 카드를 만드는 중…',
+  );
   await expect(win.locator('.chip.making')).toContainText('카드 만드는 중');
   await shot(win, 'm3-card-making');
   await win.getByRole('button', { name: '취소' }).click();
   await expect(makeButton(win)).toBeEnabled();
+  await expect(head.getByRole('button', { name: '새 대화' })).toBeVisible();
   await expect(win.locator('.tile', { hasText: '진행 중' })).toBeVisible();
   await expect(cardView(win)).toHaveCount(0);
 
@@ -549,8 +558,11 @@ test('a conversation with nothing learned does not become a card', async () => {
   await win.locator('.tile', { hasText: '진행 중' }).click();
   await sendAndWait(win, `${TRIGGERS.noLearning} 그냥 인사만 할게요`);
   await makeButton(win).click();
-  const banner = win.getByRole('status');
-  await expect(banner).toContainText('카드로 남길 학습 내용이 없어요');
+  // The chat head says it is making the card in a status of its own, so the banner is found by its words.
+  const banner = win
+    .getByRole('status')
+    .filter({ hasText: '카드로 남길 학습 내용이 없어요' });
+  await expect(banner).toBeVisible();
   await shot(win, 'm3-no-learning');
   await banner.getByRole('button', { name: '계속 대화하기' }).click();
   await expect(banner).toBeHidden();
