@@ -1,5 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import type { AuthStatus, SignOutResult } from '../shared/ipc';
+import type {
+  AuthStatus,
+  ModelList,
+  ModelOption,
+  SignOutResult,
+} from '../shared/ipc';
 import {
   API_RESOURCE,
   AuthError,
@@ -18,6 +23,7 @@ import type { Store } from './db';
 import { jwksFrom, verifyIdToken } from './idtoken';
 import { createPkce } from './pkce';
 import { ResponsesError, type FetchLike, type Transport } from './responses';
+import { forgetToolsMode } from './tools';
 import type { TokenStore, Tokens } from './tokens';
 
 export type TestAccount = { baseUrl: string; token: string };
@@ -35,7 +41,7 @@ const REFRESH_MARGIN_MS = 60_000;
 
 // Owns who is signed in and hands out the Transport the chat and card calls use.
 export class Session {
-  private model: string | null = null;
+  private models: ModelOption[] | null = null;
   private pending: AbortController | null = null;
   private jwks = jwksFrom((url, init) => this.fetchImpl(url, init));
 
@@ -108,7 +114,7 @@ export class Session {
       await this.tokens.save(
         tokensFrom(body, { scopes: [], id_token: null, email: claims.email }),
       );
-      this.model = null;
+      this.forgetAccount();
       this.onChange();
       return this.status();
     } finally {
@@ -132,7 +138,7 @@ export class Session {
           })
         : !current;
     await this.tokens.clear();
-    this.model = null;
+    this.forgetAccount();
     this.onChange();
     return { revoked };
   }
@@ -179,7 +185,7 @@ export class Session {
     if (result.reason === 'transient') throw new ResponsesError('network');
     if (result.reason === 'invalid_client') this.clearRegistration();
     await this.tokens.clear();
-    this.model = null;
+    this.forgetAccount();
     this.onChange();
     return null;
   });
@@ -187,7 +193,33 @@ export class Session {
   async resolveModel(transport: Transport): Promise<string> {
     const preferred = this.store.getSetting('default_model');
     if (preferred) return preferred;
-    if (this.model) return this.model;
+    return (await this.catalog(transport))[0].slug;
+  }
+
+  // The list never fails: the last list that loaded, or at least the model a new conversation would use.
+  async listModels(): Promise<ModelList> {
+    const preferred = this.store.getSetting('default_model');
+    try {
+      const models = await this.catalog(await this.transport());
+      return { models, current: preferred ?? models[0].slug };
+    } catch {
+      const models = this.savedCatalog();
+      const current = preferred ?? models[0]?.slug ?? null;
+      if (models.length) return { models, current };
+      return {
+        models: current ? [{ slug: current, displayName: current }] : [],
+        current,
+      };
+    }
+  }
+
+  modelName(slug: string): string {
+    const models = this.models ?? this.savedCatalog();
+    return models.find((m) => m.slug === slug)?.displayName ?? slug;
+  }
+
+  private async catalog(transport: Transport): Promise<ModelOption[]> {
+    if (this.models) return this.models;
     let res: Response;
     try {
       res = await this.fetchImpl(`${transport.baseUrl}/models`, {
@@ -201,14 +233,45 @@ export class Session {
     if (!res.ok)
       throw new ResponsesError('server', `models HTTP ${res.status}`);
     const body = (await res.json()) as {
-      models?: Array<{ slug?: string; visibility?: string }>;
+      models?: Array<{
+        slug?: string;
+        display_name?: string;
+        visibility?: string;
+      }>;
     };
-    const first = (body.models ?? []).find(
-      (m) => m.visibility === 'list' && m.slug,
+    const models = (body.models ?? []).flatMap((m) =>
+      m.visibility === 'list' && m.slug
+        ? [{ slug: m.slug, displayName: m.display_name || m.slug }]
+        : [],
     );
-    if (!first?.slug) throw new ResponsesError('server', 'no models');
-    this.model = first.slug;
-    return first.slug;
+    if (models.length === 0) throw new ResponsesError('server', 'no models');
+    this.models = models;
+    this.store.setSetting('models_cache_json', JSON.stringify(models));
+    return models;
+  }
+
+  private savedCatalog(): ModelOption[] {
+    try {
+      const saved: unknown = JSON.parse(
+        this.store.getSetting('models_cache_json') ?? '[]',
+      );
+      return Array.isArray(saved)
+        ? saved.filter(
+            (m): m is ModelOption =>
+              typeof m?.slug === 'string' && typeof m?.displayName === 'string',
+          )
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  // Another account may see other models and take other tool forms, so both are learned again after any sign-in or
+  // sign-out.
+  private forgetAccount() {
+    this.models = null;
+    this.store.deleteSetting('models_cache_json');
+    forgetToolsMode(this.store);
   }
 
   private registration(): Registration | null {

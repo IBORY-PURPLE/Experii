@@ -5,10 +5,12 @@ import type {
   CardResult,
   ChatEvent,
   ConversationView,
+  ModelList,
   Result,
   Roadmap,
   SignOutResult,
   Subject,
+  ToolEvent,
 } from './ipc';
 
 export type ExperiiApi = {
@@ -23,6 +25,8 @@ export type ExperiiApi = {
     recommendedNodeId?: string,
   ): Promise<Result<ConversationView>>;
   getConversation(id: string): Promise<Result<ConversationView>>;
+  listModels(): Promise<Result<ModelList>>;
+  setConversationModel(id: string, model: string): Promise<Result<null>>;
   send(
     conversationId: string,
     streamId: string,
@@ -35,6 +39,7 @@ export type ExperiiApi = {
   rateCard(id: string, useful: boolean): Promise<Result<null>>;
   openUsage(): Promise<Result<null>>;
   onChatEvent(listener: (event: ChatEvent) => void): () => void;
+  onToolEvent(listener: (event: ToolEvent) => void): () => void;
   onCardEvent(listener: (event: CardEvent) => void): () => void;
   onAuthChanged(listener: () => void): () => void;
 };
@@ -48,6 +53,8 @@ export const API_KEYS: Array<keyof ExperiiApi> = [
   'getRoadmap',
   'openConversation',
   'getConversation',
+  'listModels',
+  'setConversationModel',
   'send',
   'cancel',
   'generateCard',
@@ -56,6 +63,7 @@ export const API_KEYS: Array<keyof ExperiiApi> = [
   'rateCard',
   'openUsage',
   'onChatEvent',
+  'onToolEvent',
   'onCardEvent',
   'onAuthChanged',
 ];

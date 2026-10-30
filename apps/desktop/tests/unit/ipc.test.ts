@@ -37,6 +37,23 @@ describe('guard', () => {
     });
   });
 
+  it('takes a model name of 1 to 80 characters', async () => {
+    const h = guard(
+      'conversations:setModel',
+      () => true,
+      ({ model }) => model,
+    );
+    expect(await h(event, { id: uuid, model: ' gpt-x ' })).toEqual({
+      ok: true,
+      data: 'gpt-x',
+    });
+    for (const model of ['', ' ', 'm'.repeat(81)])
+      expect(await h(event, { id: uuid, model })).toMatchObject({
+        ok: false,
+        code: 'invalid_payload',
+      });
+  });
+
   it('passes parsed data and wraps IpcError codes', async () => {
     const ok = guard(
       'subjects:create',

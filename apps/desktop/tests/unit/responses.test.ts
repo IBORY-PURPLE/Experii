@@ -6,6 +6,7 @@ import {
   buildRequestBody,
   runTurn,
   streamResponse,
+  tagModel,
   type ResponsesEvent,
   type Transport,
 } from '../../src/main/responses';
@@ -33,15 +34,17 @@ describe('buildInput', () => {
           role: 'user',
           content: [{ type: 'input_text', text: 'A' }],
         }),
-        row(3, { id: 'rs_1', type: 'reasoning', summary: [] }),
+        row(3, { id: 'rs_1', type: 'reasoning', summary: [], x_model: 'm' }),
         row(4, {
           id: 'rs_2',
           type: 'reasoning',
           summary: [],
           encrypted_content: 'enc',
+          x_model: 'm',
         }),
       ],
       'C',
+      'm',
     );
     expect(input.map((i) => i.type)).toEqual([
       'message',
@@ -50,11 +53,33 @@ describe('buildInput', () => {
       'message',
     ]);
     expect(input.every((i) => !('id' in i) && !('status' in i))).toBe(true);
+    expect(input[2]).toEqual({
+      type: 'reasoning',
+      summary: [],
+      encrypted_content: 'enc',
+    });
     expect(input[3]).toEqual({
       type: 'message',
       role: 'user',
       content: [{ type: 'input_text', text: 'C' }],
     });
+  });
+
+  it('sends reasoning only to the model that wrote it', () => {
+    const rows = [
+      row(1, tagModel({ type: 'reasoning', encrypted_content: 'a' }, 'm1')),
+      row(2, tagModel({ type: 'reasoning', encrypted_content: 'b' }, 'm2')),
+      row(3, { type: 'reasoning', encrypted_content: 'untagged' }),
+      row(
+        4,
+        tagModel({ type: 'function_call', call_id: 'c', name: 'f' }, 'm1'),
+      ),
+    ];
+    expect(buildInput(rows, undefined, 'm2')).toEqual([
+      { type: 'reasoning', encrypted_content: 'b' },
+      { type: 'function_call', call_id: 'c', name: 'f' },
+    ]);
+    expect(buildInput(rows).map((i) => i.type)).toEqual(['function_call']);
   });
 });
 
@@ -69,6 +94,15 @@ describe('buildRequestBody', () => {
     expect(body.stream).toBe(true);
     expect(body.include).toEqual(['reasoning.encrypted_content']);
     for (const key of FORBIDDEN_BODY_KEYS) expect(key in body).toBe(false);
+  });
+
+  it('adds tools only when there are some', () => {
+    expect(buildRequestBody({ model: 'm', input: [] })).not.toHaveProperty(
+      'tools',
+    );
+    expect(
+      buildRequestBody({ model: 'm', input: [], tools: [{ type: 'x' }] }).tools,
+    ).toEqual([{ type: 'x' }]);
   });
 
   it('sends reasoning only when asked', () => {
@@ -174,6 +208,37 @@ describe('streamResponse', () => {
         '{"error":{"code":"subscription_sharing_user_not_eligible"}}',
       ),
     ).toBe('not_eligible_plan');
+  });
+
+  it('keeps the param of a refused capability, before and during the stream', async () => {
+    const refused =
+      '{"error":{"code":"subscription_sharing_unsupported_capability","param":"tools[0]"}}';
+    const gen = streamResponse(
+      transport(async () => false),
+      buildRequestBody({ model: 'm', input: [] }),
+      new AbortController().signal,
+      async () => sse(refused, 400),
+    );
+    expect(await gen.next().catch((e: ResponsesError) => e)).toMatchObject({
+      code: 'unsupported',
+      param: 'tools[0]',
+    });
+    expect(
+      await runTurn(
+        events([
+          {
+            type: 'response.failed',
+            response: {
+              error: {
+                code: 'subscription_sharing_unsupported_capability',
+                param: 'reasoning',
+              },
+            },
+          },
+        ]),
+        () => {},
+      ).catch((e: ResponsesError) => e),
+    ).toMatchObject({ code: 'unsupported', param: 'reasoning' });
   });
 
   it('keeps error.param of a refused capability', async () => {
