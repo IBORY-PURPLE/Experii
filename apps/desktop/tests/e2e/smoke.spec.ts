@@ -579,3 +579,260 @@ test('without a session the sign-in screen comes first', async () => {
     await signedOut.app.close();
   }
 });
+
+test.describe('answer tables and folding panels', () => {
+  let dir: string;
+  const appRoot = (win: Page) => win.locator('.app');
+  const paneWidth = (win: Page, pane: 'sidebar' | 'chat') =>
+    win
+      .locator(`.${pane}-pane`)
+      .evaluate((el) => Math.round(el.getBoundingClientRect().width));
+  // Waits out the fold transitions; spinners and the stream cursor loop forever, so they are left out.
+  const settle = (win: Page) =>
+    win.evaluate(() =>
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+          .map((a) => a.finished.catch(() => {})),
+      ),
+    );
+  const noSideScroll = (win: Page) =>
+    win.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    );
+
+  test('a #표 answer draws GFM tables that scroll sideways inside the chat', async () => {
+    await run?.app.close();
+    dir = tempDir();
+    run = await launch(dir);
+    const { win } = run;
+    await win.getByRole('button', { name: '첫 과목 만들기' }).click();
+    const dialog = win.getByRole('dialog', { name: '새 과목' });
+    await dialog.getByLabel('과목 이름').fill('SQLD');
+    await dialog.getByRole('button', { name: '만들기' }).click();
+    await expect(dialog).toBeHidden();
+
+    await sendAndWait(win, `${TRIGGERS.table} JOIN 결과를 표로 보여 줘`);
+    const answer = win.locator('.msg-ai').last();
+    const tables = answer.locator('.md-table');
+    await expect(tables).toHaveCount(2);
+    await expect(tables.first().locator('table th')).toHaveText([
+      'emp_id',
+      'name',
+      'dept_name',
+    ]);
+    await expect(tables.first().locator('td.null')).toHaveText(['NULL']);
+    await expect(tables.nth(1).locator('td.null')).toHaveCount(4);
+    await expect(answer.locator('.md-code-lang')).toHaveText('sql');
+    await expect(answer.locator('pre code.language-sql')).toContainText(
+      'LEFT JOIN dept d',
+    );
+    await expect(answer.locator('strong')).toHaveText('“NULL”');
+    await expect(answer).not.toContainText('|');
+
+    const wide = tables.nth(1);
+    expect(
+      await wide.evaluate((el) => ({
+        overflowX: getComputedStyle(el).overflowX,
+        wider: el.scrollWidth > el.clientWidth,
+      })),
+    ).toEqual({ overflowX: 'auto', wider: true });
+    expect(
+      await win
+        .locator('.messages')
+        .evaluate((el) => el.scrollWidth <= el.clientWidth),
+      'the wide table scrolls by itself, not the whole chat',
+    ).toBe(true);
+    await wide.evaluate((el) => el.scrollTo({ left: el.scrollWidth }));
+    expect(await wide.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+    await wide.evaluate((el) => el.scrollTo({ left: 0 }));
+    await shot(win, 'night-view-table');
+  });
+
+  test('each side panel folds from its head button and unfolds from its edge handle', async () => {
+    const { win } = current();
+    const root = appRoot(win);
+    await expect(root).toHaveAttribute('data-sidebar', 'open');
+    await expect(root).toHaveAttribute('data-chat', 'open');
+
+    const sideToggle = win.locator('#sidebar-toggle');
+    await expect(sideToggle).toHaveAccessibleName('사이드바 접기');
+    await expect(sideToggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(sideToggle).toHaveAttribute('aria-controls', 'sidebar-panel');
+    await sideToggle.click();
+    await expect(root).toHaveAttribute('data-sidebar', 'folded');
+    await expect(win.locator('#sidebar-panel')).toHaveAttribute('inert', '');
+    const sideHandle = win.getByRole('button', { name: '사이드바 펴기' });
+    await expect(sideHandle).toBeVisible();
+    await expect(sideHandle).toHaveAttribute('aria-expanded', 'false');
+    await expect(sideHandle).toHaveAttribute('aria-controls', 'sidebar-panel');
+    await expect(sideHandle, 'focus follows the folded panel').toBeFocused();
+    await settle(win);
+    expect(await paneWidth(win, 'sidebar')).toBe(20);
+    expect(
+      await win
+        .locator('#sidebar-panel')
+        .evaluate((el) => el.getBoundingClientRect().right),
+      'the sidebar slid out of the window',
+    ).toBeLessThanOrEqual(0);
+    await shot(win, 'night-view-sidebar-folded');
+
+    await sideHandle.click();
+    await expect(root).toHaveAttribute('data-sidebar', 'open');
+    await expect(win.locator('#sidebar-panel')).not.toHaveAttribute('inert');
+    await expect(sideHandle).toBeHidden();
+    await expect(sideToggle).toBeFocused();
+    await settle(win);
+    expect(await paneWidth(win, 'sidebar')).toBe(248);
+
+    const chatToggle = win.locator('#chat-toggle');
+    await expect(chatToggle).toHaveAccessibleName('대화 패널 접기');
+    await expect(chatToggle).toHaveAttribute('aria-controls', 'chat-panel');
+    await chatToggle.click();
+    await expect(root).toHaveAttribute('data-chat', 'folded');
+    await expect(win.locator('#chat-panel')).toHaveAttribute('inert', '');
+    const chatHandle = win.getByRole('button', { name: '대화 패널 펴기' });
+    await expect(chatHandle).toBeFocused();
+    await settle(win);
+    expect(await paneWidth(win, 'chat')).toBe(20);
+    await chatHandle.click();
+    await expect(root).toHaveAttribute('data-chat', 'open');
+    await expect(chatToggle).toBeFocused();
+    await settle(win);
+    expect(await paneWidth(win, 'chat')).toBe(380);
+  });
+
+  test('Ctrl+B and Ctrl+Shift+B fold the panels, except while the IME composes', async () => {
+    const { win } = current();
+    const root = appRoot(win);
+    const input = win.getByLabel('메시지');
+    await input.click();
+
+    await win.keyboard.press('Control+KeyB');
+    await expect(root).toHaveAttribute('data-sidebar', 'folded');
+    await expect(input, 'typing focus stays in the chat').toBeFocused();
+    await win.keyboard.press('Control+KeyB');
+    await expect(root).toHaveAttribute('data-sidebar', 'open');
+
+    await input.evaluate((el) =>
+      el.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'ㅠ',
+          code: 'KeyB',
+          ctrlKey: true,
+          shiftKey: true,
+          isComposing: true,
+          bubbles: true,
+          cancelable: true,
+        }),
+      ),
+    );
+    await expect(root).toHaveAttribute('data-chat', 'open');
+
+    await win.keyboard.press('Control+Shift+KeyB');
+    await expect(root).toHaveAttribute('data-chat', 'folded');
+    await expect(
+      win.getByRole('button', { name: '대화 패널 펴기' }),
+    ).toBeFocused();
+    await win.keyboard.press('Control+KeyB');
+    await expect(root).toHaveAttribute('data-sidebar', 'folded');
+    await settle(win);
+    expect(await noSideScroll(win)).toBe(true);
+    await shot(win, 'night-view-both-folded');
+  });
+
+  test('folded panels stay folded after a restart', async () => {
+    await current().app.close();
+    run = await launch(dir);
+    const { win } = run;
+    const root = appRoot(win);
+    await expect(root).toHaveAttribute('data-sidebar', 'folded');
+    await expect(root).toHaveAttribute('data-chat', 'folded');
+    expect(
+      await win.evaluate(() => localStorage.getItem('experii.layout.v1')),
+    ).toBe('{"sidebar":false,"chat":false}');
+    expect(await paneWidth(win, 'sidebar')).toBe(20);
+    expect(await paneWidth(win, 'chat')).toBe(20);
+  });
+
+  test('starting a recommended step unfolds the chat', async () => {
+    const { win } = current();
+    await win.locator('.tile', { hasText: '진행 중' }).click();
+    await win.keyboard.press('Control+Shift+KeyB');
+    await expect(appRoot(win)).toHaveAttribute('data-chat', 'open');
+    await makeButton(win).click();
+    await expect(cardView(win)).toBeVisible();
+    await win.keyboard.press('Control+Shift+KeyB');
+    await expect(appRoot(win)).toHaveAttribute('data-chat', 'folded');
+
+    await cardView(win).getByRole('button', { name: '접기' }).click();
+    const next = MOCK_CARD.card.recommended_next[0];
+    await lockedTiles(win).filter({ hasText: next.title }).click();
+    await win
+      .getByRole('group', { name: 'GPT가 추천한 다음 공부' })
+      .getByRole('button', { name: '이걸로 시작' })
+      .click();
+    await expect(appRoot(win)).toHaveAttribute('data-chat', 'open');
+    const input = win.getByLabel('메시지');
+    await expect(input).toBeFocused();
+    await expect(input).toHaveValue(new RegExp(`"${next.title}"`));
+  });
+
+  test('no fold state scrolls sideways at 1200 or 1280 wide', async () => {
+    const { app, win } = current();
+    const root = appRoot(win);
+    if ((await root.getAttribute('data-sidebar')) === 'folded')
+      await win.keyboard.press('Control+KeyB');
+    await expect(root).toHaveAttribute('data-sidebar', 'open');
+    await expect(root).toHaveAttribute('data-chat', 'open');
+    const states: string[] = [];
+    for (const width of [1200, 1280]) {
+      await app.evaluate(
+        ({ BrowserWindow }, w) =>
+          BrowserWindow.getAllWindows()[0].setContentSize(w, 800),
+        width,
+      );
+      await expect
+        .poll(() => win.evaluate(() => window.innerWidth))
+        .toBe(width);
+      for (const keys of [
+        'Control+KeyB',
+        'Control+Shift+KeyB',
+        'Control+KeyB',
+        'Control+Shift+KeyB',
+      ]) {
+        await win.keyboard.press(keys);
+        await settle(win);
+        const state = `${width}: ${await root.getAttribute('data-sidebar')}/${await root.getAttribute('data-chat')}`;
+        expect(await noSideScroll(win), state).toBe(true);
+        states.push(state);
+      }
+    }
+    expect(states).toEqual([
+      '1200: folded/open',
+      '1200: folded/folded',
+      '1200: open/folded',
+      '1200: open/open',
+      '1280: folded/open',
+      '1280: folded/folded',
+      '1280: open/folded',
+      '1280: open/open',
+    ]);
+  });
+
+  test('reduced motion turns the fold animation off', async () => {
+    const { win } = current();
+    const duration = () =>
+      appRoot(win).evaluate((el) => getComputedStyle(el).transitionDuration);
+    expect(await duration()).toBe('0.22s');
+    await win.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await duration()).toBe('0s');
+    expect(
+      await win
+        .locator('#chat-panel')
+        .evaluate((el) => getComputedStyle(el).transitionDuration),
+    ).toBe('0s');
+    await win.emulateMedia({ reducedMotion: null });
+  });
+});
