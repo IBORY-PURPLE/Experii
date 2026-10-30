@@ -136,6 +136,14 @@ const overflow = () =>
     status: 400,
   });
 
+const refused = (param: string) =>
+  new Response(
+    JSON.stringify({
+      error: { code: 'subscription_sharing_unsupported_capability', param },
+    }),
+    { status: 400 },
+  );
+
 describe('CardService', () => {
   it('sends the message items with the card instructions last and stores a redacted card', async () => {
     const id = conversation([
@@ -163,6 +171,7 @@ describe('CardService', () => {
         schema: cardJsonSchema(),
       },
     });
+    expect(body.reasoning).toEqual({ effort: 'low' });
     const input = body.input as Msg[];
     expect(input.map((m) => [m.type, m.role])).toEqual([
       ['message', 'user'],
@@ -327,6 +336,50 @@ describe('CardService', () => {
     expect(store.cardIdForConversation(id)).toBeNull();
   });
 
+  it('drops reasoning at once when the plan token refuses it, and remembers that', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const good = answer(JSON.stringify(MOCK_CARD));
+    const first = scripted((n) =>
+      n === 1 ? refused('reasoning.effort') : good,
+    );
+    expect(
+      await service(first.fetchImpl).generate(conversation([['질문', '답']])),
+    ).toMatchObject({ kind: 'card' });
+    expect(first.bodies.map((b) => b.reasoning)).toEqual([
+      { effort: 'low' },
+      undefined,
+    ]);
+    expect(first.bodies[1]).not.toHaveProperty('reasoning');
+    expect(first.bodies[1].input).toEqual(first.bodies[0].input);
+    expect(store.getSetting('card_reasoning')).toBe('off');
+
+    const later = scripted(() => answer(JSON.stringify(MOCK_CARD)));
+    await service(later.fetchImpl).generate(conversation([['질문 2', '답 2']]));
+    expect(later.bodies, 'no second refusal').toHaveLength(1);
+    expect(later.bodies[0]).not.toHaveProperty('reasoning');
+    expect(
+      warn.mock.calls
+        .map((args) =>
+          String(args[0]).match(/^\[cards\] (\S+) .*reasoning=(\S+)/),
+        )
+        .filter(Boolean)
+        .map((m) => [m![1], m![2]]),
+    ).toEqual([
+      ['unsupported', 'low'],
+      ['ok', 'off'],
+      ['ok', 'off'],
+    ]);
+  });
+
+  it('does not resend when the refusal names something other than reasoning', async () => {
+    const other = scripted(() => refused('text.format'));
+    await expect(
+      service(other.fetchImpl).generate(conversation([['질문', '답']])),
+    ).rejects.toMatchObject({ code: 'unsupported' });
+    expect(other.bodies).toHaveLength(1);
+    expect(store.getSetting('card_reasoning')).toBeNull();
+  });
+
   it('logs the timings, bytes and model of each request but no card or conversation text', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const logged = () =>
@@ -338,7 +391,7 @@ describe('CardService', () => {
 
     expect(logged()).toEqual([
       expect.stringMatching(
-        /^\[cards\] ok model=gpt-mock first_event=\d+ms first_delta=\d+ms completed=\d+ms parsed=\d+ms bytes=\d+$/,
+        /^\[cards\] ok model=gpt-mock reasoning=low first_event=\d+ms first_delta=\d+ms completed=\d+ms parsed=\d+ms bytes=\d+$/,
       ),
     ]);
     expect(Number(logged()[0].match(/bytes=(\d+)/)![1])).toBeGreaterThan(

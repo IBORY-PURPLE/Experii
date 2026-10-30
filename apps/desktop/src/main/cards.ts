@@ -20,12 +20,17 @@ import {
   streamResponse,
   type FetchLike,
   type InputItem,
+  type RequestBody,
   type ResponsesEvent,
   type StoredItem,
   type Transport,
 } from './responses';
 
 const TIMEOUT_MS = 120_000;
+// A card needs structure more than deep thought, and low effort answers sooner. A plan token that refuses the
+// reasoning field gets requests without it from then on.
+const CARD_REASONING = { effort: 'low' } as const;
+const REASONING_SETTING = 'card_reasoning';
 
 export function cardInstructions(subject: string): string {
   return `위 대화는 사용자가 "${subject}" 과목을 공부한 기록이다. 이 대화를 면접에서 쓸 경험 카드 하나로 정리한다.
@@ -190,22 +195,45 @@ export class CardService {
     signal: AbortSignal,
     onField: (field: CardField, text: string) => void,
   ): Promise<CardOutput | null> {
-    const body = buildRequestBody({
-      model,
-      input: [
-        ...buildInput(items),
-        developerMessage(cardInstructions(subject)),
-      ],
-      text: {
-        format: {
-          type: 'json_schema',
-          name: 'experience_card',
-          strict: true,
-          schema: cardJsonSchema(),
+    const input = [
+      ...buildInput(items),
+      developerMessage(cardInstructions(subject)),
+    ];
+    for (;;) {
+      const reasoning =
+        this.store.getSetting(REASONING_SETTING) === 'off'
+          ? undefined
+          : CARD_REASONING;
+      const body = buildRequestBody({
+        model,
+        input,
+        reasoning,
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'experience_card',
+            strict: true,
+            schema: cardJsonSchema(),
+          },
         },
-      },
-    });
-    const timer = requestTimer(model);
+      });
+      try {
+        return await this.attempt(transport, body, signal, onField);
+      } catch (err) {
+        // The refusal is a 400 before any output, so resending at once without the field is safe.
+        if (!reasoning || !refusesReasoning(err)) throw err;
+        this.store.setSetting(REASONING_SETTING, 'off');
+      }
+    }
+  }
+
+  private async attempt(
+    transport: Transport,
+    body: RequestBody,
+    signal: AbortSignal,
+    onField: (field: CardField, text: string) => void,
+  ): Promise<CardOutput | null> {
+    const timer = requestTimer(body);
     const fields = new CardFieldReader(onField);
     let outcome = 'ok';
     try {
@@ -235,11 +263,19 @@ export class CardService {
   }
 }
 
+function refusesReasoning(err: unknown): boolean {
+  return (
+    err instanceof ResponsesError &&
+    err.code === 'unsupported' &&
+    /^reasoning\b/.test(err.param ?? '')
+  );
+}
+
 const MARKS = ['first_event', 'first_delta', 'completed', 'parsed'] as const;
 type Mark = (typeof MARKS)[number];
 
-// Milliseconds from the request start, response bytes and the model: never card or conversation text.
-function requestTimer(model: string) {
+// Milliseconds from the request start, response bytes, the model and reasoning effort: never card or conversation text.
+function requestTimer({ model, reasoning }: RequestBody) {
   const start = performance.now();
   const at: Partial<Record<Mark, number>> = {};
   let bytes = 0;
@@ -277,7 +313,7 @@ function requestTimer(model: string) {
       const marks = MARKS.map(
         (m) => `${m}=${at[m] === undefined ? '-' : `${at[m]}ms`}`,
       ).join(' ');
-      return `[cards] ${outcome} model=${model} ${marks} bytes=${bytes}`;
+      return `[cards] ${outcome} model=${model} reasoning=${reasoning?.effort ?? 'off'} ${marks} bytes=${bytes}`;
     },
   };
 }

@@ -70,6 +70,16 @@ describe('buildRequestBody', () => {
     expect(body.include).toEqual(['reasoning.encrypted_content']);
     for (const key of FORBIDDEN_BODY_KEYS) expect(key in body).toBe(false);
   });
+
+  it('sends reasoning only when asked', () => {
+    expect(buildRequestBody({ model: 'm', input: [] })).not.toHaveProperty(
+      'reasoning',
+    );
+    expect(
+      buildRequestBody({ model: 'm', input: [], reasoning: { effort: 'low' } })
+        .reasoning,
+    ).toEqual({ effort: 'low' });
+  });
 });
 
 async function* events(list: ResponsesEvent[]) {
@@ -164,6 +174,26 @@ describe('streamResponse', () => {
         '{"error":{"code":"subscription_sharing_user_not_eligible"}}',
       ),
     ).toBe('not_eligible_plan');
+  });
+
+  it('keeps error.param of a refused capability', async () => {
+    const refusal = (body: string) =>
+      streamResponse(
+        transport(async () => false),
+        buildRequestBody({ model: 'm', input: [] }),
+        new AbortController().signal,
+        async () => sse(body, 400),
+      )
+        .next()
+        .catch((e: ResponsesError) => e);
+    expect(
+      await refusal(
+        '{"error":{"code":"subscription_sharing_unsupported_capability","param":"reasoning"}}',
+      ),
+    ).toMatchObject({ code: 'unsupported', param: 'reasoning' });
+    expect(
+      await refusal('{"error":{"code":"context_length_exceeded","param":7}}'),
+    ).toMatchObject({ code: 'context_too_long', param: undefined });
   });
 
   it('reports network failure and cancellation', async () => {
