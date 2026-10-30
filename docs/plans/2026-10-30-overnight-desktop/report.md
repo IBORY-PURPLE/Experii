@@ -1,6 +1,6 @@
 # 10월 30일 밤 보고
 
-> 오케스트레이터가 밤새 고쳐 쓴다. 마지막 갱신: 2026-10-30 23:48.
+> 오케스트레이터가 밤새 고쳐 쓴다. 마지막 갱신: 2026-10-31 00:00.
 
 ## 아침에 먼저 볼 것
 
@@ -10,6 +10,7 @@
 
 1. **#10 문서**를 먼저 병합한다(이 보고서의 최신본이 들어 있다).
 2. **#18 필기 페이지**를 병합한다. #18은 #11~#16을 모두 품고 있어서(23:45에 각 PR의 마지막 커밋이 #18 안에 있는 것을 확인), 이것 하나로 밤 작업 전체가 main에 들어가고 #11~#16은 GitHub에서 병합됨으로 바뀐다. 하나씩 보고 싶으면 #11 → #12 → #13 → #14 → #15 → #16 → #18 순서로 병합해도 충돌이 없다.
+   - **#12 설계서**는 #18이 열린 뒤 구현에 맞춰 한 번 더 고쳤다(커밋 `ae7c4dc`). 그래서 #18을 병합한 뒤에도 #12는 열린 채 남는다. 문서 파일 하나만 바뀌어 충돌 없이 이어서 병합하면 된다.
 3. 모두 **"Create a merge commit"**으로 병합한다. squash로 병합하면 뒤 PR에 앞 PR의 변경이 다시 보인다.
 4. **#17 디자인 통일**은 맨 마지막이다. 디자인 세션에 "main을 다시 합치고 충돌을 풀어 달라"고 한 뒤 병합한다. 겹치는 곳: 가운데 64px 머리 띠(#18은 탭, #17은 과목 제목과 고정 막대), 사이드바·채팅·칸 타일의 모양, `package-lock.json`.
 
@@ -55,7 +56,7 @@ npm --prefix apps/desktop start
 | ③ 대화 두뇌 | [#13](https://github.com/IBORY-PURPLE/Experii/pull/13) | 열림 (20:50) | typecheck, 단위 167, oxlint, oxfmt(LF), package, e2e 21 통과(세션 보고) | 맥락 메시지 `ctx-v1`, `models:list`·`conversations:setModel`, 도구 `search_experience_cards`(namespace → additional_tools → 평면 → 끔, `settings.tools_enabled=0`으로 끔), `chat:tool`, MCP 설계 메모. #10·#11·#12를 품음 |
 | ④ 카드 속도 | [#11](https://github.com/IBORY-PURPLE/Experii/pull/11) | 열림 (20:40) | typecheck, 단위 141, oxlint, oxfmt(LF), package, e2e 17 통과. 오케스트레이터가 단위·typecheck 다시 돌려 확인 | 진행 이벤트 `cards:event`, 추론 low(거부되면 끔), `[cards]` 시간 로그, `card-v1.1`. e2e 4번 중 2번은 PC 부하(node 46개)로 Electron 켜기·닫기 30초 초과 |
 | ⑤a 화면 A | [#14](https://github.com/IBORY-PURPLE/Experii/pull/14) | 열림 (20:58) | typecheck, 단위 175, oxlint, oxfmt(LF), package, e2e 28 통과(세션 보고). 오케스트레이터가 이 브랜치에서 단위 175·typecheck 다시 통과 확인 | `remark-gfm` 4.0.1, 표 가로 스크롤·NULL 회색, 좌우 접기(`Panes.tsx`, localStorage `experii.layout.v1`, Ctrl+B·Ctrl+Shift+B), 스크린샷 3장. #10~#13을 품음 |
-| 설계서 | [#12](https://github.com/IBORY-PURPLE/Experii/pull/12) | 열림 (20:47), 22:52 갱신 | 문서만. Mermaid 렌더 확인 | `flow-v2.md`. 22:52에 시안 A로 좁히고(1.6·5.2절) 다음 공부 흐름을 리서치 결론(#15)에 맞춤. 추천안 표와 창업자가 정할 것 |
+| 설계서 | [#12](https://github.com/IBORY-PURPLE/Experii/pull/12) | 열림 (20:47), 22:52·23:55 갱신 | 문서만. Mermaid 16개 렌더 확인 | `flow-v2.md`. 시안 A로 좁히고(1.6·5.2절) 다음 공부 흐름을 리서치 결론(#15)에 맞춤. 23:55에 #18 구현(notes 표, IPC, 도구는 선택·손)에 맞춤. 추천안 표와 창업자가 정할 것 |
 | 리서치 | [#15](https://github.com/IBORY-PURPLE/Experii/pull/15) | 열림 (21:19) | 문서만. 출처 117개를 원문에서 확인했다고 보고 | 결론 "지도·점검·설명": SQLD 출제기준 칸 지도 + 회상 점검·복습 일정(FSRS)이 후보를 내고 GPT는 후보 안에서 고르고 근거를 단다. 창업자가 정할 것 4개. 문서 하나라 다른 PR과 겹치지 않음 |
 | ⑥ 필기 페이지 | [#18](https://github.com/IBORY-PURPLE/Experii/pull/18) | 열림 (23:44) | typecheck, 단위 226, oxlint, oxfmt(LF), package, e2e 42 통과(세션 보고). 오케스트레이터가 단위 226·typecheck 다시 통과 확인 | 시안 A: 가운데 탭(로드맵 + 대화별 필기 페이지, 뒤로·앞으로, [+] 새 대화), 점 격자 캔버스, 끌어 놓기와 [필기에 추가], 질문별 열 자동 자리, 출처 ↔ 답 오가기, 지우기 되돌리기, 카드 요약·평가, 다음 공부 패널. `notes` 표(마이그레이션 2), IPC 4개. 보충 지시 10개 반영. 직접 구현, 새 의존성 없음. #10~#16을 모두 품음 |
 | ⑤b 화면 B | [#16](https://github.com/IBORY-PURPLE/Experii/pull/16) | 열림 (22:05) | typecheck, 단위 196, oxlint, oxfmt(LF), package, e2e 33 통과(작업자 보고). 오케스트레이터가 단위 196·typecheck 다시 통과 확인 | 모델 드롭다운(`ModelSelect.tsx`), 도구 호출 줄(`ToolLines.tsx`), `unsupported`·`tool_limit` 배너("다시 보내기"가 질문을 두 번 보이던 기존 버그도 고침), 카드 점진 표시. e2e는 PC 부하로 4번 연속 Electron 켜기·닫기 30초 초과 → 부하가 내려간 뒤 33/33. 백그라운드 작업자로 돌림. #10~#15를 품음 |
