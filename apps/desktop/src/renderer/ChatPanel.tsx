@@ -62,7 +62,7 @@ export function ChatPanel(p: Props) {
     <section className="chat" aria-label="GPT 대화">
       <header className="chat-head">
         <div className="ttl">
-          <h2 className="band-title">
+          <h2 className="band-title" title={p.conversation?.title}>
             {p.conversation?.title ?? '과목을 먼저 만들어 주세요'}
           </h2>
           <p>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</p>

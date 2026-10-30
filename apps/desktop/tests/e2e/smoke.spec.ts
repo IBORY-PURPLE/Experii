@@ -292,9 +292,8 @@ test('turns the conversation into a redacted card and grows the path', async () 
   const { win } = current();
   mock.pace.holdMs = 5_000;
   await makeButton(win).click();
-  await expect(
-    win.getByRole('button', { name: '카드 만드는 중…' }),
-  ).toBeDisabled();
+  await expect(win.locator('.chat-head')).toContainText('카드 만드는 중…');
+  await expect(makeButton(win)).toHaveCount(0);
   await expect(win.getByRole('status')).toContainText('경험 카드를 만드는 중…');
   await expect(win.locator('.chip.making')).toContainText('카드 만드는 중');
   await shot(win, 'm3-card-making');

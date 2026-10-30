@@ -55,6 +55,16 @@
   height: var(--h-32);
 }
 
+/* While a card is being made the head says so in quiet text beside 취소, as the path tile and the sidebar row do. */
+.chat-head .head-status {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  white-space: nowrap;
+}
+
 .messages {
   flex: 1;
   min-height: 0;
@@ -209,12 +219,6 @@
   margin-left: var(--sp-1);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cursor {
-    animation: none;
-  }
-}
-
 .banner {
   flex: none;
   margin: 0 var(--sp-4);
@@ -243,6 +247,13 @@
   display: flex;
   gap: var(--sp-2);
   margin-top: var(--sp-3);
+}
+
+/* Windows high contrast drops the banner's ring and shadow, so it takes a real edge there. */
+@media (forced-colors: active) {
+  .banner {
+    border: 1px solid;
+  }
 }
 
 .composer {

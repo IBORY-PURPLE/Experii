@@ -508,10 +508,10 @@ export function App() {
   const headAction = conv?.saved ? (
     making?.conversationId === conv.id ? (
       <>
-        <button className="btn small primary" disabled aria-busy="true">
+        <span className="head-status">
           <i className="spin" aria-hidden />
           카드 만드는 중…
-        </button>
+        </span>
         <button
           className="btn small"
           onClick={() => void api.cancelCard(conv.id)}
