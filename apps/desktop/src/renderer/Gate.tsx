@@ -3,6 +3,14 @@ const SIGN_IN_ERRORS: Record<string, string> = {
   denied: '로그인이 취소됐어요. 다시 시도해 주세요.',
   state_mismatch: '로그인 응답이 맞지 않아 멈췄어요. 다시 시도해 주세요.',
   exchange_failed: '로그인을 마치지 못했어요. 잠시 뒤 다시 시도해 주세요.',
+  registration_incomplete:
+    'Experii 등록이 끝나지 않았어요. 다시 시도해 주세요.',
+  client_mismatch: '로그인 응답이 맞지 않아 멈췄어요. 다시 시도해 주세요.',
+  id_token_invalid: '로그인한 계정을 확인하지 못했어요. 다시 시도해 주세요.',
+  account_mismatch:
+    '처음 로그인한 ChatGPT 계정과 달라요. 같은 계정으로 다시 로그인해 주세요.',
+  revoke_unconfirmed:
+    '이 PC에서는 로그아웃했어요. OpenAI 쪽 로그아웃은 확인하지 못했으니 ChatGPT 설정에서 앱 연결을 끊어 주세요.',
   internal: '로그인 중 문제가 생겼어요. 다시 시도해 주세요.',
 };
 

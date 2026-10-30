@@ -6,13 +6,14 @@ import type {
   ConversationView,
   Result,
   Roadmap,
+  SignOutResult,
   Subject,
 } from './ipc';
 
 export type ExperiiApi = {
   authStatus(): Promise<Result<AuthStatus>>;
-  signIn(): Promise<Result<AuthStatus>>;
-  signOut(): Promise<Result<null>>;
+  signIn(newAccount?: boolean): Promise<Result<AuthStatus>>;
+  signOut(): Promise<Result<SignOutResult>>;
   listSubjects(): Promise<Result<Subject[]>>;
   createSubject(title: string): Promise<Result<Subject>>;
   getRoadmap(subjectId: string): Promise<Result<Roadmap>>;

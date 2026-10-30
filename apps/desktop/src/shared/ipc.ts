@@ -64,6 +64,8 @@ export type AuthStatus =
       plan: 'chatgpt-plan' | 'experii';
     };
 
+export type SignOutResult = { revoked: boolean };
+
 export type Result<T> =
   | { ok: true; data: T }
   | { ok: false; code: string; message?: string };
@@ -78,7 +80,7 @@ const id = z.string().uuid();
 
 export const channels = {
   'auth:status': z.undefined(),
-  'auth:signIn': z.undefined(),
+  'auth:signIn': z.object({ newAccount: z.boolean() }).optional(),
   'auth:signOut': z.undefined(),
   'subjects:list': z.undefined(),
   'subjects:create': z.object({ title: z.string().trim().min(1).max(40) }),
