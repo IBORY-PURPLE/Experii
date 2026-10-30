@@ -387,11 +387,15 @@ test('a stream killed mid-way leaves no partial output after a restart', async (
   await input.press('Enter');
   await expect(win.locator('.msg-ai[aria-live]')).toContainText('확인했어요');
 
-  // On Windows Playwright starts Electron through cmd.exe, so app.process() is the shell, not Electron's main process.
+  // On Windows Playwright starts Electron through cmd.exe, so app.process() is that shell. Electron's exit code shows
+  // before its files are released; the shell exits only once Electron has fully ended, so the database is free then.
   const processes = await app.evaluate(({ app: electronApp }) =>
     electronApp.getAppMetrics().map((m) => ({ pid: m.pid, type: m.type })),
   );
+  const proc = app.process();
+  const exited = new Promise((resolve) => proc.once('exit', resolve));
   process.kill(processes.find((p) => p.type === 'Browser')!.pid, 'SIGKILL');
+  await exited;
   await expect
     .poll(() => processes.filter((p) => isRunning(p.pid)).length, {
       message: 'every app process ends before the relaunch',
