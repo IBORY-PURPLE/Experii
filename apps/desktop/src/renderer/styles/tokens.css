@@ -14,10 +14,10 @@
   --on-ink: #ffffff; /* text on --ink 15.90, on --blue 6.73 */
   --select: rgb(26 34 51 / 0.1); /* text selection is ink, never blue */
 
-  --blue: #3d5a99; /* done knobs, the rail between them, the now ring and chip only: white 6.73, main 6.38, blue-wash 6.00 */
+  --blue: #3d5a99; /* done knobs, the now ring and dots, the 진행 중 chip only: white 6.73, main 6.38, blue-wash 6.00 */
   --blue-hi: #5c74a9;
   --blue-lo: #324a7d;
-  --blue-rail: #b1bdd6;
+  --blue-rail: #b1bdd6; /* the rail between done knobs and the edge of the tile open in the chat only */
   --blue-wash: #eff2f7;
   --err: #b42318; /* error text only: white 6.57, main 6.23, wash-3 5.97 */
 
