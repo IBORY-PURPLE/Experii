@@ -387,6 +387,11 @@ test('a stream killed mid-way leaves no partial output after a restart', async (
 
   run = await launch(userData);
   const { win: next } = run;
+  await expect(
+    next.locator('.messages .day'),
+    'launch starts a new conversation instead of reopening the one in progress',
+  ).toHaveText('새 대화');
+  await expect(next.locator('.msg-user')).toHaveCount(0);
   await next.locator('.tile', { hasText: '진행 중' }).click();
   await expect(next.locator('.msg-user')).toHaveCount(1);
   await expect(next.locator('.msg-ai')).toHaveCount(1);

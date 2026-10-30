@@ -114,21 +114,17 @@ export function App() {
     setOpenLockedId(null);
   }, []);
 
+  // Past conversations reopen only from the path or a card; entering a subject, at launch too, always starts a new one.
   const selectSubject = useCallback(
     async (id: string) => {
       stopStream();
       setSubjectId(id);
       setCard(null);
       setOpenLockedId(null);
-      const map = await loadRoadmap(id);
-      const current = [...map.nodes]
-        .reverse()
-        .find((n) => n.kind === 'current');
-      if (current?.kind === 'current')
-        await openConversation(current.conversationId);
-      else await newConversation(id);
+      await loadRoadmap(id);
+      await newConversation(id);
     },
-    [loadRoadmap, openConversation, newConversation, stopStream],
+    [loadRoadmap, newConversation, stopStream],
   );
 
   const enterApp = useCallback(async () => {
