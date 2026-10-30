@@ -23,6 +23,7 @@ import type { Store } from './db';
 import { jwksFrom, verifyIdToken } from './idtoken';
 import { createPkce } from './pkce';
 import { ResponsesError, type FetchLike, type Transport } from './responses';
+import { forgetToolsMode } from './tools';
 import type { TokenStore, Tokens } from './tokens';
 
 export type TestAccount = { baseUrl: string; token: string };
@@ -113,7 +114,7 @@ export class Session {
       await this.tokens.save(
         tokensFrom(body, { scopes: [], id_token: null, email: claims.email }),
       );
-      this.forgetModels();
+      this.forgetAccount();
       this.onChange();
       return this.status();
     } finally {
@@ -137,7 +138,7 @@ export class Session {
           })
         : !current;
     await this.tokens.clear();
-    this.forgetModels();
+    this.forgetAccount();
     this.onChange();
     return { revoked };
   }
@@ -184,7 +185,7 @@ export class Session {
     if (result.reason === 'transient') throw new ResponsesError('network');
     if (result.reason === 'invalid_client') this.clearRegistration();
     await this.tokens.clear();
-    this.forgetModels();
+    this.forgetAccount();
     this.onChange();
     return null;
   });
@@ -265,10 +266,12 @@ export class Session {
     }
   }
 
-  // Another account may see other models, so the list is fetched again after any sign-in or sign-out.
-  private forgetModels() {
+  // Another account may see other models and take other tool forms, so both are learned again after any sign-in or
+  // sign-out.
+  private forgetAccount() {
     this.models = null;
     this.store.deleteSetting('models_cache_json');
+    forgetToolsMode(this.store);
   }
 
   private registration(): Registration | null {

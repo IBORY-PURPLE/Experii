@@ -9,6 +9,7 @@ import type {
   Roadmap,
   SignOutResult,
   Subject,
+  ToolEvent,
 } from './ipc';
 
 export type ExperiiApi = {
@@ -37,6 +38,7 @@ export type ExperiiApi = {
   rateCard(id: string, useful: boolean): Promise<Result<null>>;
   openUsage(): Promise<Result<null>>;
   onChatEvent(listener: (event: ChatEvent) => void): () => void;
+  onToolEvent(listener: (event: ToolEvent) => void): () => void;
   onAuthChanged(listener: () => void): () => void;
 };
 
@@ -59,5 +61,6 @@ export const API_KEYS: Array<keyof ExperiiApi> = [
   'rateCard',
   'openUsage',
   'onChatEvent',
+  'onToolEvent',
   'onAuthChanged',
 ];

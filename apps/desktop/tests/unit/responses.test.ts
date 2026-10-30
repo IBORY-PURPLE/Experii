@@ -95,6 +95,15 @@ describe('buildRequestBody', () => {
     expect(body.include).toEqual(['reasoning.encrypted_content']);
     for (const key of FORBIDDEN_BODY_KEYS) expect(key in body).toBe(false);
   });
+
+  it('adds tools only when there are some', () => {
+    expect(buildRequestBody({ model: 'm', input: [] })).not.toHaveProperty(
+      'tools',
+    );
+    expect(
+      buildRequestBody({ model: 'm', input: [], tools: [{ type: 'x' }] }).tools,
+    ).toEqual([{ type: 'x' }]);
+  });
 });
 
 async function* events(list: ResponsesEvent[]) {
@@ -189,6 +198,37 @@ describe('streamResponse', () => {
         '{"error":{"code":"subscription_sharing_user_not_eligible"}}',
       ),
     ).toBe('not_eligible_plan');
+  });
+
+  it('keeps the param of a refused capability, before and during the stream', async () => {
+    const refused =
+      '{"error":{"code":"subscription_sharing_unsupported_capability","param":"tools[0]"}}';
+    const gen = streamResponse(
+      transport(async () => false),
+      buildRequestBody({ model: 'm', input: [] }),
+      new AbortController().signal,
+      async () => sse(refused, 400),
+    );
+    expect(await gen.next().catch((e: ResponsesError) => e)).toMatchObject({
+      code: 'unsupported',
+      param: 'tools[0]',
+    });
+    expect(
+      await runTurn(
+        events([
+          {
+            type: 'response.failed',
+            response: {
+              error: {
+                code: 'subscription_sharing_unsupported_capability',
+                param: 'reasoning',
+              },
+            },
+          },
+        ]),
+        () => {},
+      ).catch((e: ResponsesError) => e),
+    ).toMatchObject({ code: 'unsupported', param: 'reasoning' });
   });
 
   it('reports network failure and cancellation', async () => {

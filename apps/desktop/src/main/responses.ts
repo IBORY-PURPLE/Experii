@@ -18,12 +18,16 @@ export type ChatErrorCode =
   | 'incomplete'
   | 'network'
   | 'cancelled'
+  | 'unsupported'
+  | 'tool_limit'
   | 'server';
 
+// param is the request field the server objected to, such as tools[0] for a refused tool.
 export class ResponsesError extends Error {
   constructor(
     readonly code: ChatErrorCode,
     message: string = code,
+    readonly param?: string,
   ) {
     super(message);
   }
@@ -88,6 +92,7 @@ export type RequestBody = {
   stream: true;
   include?: string[];
   text?: Record<string, unknown>;
+  tools?: unknown[];
 };
 
 export const FORBIDDEN_BODY_KEYS = [
@@ -104,6 +109,7 @@ export function buildRequestBody(opts: {
   input: InputItem[];
   includeReasoning?: boolean;
   text?: Record<string, unknown>;
+  tools?: unknown[];
 }): RequestBody {
   const body: RequestBody = {
     model: opts.model,
@@ -113,23 +119,31 @@ export function buildRequestBody(opts: {
   };
   if (opts.includeReasoning) body.include = ['reasoning.encrypted_content'];
   if (opts.text) body.text = opts.text;
+  if (opts.tools) body.tools = opts.tools;
   return body;
 }
 
 export type ResponsesEvent = { type: string; [key: string]: unknown };
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
-function errorCodeOf(bodyText: string): string {
+function errorOf(error: unknown): { code: string; param?: string } {
+  const e = error as { code?: unknown; param?: unknown } | null | undefined;
+  return {
+    code: typeof e?.code === 'string' ? e.code : '',
+    param: typeof e?.param === 'string' ? e.param : undefined,
+  };
+}
+
+function errorOfBody(bodyText: string): { code: string; param?: string } {
   try {
-    const code = (JSON.parse(bodyText) as { error?: { code?: unknown } }).error
-      ?.code;
-    return typeof code === 'string' ? code : '';
+    return errorOf((JSON.parse(bodyText) as { error?: unknown }).error);
   } catch {
-    return '';
+    return { code: '' };
   }
 }
 
 // Plan-usage errors carry their meaning in error.code, both before the stream opens and as response.failed mid-stream.
+// unsupported_capability names what to leave out in error.param, so the caller can send a different body.
 export function codeForError(
   code: string,
   status = 0,
@@ -137,6 +151,8 @@ export function codeForError(
 ): ChatErrorCode {
   if (code === 'subscription_sharing_user_not_eligible')
     return 'not_eligible_plan';
+  if (code === 'subscription_sharing_unsupported_capability')
+    return 'unsupported';
   if (code === 'subscription_sharing_usage_limit_exceeded' || status === 429)
     return 'rate_limited';
   if (status === 401) return 'unauthorized';
@@ -184,13 +200,14 @@ export async function* streamResponse(
   if (!res) throw new ResponsesError('network');
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '');
-    const code = errorCodeOf(text);
+    const { code, param } = errorOfBody(text);
     console.warn(
-      `[responses] HTTP ${res.status} ${code || '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
+      `[responses] HTTP ${res.status} ${code || '-'} param ${param ?? '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
     );
     throw new ResponsesError(
       codeForError(code, res.status, text),
       `HTTP ${res.status}`,
+      param,
     );
   }
   try {
@@ -231,23 +248,23 @@ export async function runTurn(
       case 'response.completed':
         return { outputItems, text };
       case 'response.failed': {
-        const error = (
-          ev.response as { error?: { code?: string; message?: string } }
-        )?.error;
-        const code = error?.code ?? '';
-        console.warn(`[responses] failed ${code || '-'}`);
+        const error = (ev.response as { error?: { message?: string } })?.error;
+        const { code, param } = errorOf(error);
+        console.warn(`[responses] failed ${code || '-'} param ${param ?? '-'}`);
         throw new ResponsesError(
           codeForError(code),
           error?.message ?? 'failed',
+          param,
         );
       }
       case 'response.incomplete':
         throw new ResponsesError('incomplete');
       case 'error': {
-        const code = String(ev.code ?? '');
+        const { code, param } = errorOf(ev);
         throw new ResponsesError(
           codeForError(code),
           String(ev.message ?? code),
+          param,
         );
       }
     }

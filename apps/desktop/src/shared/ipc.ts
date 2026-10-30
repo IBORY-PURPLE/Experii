@@ -56,6 +56,16 @@ export type ConversationView = {
   draft?: string;
   // null until the conversation or the new-conversation default names one; models:list has the current default.
   model: string | null;
+  toolCalls: ToolCallView[];
+};
+
+// afterMessage is the index in messages of the message the call came after; count is null when the call failed.
+export type ToolCallView = {
+  afterMessage: number;
+  name: string;
+  label: string;
+  query: string;
+  count: number | null;
 };
 
 export type ModelOption = { slug: string; displayName: string };
@@ -124,5 +134,18 @@ export type ChatEvent = {
   code?: string;
 };
 
+// A tool call during a stream, sent on its own channel so chat:event keeps its three types.
+export type ToolEvent = {
+  streamId: string;
+  conversationId: string;
+  callId: string;
+  name: string;
+  label: string;
+  query: string;
+  status: 'running' | 'done' | 'error';
+  count?: number;
+};
+
 export const EVENT_CHAT = 'chat:event';
+export const EVENT_TOOL = 'chat:tool';
 export const EVENT_AUTH = 'auth:changed';

@@ -404,11 +404,15 @@ describe('Session models', () => {
     });
   });
 
-  it('forgets the list on sign-out and fetches it again after the next sign-in', async () => {
+  it('forgets the list and the tool form on sign-out and learns them again after the next sign-in', async () => {
     await session.signIn();
     await session.listModels();
+    store.setSetting('tools_mode', 'off');
+    store.setSetting('default_model', 'gpt-y');
     await session.signOut();
     expect(store.getSetting('models_cache_json')).toBeNull();
+    expect(store.getSetting('tools_mode')).toBeNull();
+    expect(store.getSetting('default_model'), 'a preference').toBe('gpt-y');
     await session.signIn();
     await session.listModels();
     expect(fake.s.modelCalls).toBe(2);
