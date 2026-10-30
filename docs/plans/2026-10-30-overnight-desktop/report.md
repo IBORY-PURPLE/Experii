@@ -1,6 +1,6 @@
 # 10월 30일 밤 보고
 
-> 오케스트레이터가 밤새 고쳐 쓴다. 마지막 갱신: 2026-10-30 21:47.
+> 오케스트레이터가 밤새 고쳐 쓴다. 마지막 갱신: 2026-10-30 23:15.
 
 ## 아침에 먼저 볼 것
 
@@ -14,10 +14,10 @@
 | ③ 대화 두뇌 | [#13](https://github.com/IBORY-PURPLE/Experii/pull/13) | 열림 (20:50) | typecheck, 단위 167, oxlint, oxfmt(LF), package, e2e 21 통과(세션 보고) | 맥락 메시지 `ctx-v1`, `models:list`·`conversations:setModel`, 도구 `search_experience_cards`(namespace → additional_tools → 평면 → 끔, `settings.tools_enabled=0`으로 끔), `chat:tool`, MCP 설계 메모. #10·#11·#12를 품음 |
 | ④ 카드 속도 | [#11](https://github.com/IBORY-PURPLE/Experii/pull/11) | 열림 (20:40) | typecheck, 단위 141, oxlint, oxfmt(LF), package, e2e 17 통과. 오케스트레이터가 단위·typecheck 다시 돌려 확인 | 진행 이벤트 `cards:event`, 추론 low(거부되면 끔), `[cards]` 시간 로그, `card-v1.1`. e2e 4번 중 2번은 PC 부하(node 46개)로 Electron 켜기·닫기 30초 초과 |
 | ⑤a 화면 A | [#14](https://github.com/IBORY-PURPLE/Experii/pull/14) | 열림 (20:58) | typecheck, 단위 175, oxlint, oxfmt(LF), package, e2e 28 통과(세션 보고). 오케스트레이터가 이 브랜치에서 단위 175·typecheck 다시 통과 확인 | `remark-gfm` 4.0.1, 표 가로 스크롤·NULL 회색, 좌우 접기(`Panes.tsx`, localStorage `experii.layout.v1`, Ctrl+B·Ctrl+Shift+B), 스크린샷 3장. #10~#13을 품음 |
-| 설계서 | [#12](https://github.com/IBORY-PURPLE/Experii/pull/12) | 열림 (20:47) | 문서만. Mermaid 8개 렌더 확인 | `flow-v2.md`. 시안 선택 대기 상태로 세 방향을 모두 적음. 추천안 표와 창업자가 정할 것 5개 |
+| 설계서 | [#12](https://github.com/IBORY-PURPLE/Experii/pull/12) | 열림 (20:47), 22:52 갱신 | 문서만. Mermaid 렌더 확인 | `flow-v2.md`. 22:52에 시안 A로 좁히고(1.6·5.2절) 다음 공부 흐름을 리서치 결론(#15)에 맞춤. 추천안 표와 창업자가 정할 것 |
 | 리서치 | [#15](https://github.com/IBORY-PURPLE/Experii/pull/15) | 열림 (21:19) | 문서만. 출처 117개를 원문에서 확인했다고 보고 | 결론 "지도·점검·설명": SQLD 출제기준 칸 지도 + 회상 점검·복습 일정(FSRS)이 후보를 내고 GPT는 후보 안에서 고르고 근거를 단다. 창업자가 정할 것 4개. 문서 하나라 다른 PR과 겹치지 않음 |
-| ⑥ 필기 페이지 | | 시안 선택 대기 | | |
-| ⑤b 화면 B | | 진행 중 (21:22) | | #14 위 worktree `night-view2`. 예약 점검 턴에서는 새 세션을 띄울 수 없어(앱 제한) 이 세션의 백그라운드 작업자로 돌림 |
+| ⑥ 필기 페이지 | | 진행 중 (22:40) | | 창업자가 시안 A(탭 브라우저 + 자유 캔버스)를 골랐다. 직접 구현(라이브러리 없음), #16 위에서 시작 |
+| ⑤b 화면 B | [#16](https://github.com/IBORY-PURPLE/Experii/pull/16) | 열림 (22:05) | typecheck, 단위 196, oxlint, oxfmt(LF), package, e2e 33 통과(작업자 보고). 오케스트레이터가 단위 196·typecheck 다시 통과 확인 | 모델 드롭다운(`ModelSelect.tsx`), 도구 호출 줄(`ToolLines.tsx`), `unsupported`·`tool_limit` 배너("다시 보내기"가 질문을 두 번 보이던 기존 버그도 고침), 카드 점진 표시. e2e는 PC 부하로 4번 연속 Electron 켜기·닫기 30초 초과 → 부하가 내려간 뒤 33/33. 백그라운드 작업자로 돌림. #10~#15를 품음 |
 
 ## 밤에 정한 것
 
@@ -31,3 +31,7 @@
 ## 병합 순서
 
 PR이 열린 순서대로, "Create a merge commit"으로 병합한다.
+
+1. #10 문서 → #11 카드 속도 → #12 설계서 → #13 대화 두뇌 → #14 화면 A → #15 리서치 → #16 화면 B → (⑥ 필기 페이지가 열리면 그것)
+2. 나중 PR이 앞 PR을 품는다. 그래서 맨 위 PR(지금은 #16) 하나만 병합해도 #10~#15가 함께 들어가고, 앞 PR들은 GitHub에서 병합됨으로 바뀐다.
+3. **#17 디자인 통일**(다른 세션)은 맨 마지막이다. 밤 PR이 main에 들어간 뒤 디자인 세션이 main을 다시 합치고 충돌을 푼 다음에 병합한다(그 세션에 알려 둠).
