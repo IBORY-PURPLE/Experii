@@ -1,0 +1,66 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--legacy-font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--legacy-ink);
+  background: var(--legacy-bg);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.97);
+  transition: transform 160ms var(--legacy-ease);
+}
+
+:focus-visible {
+  outline: 2px solid var(--legacy-talk);
+  outline-offset: 2px;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr) 380px;
+  height: 100%;
+}
+
+.middle {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--legacy-bg);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes blink {
+  to {
+    opacity: 0;
+  }
+}

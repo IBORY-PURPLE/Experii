@@ -1,0 +1,154 @@
+.card-view {
+  border: 1.5px solid var(--legacy-card-line);
+  border-radius: 16px;
+  background: var(--legacy-bg);
+  box-shadow: 0 2px 0 var(--legacy-card-line);
+  overflow: hidden;
+}
+
+.cv-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 8px 7px 16px;
+  background: var(--legacy-card);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cv-fold {
+  padding: 2px 10px;
+  border: 1px solid rgb(255 255 255 / 0.55);
+  border-radius: 999px;
+  background: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cv-body {
+  padding: 14px 16px 16px;
+}
+
+.cv-body h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 760;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+.cv-summary {
+  margin: 6px 0 0;
+  color: var(--legacy-ink-3);
+}
+
+.cv-redacted {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--legacy-surface);
+  color: var(--legacy-ink-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.star {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.star div {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 10px;
+}
+
+.star dt {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--legacy-ink-4);
+}
+
+.star dt b {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 3px;
+  border-radius: 6px;
+  background: var(--legacy-card-tint);
+  color: var(--legacy-card);
+}
+
+.star dd {
+  margin: 0;
+}
+
+.star dd.missing {
+  color: var(--legacy-ink-4);
+}
+
+.card-view h4 {
+  margin: 16px 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--legacy-ink-4);
+}
+
+.concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.concepts li {
+  padding: 1px 9px;
+  border-radius: 8px;
+  background: var(--legacy-card-tint);
+  color: var(--legacy-card);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cv-next {
+  margin: 0;
+}
+
+.rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--legacy-surface);
+}
+
+.rate p {
+  flex: 1;
+  min-width: 160px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.cv-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--legacy-line);
+}
+
+.cv-foot span {
+  flex: 1;
+  font-size: 13px;
+  color: var(--legacy-ink-4);
+}

@@ -1,0 +1,121 @@
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--legacy-line-2);
+  border-radius: 8px;
+  background: var(--legacy-bg);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--legacy-talk);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chip {
+  flex: none;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--legacy-surface-2);
+  color: var(--legacy-ink-2);
+}
+
+.chip.useful {
+  background: var(--legacy-task-tint);
+  color: var(--legacy-task);
+}
+
+.chip.unrated {
+  background: var(--legacy-card-tint);
+  color: var(--legacy-card);
+}
+
+.chip.current {
+  background: var(--legacy-talk-tint);
+  color: var(--legacy-talk);
+}
+
+.btn.yes {
+  border-color: var(--legacy-task);
+  background: var(--legacy-task);
+  color: #fff;
+}
+
+.btn.no {
+  border-color: var(--legacy-ink-3);
+  background: var(--legacy-ink-3);
+  color: #fff;
+}
+
+.chip.making {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--legacy-card-tint);
+  color: var(--legacy-card);
+}
+
+.spin {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.btn.amber[aria-busy='true'] {
+  opacity: 1;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--legacy-line-2);
+  border-radius: 12px;
+  background: var(--legacy-bg);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  border-color: var(--legacy-ink);
+  background: var(--legacy-ink);
+  color: #fff;
+}
+
+.btn.amber {
+  border-color: var(--legacy-card);
+  background: var(--legacy-card);
+  color: #fff;
+  box-shadow: 0 3px 0 #6f410c;
+}
+
+.btn.small {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+}
