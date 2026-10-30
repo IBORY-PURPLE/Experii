@@ -17,6 +17,8 @@ const ESCAPES = new Map([
   ['t', '\t'],
 ]);
 
+export type OnField = (field: CardField, text: string) => void;
+
 type Frame = { array: boolean; key: string | null; wantKey: boolean };
 type Str = { key: boolean; text: string };
 
@@ -34,7 +36,7 @@ export class CardFieldReader {
   private seen = new Set<string>();
   private broken = false;
 
-  constructor(private onField: (field: CardField, text: string) => void) {}
+  constructor(private onField: OnField) {}
 
   push(chunk: string) {
     for (const ch of chunk) {

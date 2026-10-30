@@ -4,8 +4,8 @@ import {
   cardOutputSchema,
   type CardOutput,
 } from '../shared/card';
-import type { CardEvent, CardField, CardResult } from '../shared/ipc';
-import { CardFieldReader } from './cardfields';
+import type { CardEvent, CardResult } from '../shared/ipc';
+import { CardFieldReader, type OnField } from './cardfields';
 import type { ModelSource } from './chat';
 import type { Store } from './db';
 import { IpcError, type StreamRegistry } from './ipc';
@@ -102,6 +102,7 @@ export class CardService {
       this.streams.isActive(conversationId)
     )
       throw new IpcError('busy');
+    // The card is made from the conversation as it is when the button is pressed; turns sent while it runs stay out.
     const turns = turnsOf(this.store.items(conversationId));
     if (turns.length === 0) throw new IpcError('not_found');
 
@@ -113,7 +114,7 @@ export class CardService {
       const transport = await this.models.transport();
       const model = conv.model || (await this.models.resolveModel(transport));
       // The same trim and redaction as the saved card, so a secret never shows even while the card is being written.
-      const progress = (field: CardField, text: string) => {
+      const progress: OnField = (field, text) => {
         const shown = redactText(text.trim());
         if (shown)
           emit({ conversationId, type: 'progress', field, text: shown });
@@ -159,7 +160,7 @@ export class CardService {
     turns: StoredItem[][],
     subject: string,
     signal: AbortSignal,
-    onField: (field: CardField, text: string) => void,
+    onField: OnField,
   ): Promise<CardOutput | 'too_long' | 'invalid'> {
     let drop = 0;
     let retried = false;
@@ -193,7 +194,7 @@ export class CardService {
     items: StoredItem[],
     subject: string,
     signal: AbortSignal,
-    onField: (field: CardField, text: string) => void,
+    onField: OnField,
   ): Promise<CardOutput | null> {
     const input = [
       ...buildInput(items),
@@ -231,7 +232,7 @@ export class CardService {
     transport: Transport,
     body: RequestBody,
     signal: AbortSignal,
-    onField: (field: CardField, text: string) => void,
+    onField: OnField,
   ): Promise<CardOutput | null> {
     const timer = requestTimer(body);
     const fields = new CardFieldReader(onField);
