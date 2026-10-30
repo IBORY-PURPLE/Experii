@@ -4,47 +4,68 @@
   z-index: 20;
   display: grid;
   place-items: center;
-  background: rgb(26 34 51 / 0.36);
+  padding: var(--sp-6);
+  background: var(--scrim);
+  backdrop-filter: blur(2px);
+  animation: overlay-in var(--dur-1) var(--ease-out);
 }
 
 .dialog {
-  width: 400px;
-  padding: 22px;
-  border-radius: 16px;
-  background: var(--legacy-bg);
-  box-shadow: 0 16px 34px -14px rgb(26 34 51 / 0.32);
+  width: 440px;
+  max-width: 100%;
+  padding: var(--sp-6);
+  border-radius: var(--r-4);
+  background: var(--surface);
+  box-shadow: var(--sh-4);
+  animation: dialog-in var(--dur-1) var(--ease-out);
 }
 
-.dialog h2 {
-  margin: 0 0 6px;
-  font-size: 17px;
+.dialog-title {
+  margin: 0;
+  font-size: var(--fs-18);
+  font-weight: var(--fw-3);
+  line-height: 1.5;
 }
 
-.dialog p {
-  margin: 0 0 14px;
-  color: var(--legacy-ink-3);
+.dialog-desc {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-2);
+  line-height: 1.65;
 }
 
-.dialog input {
-  width: 100%;
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--legacy-line-2);
-  border-radius: 12px;
-  font: inherit;
+.dialog .input {
+  margin-top: var(--sp-4);
 }
 
 .dialog .err-text {
-  margin: 8px 0 0;
-  color: var(--legacy-err);
-  font-size: 13px;
+  margin: var(--sp-2) 0 0;
+  color: var(--err);
+  font-size: var(--fs-13);
 }
 
-.dialog .row {
+.dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 18px;
+  gap: var(--sp-2);
+  margin-top: var(--sp-6);
+}
+
+.dialog-actions .btn {
+  height: var(--h-36);
+  padding: 0 var(--sp-4);
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
 }
 
 .gate {

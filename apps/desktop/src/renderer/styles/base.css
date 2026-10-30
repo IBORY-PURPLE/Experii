@@ -10,19 +10,41 @@ body,
 }
 
 body {
-  font-family: var(--legacy-font-sans);
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--legacy-ink);
-  background: var(--legacy-bg);
+  font-family: var(--font);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  color: var(--ink);
+  caret-color: var(--ink);
+  background: var(--bg-main);
   word-break: keep-all;
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
 }
 
-button {
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+small {
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+button,
+input,
+textarea {
   font: inherit;
   color: inherit;
+}
+
+button {
   cursor: pointer;
 }
 
@@ -30,14 +52,62 @@ button:disabled {
   cursor: default;
 }
 
-button:not(:disabled):active {
-  transform: scale(0.97);
-  transition: transform 160ms var(--legacy-ease);
+::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+
+::selection {
+  background: var(--select);
 }
 
 :focus-visible {
-  outline: 2px solid var(--legacy-talk);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: var(--sp-3);
+  height: var(--sp-3);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: var(--sp-1) solid transparent;
+  border-radius: var(--r-pill);
+  background-color: transparent;
+  background-clip: padding-box;
+}
+
+/* Chromium restyles scrollbar parts only when the scroller's own style changes, so hover and focus also flip this. */
+@property --scroll-shown {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+:hover,
+:focus-within {
+  --scroll-shown: 1;
+}
+
+:hover::-webkit-scrollbar-thumb,
+:focus-within::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar);
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  border-width: calc(var(--sp-1) / 2);
+  background-color: var(--ink-4);
 }
 
 .app {
@@ -50,7 +120,7 @@ button:not(:disabled):active {
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  background: var(--legacy-bg);
+  background: var(--bg-main);
 }
 
 @keyframes spin {
@@ -62,5 +132,16 @@ button:not(:disabled):active {
 @keyframes blink {
   to {
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

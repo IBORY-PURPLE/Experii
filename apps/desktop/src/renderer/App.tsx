@@ -516,7 +516,7 @@ export function App() {
   const headAction = conv?.saved ? (
     making?.conversationId === conv.id ? (
       <>
-        <button className="btn small amber" disabled aria-busy="true">
+        <button className="btn small primary" disabled aria-busy="true">
           <i className="spin" aria-hidden />
           카드 만드는 중…
         </button>
@@ -529,7 +529,7 @@ export function App() {
       </>
     ) : (
       <button
-        className="btn small amber"
+        className="btn small primary"
         disabled={!!stream || !!making}
         onClick={() => void makeCard(conv.id)}
       >
