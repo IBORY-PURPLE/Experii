@@ -59,6 +59,11 @@ export function registerHandlers(deps: Deps) {
     chat.open(subjectId, recommendedNodeId),
   );
   on('conversations:get', ({ id }) => chat.get(id));
+  on('conversations:setModel', ({ id, model }) => {
+    chat.setModel(id, model);
+    return null;
+  });
+  on('models:list', () => session.listModels());
   on('chat:send', ({ conversationId, streamId, text }, event) => {
     const sender = event.sender;
     chat.send(conversationId, streamId, text, (ev) => {

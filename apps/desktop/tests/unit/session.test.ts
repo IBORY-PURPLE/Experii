@@ -34,6 +34,8 @@ function fakeOpenAI() {
     scope: PLAN_SCOPE,
     nonce: undefined as string | undefined,
     revokeStatus: 200,
+    modelCalls: 0,
+    modelsStatus: 200,
     refresh: (): Response =>
       Response.json({
         access_token: 'access-r',
@@ -84,7 +86,10 @@ function fakeOpenAI() {
         }),
       });
     }
-    if (url.endsWith('/models'))
+    if (url.endsWith('/models')) {
+      s.modelCalls++;
+      if (s.modelsStatus !== 200)
+        return new Response('', { status: s.modelsStatus });
       return Response.json({
         models: [
           { slug: 'hidden', visibility: 'hide' },
@@ -92,6 +97,7 @@ function fakeOpenAI() {
           { slug: 'gpt-y', display_name: 'GPT Y', visibility: 'list' },
         ],
       });
+    }
     throw new Error(`unexpected request ${url}`);
   };
   return { s, openExternal, fetchImpl };
@@ -344,5 +350,67 @@ describe('Session tokens', () => {
     await session.signIn();
     const transport = await session.transport();
     expect(await session.resolveModel(transport)).toBe('gpt-x');
+  });
+});
+
+describe('Session models', () => {
+  const listed = [
+    { slug: 'gpt-x', displayName: 'GPT X' },
+    { slug: 'gpt-y', displayName: 'GPT Y' },
+  ];
+
+  it('lists the list models once per sign-in and keeps the last list', async () => {
+    await session.signIn();
+    expect(await session.listModels()).toEqual({
+      models: listed,
+      current: 'gpt-x',
+    });
+    await session.listModels();
+    await session.resolveModel(await session.transport());
+    expect(fake.s.modelCalls).toBe(1);
+    expect(JSON.parse(store.getSetting('models_cache_json')!)).toEqual(listed);
+    expect(session.modelName('gpt-y')).toBe('GPT Y');
+    expect(session.modelName('gpt-z')).toBe('gpt-z');
+
+    store.setSetting('default_model', 'gpt-y');
+    expect((await session.listModels()).current).toBe('gpt-y');
+    expect(await session.resolveModel(await session.transport())).toBe('gpt-y');
+  });
+
+  it('falls back to the saved list, then to the current model alone', async () => {
+    await session.signIn();
+    await session.listModels();
+    const restarted = new Session(
+      store,
+      tokens,
+      fake.fetchImpl,
+      fake.openExternal,
+      () => {},
+      null,
+    );
+    fake.s.modelsStatus = 503;
+    expect(await restarted.listModels()).toEqual({
+      models: listed,
+      current: 'gpt-x',
+    });
+    expect(restarted.modelName('gpt-x')).toBe('GPT X');
+
+    store.deleteSetting('models_cache_json');
+    expect(await restarted.listModels()).toEqual({ models: [], current: null });
+    store.setSetting('default_model', 'gpt-y');
+    expect(await restarted.listModels()).toEqual({
+      models: [{ slug: 'gpt-y', displayName: 'gpt-y' }],
+      current: 'gpt-y',
+    });
+  });
+
+  it('forgets the list on sign-out and fetches it again after the next sign-in', async () => {
+    await session.signIn();
+    await session.listModels();
+    await session.signOut();
+    expect(store.getSetting('models_cache_json')).toBeNull();
+    await session.signIn();
+    await session.listModels();
+    expect(fake.s.modelCalls).toBe(2);
   });
 });

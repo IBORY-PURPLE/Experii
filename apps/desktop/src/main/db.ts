@@ -173,6 +173,12 @@ export class Store {
     };
   }
 
+  setConversationModel(id: string, model: string) {
+    this.db
+      .prepare('UPDATE conversations SET model = ? WHERE id = ?')
+      .run(model, id);
+  }
+
   items(conversationId: string): StoredItem[] {
     return this.db
       .prepare(

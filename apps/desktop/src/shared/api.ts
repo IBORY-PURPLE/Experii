@@ -4,6 +4,7 @@ import type {
   CardResult,
   ChatEvent,
   ConversationView,
+  ModelList,
   Result,
   Roadmap,
   SignOutResult,
@@ -22,6 +23,8 @@ export type ExperiiApi = {
     recommendedNodeId?: string,
   ): Promise<Result<ConversationView>>;
   getConversation(id: string): Promise<Result<ConversationView>>;
+  listModels(): Promise<Result<ModelList>>;
+  setConversationModel(id: string, model: string): Promise<Result<null>>;
   send(
     conversationId: string,
     streamId: string,
@@ -46,6 +49,8 @@ export const API_KEYS: Array<keyof ExperiiApi> = [
   'getRoadmap',
   'openConversation',
   'getConversation',
+  'listModels',
+  'setConversationModel',
   'send',
   'cancel',
   'generateCard',

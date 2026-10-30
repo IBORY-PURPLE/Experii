@@ -6,6 +6,7 @@ import {
   buildRequestBody,
   runTurn,
   streamResponse,
+  tagModel,
   type ResponsesEvent,
   type Transport,
 } from '../../src/main/responses';
@@ -33,15 +34,17 @@ describe('buildInput', () => {
           role: 'user',
           content: [{ type: 'input_text', text: 'A' }],
         }),
-        row(3, { id: 'rs_1', type: 'reasoning', summary: [] }),
+        row(3, { id: 'rs_1', type: 'reasoning', summary: [], x_model: 'm' }),
         row(4, {
           id: 'rs_2',
           type: 'reasoning',
           summary: [],
           encrypted_content: 'enc',
+          x_model: 'm',
         }),
       ],
       'C',
+      'm',
     );
     expect(input.map((i) => i.type)).toEqual([
       'message',
@@ -50,11 +53,33 @@ describe('buildInput', () => {
       'message',
     ]);
     expect(input.every((i) => !('id' in i) && !('status' in i))).toBe(true);
+    expect(input[2]).toEqual({
+      type: 'reasoning',
+      summary: [],
+      encrypted_content: 'enc',
+    });
     expect(input[3]).toEqual({
       type: 'message',
       role: 'user',
       content: [{ type: 'input_text', text: 'C' }],
     });
+  });
+
+  it('sends reasoning only to the model that wrote it', () => {
+    const rows = [
+      row(1, tagModel({ type: 'reasoning', encrypted_content: 'a' }, 'm1')),
+      row(2, tagModel({ type: 'reasoning', encrypted_content: 'b' }, 'm2')),
+      row(3, { type: 'reasoning', encrypted_content: 'untagged' }),
+      row(
+        4,
+        tagModel({ type: 'function_call', call_id: 'c', name: 'f' }, 'm1'),
+      ),
+    ];
+    expect(buildInput(rows, undefined, 'm2')).toEqual([
+      { type: 'reasoning', encrypted_content: 'b' },
+      { type: 'function_call', call_id: 'c', name: 'f' },
+    ]);
+    expect(buildInput(rows).map((i) => i.type)).toEqual(['function_call']);
   });
 });
 

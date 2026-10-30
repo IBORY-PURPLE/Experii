@@ -10,6 +10,7 @@ import {
   developerMessage,
   runTurn,
   streamResponse,
+  tagModel,
   userMessage,
   type FetchLike,
   type Transport,
@@ -60,15 +61,7 @@ export class ChatService {
       title: NEW_TITLE,
       draft,
     });
-    return {
-      id,
-      subjectId,
-      title: NEW_TITLE,
-      messages: [],
-      cardId: null,
-      saved: false,
-      draft,
-    };
+    return this.get(id);
   }
 
   get(id: string): ConversationView {
@@ -81,6 +74,7 @@ export class ChatService {
         messages: this.store.messages(id),
         cardId: this.store.cardIdForConversation(id),
         saved: true,
+        model: row.model,
       };
     }
     const p = this.pending.get(id);
@@ -93,7 +87,18 @@ export class ChatService {
       cardId: null,
       saved: false,
       draft: p.draft,
+      model: p.model || this.store.getSetting('default_model'),
     };
+  }
+
+  // The next send uses the model, and it becomes the default for new conversations.
+  setModel(id: string, model: string) {
+    const pending = this.pending.get(id);
+    if (this.store.getConversationRow(id))
+      this.store.setConversationModel(id, model);
+    else if (pending) pending.model = model;
+    else throw new IpcError('not_found');
+    this.store.setSetting('default_model', model);
   }
 
   send(
@@ -122,7 +127,7 @@ export class ChatService {
           model,
           input: [
             developerMessage(context),
-            ...buildInput(this.store.items(conversationId), text),
+            ...buildInput(this.store.items(conversationId), text, model),
           ],
         });
         const result = await runTurn(
@@ -133,7 +138,7 @@ export class ChatService {
         this.store.saveTurn(
           row ?? { ...pending!, model, title: titleFrom(text) },
           userMessage(text),
-          result.outputItems,
+          result.outputItems.map((item) => tagModel(item, model)),
         );
         this.pending.delete(conversationId);
         emit({ ...base, type: 'done' });

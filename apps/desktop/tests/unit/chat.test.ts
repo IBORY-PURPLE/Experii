@@ -14,14 +14,18 @@ import type { ChatEvent } from '../../src/shared/ipc';
 import { ChatService } from '../../src/main/chat';
 import { CONTEXT_VERSION } from '../../src/main/context';
 import { Store } from '../../src/main/db';
-import { StreamRegistry } from '../../src/main/ipc';
+import { IpcError, StreamRegistry } from '../../src/main/ipc';
 import type { Transport } from '../../src/main/responses';
 import {
+  MOCK_MODEL,
+  MOCK_MODEL_ALT,
   MOCK_TOKEN,
   TRIGGERS,
   startMockOpenAI,
   type MockServer,
 } from '../e2e/mock-openai';
+
+type Item = Record<string, unknown> & { type: string; role?: string };
 
 let mock: MockServer;
 let dir: string;
@@ -119,6 +123,44 @@ describe('ChatService', () => {
       .items(view.id)
       .map((i) => (JSON.parse(i.item_json) as { role?: string }).role);
     expect(roles).not.toContain('developer');
+  });
+
+  it('sends the next request with the chosen model and makes it the default', async () => {
+    const s = store.createSubject('SQLD');
+    const view = chat.open(s.id);
+    expect(view.model).toBeNull();
+    chat.setModel(view.id, MOCK_MODEL_ALT);
+    expect(chat.get(view.id).model).toBe(MOCK_MODEL_ALT);
+    await turn(view.id, 'LEFT JOIN이 헷갈려요');
+    expect(mock.requests.at(-1)!.model).toBe(MOCK_MODEL_ALT);
+    expect(store.getConversationRow(view.id)!.model).toBe(MOCK_MODEL_ALT);
+
+    chat.setModel(view.id, MOCK_MODEL);
+    const events = await turn(view.id, '행이 3개 나왔어요');
+    expect(
+      events.at(-1)?.type,
+      'the mock refuses another model’s reasoning',
+    ).toBe('done');
+    const body = mock.requests.at(-1)!;
+    expect(body.model).toBe(MOCK_MODEL);
+    expect((body.input as Item[]).some((i) => i.type === 'reasoning')).toBe(
+      false,
+    );
+    expect(chat.get(view.id).model).toBe(MOCK_MODEL);
+    expect(store.getSetting('default_model')).toBe(MOCK_MODEL);
+    expect(chat.open(s.id).model).toBe(MOCK_MODEL);
+    const reasoning = store
+      .items(view.id)
+      .map((i) => JSON.parse(i.item_json) as Item)
+      .filter((i) => i.type === 'reasoning');
+    expect(reasoning.map((i) => i.x_model)).toEqual([
+      MOCK_MODEL_ALT,
+      MOCK_MODEL,
+    ]);
+
+    expect(() => chat.setModel(crypto.randomUUID(), MOCK_MODEL)).toThrow(
+      IpcError,
+    );
   });
 
   it('saves nothing when the stream breaks, and maps the error', async () => {

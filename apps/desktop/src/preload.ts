@@ -24,6 +24,9 @@ const api: ExperiiApi = {
   openConversation: (subjectId, recommendedNodeId) =>
     invoke('conversations:open', { subjectId, recommendedNodeId }),
   getConversation: (id) => invoke('conversations:get', { id }),
+  listModels: () => invoke('models:list'),
+  setConversationModel: (id, model) =>
+    invoke('conversations:setModel', { id, model }),
   send: (conversationId, streamId, text) =>
     invoke('chat:send', { conversationId, streamId, text }),
   cancel: (streamId) => invoke('chat:cancel', { streamId }),

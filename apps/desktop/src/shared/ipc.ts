@@ -54,7 +54,12 @@ export type ConversationView = {
   cardId: string | null;
   saved: boolean;
   draft?: string;
+  // null until the conversation or the new-conversation default names one; models:list has the current default.
+  model: string | null;
 };
+
+export type ModelOption = { slug: string; displayName: string };
+export type ModelList = { models: ModelOption[]; current: string | null };
 
 export type AuthStatus =
   | { state: 'signed_out' }
@@ -90,6 +95,11 @@ export const channels = {
     recommendedNodeId: id.optional(),
   }),
   'conversations:get': z.object({ id }),
+  'conversations:setModel': z.object({
+    id,
+    model: z.string().trim().min(1).max(80),
+  }),
+  'models:list': z.undefined(),
   'chat:send': z.object({
     conversationId: id,
     streamId: id,

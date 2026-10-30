@@ -37,17 +37,35 @@ export function userMessage(text: string): InputItem {
   };
 }
 
-// store:false means the server keeps nothing, so ids would point at items it cannot find.
+// Reasoning only reads back on the model that wrote it, so a saved reasoning item carries that model in x_model.
+export function tagModel(item: InputItem, model: string): InputItem {
+  return item.type === 'reasoning' ? { ...item, x_model: model } : item;
+}
+
+// store:false means the server keeps nothing, so ids would point at items it cannot find. x_ keys are the app's own.
+export function sendable(item: InputItem, model?: string): InputItem | null {
+  if (
+    item.type === 'reasoning' &&
+    (!item.encrypted_content || !model || item.x_model !== model)
+  )
+    return null;
+  const out: InputItem = { type: item.type };
+  for (const [key, value] of Object.entries(item)) {
+    if (key !== 'id' && key !== 'status' && !key.startsWith('x_'))
+      out[key] = value;
+  }
+  return out;
+}
+
 export function buildInput(
   items: StoredItem[],
   userText?: string,
+  model?: string,
 ): InputItem[] {
   const out: InputItem[] = [];
   for (const row of [...items].sort((a, b) => a.seq - b.seq)) {
-    const item = JSON.parse(row.item_json) as InputItem;
-    if (item.type === 'reasoning' && !item.encrypted_content) continue;
-    const { id: _id, status: _status, ...rest } = item;
-    out.push(rest as InputItem);
+    const item = sendable(JSON.parse(row.item_json) as InputItem, model);
+    if (item) out.push(item);
   }
   if (userText !== undefined) out.push(userMessage(userText));
   return out;
