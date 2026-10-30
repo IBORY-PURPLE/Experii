@@ -88,7 +88,7 @@ describe('ChatService', () => {
       id?: string;
     }>;
     expect(input.filter((i) => i.role === 'user')).toHaveLength(2);
-    expect(input.some((i) => i.type === 'reasoning')).toBe(false);
+    expect(input.filter((i) => i.type === 'reasoning')).toHaveLength(1);
     expect(input.every((i) => i.id === undefined)).toBe(true);
     expect(chat.get(view.id).messages.map((m) => m.role)).toEqual([
       'user',
