@@ -1,8 +1,10 @@
 import { promises as fs } from 'node:fs';
 
+// id_token is kept only to send back as id_token_hint on the next sign-in to the same account.
 export type Tokens = {
   access_token: string;
   refresh_token: string;
+  id_token: string | null;
   expires_at: number;
   scopes: string[];
   email: string | null;

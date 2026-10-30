@@ -137,28 +137,36 @@ export function App() {
     if (list.length) await selectSubject(list[0].id);
   }, [selectSubject]);
 
-  const signIn = useCallback(async () => {
-    setGate((g) => ({ ...g, waiting: true, error: null }));
-    const r = await api.signIn();
-    if (r.ok) {
-      setGate({ waiting: false, error: null, planRequired: false });
-      setAuth(r.data);
-      setBanner(null);
-      await enterApp();
-    } else if (r.code === 'not_eligible_plan') {
-      setGate({ waiting: false, error: null, planRequired: true });
-    } else {
-      setGate((g) => ({
-        ...g,
-        waiting: false,
-        error: r.code === 'cancelled' ? null : r.code,
-      }));
-    }
-  }, [enterApp]);
+  const signIn = useCallback(
+    async (newAccount = false) => {
+      setGate((g) => ({ ...g, waiting: true, error: null }));
+      const r = await api.signIn(newAccount);
+      if (r.ok) {
+        setGate({ waiting: false, error: null, planRequired: false });
+        setAuth(r.data);
+        setBanner(null);
+        // Signing in again from the chat banner returns to the open conversation instead of the first subject.
+        if (!subjectRef.current) await enterApp();
+      } else if (r.code === 'not_eligible_plan') {
+        setGate({ waiting: false, error: null, planRequired: true });
+      } else {
+        setGate((g) => ({
+          ...g,
+          waiting: false,
+          error: r.code === 'cancelled' ? null : r.code,
+        }));
+      }
+    },
+    [enterApp],
+  );
 
   const signOut = useCallback(async () => {
     stopStream();
-    await api.signOut();
+    const r = await api.signOut();
+    setGate((g) => ({
+      ...g,
+      error: r.ok && !r.data.revoked ? 'revoke_unconfirmed' : null,
+    }));
     setAuth({ state: 'signed_out' });
     setSubjects([]);
     setSubjectId(null);
@@ -199,20 +207,26 @@ export function App() {
 
   const focusInput = () => inputRef.current?.focus();
 
+  // The sign-in screen shows the waiting state and its cancel button; the banner alone could not.
+  const relogin = () => {
+    setAuth({ state: 'signed_out' });
+    void signIn();
+  };
+
   const reloginBanner = (body: string): Banner => ({
     tone: 'err',
     title: '다시 로그인해 주세요',
     body,
-    actions: [
-      { label: '다시 로그인', primary: true, run: () => void signIn() },
-    ],
+    actions: [{ label: '다시 로그인', primary: true, run: relogin }],
   });
 
   const usageBanner = (body: string): Banner => ({
     tone: 'err',
     title: '사용량 한도에 걸렸어요',
     body,
-    actions: [{ label: 'Manage usage', run: () => void api.openUsage() }],
+    actions: [
+      { label: 'Manage usage', primary: true, run: () => void api.openUsage() },
+    ],
   });
 
   const newConversationAction = (primary: boolean) => ({
@@ -485,7 +499,7 @@ export function App() {
         waiting={gate.waiting}
         error={gate.error}
         account={auth.state === 'signed_in' ? auth.email : null}
-        onSignIn={() => void signIn()}
+        onSignIn={() => void signIn(gate.planRequired)}
         onCancel={() =>
           void api
             .signOut()

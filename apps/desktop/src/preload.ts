@@ -15,7 +15,8 @@ const subscribe = <T>(channel: string, listener: (value: T) => void) => {
 
 const api: ExperiiApi = {
   authStatus: () => invoke('auth:status'),
-  signIn: () => invoke('auth:signIn'),
+  signIn: (newAccount) =>
+    invoke('auth:signIn', newAccount ? { newAccount } : undefined),
   signOut: () => invoke('auth:signOut'),
   listSubjects: () => invoke('subjects:list'),
   createSubject: (title) => invoke('subjects:create', { title }),

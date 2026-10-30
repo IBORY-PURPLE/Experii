@@ -101,14 +101,31 @@ export function buildRequestBody(opts: {
 export type ResponsesEvent = { type: string; [key: string]: unknown };
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
-function codeForStatus(status: number, bodyText: string): ChatErrorCode {
+function errorCodeOf(bodyText: string): string {
+  try {
+    const code = (JSON.parse(bodyText) as { error?: { code?: unknown } }).error
+      ?.code;
+    return typeof code === 'string' ? code : '';
+  } catch {
+    return '';
+  }
+}
+
+// Plan-usage errors carry their meaning in error.code, both before the stream opens and as response.failed mid-stream.
+export function codeForError(
+  code: string,
+  status = 0,
+  bodyText = '',
+): ChatErrorCode {
+  if (code === 'subscription_sharing_user_not_eligible')
+    return 'not_eligible_plan';
+  if (code === 'subscription_sharing_usage_limit_exceeded' || status === 429)
+    return 'rate_limited';
   if (status === 401) return 'unauthorized';
-  if (status === 403)
-    return /not_eligible|subscription/i.test(bodyText)
-      ? 'not_eligible_plan'
-      : 'unauthorized';
-  if (status === 429) return 'rate_limited';
-  if (/context_length_exceeded|context window|maximum context/i.test(bodyText))
+  if (
+    /context_length/.test(code) ||
+    /context_length_exceeded|context window|maximum context/i.test(bodyText)
+  )
     return 'context_too_long';
   return 'server';
 }
@@ -133,6 +150,7 @@ export async function* streamResponse(
         signal,
       });
     } catch (err) {
+      if (err instanceof ResponsesError) throw err;
       throw new ResponsesError(
         signal.aborted ? 'cancelled' : 'network',
         String(err),
@@ -148,8 +166,12 @@ export async function* streamResponse(
   if (!res) throw new ResponsesError('network');
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '');
+    const code = errorCodeOf(text);
+    console.warn(
+      `[responses] HTTP ${res.status} ${code || '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
+    );
     throw new ResponsesError(
-      codeForStatus(res.status, text),
+      codeForError(code, res.status, text),
       `HTTP ${res.status}`,
     );
   }
@@ -194,10 +216,10 @@ export async function runTurn(
         const error = (
           ev.response as { error?: { code?: string; message?: string } }
         )?.error;
+        const code = error?.code ?? '';
+        console.warn(`[responses] failed ${code || '-'}`);
         throw new ResponsesError(
-          /context_length/.test(error?.code ?? '')
-            ? 'context_too_long'
-            : 'server',
+          codeForError(code),
           error?.message ?? 'failed',
         );
       }
@@ -206,7 +228,7 @@ export async function runTurn(
       case 'error': {
         const code = String(ev.code ?? '');
         throw new ResponsesError(
-          /context_length/.test(code) ? 'context_too_long' : 'server',
+          codeForError(code),
           String(ev.message ?? code),
         );
       }
