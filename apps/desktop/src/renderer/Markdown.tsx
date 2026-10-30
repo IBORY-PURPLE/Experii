@@ -25,10 +25,58 @@ const stripMark = (node: MdNode): void => {
 };
 const remarkPlugins = [() => stripMark];
 
-export function Markdown({ text }: { text: string }) {
+type HastNode = {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+};
+const BLOCKS = new Set([
+  'p',
+  'ul',
+  'ol',
+  'li',
+  'blockquote',
+  'pre',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+]);
+
+// The streaming caret goes into the deepest last block, so it trails the last character instead of opening a line.
+const appendCaret = (tree: HastNode): void => {
+  let node = tree;
+  for (;;) {
+    const last = node.children?.findLast(
+      (c) => c.type !== 'text' || c.value?.trim(),
+    );
+    if (last?.type !== 'element' || !BLOCKS.has(last.tagName ?? '')) break;
+    node = last;
+  }
+  node.children = [
+    ...(node.children ?? []),
+    {
+      type: 'element',
+      tagName: 'span',
+      properties: { className: ['cursor'], ariaHidden: 'true' },
+      children: [],
+    },
+  ];
+};
+const caretPlugins = [() => appendCaret];
+
+export function Markdown({ text, caret }: { text: string; caret?: boolean }) {
   return (
     <div className="md">
-      <ReactMarkdown components={components} remarkPlugins={remarkPlugins}>
+      <ReactMarkdown
+        components={components}
+        remarkPlugins={remarkPlugins}
+        rehypePlugins={caret ? caretPlugins : undefined}
+      >
         {unstick(text)}
       </ReactMarkdown>
     </div>

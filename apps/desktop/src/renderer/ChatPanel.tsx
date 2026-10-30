@@ -38,10 +38,16 @@ export function ChatPanel(p: Props) {
   const streaming = p.streamingText !== null;
   const disabled = !p.conversation;
 
+  // A banner shortens the list too, so its arrival also brings the latest message back into view.
   useEffect(() => {
     const el = scroller.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [p.conversation?.messages.length, p.streamingText, p.conversation?.id]);
+  }, [
+    p.conversation?.messages.length,
+    p.streamingText,
+    p.conversation?.id,
+    p.banner,
+  ]);
 
   // Korean IME: Enter that confirms a syllable must not send the message.
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -55,19 +61,23 @@ export function ChatPanel(p: Props) {
     <section className="chat" aria-label="GPT 대화">
       <header className="chat-head">
         <div className="ttl">
-          <small>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</small>
-          <b>{p.conversation?.title ?? '과목을 먼저 만들어 주세요'}</b>
+          <h2>{p.conversation?.title ?? '과목을 먼저 만들어 주세요'}</h2>
+          <p>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</p>
         </div>
-        {p.conversation && (
-          <button
-            className="btn small"
-            onClick={p.onNewConversation}
-            disabled={streaming}
-          >
-            새 대화
-          </button>
+        {(p.conversation || p.headAction) && (
+          <div className="actions">
+            {p.conversation && (
+              <button
+                className="btn small"
+                onClick={p.onNewConversation}
+                disabled={streaming}
+              >
+                새 대화
+              </button>
+            )}
+            {p.headAction}
+          </div>
         )}
-        {p.headAction}
       </header>
       <div className="messages" ref={scroller}>
         {p.conversation && (
@@ -90,8 +100,11 @@ export function ChatPanel(p: Props) {
         {streaming && (
           <div className="msg-ai" aria-live="polite">
             <div className="who">ChatGPT</div>
-            {p.streamingText ? <Markdown text={p.streamingText} /> : null}
-            <span className="cursor" aria-hidden />
+            {p.streamingText ? (
+              <Markdown text={p.streamingText} caret />
+            ) : (
+              <span className="cursor" aria-hidden />
+            )}
           </div>
         )}
       </div>
@@ -102,17 +115,16 @@ export function ChatPanel(p: Props) {
         >
           <b>{p.banner.title}</b>
           <p>{p.banner.body}</p>
-          <div className="actions">
-            {p.banner.actions.map((a) => (
-              <button
-                key={a.label}
-                className={`btn small ${a.primary ? 'primary' : ''}`}
-                onClick={a.run}
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
+          {p.banner.actions.length > 0 && (
+            // Actions flagged primary stay secondary too, so a banner never adds a second filled button to the screen.
+            <div className="actions">
+              {p.banner.actions.map((a) => (
+                <button key={a.label} className="btn small" onClick={a.run}>
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
       <div className="composer">
@@ -133,12 +145,16 @@ export function ChatPanel(p: Props) {
             onCompositionEnd={() => setComposing(false)}
           />
           {streaming ? (
-            <button className="send" onClick={p.onStop} aria-label="멈추기">
+            <button
+              className="icon-btn send"
+              onClick={p.onStop}
+              aria-label="멈추기"
+            >
               <Stop />
             </button>
           ) : (
             <button
-              className="send"
+              className="icon-btn send"
               onClick={p.onSend}
               disabled={disabled || !p.input.trim()}
               aria-label="보내기"
