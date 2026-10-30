@@ -19,6 +19,7 @@ import {
   streamResponse,
   type FetchLike,
   type InputItem,
+  type ResponsesEvent,
   type StoredItem,
   type Transport,
 } from './responses';
@@ -146,9 +147,9 @@ export class CardService {
     let drop = 0;
     let retried = false;
     for (;;) {
-      let text: string;
+      let output: CardOutput | null;
       try {
-        text = await this.request(
+        output = await this.request(
           transport,
           model,
           turns.slice(drop).flat(),
@@ -162,7 +163,6 @@ export class CardService {
         drop = Math.min(turns.length - 1, drop * 2 + 1);
         continue;
       }
-      const output = parseCardOutput(text);
       if (output) return output;
       if (retried) return 'invalid';
       retried = true;
@@ -175,7 +175,7 @@ export class CardService {
     items: StoredItem[],
     subject: string,
     signal: AbortSignal,
-  ): Promise<string> {
+  ): Promise<CardOutput | null> {
     const body = buildRequestBody({
       model,
       input: [
@@ -191,11 +191,75 @@ export class CardService {
         },
       },
     });
-    const result = await runTurn(
-      streamResponse(transport, body, signal, this.fetchImpl),
-      () => {},
-    );
-    const message = result.outputItems.find((i) => i.type === 'message');
-    return message ? messageText(message) : result.text;
+    const timer = requestTimer(model);
+    let outcome = 'ok';
+    try {
+      const result = await runTurn(
+        timer.events(
+          streamResponse(transport, body, signal, timer.fetch(this.fetchImpl)),
+        ),
+        () => timer.mark('first_delta'),
+      );
+      timer.mark('completed');
+      const message = result.outputItems.find((i) => i.type === 'message');
+      const output = parseCardOutput(
+        message ? messageText(message) : result.text,
+      );
+      if (output) timer.mark('parsed');
+      else outcome = 'invalid';
+      return output;
+    } catch (err) {
+      outcome = err instanceof ResponsesError ? err.code : 'error';
+      throw err;
+    } finally {
+      console.warn(timer.line(outcome));
+    }
   }
+}
+
+const MARKS = ['first_event', 'first_delta', 'completed', 'parsed'] as const;
+type Mark = (typeof MARKS)[number];
+
+// Milliseconds from the request start, response bytes and the model: never card or conversation text.
+function requestTimer(model: string) {
+  const start = performance.now();
+  const at: Partial<Record<Mark, number>> = {};
+  let bytes = 0;
+  const mark = (name: Mark) => {
+    at[name] ??= Math.round(performance.now() - start);
+  };
+  return {
+    mark,
+    fetch:
+      (inner: FetchLike): FetchLike =>
+      async (url, init) => {
+        const res = await inner(url, init);
+        if (!res.body) return res;
+        const counted = res.body.pipeThrough(
+          new TransformStream<Uint8Array, Uint8Array>({
+            transform(chunk, out) {
+              bytes += chunk.byteLength;
+              out.enqueue(chunk);
+            },
+          }),
+        );
+        return new Response(counted, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers,
+        });
+      },
+    async *events(source: AsyncIterable<ResponsesEvent>) {
+      for await (const ev of source) {
+        mark('first_event');
+        yield ev;
+      }
+    },
+    line(outcome: string) {
+      const marks = MARKS.map(
+        (m) => `${m}=${at[m] === undefined ? '-' : `${at[m]}ms`}`,
+      ).join(' ');
+      return `[cards] ${outcome} model=${model} ${marks} bytes=${bytes}`;
+    },
+  };
 }

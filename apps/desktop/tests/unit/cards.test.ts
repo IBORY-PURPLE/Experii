@@ -10,6 +10,7 @@ import {
   describe,
   expect,
   it,
+  vi,
 } from 'vitest';
 import { CardService } from '../../src/main/cards';
 import { Store } from '../../src/main/db';
@@ -52,6 +53,7 @@ beforeEach(() => {
   mock.pace.holdMs = 0;
 });
 afterEach(() => {
+  vi.restoreAllMocks();
   store.close();
   rmSync(dir, { recursive: true, force: true });
 });
@@ -255,6 +257,54 @@ describe('CardService', () => {
       code: 'timeout',
     });
     expect(store.cardIdForConversation(id)).toBeNull();
+  });
+
+  it('logs the timings, bytes and model of each request but no card or conversation text', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const logged = () =>
+      warn.mock.calls
+        .map((args) => args.join(' '))
+        .filter((line) => line.startsWith('[cards]'));
+    const id = conversation([['LEFT JOIN이 헷갈려요', 'NULL로 채워져요']]);
+    await service().generate(id);
+
+    expect(logged()).toEqual([
+      expect.stringMatching(
+        /^\[cards\] ok model=gpt-mock first_event=\d+ms first_delta=\d+ms completed=\d+ms parsed=\d+ms bytes=\d+$/,
+      ),
+    ]);
+    expect(Number(logged()[0].match(/bytes=(\d+)/)![1])).toBeGreaterThan(
+      JSON.stringify(MOCK_CARD).length,
+    );
+    const { card } = MOCK_CARD;
+    for (const content of [
+      card.title,
+      card.summary,
+      card.interview_line,
+      'LEFT JOIN',
+      'NULL로',
+      'SQLD',
+      'sk-mock',
+    ])
+      expect(logged()[0]).not.toContain(content);
+
+    warn.mockClear();
+    const overflowing = scripted((n) =>
+      n === 1 ? overflow() : answer('{"has_learning":'),
+    );
+    await service(overflowing.fetchImpl).generate(
+      conversation([
+        ['1번', 'a'],
+        ['2번', 'b'],
+      ]),
+    );
+    expect(logged().map((line) => line.split(' ').slice(0, 2))).toEqual([
+      ['[cards]', 'context_too_long'],
+      ['[cards]', 'invalid'],
+      ['[cards]', 'invalid'],
+    ]);
+    expect(logged()[0]).toContain('first_event=- first_delta=-');
+    expect(logged()[1]).toMatch(/completed=\d+ms parsed=- /);
   });
 
   it('refuses a conversation that is streaming, generating, or unknown', async () => {
