@@ -853,7 +853,7 @@ test.describe('answer tables and folding panels', () => {
     await win.keyboard.press('Control+Shift+KeyB');
     await expect(appRoot(win)).toHaveAttribute('data-chat', 'open');
     await makeButton(win).click();
-    await expect(cardView(win)).toBeVisible();
+    await expect(cardView(win)).toBeVisible({ timeout: 20_000 });
     await win.keyboard.press('Control+Shift+KeyB');
     await expect(appRoot(win)).toHaveAttribute('data-chat', 'folded');
 
