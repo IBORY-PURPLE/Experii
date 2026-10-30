@@ -14,6 +14,7 @@ import { CardView } from './CardView';
 import { ChatPanel, type Banner } from './ChatPanel';
 import { NewSubjectDialog, RegenerateDialog } from './Dialog';
 import { Gate } from './Gate';
+import { Pane, useLayout } from './Panes';
 import { LockedBubble, Roadmap } from './Roadmap';
 import { Sidebar } from './Sidebar';
 
@@ -70,6 +71,9 @@ export function App() {
   convRef.current = conv;
   const subjectRef = useRef<string | null>(null);
   subjectRef.current = subjectId;
+  const { layout, setOpen } = useLayout(
+    auth?.state === 'signed_in' && !gate.planRequired,
+  );
 
   const loadRoadmap = useCallback(async (id: string) => {
     const [map, list] = await Promise.all([
@@ -201,7 +205,10 @@ export function App() {
     [conv, input],
   );
 
-  const focusInput = () => inputRef.current?.focus();
+  const focusInput = () => {
+    setOpen('chat', true);
+    inputRef.current?.focus();
+  };
 
   // The sign-in screen shows the waiting state and its cancel button; the banner alone could not.
   const relogin = () => {
@@ -539,19 +546,30 @@ export function App() {
   ) : null;
 
   return (
-    <div className="app">
-      <Sidebar
-        subjects={subjects}
-        subjectId={subjectId}
-        experiences={[...done].reverse()}
-        making={makingHere}
-        openCardId={card?.id ?? null}
-        account="ChatGPT Plus"
-        onSelect={(id) => void selectSubject(id)}
-        onNewSubject={() => setDialog({ kind: 'subject' })}
-        onOpenCard={(n) => void openDone(n, false)}
-        onSignOut={() => void signOut()}
-      />
+    <div
+      className="app"
+      data-sidebar={layout.sidebar ? 'open' : 'folded'}
+      data-chat={layout.chat ? 'open' : 'folded'}
+    >
+      <Pane
+        panel="sidebar"
+        open={layout.sidebar}
+        onOpen={() => setOpen('sidebar', true)}
+      >
+        <Sidebar
+          subjects={subjects}
+          subjectId={subjectId}
+          experiences={[...done].reverse()}
+          making={makingHere}
+          openCardId={card?.id ?? null}
+          account="ChatGPT Plus"
+          onSelect={(id) => void selectSubject(id)}
+          onNewSubject={() => setDialog({ kind: 'subject' })}
+          onOpenCard={(n) => void openDone(n, false)}
+          onSignOut={() => void signOut()}
+          onFold={() => setOpen('sidebar', false)}
+        />
+      </Pane>
       <main className="middle">
         {roadmap && subject ? (
           <Roadmap
@@ -598,22 +616,31 @@ export function App() {
           </div>
         )}
       </main>
-      <ChatPanel
-        subjectTitle={subject?.title ?? null}
-        conversation={conv}
-        streamingText={
-          stream && stream.conversationId === conv?.id ? stream.text : null
-        }
-        banner={banner}
-        input={input}
-        inputRef={inputRef}
-        headAction={headAction}
-        onInput={setInput}
-        onSend={() => void send()}
-        onStop={stopStream}
-        onNewConversation={() => subjectId && void newConversation(subjectId)}
-        onOpenUsage={() => void api.openUsage()}
-      />
+      <Pane
+        panel="chat"
+        open={layout.chat}
+        onOpen={() => setOpen('chat', true)}
+      >
+        <ChatPanel
+          subjectTitle={subject?.title ?? null}
+          conversation={conv}
+          streamingText={
+            stream && stream.conversationId === conv?.id ? stream.text : null
+          }
+          banner={banner}
+          input={input}
+          inputRef={inputRef}
+          headAction={headAction}
+          onInput={setInput}
+          onSend={() => void send()}
+          onStop={stopStream}
+          onNewConversation={() =>
+            subjectId && void newConversation(subjectId)
+          }
+          onOpenUsage={() => void api.openUsage()}
+          onFold={() => setOpen('chat', false)}
+        />
+      </Pane>
       {dialog?.kind === 'subject' && (
         <NewSubjectDialog
           onCreate={createSubject}

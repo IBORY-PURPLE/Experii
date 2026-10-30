@@ -27,6 +27,32 @@ export const ArrowUp = () => (
   </svg>
 );
 
+export const PanelLeft = () => (
+  <svg {...base} strokeWidth={1.8}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="3" />
+    <path d="M9.5 4.5v15" />
+  </svg>
+);
+
+export const PanelRight = () => (
+  <svg {...base} strokeWidth={1.8}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="3" />
+    <path d="M14.5 4.5v15" />
+  </svg>
+);
+
+export const ChevronRight = () => (
+  <svg {...base} strokeWidth={2.4}>
+    <path d="M9.5 6l6 6-6 6" />
+  </svg>
+);
+
+export const ChevronLeft = () => (
+  <svg {...base} strokeWidth={2.4}>
+    <path d="M14.5 6l-6 6 6 6" />
+  </svg>
+);
+
 export const Stop = () => (
   <svg viewBox="0 0 24 24" aria-hidden>
     <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
