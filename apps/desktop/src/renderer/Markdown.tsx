@@ -1,6 +1,10 @@
 import ReactMarkdown, { type Components, type Options } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+type HastNode = { type: string; value?: string; children?: HastNode[] };
+const textOf = (node: HastNode): string =>
+  node.value ?? node.children?.map(textOf).join('') ?? '';
+
 // O9: raw HTML stays text, links and images never become live elements.
 const components: Components = {
   a: ({ children }) => <span className="link-text">{children}</span>,
@@ -11,11 +15,17 @@ const components: Components = {
       <table>{children}</table>
     </div>
   ),
+  // Values such as 2024-01-08 stay on one line; only cells with spaces wrap.
   td: ({ node, style, children }) => {
     const only = node?.children.length === 1 ? node.children[0] : undefined;
-    const isNull = only?.type === 'text' && only.value === 'NULL';
+    const className =
+      only?.type === 'text' && only.value === 'NULL'
+        ? 'null'
+        : node && /\s/.test(textOf(node).trim())
+          ? 'wrap'
+          : undefined;
     return (
-      <td style={style} className={isNull ? 'null' : undefined}>
+      <td style={style} className={className}>
         {children}
       </td>
     );

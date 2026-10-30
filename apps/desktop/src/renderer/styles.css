@@ -985,10 +985,10 @@ button:not(:disabled):active {
 .md pre {
   margin: 0;
   padding: 10px 12px;
-  line-height: 1.6;
+  overflow-x: auto;
+  line-height: 1.5;
   tab-size: 2;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  scrollbar-width: thin;
 }
 
 .md pre code {
@@ -1045,6 +1045,13 @@ button:not(:disabled):active {
 .md td {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.md td.wrap {
+  min-width: 10em;
+  font-family: var(--font-sans);
+  white-space: normal;
 }
 
 .md tbody tr:nth-child(even) td {

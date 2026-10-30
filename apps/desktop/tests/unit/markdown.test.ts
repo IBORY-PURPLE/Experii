@@ -71,6 +71,19 @@ describe('Markdown GFM tables and code', () => {
     expect(out).toContain('<td><code>NULL</code></td>');
   });
 
+  it('lets only cells with spaces wrap', () => {
+    const out = html(
+      [
+        '| 구분 | 설명 | 입사일 |',
+        '| --- | --- | --- |',
+        '| LEFT | 왼쪽 행을 **모두** 남겨요 | 2024-01-08 |',
+      ].join('\n'),
+    );
+    expect(out).toContain(
+      '<td>LEFT</td><td class="wrap">왼쪽 행을 <strong>모두</strong> 남겨요</td><td>2024-01-08</td>',
+    );
+  });
+
   it('keeps Korean bold working inside a cell', () => {
     const out = html(table);
     expect(out).toContain('<td><strong>“이두리”</strong>는</td>');
@@ -90,7 +103,9 @@ describe('Markdown GFM tables and code', () => {
     );
     expect(out).toContain('&lt;b&gt;굵게&lt;/b&gt;');
     expect(out).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
-    expect(out).toContain('<td>&lt;img src=x onerror=alert(1)&gt;</td>');
+    expect(out).toContain(
+      '<td class="wrap">&lt;img src=x onerror=alert(1)&gt;</td>',
+    );
     expect(out).not.toMatch(/<(b|script|img)[\s>]/);
   });
 
