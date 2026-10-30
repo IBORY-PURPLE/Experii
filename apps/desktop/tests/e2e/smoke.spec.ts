@@ -121,6 +121,56 @@ test('the renderer is isolated and only sees the allowed bridge', async () => {
   const { app, win } = await launch(tempDir());
   await expect(win).toHaveTitle('Experii');
   expect(
+    await app.evaluate(({ BrowserWindow, Menu, nativeTheme }) => [
+      Menu.getApplicationMenu(),
+      nativeTheme.themeSource,
+      BrowserWindow.getAllWindows()[0].getBackgroundColor().toLowerCase(),
+    ]),
+    'no menu, the light theme and the --bg-main ground',
+  ).toEqual([null, 'light', '#f8f9f9']);
+
+  // Without a menu the zoom keys come from main.ts. The keys go in as native input, the way main.ts sees them
+  // (Playwright's keyboard skips that handler). The default window has room for two steps (120%).
+  const ctrl = (keyCode: string) =>
+    app.evaluate(({ BrowserWindow }, key) => {
+      const page = BrowserWindow.getAllWindows()[0].webContents;
+      page.sendInputEvent({
+        type: 'keyDown',
+        keyCode: key,
+        modifiers: ['control'],
+      });
+      page.sendInputEvent({
+        type: 'keyUp',
+        keyCode: key,
+        modifiers: ['control'],
+      });
+    }, keyCode);
+  const zoom = () =>
+    app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()[0].webContents.getZoomLevel(),
+    );
+  await ctrl('=');
+  await expect.poll(zoom).toBe(0.5);
+  await ctrl('=');
+  await ctrl('Plus');
+  await expect
+    .poll(zoom, { message: 'zoom stops before the columns shrink' })
+    .toBe(1);
+  await ctrl('-');
+  await expect.poll(zoom).toBe(0.5);
+  await ctrl('0');
+  await expect.poll(zoom).toBe(0);
+  await ctrl('=');
+  await ctrl('=');
+  await expect.poll(zoom).toBe(1);
+  await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()[0].setContentSize(1184, 681),
+  );
+  await expect
+    .poll(zoom, { message: 'the smallest window has no room to zoom in' })
+    .toBe(0);
+
+  expect(
     await win.evaluate(
       () => typeof (globalThis as { require?: unknown }).require,
     ),
