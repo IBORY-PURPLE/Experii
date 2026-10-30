@@ -99,7 +99,8 @@ export function issuedClientId(
 
 const PAGE = (title: string, body: string) =>
   `<!doctype html><html lang="ko"><meta charset="utf-8"><title>Experii</title>` +
-  `<body style="font-family:system-ui;padding:48px;color:#1a2233"><h1 style="font-size:22px">${title}</h1><p>${body}</p></body></html>`;
+  `<body style="margin:0;padding:48px;background:#f8f9f9;color:#1a2233;font:14px/1.5 'Pretendard Variable',Pretendard,'Segoe UI','Malgun Gothic',system-ui,sans-serif;word-break:keep-all">` +
+  `<h1 style="margin:0 0 8px;font-size:20px;font-weight:600">${title}</h1><p style="margin:0;color:#444b59">${body}</p></body></html>`;
 
 // Fixed pages only: nothing from the query string is echoed back to the browser.
 const DONE_PAGE = PAGE('로그인했어요', '이 창을 닫고 Experii로 돌아가 주세요.');

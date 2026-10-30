@@ -112,6 +112,8 @@ export function NewSubjectDialog(p: {
   const [title, setTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const inputId = useId();
+  const errorId = useId();
   const submit = async () => {
     if (!title.trim() || busy) return;
     setBusy(true);
@@ -138,20 +140,27 @@ export function NewSubjectDialog(p: {
         </>
       }
     >
-      <input
-        className="input"
-        data-autofocus
-        aria-label="과목 이름"
-        placeholder="예: SQLD, 운영체제"
-        maxLength={40}
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.nativeEvent.isComposing) void submit();
-        }}
-      />
+      <div className="dialog-field">
+        <label className="dialog-label" htmlFor={inputId}>
+          과목 이름
+        </label>
+        <input
+          id={inputId}
+          className="input"
+          data-autofocus
+          placeholder="예: SQLD, 운영체제"
+          maxLength={40}
+          value={title}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.nativeEvent.isComposing) void submit();
+          }}
+        />
+      </div>
       {error && (
-        <p className="err-text" role="alert">
+        <p id={errorId} className="err-text" role="alert">
           {error}
         </p>
       )}
@@ -163,7 +172,8 @@ export function RegenerateDialog(p: { onConfirm(): void; onClose(): void }) {
   return (
     <Dialog
       title="카드를 다시 만들까요?"
-      description="지금 카드를 새로 만든 카드로 덮어써요. 매긴 평가는 지워지고, 이 대화가 과목의 최신 대화면 잠긴 추천 칸도 새로 바뀌어요."
+      // The no-break space keeps 이 with 대화가 so the first line never ends on it.
+      description="지금 카드를 새로 만든 카드로 덮어써요. 매긴 평가는 지워지고, 이&nbsp;대화가 과목의 최신 대화면 잠긴 추천 칸도 새로 바뀌어요."
       onClose={p.onClose}
       actions={
         <>
