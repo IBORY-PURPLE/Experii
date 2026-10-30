@@ -31,19 +31,22 @@ export function Sidebar(p: Props) {
       <div className="side-scroll">
         <div className="side-head">
           과목
-          <button
-            className="icon-btn"
-            onClick={p.onNewSubject}
-            aria-label="과목 만들기"
-          >
-            <Plus />
-          </button>
+          {p.subjects.length > 0 && (
+            <button
+              className="icon-btn"
+              onClick={p.onNewSubject}
+              aria-label="과목 만들기"
+            >
+              <Plus />
+            </button>
+          )}
         </div>
         {p.subjects.length === 0 ? (
           <div className="side-empty">
             <p>아직 과목이 없어요</p>
             <button className="btn small" onClick={p.onNewSubject}>
-              + 과목 만들기
+              <Plus />
+              과목 만들기
             </button>
           </div>
         ) : (
@@ -55,7 +58,9 @@ export function Sidebar(p: Props) {
                 aria-current={s.id === p.subjectId}
                 onClick={() => p.onSelect(s.id)}
               >
-                <span className="name">{s.title}</span>
+                <span className="name" title={s.title}>
+                  {s.title}
+                </span>
                 <span className="count" aria-label={`경험 ${s.cardCount}개`}>
                   {s.cardCount}
                 </span>
@@ -86,7 +91,9 @@ export function Sidebar(p: Props) {
                     aria-current={n.cardId === p.openCardId}
                     onClick={() => p.onOpenCard(n)}
                   >
-                    <span className="t">{n.title}</span>
+                    <span className="t" title={n.title}>
+                      {n.title}
+                    </span>
                     {n.conversationId === p.making?.conversationId ? (
                       <span className="m">
                         <i className="spin" aria-hidden />

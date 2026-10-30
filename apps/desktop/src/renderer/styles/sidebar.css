@@ -89,6 +89,14 @@
   box-shadow: var(--ring), var(--sh-1);
 }
 
+/* Windows high contrast drops the lift's face and shadow, so the chosen row keeps a real edge there. */
+@media (forced-colors: active) {
+  .subject[aria-current='true'],
+  .exp[aria-current='true'] {
+    border: 1px solid;
+  }
+}
+
 .subject .name,
 .exp .t {
   min-width: 0;

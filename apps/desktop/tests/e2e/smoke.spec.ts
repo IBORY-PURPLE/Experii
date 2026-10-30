@@ -207,6 +207,10 @@ test('a first run shows the empty state', async () => {
   const { win } = run;
   await expect(win.getByText('아직 과목이 없어요')).toBeVisible();
   await expect(
+    win.getByRole('button', { name: '과목 만들기', exact: true }),
+    'the sidebar offers one create button until a subject exists',
+  ).toHaveCount(1);
+  await expect(
     win.getByRole('heading', { name: '과목을 만들면 여기에 길이 생겨요' }),
   ).toBeVisible();
   const input = win.getByLabel('메시지');
