@@ -5,10 +5,11 @@ export type Point = { x: number; y: number };
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 2;
 export const NOTE_W = 264;
-// At 100% the first column starts right of the pinned card, which is 328px wide from 16px in.
+// At 100% the first column starts right of the pinned card (328px wide from 16px in), and every column starts below
+// the row of the next study button.
 export const COLUMN_LEFT = 376;
+export const COLUMN_TOP = 64;
 const COLUMN_W = NOTE_W + 24;
-const COLUMN_TOP = 24;
 
 export const toWorld = (v: View, screen: Point): Point => ({
   x: (screen.x - v.x) / v.z,

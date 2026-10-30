@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   COLUMN_LEFT,
+  COLUMN_TOP,
   columnSpot,
   toWorld,
   zoomAt,
@@ -153,10 +154,13 @@ describe('canvas geometry', () => {
   });
 
   it('lines notes up by question, each under the last one in its column', () => {
-    expect(columnSpot(1, [])).toEqual({ x: COLUMN_LEFT, y: 24 });
-    expect(columnSpot(3, [])).toEqual({ x: COLUMN_LEFT + 2 * 288, y: 24 });
+    expect(columnSpot(1, [])).toEqual({ x: COLUMN_LEFT, y: COLUMN_TOP });
+    expect(columnSpot(3, [])).toEqual({
+      x: COLUMN_LEFT + 2 * 288,
+      y: COLUMN_TOP,
+    });
     const notes = [
-      { x: COLUMN_LEFT, y: 24, h: 100 },
+      { x: COLUMN_LEFT, y: COLUMN_TOP, h: 100 },
       { x: COLUMN_LEFT + 30, y: 300, h: 80.4 },
       { x: COLUMN_LEFT + 288, y: 500, h: 100 },
       { x: 0, y: 900, h: 100 },

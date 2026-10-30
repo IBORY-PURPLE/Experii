@@ -489,7 +489,7 @@ button:not(:disabled):active {
   container-type: inline-size;
 }
 
-.road {
+.roadmap-view {
   position: absolute;
   inset: 0;
   overflow-y: auto;
@@ -1853,7 +1853,7 @@ button.sticky-src:hover {
   padding-right: 16px;
 }
 
-.road ~ .toast {
+.roadmap-view ~ .toast {
   bottom: 24px;
 }
 

@@ -48,6 +48,8 @@ type Props = {
   fullCard: ReactNode;
   fresh: boolean;
   flash: string | null;
+  // a note to bring into view once, by key
+  reveal: { id: string; key: number } | null;
   pick: (Pick & { key: number }) | null;
   locked: LockedNode[];
   // what the next study panel says when there is nothing to start
@@ -273,6 +275,7 @@ export function NotePage(p: Props) {
   const gesture = useRef<Gesture | null>(null);
   const over = useRef(false);
   const placed = useRef<number | null>(null);
+  const revealed = useRef<number | null>(null);
   const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latest = useRef(p);
   latest.current = p;
@@ -311,18 +314,20 @@ export function NotePage(p: Props) {
     );
   });
 
-  // A note that just landed, or the one the same words already made, is brought into view.
+  // A note that just landed, or the one the same words already made, is brought into view and out from under the
+  // pinned card; notes further away may slide out of view instead.
   useEffect(() => {
-    const note = p.flash ? byId(p.flash) : undefined;
+    const note = p.reveal ? byId(p.reveal.id) : undefined;
     const el = note && drawn(note.id);
     const c = canvas.current;
-    if (!note || !el || !c) return;
+    if (!note || !el || !c || revealed.current === p.reveal!.key) return;
+    revealed.current = p.reveal!.key;
     const v = viewRef.current;
     const l = note.x * v.z + v.x;
     const t = note.y * v.z + v.y;
     const w = el.offsetWidth * v.z;
     const h = el.offsetHeight * v.z;
-    const dx =
+    let dx =
       l < 16
         ? 16 - l
         : l + w > c.clientWidth - 16
@@ -334,8 +339,18 @@ export function NotePage(p: Props) {
         : t + h > c.clientHeight - 76
           ? c.clientHeight - 76 - t - h
           : 0;
+    const pin = board.current?.querySelector('.pin')?.getBoundingClientRect();
+    if (pin) {
+      const at = c.getBoundingClientRect();
+      const right = pin.right - at.left + 16;
+      const under =
+        l + dx < right &&
+        t + dy < pin.bottom - at.top &&
+        t + dy + h > pin.top - at.top;
+      if (under) dx = right - l;
+    }
     if (dx || dy) keepView({ ...v, x: v.x + dx, y: v.y + dy });
-  }, [p.flash, p.notes]);
+  }, [p.reveal, p.notes]);
 
   useEffect(() => {
     const c = canvas.current;

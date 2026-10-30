@@ -1629,7 +1629,10 @@ test.describe('note pages', () => {
     await expect(dropped).toHaveCount(1);
     await expect(toast(win)).toHaveText('Q1 답에서 필기를 남겼어요');
     expect(savedNotes().at(-1)).toMatchObject({ text: words, question_no: 1 });
-    // At 100% the note hangs from the pointer: half a note to the left, 24px up.
+    // At 100% the note hangs from the pointer: half a note to the left, 24px up. Measured once it has landed.
+    await dropped.evaluate((el) =>
+      Promise.all(el.getAnimations().map((a) => a.finished)),
+    );
     const landed = await box(dropped);
     expect(Math.abs(landed.x - (to.x - 132))).toBeLessThanOrEqual(1);
     expect(Math.abs(landed.y - (to.y - 24))).toBeLessThanOrEqual(1);
@@ -1642,8 +1645,8 @@ test.describe('note pages', () => {
       columns.map((n) => [n.question_no, n.x, n.y]),
       'notes kept with the button stand in their question column',
     ).toEqual([
-      [2, 664, 24],
-      [1, 376, 24],
+      [2, 664, 64],
+      [1, 376, 64],
     ]);
     await expect.poll(() => marked(win)).toBe(3);
   });
@@ -1863,7 +1866,7 @@ test.describe('note pages', () => {
     const { win } = running();
     await roadmapTab(win).click();
     await expect(win.locator('.msg-user')).toHaveCount(2);
-    const road = await box(win.locator('.road'));
+    const road = await box(win.locator('.roadmap-view'));
     const to = {
       x: Math.round(road.x + road.width / 2),
       y: Math.round(road.y + road.height / 2),

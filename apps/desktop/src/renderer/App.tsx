@@ -136,6 +136,9 @@ export function App() {
   const [toast, setToast] = useState<Toast | null>(null);
   const [freshPin, setFreshPin] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
+  const [reveal, setReveal] = useState<{ id: string; key: number } | null>(
+    null,
+  );
   const [roadDrop, setRoadDrop] = useState<Point | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const streamRef = useRef<Stream | null>(null);
@@ -231,6 +234,7 @@ export function App() {
       if (!samePlace(place, before)) {
         setCard(null);
         setOpenLockedId(null);
+        setReveal(null);
       }
       if (place.kind !== 'page') return;
       if (convRef.current?.id !== place.id) void openConversation(place.id);
@@ -618,6 +622,12 @@ export function App() {
     setTimeout(() => setFlash((f) => (f === id ? null : f)), 1700);
   };
 
+  // A note the user just made, or the one the same words already made, is brought into view.
+  const showNote = (id: string) => {
+    flashNote(id);
+    setReveal({ id, key: ++pickSeq.current });
+  };
+
   const placeNote = async (pick: Pick, at: Point) => {
     setPendingPick(null);
     const r = await api.createNote({
@@ -633,7 +643,7 @@ export function App() {
       return;
     }
     const { note, duplicate } = r.data;
-    flashNote(note.id);
+    showNote(note.id);
     if (duplicate) {
       showToast('이미 필기한 부분이에요');
       return;
@@ -1058,6 +1068,7 @@ export function App() {
                   fullCard={fullCard}
                   fresh={freshPin === page.conversationId}
                   flash={flash}
+                  reveal={reveal}
                   pick={pendingPick}
                   locked={locked}
                   nothingNext={
@@ -1092,7 +1103,7 @@ export function App() {
                 />
               ) : (
                 <div
-                  className="road"
+                  className="roadmap-view"
                   ref={roadEl}
                   onScroll={(e) =>
                     (roadScroll.current = e.currentTarget.scrollTop)
