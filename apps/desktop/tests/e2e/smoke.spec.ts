@@ -71,6 +71,15 @@ function savedItems(dir: string) {
   }
 }
 
+function isRunning(pid: number) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const cardView = (win: Page) => win.locator('article.card-view');
 const lockedTiles = (win: Page) => win.locator('.tile.locked');
 const doneTile = (win: Page) =>
@@ -378,10 +387,16 @@ test('a stream killed mid-way leaves no partial output after a restart', async (
   await input.press('Enter');
   await expect(win.locator('.msg-ai[aria-live]')).toContainText('확인했어요');
 
-  const proc = app.process();
-  const exited = new Promise((resolve) => proc.once('exit', resolve));
-  proc.kill('SIGKILL');
-  await exited;
+  // On Windows Playwright starts Electron through cmd.exe, so app.process() is the shell, not Electron's main process.
+  const processes = await app.evaluate(({ app: electronApp }) =>
+    electronApp.getAppMetrics().map((m) => ({ pid: m.pid, type: m.type })),
+  );
+  process.kill(processes.find((p) => p.type === 'Browser')!.pid, 'SIGKILL');
+  await expect
+    .poll(() => processes.filter((p) => isRunning(p.pid)).length, {
+      message: 'every app process ends before the relaunch',
+    })
+    .toBe(0);
   run = null;
   expect(savedItems(userData), 'nothing from the killed turn').toEqual(before);
 
