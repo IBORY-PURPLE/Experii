@@ -1206,11 +1206,9 @@ test.describe('model picker, tool line and card progress on screen', () => {
     await expect(select).toHaveValue(MOCK_MODEL_ALT);
     expect(mock.requests.map((b) => b.model)).toEqual([MOCK_MODEL_ALT]);
     await shot(win, 'night-view2-model-picker');
-    await win
-      .locator('.chat .composer')
-      .screenshot({
-        path: path.join(shots, 'night-view2-model-picker-row.png'),
-      });
+    await win.locator('.chat .composer').screenshot({
+      path: path.join(shots, 'night-view2-model-picker-row.png'),
+    });
 
     await win.getByRole('button', { name: '새 대화' }).click();
     await expect(win.locator('.msg-user')).toHaveCount(0);
