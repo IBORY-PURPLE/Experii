@@ -5,12 +5,15 @@ import {
   type ElectronApplication,
   type Page,
 } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { API_KEYS } from '../../src/shared/api';
+import { PROMPT_VERSION } from '../../src/shared/card';
 import {
+  MOCK_CARD,
   MOCK_TOKEN,
   TRIGGERS,
   startMockOpenAI,
@@ -67,6 +70,13 @@ function savedItems(dir: string) {
     db.close();
   }
 }
+
+const cardView = (win: Page) => win.locator('article.card-view');
+const lockedTiles = (win: Page) => win.locator('.tile.locked');
+const doneTile = (win: Page) =>
+  win.locator('.node:has(.knob:not(.current):not(.locked)) .tile');
+const makeButton = (win: Page) =>
+  win.getByRole('button', { name: '경험으로 남기기', exact: true });
 
 async function sendAndWait(win: Page, text: string) {
   const input = win.getByLabel('메시지');
@@ -205,16 +215,105 @@ test('creates a subject and streams two turns onto the screen', async () => {
   await shot(win, 'm2-main');
 });
 
-test('restores the conversation after a restart and resends the whole history', async () => {
+test('turns the conversation into a redacted card and grows the path', async () => {
+  const { win } = current();
+  mock.pace.holdMs = 5_000;
+  await makeButton(win).click();
+  await expect(
+    win.getByRole('button', { name: '카드 만드는 중…' }),
+  ).toBeDisabled();
+  await expect(win.getByRole('status')).toContainText('경험 카드를 만드는 중…');
+  await expect(win.locator('.chip.making')).toContainText('카드 만드는 중');
+  await shot(win, 'm3-card-making');
+  await win.getByRole('button', { name: '취소' }).click();
+  await expect(makeButton(win)).toBeEnabled();
+  await expect(win.locator('.tile', { hasText: '진행 중' })).toBeVisible();
+  await expect(cardView(win)).toHaveCount(0);
+
+  mock.pace.holdMs = 0;
+  const before = savedItems(userData);
+  await makeButton(win).click();
+  const view = cardView(win);
+  await expect(view).toBeVisible();
+
+  const body = mock.requests.at(-1)!;
+  expect(body.store).toBe(false);
+  expect(body.text).toMatchObject({
+    format: { type: 'json_schema', name: 'experience_card', strict: true },
+  });
+  const input = body.input as Item[];
+  expect(input.map((i) => [i.type, i.role])).toEqual([
+    ['message', 'user'],
+    ['message', 'assistant'],
+    ['message', 'user'],
+    ['message', 'assistant'],
+    ['message', 'developer'],
+  ]);
+  expect(itemText(input[4])).toContain(PROMPT_VERSION);
+  expect(savedItems(userData), 'the card exchange is not saved').toEqual(
+    before,
+  );
+
+  const { card } = MOCK_CARD;
+  await expect(view.locator('.cv-band')).toContainText(
+    '경험 카드 · SQLD · 오늘',
+  );
+  await expect(view.getByRole('heading', { name: card.title })).toBeVisible();
+  await expect(view.locator('.line-box')).toContainText(card.interview_line);
+  await expect(view.getByRole('note')).toHaveText(
+    '비밀로 보이는 문자열을 가렸어요: API 키 1개',
+  );
+  const star = view.locator('.star');
+  await expect(star).toContainText(card.star.situation);
+  await expect(star).toContainText('***REDACTED***');
+  await expect(star).not.toContainText('sk-mock');
+  await expect(star.locator('dd.missing')).toHaveText(
+    '(대화에서 결과를 확인하지 못함)',
+  );
+  await expect(view.locator('.concepts li')).toHaveText(card.concepts);
+  await expect(view).toContainText(card.next_steps);
+  await expect(view).toContainText(`지시문 ${PROMPT_VERSION}`);
+
+  await expect(doneTile(win)).toHaveCount(0);
+  await expect(lockedTiles(win)).toHaveText(
+    card.recommended_next.map((r) => new RegExp(r.title)),
+  );
+  await expect(win.locator('.exp', { hasText: card.title })).toContainText(
+    '오늘 · 평가 전',
+  );
+  await shot(win, 'm3-card-created');
+
+  await view.getByRole('button', { name: '면접에 쓸 만해요' }).click();
+  await expect(
+    view.getByRole('button', { name: '면접에 쓸 만해요' }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(win.locator('.statbar')).toContainText('1/1');
+  await expect(win.locator('.exp', { hasText: card.title })).toContainText(
+    '오늘 · 쓸 만해요',
+  );
+  await view.locator('.rate').scrollIntoViewIfNeeded();
+  await shot(win, 'm3-card-rated');
+
+  await view.getByRole('button', { name: '접기' }).click();
+  await expect(doneTile(win)).toContainText('쓸 만해요');
+  await expect(lockedTiles(win)).toHaveCount(2);
+  await win.locator('.middle').evaluate((el) => el.scrollTo(0, 0));
+  await shot(win, 'm3-path-after-card');
+});
+
+test('restores the conversation from its node after a restart and resends the whole history', async () => {
   await current().app.close();
   run = await launch(userData);
   const { win } = run;
-  const tile = win.locator('.tile', { hasText: '진행 중' });
-  await expect(tile).toContainText('2턴 대화 중');
-  await win.getByRole('button', { name: '새 대화' }).click();
+  await expect(doneTile(win)).toBeVisible();
   await expect(win.locator('.msg-user')).toHaveCount(0);
 
-  await tile.click();
+  await doneTile(win).click();
+  await expect(cardView(win)).toBeVisible();
+  await expect(
+    cardView(win).getByRole('button', { name: '면접에 쓸 만해요' }),
+    'the rating survives a restart',
+  ).toHaveAttribute('aria-pressed', 'true');
   await expect(win.locator('.msg-user')).toHaveCount(2);
   await expect(win.locator('.msg-ai')).toHaveCount(2);
 
@@ -238,6 +337,38 @@ test('restores the conversation after a restart and resends the whole history', 
   await expect(win.locator('.msg-ai')).toHaveCount(3);
 });
 
+test('a locked node opens a new conversation with a draft, then hides once started', async () => {
+  const { win } = current();
+  const next = MOCK_CARD.card.recommended_next[0];
+  await lockedTiles(win).filter({ hasText: next.title }).click();
+  const bubble = win.getByRole('group', { name: 'GPT가 추천한 다음 공부' });
+  await expect(bubble).toContainText(next.title);
+  await expect(bubble).toContainText(next.reason);
+  await shot(win, 'm3-locked-bubble');
+
+  await bubble.getByRole('button', { name: '이걸로 시작' }).click();
+  await expect(bubble).toBeHidden();
+  const input = win.getByLabel('메시지');
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue(new RegExp(`"${next.title}"`));
+  await expect(win.locator('.msg-user')).toHaveCount(0);
+  const draft = await input.inputValue();
+
+  await input.press('Enter');
+  await expect(win.locator('.msg-ai[aria-live]')).toBeHidden({
+    timeout: 15_000,
+  });
+  const sent = (mock.requests.at(-1)!.input as Item[]).filter(
+    (i) => i.role === 'user',
+  );
+  expect(sent.map(itemText)).toEqual([draft]);
+  await expect(lockedTiles(win)).toHaveCount(1);
+  await expect(lockedTiles(win)).not.toContainText(next.title);
+  await expect(win.locator('.tile', { hasText: '진행 중' })).toContainText(
+    '1턴 대화 중',
+  );
+});
+
 test('a stream killed mid-way leaves no partial output after a restart', async () => {
   const { app, win } = current();
   const before = savedItems(userData);
@@ -257,8 +388,8 @@ test('a stream killed mid-way leaves no partial output after a restart', async (
   run = await launch(userData);
   const { win: next } = run;
   await next.locator('.tile', { hasText: '진행 중' }).click();
-  await expect(next.locator('.msg-user')).toHaveCount(3);
-  await expect(next.locator('.msg-ai')).toHaveCount(3);
+  await expect(next.locator('.msg-user')).toHaveCount(1);
+  await expect(next.locator('.msg-ai')).toHaveCount(1);
   await expect(next.getByText(prompt)).toHaveCount(0);
 });
 
@@ -275,8 +406,61 @@ test('stopping a stream saves nothing and puts the text back', async () => {
   await expect(live).toBeHidden();
   await expect(input).toHaveValue(prompt);
   await expect(win.getByRole('alert')).toHaveCount(0);
-  await expect(win.locator('.msg-user')).toHaveCount(3);
+  await expect(win.locator('.msg-user')).toHaveCount(1);
   expect(savedItems(userData), 'nothing from the stopped turn').toEqual(before);
+  await input.fill('');
+});
+
+test('regenerating a card asks first, keeps its id and clears the rating', async () => {
+  const { win } = current();
+  await win.locator('.exp', { hasText: MOCK_CARD.card.title }).click();
+  const view = cardView(win);
+  await expect(view).toBeVisible();
+  await expect(win.locator('.msg-user')).toHaveCount(3);
+  const node = win.locator('.node:has(article.card-view)');
+  const id = await node.getAttribute('id');
+
+  await view.getByRole('button', { name: '카드 다시 만들기' }).click();
+  const dialog = win.getByRole('dialog', { name: '카드를 다시 만들까요?' });
+  await expect(dialog).toContainText('평가는 지워지고');
+  await shot(win, 'm3-regenerate-confirm');
+  await dialog.getByRole('button', { name: '취소' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(
+    view.getByRole('button', { name: '면접에 쓸 만해요' }),
+  ).toHaveAttribute('aria-pressed', 'true');
+
+  await view.getByRole('button', { name: '카드 다시 만들기' }).click();
+  await dialog.getByRole('button', { name: '다시 만들기' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(win.locator('.statbar')).toContainText('0/0');
+  expect(await node.getAttribute('id'), 'same card id').toBe(id);
+  await expect(
+    view.getByRole('button', { name: '면접에 쓸 만해요' }),
+  ).toHaveAttribute('aria-pressed', 'false');
+  await expect(
+    lockedTiles(win),
+    'not the latest conversation, so the recommendations stay',
+  ).toHaveCount(1);
+
+  await view.getByRole('button', { name: '아니에요' }).click();
+  await expect(win.locator('.statbar')).toContainText('0/1');
+});
+
+test('a conversation with nothing learned does not become a card', async () => {
+  const { win } = current();
+  await cardView(win).getByRole('button', { name: '접기' }).click();
+  await win.locator('.tile', { hasText: '진행 중' }).click();
+  await sendAndWait(win, `${TRIGGERS.noLearning} 그냥 인사만 할게요`);
+  await makeButton(win).click();
+  const banner = win.getByRole('alert');
+  await expect(banner).toContainText('카드로 남길 학습 내용이 없어요');
+  await shot(win, 'm3-no-learning');
+  await banner.getByRole('button', { name: '계속 대화하기' }).click();
+  await expect(banner).toBeHidden();
+  await expect(win.getByLabel('메시지')).toBeFocused();
+  await expect(win.locator('.tile', { hasText: '진행 중' })).toBeVisible();
+  await expect(doneTile(win)).toHaveCount(1);
 });
 
 test('error banners keep the sent message in the input', async () => {
@@ -292,22 +476,31 @@ test('error banners keep the sent message in the input', async () => {
     banner.getByRole('button', { name: '다시 보내기' }),
   ).toBeVisible();
   await expect(input).toHaveValue(broken);
-  await expect(win.locator('.msg-user')).toHaveCount(3);
+  await expect(win.locator('.msg-user')).toHaveCount(2);
   await shot(win, 'm2-banner-network');
 
   const long = `${TRIGGERS.tooLong} 지금까지 내용을 다시 정리해 줘`;
   await input.fill(long);
   await input.press('Enter');
   await expect(banner).toContainText('대화가 너무 길어요');
+  await expect(
+    banner.getByRole('button', { name: '경험으로 남기기' }),
+  ).toBeVisible();
   await expect(banner.getByRole('button', { name: '새 대화' })).toBeVisible();
   await expect(input).toHaveValue(long);
-  await shot(win, 'm2-banner-too-long');
+  await shot(win, 'm3-banner-too-long');
 });
 
 test('the main screen fits a 1280 wide window', async () => {
   const { app, win } = current();
   await win.getByLabel('메시지').fill('');
-  await win.locator('.tile', { hasText: '진행 중' }).click();
+  await doneTile(win).click();
+  await expect(cardView(win)).toBeVisible();
+  await win.getByRole('button', { name: '새 대화' }).click();
+  await expect(win.locator('.msg-user')).toHaveCount(0);
+  await cardView(win).getByRole('button', { name: '대화 다시 열기' }).click();
+  await expect(win.locator('.msg-user')).toHaveCount(3);
+  await expect(win.getByLabel('메시지')).toBeFocused();
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].setContentSize(1280, 800),
   );
@@ -318,7 +511,21 @@ test('the main screen fits a 1280 wide window', async () => {
     ),
     'no horizontal scroll',
   ).toBe(true);
-  await shot(win, 'm2-main-1280');
+  await win.locator('.middle').evaluate((el) => el.scrollTo(0, 0));
+  await shot(win, 'm3-main-1280');
+});
+
+test('h2 reads the ratings the app saved', async () => {
+  await current().app.close();
+  run = null;
+  const out = execFileSync(
+    process.execPath,
+    ['scripts/h2.mjs', `--db=${path.join(userData, 'experii.db')}`],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+  );
+  expect(out).toContain(
+    `${PROMPT_VERSION}: 카드 1장, 평가 1장, 쓸 만해요 0장, 0.0% (미달)`,
+  );
 });
 
 test('without a session the sign-in screen comes first', async () => {

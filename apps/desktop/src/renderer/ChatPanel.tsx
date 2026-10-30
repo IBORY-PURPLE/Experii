@@ -4,6 +4,7 @@ import {
   useState,
   type KeyboardEvent,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import type { ConversationView } from '../shared/ipc';
 import { ArrowUp, Stop } from './icons';
@@ -22,6 +23,7 @@ type Props = {
   streamingText: string | null;
   banner: Banner | null;
   input: string;
+  inputRef: RefObject<HTMLTextAreaElement | null>;
   headAction: ReactNode;
   onInput(text: string): void;
   onSend(): void;
@@ -116,6 +118,7 @@ export function ChatPanel(p: Props) {
       <div className="composer">
         <div className="inputbox">
           <textarea
+            ref={p.inputRef}
             aria-label="메시지"
             value={p.input}
             disabled={disabled}

@@ -19,7 +19,7 @@ export const TRIGGERS = {
   noLearning: '#학습없음',
 } as const;
 
-// Chat answers stream one 6-character delta every `delay` ms, then wait `holdMs` before completing.
+// Chat answers stream one 6-character delta every `delay` ms; chat and card answers wait `holdMs` before completing.
 export type Pace = { delay: number; holdMs: number };
 
 export type MockServer = {
@@ -226,7 +226,10 @@ export async function startMockOpenAI(
       const out = all.includes(TRIGGERS.noLearning)
         ? { has_learning: false, card: null }
         : MOCK_CARD;
-      await stream(res, JSON.stringify(out), { delay: 0 });
+      await stream(res, JSON.stringify(out), {
+        delay: 0,
+        holdMs: pace.holdMs,
+      });
       return;
     }
     if (userText.includes(TRIGGERS.tooLong)) {

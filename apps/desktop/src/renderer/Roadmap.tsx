@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import type {
   DoneNode,
   LockedNode,
@@ -10,6 +10,7 @@ import { Check, Lock } from './icons';
 type Props = {
   roadmap: RoadmapData;
   activeConversationId: string | null;
+  makingConversationId: string | null;
   openCardId: string | null;
   openLockedId: string | null;
   cardView: ReactNode;
@@ -19,9 +20,31 @@ type Props = {
   onOpenLocked(node: LockedNode): void;
 };
 
+export function LockedBubble(p: { node: LockedNode; onStart(): void }) {
+  return (
+    <div className="bubble" role="group" aria-label="GPT가 추천한 다음 공부">
+      <small>GPT가 추천한 다음 공부</small>
+      <b>{p.node.title}</b>
+      <p>{p.node.reason}</p>
+      <button className="btn small primary" onClick={p.onStart}>
+        이걸로 시작
+      </button>
+    </div>
+  );
+}
+
 export function Roadmap(p: Props) {
   const { stats, subject, nodes } = p.roadmap;
   const pct = stats.rated ? Math.round((stats.useful / stats.rated) * 100) : 0;
+  const focused = p.openCardId ?? p.openLockedId;
+
+  useEffect(() => {
+    if (focused)
+      document.getElementById(`node-${focused}`)?.scrollIntoView({
+        block: focused === p.openCardId ? 'start' : 'nearest',
+      });
+  }, [focused, p.openCardId]);
+
   return (
     <>
       <header className="statbar">
@@ -59,12 +82,14 @@ export function Roadmap(p: Props) {
           {nodes.map((n) => {
             if (n.kind === 'done') {
               const open = n.cardId === p.openCardId;
+              const making = n.conversationId === p.makingConversationId;
               return (
                 <li key={n.cardId} className="node" id={`node-${n.cardId}`}>
                   <button
                     className="knob"
                     onClick={() => p.onOpenCard(n)}
-                    aria-label={`${n.title} 카드 열기`}
+                    aria-label={`${n.title} 카드 ${open ? '접기' : '열기'}`}
+                    aria-expanded={open}
                   >
                     <Check />
                   </button>
@@ -78,11 +103,18 @@ export function Roadmap(p: Props) {
                     >
                       <div className="tile-head">
                         <h3>{n.title}</h3>
-                        <span
-                          className={`chip ${n.useful === true ? 'useful' : n.useful === null ? 'unrated' : ''}`}
-                        >
-                          {rateLabel(n.useful)}
-                        </span>
+                        {making ? (
+                          <span className="chip making">
+                            <i className="spin" aria-hidden />
+                            다시 만드는 중
+                          </span>
+                        ) : (
+                          <span
+                            className={`chip ${n.useful === true ? 'useful' : n.useful === null ? 'unrated' : ''}`}
+                          >
+                            {rateLabel(n.useful)}
+                          </span>
+                        )}
                       </div>
                       <p>{n.summary}</p>
                       <div className="line-box">
@@ -95,6 +127,7 @@ export function Roadmap(p: Props) {
               );
             }
             if (n.kind === 'current') {
+              const making = n.conversationId === p.makingConversationId;
               return (
                 <li key={n.conversationId} className="node">
                   <button
@@ -111,7 +144,14 @@ export function Roadmap(p: Props) {
                   >
                     <div className="tile-head">
                       <h3>{n.title}</h3>
-                      <span className="chip current">진행 중</span>
+                      {making ? (
+                        <span className="chip making">
+                          <i className="spin" aria-hidden />
+                          카드 만드는 중
+                        </span>
+                      ) : (
+                        <span className="chip current">진행 중</span>
+                      )}
                     </div>
                     <p>
                       {n.turns}턴 대화 중 · 마치면 “경험으로 남기기”를 눌러
@@ -121,19 +161,21 @@ export function Roadmap(p: Props) {
                 </li>
               );
             }
+            const open = n.id === p.openLockedId;
             return (
               <li key={n.id} className="node" id={`node-${n.id}`}>
                 <button
                   className="knob locked"
                   onClick={() => p.onOpenLocked(n)}
                   aria-label={`${n.title} 추천 보기`}
+                  aria-expanded={open}
                 >
                   <Lock />
                 </button>
                 <div>
                   <button
                     className="tile locked"
-                    aria-expanded={n.id === p.openLockedId}
+                    aria-expanded={open}
                     onClick={() => p.onOpenLocked(n)}
                   >
                     <div className="tile-head">
@@ -141,7 +183,7 @@ export function Roadmap(p: Props) {
                       <span className="chip">추천 · 잠김</span>
                     </div>
                   </button>
-                  {n.id === p.openLockedId && p.lockedBubble}
+                  {open && p.lockedBubble}
                 </div>
               </li>
             );

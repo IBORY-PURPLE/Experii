@@ -1,6 +1,7 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 import { EVENT_CHAT, type Channel } from '../shared/ipc';
 import { AuthError } from './auth';
+import type { CardService } from './cards';
 import type { ChatService } from './chat';
 import { DuplicateSubjectError, type Store } from './db';
 import { IpcError, guard, type Handler, type StreamRegistry } from './ipc';
@@ -12,13 +13,14 @@ export type Deps = {
   store: Store;
   session: Session;
   chat: ChatService;
+  cards: CardService;
   streams: StreamRegistry;
   isTrusted: (event: IpcMainInvokeEvent) => boolean;
   openExternal: (url: string) => Promise<void>;
 };
 
 export function registerHandlers(deps: Deps) {
-  const { store, session, chat, streams, isTrusted } = deps;
+  const { store, session, chat, cards, streams, isTrusted } = deps;
   const on = <C extends Channel>(channel: C, handler: Handler<C>) =>
     ipcMain.handle(channel, guard(channel, isTrusted, handler));
 
@@ -66,6 +68,22 @@ export function registerHandlers(deps: Deps) {
   });
   on('chat:cancel', ({ streamId }) => {
     streams.cancel(streamId);
+    return null;
+  });
+
+  on('cards:generate', ({ conversationId }) => cards.generate(conversationId));
+  on('cards:cancel', ({ conversationId }) => {
+    cards.cancel(conversationId);
+    return null;
+  });
+  on('cards:get', ({ id }) => {
+    const card = store.getCard(id);
+    if (!card) throw new IpcError('not_found');
+    return card;
+  });
+  on('cards:rate', ({ id, useful }) => {
+    if (!store.getCard(id)) throw new IpcError('not_found');
+    store.rateCard(id, useful);
     return null;
   });
 

@@ -82,3 +82,27 @@ export function NewSubjectDialog(p: {
     </Dialog>
   );
 }
+
+export function RegenerateDialog(p: { onConfirm(): void; onClose(): void }) {
+  return (
+    <Dialog
+      title="카드를 다시 만들까요?"
+      onClose={p.onClose}
+      actions={
+        <>
+          <button className="btn" onClick={p.onClose} autoFocus>
+            취소
+          </button>
+          <button className="btn primary" onClick={p.onConfirm}>
+            다시 만들기
+          </button>
+        </>
+      }
+    >
+      <p>
+        지금 카드를 새로 만든 카드로 덮어써요. 매긴 평가는 지워지고, 이 대화가
+        과목의 최신 대화면 잠긴 추천 칸도 새로 바뀌어요.
+      </p>
+    </Dialog>
+  );
+}

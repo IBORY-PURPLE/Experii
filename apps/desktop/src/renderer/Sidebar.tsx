@@ -5,6 +5,7 @@ type Props = {
   subjects: Subject[];
   subjectId: string | null;
   experiences: DoneNode[];
+  making: { conversationId: string; title: string } | null;
   openCardId: string | null;
   account: string;
   onSelect(id: string): void;
@@ -15,6 +16,11 @@ type Props = {
 
 export function Sidebar(p: Props) {
   const current = p.subjects.find((s) => s.id === p.subjectId);
+  const fresh =
+    p.making &&
+    !p.experiences.some((n) => n.conversationId === p.making?.conversationId)
+      ? p.making
+      : null;
   return (
     <aside className="sidebar">
       <div className="brand">Experii</div>
@@ -57,7 +63,16 @@ export function Sidebar(p: Props) {
         {current && (
           <>
             <div className="exp-head">{current.title}에 쌓인 경험</div>
-            {p.experiences.length === 0 && (
+            {fresh && (
+              <div className="exp loading" role="status">
+                <i className="spin" aria-hidden />
+                <span>
+                  <span className="t">{fresh.title}</span>
+                  <span className="m">경험 카드를 만드는 중…</span>
+                </span>
+              </div>
+            )}
+            {p.experiences.length === 0 && !fresh && (
               <div className="legend">아직 경험 카드가 없어요</div>
             )}
             {p.experiences.map((n) => (
@@ -67,13 +82,19 @@ export function Sidebar(p: Props) {
                 aria-current={n.cardId === p.openCardId}
                 onClick={() => p.onOpenCard(n)}
               >
-                <i
-                  className={`rate-dot ${n.useful === true ? 'useful' : n.useful === false ? 'not' : ''}`}
-                />
+                {n.conversationId === p.making?.conversationId ? (
+                  <i className="spin" aria-hidden />
+                ) : (
+                  <i
+                    className={`rate-dot ${n.useful === true ? 'useful' : n.useful === false ? 'not' : ''}`}
+                  />
+                )}
                 <span>
                   <span className="t">{n.title}</span>
                   <span className="m">
-                    {dayLabel(n.createdAt)} · {rateLabel(n.useful)}
+                    {n.conversationId === p.making?.conversationId
+                      ? '카드를 다시 만드는 중…'
+                      : `${dayLabel(n.createdAt)} · ${rateLabel(n.useful)}`}
                   </span>
                 </span>
               </button>
@@ -82,6 +103,9 @@ export function Sidebar(p: Props) {
               <div className="legend">
                 <span>
                   <i className="rate-dot useful" /> 쓸 만해요
+                </span>
+                <span>
+                  <i className="rate-dot not" /> 아니에요
                 </span>
                 <span>
                   <i className="rate-dot" /> 평가 전

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { REDACTED, redactDeep, redactText } from '../../src/main/redact';
+import { REDACTION_LABELS } from '../../src/shared/card';
 
 const hits: Array<[string, string]> = [
   ['openai_key', 'key sk-proj-abcdefghijklmnopqrstuvwx1234'],
@@ -26,6 +27,7 @@ describe('redactText', () => {
       const out = redactText(sample, counts);
       expect(out).toContain(REDACTED);
       expect(counts).toEqual({ [kind]: 1 });
+      expect(REDACTION_LABELS[kind], 'the card can name it').toBeTruthy();
     });
   }
 
