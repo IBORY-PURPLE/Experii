@@ -378,6 +378,20 @@ test('a locked node opens a new conversation with a draft, then hides once start
   );
 });
 
+test('a relaunch starts a new conversation even with one in progress', async () => {
+  await current().app.close();
+  run = await launch(userData);
+  const { win } = run;
+  const inProgress = win.locator('.tile', { hasText: '진행 중' });
+  await expect(inProgress).toBeVisible();
+  await expect(win.locator('.messages .day')).toHaveText('새 대화');
+  await expect(win.locator('.msg-user')).toHaveCount(0);
+
+  await inProgress.click();
+  await expect(win.locator('.messages .day')).toHaveText('이어서 공부하는 중');
+  await expect(win.locator('.msg-user')).toHaveCount(1);
+});
+
 test('a stream killed mid-way leaves no partial output after a restart', async () => {
   const { app, win } = current();
   const before = savedItems(userData);
