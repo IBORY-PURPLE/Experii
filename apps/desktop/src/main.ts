@@ -1,4 +1,12 @@
-import { app, BrowserWindow, net, safeStorage, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  nativeTheme,
+  net,
+  safeStorage,
+  shell,
+} from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { EVENT_AUTH } from './shared/ipc';
@@ -26,6 +34,7 @@ setupUserData();
 if (!app.requestSingleInstanceLock()) app.quit();
 app.enableSandbox();
 registerSchemes();
+Menu.setApplicationMenu(null);
 
 let mainWindow: BrowserWindow | null = null;
 let store: Store | null = null;
@@ -54,8 +63,12 @@ const createWindow = () => {
     minWidth: 1200,
     minHeight: 720,
     title: 'Experii',
-    backgroundColor: '#f2f4f7',
-    autoHideMenuBar: true,
+    backgroundColor: '#f8f9f9', // --bg-main in renderer/styles/tokens.css
+    // A packaged build shows the icon in its exe; an unpackaged run would show Electron's.
+    // The ICO rather than icon.png: Windows then picks the 16-24px drawings instead of shrinking the 256 tile.
+    ...(app.isPackaged
+      ? {}
+      : { icon: path.join(__dirname, '..', '..', 'assets', 'icon.ico') }),
     webPreferences: windowPreferences(path.join(__dirname, 'preload.cjs')),
   });
   mainWindow.on('closed', () => {
@@ -71,6 +84,7 @@ app.on('second-instance', () => {
 });
 
 app.whenReady().then(() => {
+  nativeTheme.themeSource = 'light';
   store = new Store(dbFile());
   const tokens = new TokenStore(authFile(), {
     isAvailable: () => safeStorage.isAsyncEncryptionAvailable(),
