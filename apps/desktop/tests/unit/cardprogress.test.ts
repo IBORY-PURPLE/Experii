@@ -53,12 +53,9 @@ const roadmap = (making: string | null, fields: Fields | null) =>
       activeConversationId: null,
       makingConversationId: making,
       makingFields: fields,
-      openCardId: null,
       openLockedId: null,
-      cardView: null,
       lockedBubble: null,
-      onOpenConversation: () => {},
-      onOpenCard: () => {},
+      onOpenPage: () => {},
       onOpenLocked: () => {},
     }),
   );

@@ -1,24 +1,20 @@
 import { useEffect, type ReactNode } from 'react';
 import type {
   CardField,
-  DoneNode,
   LockedNode,
   Roadmap as RoadmapData,
 } from '../shared/ipc';
 import { rateLabel } from './format';
-import { Check, Lock } from './icons';
+import { Check, Lock, Page } from './icons';
 
 type Props = {
   roadmap: RoadmapData;
   activeConversationId: string | null;
   makingConversationId: string | null;
   makingFields: Partial<Record<CardField, string>> | null;
-  openCardId: string | null;
   openLockedId: string | null;
-  cardView: ReactNode;
   lockedBubble: ReactNode;
-  onOpenConversation(id: string): void;
-  onOpenCard(node: DoneNode): void;
+  onOpenPage(conversationId: string): void;
   onOpenLocked(node: LockedNode): void;
 };
 
@@ -35,17 +31,27 @@ export function LockedBubble(p: { node: LockedNode; onStart(): void }) {
   );
 }
 
+// Every node that is a conversation leads to its note page.
+const PageLink = (p: { notes: number }) => (
+  <div className="tile-foot">
+    <span className="tile-notes">
+      <Page />
+      필기 {p.notes}개
+    </span>
+    <span className="tile-go">필기 페이지 →</span>
+  </div>
+);
+
 export function Roadmap(p: Props) {
   const { stats, subject, nodes } = p.roadmap;
   const pct = stats.rated ? Math.round((stats.useful / stats.rated) * 100) : 0;
-  const focused = p.openCardId ?? p.openLockedId;
 
   useEffect(() => {
-    if (focused)
-      document.getElementById(`node-${focused}`)?.scrollIntoView({
-        block: focused === p.openCardId ? 'start' : 'nearest',
-      });
-  }, [focused, p.openCardId]);
+    if (p.openLockedId)
+      document
+        .getElementById(`node-${p.openLockedId}`)
+        ?.scrollIntoView({ block: 'nearest' });
+  }, [p.openLockedId]);
 
   return (
     <>
@@ -83,49 +89,44 @@ export function Roadmap(p: Props) {
         <ol className="path">
           {nodes.map((n) => {
             if (n.kind === 'done') {
-              const open = n.cardId === p.openCardId;
               const making = n.conversationId === p.makingConversationId;
               const fill = making ? p.makingFields : null;
               return (
                 <li key={n.cardId} className="node" id={`node-${n.cardId}`}>
                   <button
                     className="knob"
-                    onClick={() => p.onOpenCard(n)}
-                    aria-label={`${n.title} 카드 ${open ? '접기' : '열기'}`}
-                    aria-expanded={open}
+                    onClick={() => p.onOpenPage(n.conversationId)}
+                    aria-label={`${n.title} 필기 페이지 열기`}
                   >
                     <Check />
                   </button>
-                  {open && p.cardView ? (
-                    p.cardView
-                  ) : (
-                    <button
-                      className="tile"
-                      aria-current={n.conversationId === p.activeConversationId}
-                      onClick={() => p.onOpenCard(n)}
-                    >
-                      <div className="tile-head">
-                        <h3>{fill?.title ?? n.title}</h3>
-                        {making ? (
-                          <span className="chip making">
-                            <i className="spin" aria-hidden />
-                            다시 만드는 중
-                          </span>
-                        ) : (
-                          <span
-                            className={`chip ${n.useful === true ? 'useful' : n.useful === null ? 'unrated' : ''}`}
-                          >
-                            {rateLabel(n.useful)}
-                          </span>
-                        )}
-                      </div>
-                      <p>{fill?.summary ?? n.summary}</p>
-                      <div className="line-box">
-                        <small>면접 한 마디</small>
-                        {fill?.interview_line ?? n.interviewLine}
-                      </div>
-                    </button>
-                  )}
+                  <button
+                    className="tile"
+                    aria-current={n.conversationId === p.activeConversationId}
+                    onClick={() => p.onOpenPage(n.conversationId)}
+                  >
+                    <div className="tile-head">
+                      <h3>{fill?.title ?? n.title}</h3>
+                      {making ? (
+                        <span className="chip making">
+                          <i className="spin" aria-hidden />
+                          다시 만드는 중
+                        </span>
+                      ) : (
+                        <span
+                          className={`chip ${n.useful === true ? 'useful' : n.useful === null ? 'unrated' : ''}`}
+                        >
+                          {rateLabel(n.useful)}
+                        </span>
+                      )}
+                    </div>
+                    <p>{fill?.summary ?? n.summary}</p>
+                    <div className="line-box">
+                      <small>면접 한 마디</small>
+                      {fill?.interview_line ?? n.interviewLine}
+                    </div>
+                    <PageLink notes={n.notes} />
+                  </button>
                 </li>
               );
             }
@@ -136,15 +137,15 @@ export function Roadmap(p: Props) {
                 <li key={n.conversationId} className="node">
                   <button
                     className="knob current"
-                    onClick={() => p.onOpenConversation(n.conversationId)}
-                    aria-label={`${n.title} 대화 열기`}
+                    onClick={() => p.onOpenPage(n.conversationId)}
+                    aria-label={`${n.title} 필기 페이지 열기`}
                   >
                     …
                   </button>
                   <button
                     className="tile"
                     aria-current={n.conversationId === p.activeConversationId}
-                    onClick={() => p.onOpenConversation(n.conversationId)}
+                    onClick={() => p.onOpenPage(n.conversationId)}
                   >
                     <div className="tile-head">
                       <h3>{fill?.title ?? n.title}</h3>
@@ -167,6 +168,7 @@ export function Roadmap(p: Props) {
                         {fill.interview_line}
                       </div>
                     )}
+                    <PageLink notes={n.notes} />
                   </button>
                 </li>
               );

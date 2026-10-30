@@ -474,10 +474,25 @@ button:not(:disabled):active {
 
 /* middle */
 .middle {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--bg);
+}
+
+.view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  container-type: inline-size;
+}
+
+.road {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
 }
 
 .statbar {
@@ -689,6 +704,39 @@ button:not(:disabled):active {
   font-size: 13px;
   font-weight: 700;
   color: var(--card);
+}
+
+/* every conversation on the path leads to its note page */
+.tile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.tile-notes {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-2);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-notes svg {
+  width: 15px;
+  height: 15px;
+}
+
+.tile-go {
+  font-weight: 600;
+}
+
+.tile:hover .tile-go {
+  color: var(--ink);
 }
 
 .path-empty {
@@ -960,14 +1008,913 @@ button:not(:disabled):active {
   opacity: 1;
 }
 
+/* the middle's head: back and forward, the roadmap, then a tab per note page */
+.tabbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 64px;
+  padding: 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.tab-nav {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  margin-right: 6px;
+}
+
+.nav-btn,
+.icon-ghost {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink-2);
+}
+
+.nav-btn:hover:not(:disabled),
+.icon-ghost:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.nav-btn:disabled {
+  color: var(--line-3);
+}
+
+.nav-btn svg,
+.icon-ghost svg {
+  width: 16px;
+  height: 16px;
+}
+
+.tab {
+  position: relative;
+  flex: none;
+  display: flex;
+}
+
+.tab.road {
+  min-width: 112px;
+}
+
+.tab.page {
+  min-width: 176px;
+  max-width: 264px;
+}
+
+.tab-main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  grid-template-rows: 22px 18px;
+  column-gap: 8px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  color: var(--ink-2);
+}
+
+.tab.page .tab-main {
+  padding-right: 36px;
+}
+
+.tab-main:hover {
+  background: rgb(255 255 255 / 0.6);
+}
+
+.tab.active .tab-main {
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 1px 2px rgb(26 34 51 / 0.06);
+}
+
+.tab-icon {
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+.tab-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.tab-title {
+  grid-column: 2;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab.active .tab-title {
+  font-weight: 750;
+}
+
+.tab-label {
+  grid-column: 2;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-close {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ink-3);
+  opacity: 0;
+  transform: translateY(-50%);
+}
+
+.tab-close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.tab-close:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.tab:hover .tab-close,
+.tab.active .tab-close,
+.tab-close:focus-visible {
+  opacity: 1;
+}
+
+.tab-new {
+  margin-left: 4px;
+}
+
+.tab-new svg {
+  width: 16px;
+  height: 16px;
+}
+
+.tab-sep {
+  flex: none;
+  width: 1px;
+  height: 24px;
+  margin: 0 4px;
+  background: var(--line-2);
+}
+
+.tabs {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-block: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mini-knob {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.mini-knob.done {
+  background: var(--ink-3);
+}
+
+.mini-knob.now {
+  border: 2px solid var(--ink-3);
+  background: var(--bg);
+}
+
+/* a note page: a dot grid the user pans and zooms, with the card pinned over it */
+.board {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  outline: none;
+  background-color: color-mix(in srgb, var(--surface) 45%, var(--bg));
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--line-2) 1px,
+    transparent 1.5px
+  );
+  background-size: var(--dot) var(--dot);
+  background-position: var(--px) var(--py);
+  touch-action: none;
+}
+
+.canvas:focus-visible {
+  outline-offset: -2px;
+}
+
+.canvas.tool-hand,
+.canvas.space {
+  cursor: grab;
+}
+
+.canvas.panning,
+.canvas.panning * {
+  cursor: grabbing !important;
+}
+
+.world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+
+.sticky {
+  position: absolute;
+  display: grid;
+  gap: 8px;
+  width: 264px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow:
+    0 1px 2px rgb(26 34 51 / 0.05),
+    0 6px 18px -6px rgb(26 34 51 / 0.12);
+  user-select: none;
+  touch-action: none;
+}
+
+.canvas.tool-select .sticky {
+  cursor: grab;
+}
+
+.sticky.moving {
+  z-index: 10000 !important;
+  box-shadow:
+    0 2px 6px rgb(26 34 51 / 0.07),
+    0 14px 32px -10px rgb(26 34 51 / 0.18);
+}
+
+.sticky.memo {
+  background: var(--surface);
+}
+
+.sticky-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
+}
+
+.sticky-src {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  margin: 0 0 0 -8px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font-size: 13px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+p.sticky-src {
+  margin-left: 0;
+  padding: 0;
+}
+
+button.sticky-src:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.sticky-src svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sticky-del {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--ink-2);
+  box-shadow: 0 1px 2px rgb(26 34 51 / 0.06);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+
+.sticky-del svg {
+  width: 13px;
+  height: 13px;
+}
+
+.sticky-del:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.sticky:hover .sticky-del,
+.sticky:focus-within .sticky-del {
+  opacity: 1;
+}
+
+/* a note lands where it was dropped and settles out of grey */
+.sticky.flash {
+  animation:
+    land 560ms var(--ease),
+    settle 1.6s var(--ease);
+}
+
+@keyframes land {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+
+@keyframes settle {
+  from {
+    border-color: var(--line-3);
+    background: var(--surface-2);
+  }
+}
+
+.board-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 4px;
+  padding: 40px;
+  text-align: center;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.board-empty svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 6px;
+  color: var(--line-3);
+}
+
+.board-empty b {
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.board-empty p {
+  max-width: 340px;
+  margin: 0;
+}
+
+/* the card's summary, pinned to the top-left of the page */
+.pin {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 5;
+  width: 328px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow:
+    0 1px 2px rgb(26 34 51 / 0.05),
+    0 6px 18px -6px rgb(26 34 51 / 0.12);
+}
+
+.pin.fresh {
+  animation: fresh 1.8s var(--ease);
+}
+
+@keyframes fresh {
+  from {
+    border-color: var(--line-3);
+    background: var(--surface);
+  }
+}
+
+.pin.expanded {
+  width: 380px;
+  max-height: calc(100% - 96px);
+  overflow-y: auto;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  scrollbar-width: thin;
+}
+
+.pin-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 12px 0 16px;
+}
+
+.pin-head h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 24px;
+}
+
+.pin-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ink-2);
+}
+
+.pin-toggle:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.pin-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 0;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.pin-count {
+  color: var(--ink-2);
+  font-weight: 650;
+}
+
+.pin-body {
+  display: grid;
+  gap: 12px;
+  padding: 12px 16px 14px;
+}
+
+.pin-summary {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.pin-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+.pin-said {
+  margin: 0;
+  font-weight: 600;
+}
+
+.pin-empty {
+  margin: 12px 16px 16px;
+  padding: 12px;
+  border: 1px dashed var(--line-2);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.pin-rate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px 8px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.pin-rate p {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.pin-rate .btn.small {
+  height: 28px;
+}
+
+/* top-right: deciding the next study */
+.board-top {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 6;
+  display: grid;
+  justify-items: end;
+}
+
+.btn.float {
+  box-shadow: 0 1px 2px rgb(26 34 51 / 0.06);
+}
+
+.btn.float svg,
+.next-foot svg {
+  width: 15px;
+  height: 15px;
+}
+
+.next {
+  width: min(320px, calc(100cqw - 380px));
+  min-width: 248px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow:
+    0 2px 6px rgb(26 34 51 / 0.07),
+    0 14px 32px -10px rgb(26 34 51 / 0.18);
+}
+
+.next-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 12px 0 16px;
+}
+
+.next-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.next-lead {
+  margin: 2px 0 0;
+  padding: 0 16px 10px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.recs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rec {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.rec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rec-head b {
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rec-why {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.rec-why span {
+  color: var(--ink-3);
+}
+
+.next-foot {
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.btn.block {
+  width: 100%;
+}
+
+/* a narrow page cannot hold the card and the panel side by side: the card keeps its head */
+@container (max-width: 711px) {
+  .board:has(.next) .pin:not(.expanded) :is(.pin-body, .pin-rate, .pin-empty) {
+    display: none;
+  }
+
+  .board:has(.next) .pin:not(.expanded) {
+    width: clamp(220px, calc(100cqw - 300px), 328px);
+    padding-bottom: 12px;
+  }
+}
+
+/* bottom: tools, zoom, hint */
+.toolbar {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow:
+    0 2px 6px rgb(26 34 51 / 0.07),
+    0 14px 32px -10px rgb(26 34 51 / 0.18);
+  transform: translateX(-50%);
+}
+
+.tool {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink-2);
+}
+
+.tool:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.tool[aria-pressed='true'] {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.tool svg {
+  width: 20px;
+  height: 20px;
+}
+
+.tool-sep {
+  width: 1px;
+  margin: 4px;
+  background: var(--line);
+}
+
+.zoom {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow:
+    0 1px 2px rgb(26 34 51 / 0.05),
+    0 6px 18px -6px rgb(26 34 51 / 0.12);
+}
+
+.zoom .icon-ghost {
+  width: 32px;
+  height: 32px;
+}
+
+.zoom-pct {
+  min-width: 56px;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.zoom-pct:hover {
+  background: var(--surface);
+}
+
+.hint {
+  position: absolute;
+  bottom: 24px;
+  left: 16px;
+  z-index: 4;
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+@container (max-width: 760px) {
+  .hint {
+    display: none;
+  }
+}
+
+/* while words are dragged in: a dashed frame at the edge, the note-to-be under the pointer, and what letting go does */
+.dropzone {
+  position: absolute;
+  inset: 4px;
+  z-index: 8;
+  border: 2px dashed var(--line-3);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.landing {
+  position: absolute;
+  z-index: 8;
+  border: 2px dashed var(--ink-3);
+  border-radius: 8px;
+  background: var(--bg);
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.droptag {
+  position: absolute;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  margin: 0;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow:
+    0 1px 2px rgb(26 34 51 / 0.05),
+    0 6px 18px -6px rgb(26 34 51 / 0.12);
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.droptag svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ink-3);
+}
+
+.droptag b {
+  font-weight: 650;
+}
+
+.droptag span {
+  color: var(--ink-3);
+}
+
+/* a short line at the bottom of the middle that comes and goes */
+.toast {
+  position: absolute;
+  bottom: 76px;
+  left: 50%;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 8px 6px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow:
+    0 2px 6px rgb(26 34 51 / 0.07),
+    0 14px 32px -10px rgb(26 34 51 / 0.18);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  animation: toast-in 200ms var(--ease);
+}
+
+.toast:not(:has(button)) {
+  padding-right: 16px;
+}
+
+.road ~ .toast {
+  bottom: 24px;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticky.flash,
+  .pin.fresh,
+  .toast {
+    animation: none;
+  }
+}
+
 /* chat */
 .chat {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
   border-left: 1px solid var(--line);
   background: var(--bg);
+}
+
+/* words already kept as notes, marked without touching the answer's DOM */
+::highlight(noted) {
+  background-color: var(--surface-2);
+}
+
+/* picking words from an answer offers this beside them, for those who would rather not drag */
+.addnote {
+  position: absolute;
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow:
+    0 2px 6px rgb(26 34 51 / 0.07),
+    0 14px 32px -10px rgb(26 34 51 / 0.18);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.addnote:hover {
+  background: var(--surface);
+}
+
+.addnote svg {
+  width: 14px;
+  height: 14px;
 }
 
 .chat-head {
@@ -1077,6 +2024,11 @@ button:not(:disabled):active {
   font-size: 13px;
   font-weight: 700;
   color: var(--ink-2);
+}
+
+.msg-ai .who,
+.msg-ai .tool-lines {
+  user-select: none;
 }
 
 .msg-ai .who::before {

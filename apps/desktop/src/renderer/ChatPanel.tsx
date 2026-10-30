@@ -7,7 +7,14 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
-import type { ConversationView } from '../shared/ipc';
+import type { ConversationView, Note } from '../shared/ipc';
+import {
+  questionNumbers,
+  useCollect,
+  useNotedMarks,
+  type Pick,
+  type Refusal,
+} from './collect';
 import { ArrowUp, Stop } from './icons';
 import { Markdown } from './Markdown';
 import { PaneToggle } from './Panes';
@@ -36,14 +43,28 @@ type Props = {
   onNewConversation(): void;
   onOpenUsage(): void;
   onFold(): void;
+  // Without these the answers cannot become notes.
+  onAddNote?(pick: Pick): void;
+  onNoteRefused?(why: Refusal): void;
+  noted?: Note[];
 };
 
 export function ChatPanel(p: Props) {
+  const panel = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const [composing, setComposing] = useState(false);
   const streaming = p.streamingText !== null;
   const disabled = !p.conversation;
   const calls = p.conversation?.toolCalls ?? [];
+  const asked = questionNumbers(p.conversation?.messages ?? []);
+  const collect = useCollect({
+    panel,
+    root: scroller,
+    conversationId: p.conversation?.id ?? null,
+    onAdd: p.onAddNote,
+    onRefuse: p.onNoteRefused,
+  });
+  useNotedMarks(scroller, p.noted, p.conversation?.messages);
 
   useEffect(() => {
     const el = scroller.current;
@@ -64,7 +85,7 @@ export function ChatPanel(p: Props) {
   };
 
   return (
-    <section className="chat" aria-label="GPT 대화">
+    <section className="chat" aria-label="GPT 대화" ref={panel}>
       <header className="chat-head">
         <div className="ttl">
           <small>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</small>
@@ -82,7 +103,12 @@ export function ChatPanel(p: Props) {
         {p.headAction}
         <PaneToggle panel="chat" onFold={p.onFold} />
       </header>
-      <div className="messages" ref={scroller}>
+      <div
+        className="messages"
+        ref={scroller}
+        onDragStart={collect.onDragStart}
+        onDragEnd={collect.onDragEnd}
+      >
         {p.conversation && (
           <div className="day">
             {p.conversation.saved ? '이어서 공부하는 중' : '새 대화'}
@@ -95,7 +121,7 @@ export function ChatPanel(p: Props) {
               <div className="msg-user">{m.text}</div>
             </Fragment>
           ) : (
-            <div key={i} className="msg-ai">
+            <div key={i} className="msg-ai" data-seq={m.seq} data-q={asked[i]}>
               <div className="who">ChatGPT</div>
               <ToolLines lines={savedLinesBefore(calls, i)} />
               <Markdown text={m.text} />
@@ -116,6 +142,7 @@ export function ChatPanel(p: Props) {
           </div>
         )}
       </div>
+      {collect.button}
       {p.banner && (
         <div
           className={`banner ${p.banner.tone === 'err' ? 'err' : ''}`}
