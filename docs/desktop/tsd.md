@@ -657,7 +657,10 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
 - **O9** (확정, D) 채팅 답변은 마크다운으로 렌더한다. `react-markdown`을 쓰고 raw HTML은 끄며, 링크는 텍스트로만 둔다. 코드 블록은 줄바꿈해 가로 스크롤을 만들지 않는다.
 - **O10** M0 S1이 실패했을 때 Phase A를 무엇으로 대신할지.
 - **O11** (확정, M0) 기본 모델은 `/v1/models`가 준 순서에서 첫 `list` 모델이다. 2026-10-30에는 `gpt-6.1-sol`이었다. 특정 모델을 고정하지 않는다. 바꾸려면 `settings.default_model`을 쓴다.
-- **O12** (확정, 2026-10-30) 앱 이름은 Experii, 내부 ID는 `experii`다. `appUserModelId`, userData 폴더 이름, 설치 파일 이름에 쓰인다. 바꾸는 작업은 [디자인 통일 계획](../plans/2026-10-30-desktop-design/ai.md) 3단계에서 한다.
+- **O12** (확정, 2026-10-30) 앱 이름은 Experii, 내부 ID는 `experii`다. 바꾸는 작업은 [디자인 통일 계획](../plans/2026-10-30-desktop-design/ai.md) 3단계에서 했다. `npm run make`로 확인한 실제 이름:
+  - 설치 파일 `Experii-1.0.0 Setup.exe`, Squirrel 패키지 ID `experii`, 실행 파일 `Experii.exe`
+  - userData: 설치본 `%APPDATA%\Experii`, 개발 실행 `%APPDATA%\Experii-dev`
+  - 앱 코드는 `appUserModelId`를 따로 정하지 않는다. 작업 표시줄 묶음과 고정은 창업자가 설치해서 확인한다.
 - **O13** 랜딩 PRD 6장의 "모바일" 문구 정리.
 
 ### 이 계획 밖에서 따로 하는 일
