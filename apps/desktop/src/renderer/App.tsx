@@ -19,6 +19,7 @@ import { ModelSelect } from './ModelSelect';
 import { Pane, useLayout } from './Panes';
 import { LockedBubble, Roadmap } from './Roadmap';
 import { Sidebar } from './Sidebar';
+import { withToolEvent, type LiveToolLine } from './ToolLines';
 
 const api = window.experii;
 
@@ -39,6 +40,7 @@ type Stream = {
   conversationId: string;
   text: string;
   sent: string;
+  tools: LiveToolLine[];
 };
 
 type Making = { conversationId: string; subjectId: string; title: string };
@@ -188,7 +190,13 @@ export function App() {
         ...conv,
         messages: [...conv.messages, { role: 'user', text }],
       });
-      const next = { id, conversationId: conv.id, text: '', sent: text };
+      const next = {
+        id,
+        conversationId: conv.id,
+        text: '',
+        sent: text,
+        tools: [],
+      };
       streamRef.current = next;
       setStream(next);
       setInput('');
@@ -484,6 +492,13 @@ export function App() {
 
   useEffect(() => {
     const offChat = api.onChatEvent((ev) => handlerRef.current(ev));
+    const offTool = api.onToolEvent((ev) =>
+      setStream((cur) =>
+        cur?.id === ev.streamId
+          ? { ...cur, tools: withToolEvent(cur.tools, ev) }
+          : cur,
+      ),
+    );
     const offAuth = api.onAuthChanged(() => {
       void call(api.authStatus()).then(setAuth);
     });
@@ -493,6 +508,7 @@ export function App() {
     });
     return () => {
       offChat();
+      offTool();
       offAuth();
     };
   }, [enterApp]);
@@ -653,6 +669,9 @@ export function App() {
           conversation={conv}
           streamingText={
             stream && stream.conversationId === conv?.id ? stream.text : null
+          }
+          streamingTools={
+            stream && stream.conversationId === conv?.id ? stream.tools : []
           }
           banner={banner}
           input={input}
