@@ -45,10 +45,11 @@
 - Plus·Pro 사용자만 쓸 수 있다.
 - UI 문구는 정해져 있다. 로그인 버튼은 "Continue with ChatGPT"이고, 입력창 근처에 "Using ChatGPT plan"과 "Manage usage" 링크를 둔다.
 - 셀프 등록 흐름은 다음과 같다.
-  - `client_id=dynamic_agent_client`로 시작한다.
+  - 첫 등록은 `client_id=dynamic_agent_client`와 `agent_name_hint`(앱 이름)로 시작한다. 콜백이 발급 `client_id`(`oaiapp_…`)를 돌려준다. 그 뒤 교환, refresh, revoke, 재인증은 모두 발급 ID로 한다.
   - 콜백은 `http://127.0.0.1:<port>/auth/callback`이다. `localhost`는 쓰지 않고, 포트만 바꿀 수 있다.
-  - PKCE는 S256이다.
-  - scope는 `openid profile email offline_access resource.invoke chatgpt.tokens.use.direct`이고, `resource=https://api.openai.com/v1`을 함께 보낸다.
+  - 시도마다 state, nonce, PKCE(S256)를 새로 만든다.
+  - scope는 `openid profile email offline_access resource.invoke chatgpt.tokens.use.direct`이다. 인가 요청, 토큰 교환, refresh에 `resource=https://api.openai.com/v1`을 함께 보낸다.
+  - ID 토큰은 JWKS 서명, issuer, audience(발급 ID), 만료, nonce를 검증하고 `sub`를 계정 식별자로 쓴다.
   - `ext_agent_host_id`를 영구 저장한다.
   - refresh token은 쓸 때마다 바뀐다.
 
@@ -274,7 +275,7 @@ npx create-electron-app@latest apps/desktop --template=vite-typescript --skip-gi
 
 | 채널 | 비고 |
 |---|---|
-| `auth:status`, `auth:signIn`, `auth:signOut` | `signIn`은 진행 중인 Promise 하나를 공유한다(중복 클릭 방지). 오류: `not_eligible_plan`, `cancelled`, `timeout` |
+| `auth:status`, `auth:signIn {newAccount?}`, `auth:signOut` | `signIn`은 진행 중인 Promise 하나를 공유한다(중복 클릭 방지). `newAccount`면 저장된 등록이 있어도 새로 등록한다(Plus·Pro 필요 화면의 [다른 계정으로]). 오류: `not_eligible_plan`, `cancelled`, `timeout`, `denied`, `state_mismatch`, `exchange_failed`, `registration_incomplete`, `client_mismatch`, `id_token_invalid`, `account_mismatch`. `signOut`은 `{revoked}`를 돌려준다 |
 | `subjects:list`, `subjects:create {title}` | |
 | `roadmap:get {subjectId}` | `{subject, nodes: Done \| Current \| Locked}` (Current는 O5) |
 | `conversations:open {subjectId, recommendedNodeId?}` | 추천 칸에서 시작하면 입력창 초안을 함께 준다. DB 행은 첫 턴을 저장할 때 만든다 |
@@ -297,7 +298,7 @@ npx create-electron-app@latest apps/desktop --template=vite-typescript --skip-gi
 - 대체 드라이버: M0에서 `node:sqlite`가 실패하면 better-sqlite3로 바꾼다. external로 두고 Forge가 자동 rebuild한다.
 
 ```sql
-settings(key PK, value)                       -- ext_agent_host_id, default_model, issued_client_id (토큰 없음)
+settings(key PK, value)                       -- ext_agent_host_id, default_model, issued_client_id, account_sub, account_email (토큰 없음)
 subjects(id PK, title UNIQUE COLLATE NOCASE, created_at, updated_at)
 conversations(id PK, subject_id → subjects RESTRICT, from_recommended_node_id NULL,
   model, title, created_at, updated_at)       -- 첫 턴이 저장될 때 생성
@@ -339,33 +340,44 @@ buildInput(items, userText): InputItem[]                      // item_json을 se
   ```
   `include`는 M0에서 허용되는 경우에만 넣는다. 금지 필드가 빠졌는지는 단위 테스트로 고정한다.
 - **reasoning item.** `buildInput`은 `encrypted_content`가 없는 reasoning item을 뺀다. item `id`를 남길지 지울지는 M0에서 정한다.
-- **모델.** `GET /v1/models`에서 `visibility:"list"`만 거른다. `settings.default_model`이 있으면 그것을, 없으면 첫 항목을 쓴다. 모델 선택 UI는 v1에 없다.
+- **모델.** `GET /v1/models` 응답의 `models` 배열에서 `visibility:"list"`만 거르고, `slug`를 요청의 `model`로 쓴다. 서버가 준 순서를 지킨다. `settings.default_model`이 있으면 그것을, 없으면 첫 항목을 쓴다(O11). 모델 선택 UI는 v1에 없다.
 - **Phase별 차이.**
   - Phase B: `Transport`와 로그인 화면만 바뀐다. 릴레이의 요구사항은 TSD에 적는다. 사용자별 인증, rate limit, `store:false` 강제, 모델 허용 목록이다.
   - Phase C: 기본적으로 `client_id` 출처만 바뀐다. 승인 조건이 다르면 그때 다시 본다.
 
 ### 3.7 OAuth loopback (`main/auth.ts`)과 토큰 (`main/tokens.ts`)
 
-**로그인 흐름:**
+**로그인 흐름:** (2026-10-30 실계정 확인에 맞춰 고침. 근거는 SIWC 공식 문서와 맨 아래 "M0 확인된 사실")
 1. `ext_agent_host_id`(`urn:uuid:…`)가 없으면 만들어 `settings`에 영구 저장한다.
-2. PKCE verifier와 S256 challenge, 일회용 `state`를 만든다.
+2. 시도마다 PKCE verifier와 S256 challenge, `state`, `nonce`를 새로 만든다.
 3. `http.createServer`를 `127.0.0.1`에만 연다. 1455를 먼저 시도하고, listen 오류가 나면 종류와 관계없이 `:0`으로 연다. `EADDRINUSE`뿐 아니라 Hyper-V 예약 포트의 `EACCES`도 있다. **listen이 끝난 뒤에** 브라우저를 연다.
-4. `shell.openExternal`로 `https://auth.openai.com/api/accounts/authorize`를 연다. 파라미터는 1장의 OpenAI 제약 목록 그대로다.
+4. `shell.openExternal`로 `https://auth.openai.com/api/accounts/authorize`를 연다. 1장의 OpenAI 제약 목록에 더해 다음을 보낸다.
+   - 첫 등록: `client_id=dynamic_agent_client`, `agent_name_hint=Experii`.
+   - 재인증(발급 ID가 있을 때): 발급 `client_id`. 저장된 email이 있으면 `login_hint`, 보관 중인 `id_token`이 있으면 `id_token_hint`. `agent_name_hint`는 보내지 않는다. 로그아웃 뒤에는 `id_token`이 없으니 `id_token_hint`도 없다.
 5. 콜백을 처리한다.
    - `/auth/callback` 외의 경로는 404.
-   - `state`가 다르거나 `error` 파라미터가 오면 실패로 끝낸다.
+   - `state`가 다르면 `state_mismatch`, `error` 파라미터가 오면 `denied`로 끝낸다.
+   - 첫 등록 콜백에 발급 `client_id`가 없으면 `registration_incomplete`로 끝낸다. 재인증 콜백이 다른 `client_id`를 주면 `client_mismatch`로 거부한다.
    - 브라우저에는 고정 한국어 HTML을 보여 준다. 쿼리를 되비추지 않는다.
-   - 서버는 바로 닫는다. 5분이 지나면 timeout으로 끝낸다.
-6. `/api/accounts/oauth/token`에서 토큰을 교환한다. 부여된 scope에 `chatgpt.tokens.use.direct`가 없으면 토큰을 버리고 "ChatGPT Plus·Pro 계정이 필요해요"를 띄운다.
-7. refresh는 single-flight Promise 하나로 묶는다. 바뀐 4개 필드를 한꺼번에 갱신한다. `invalid_grant`가 오면 토큰을 지우고 `auth:changed`를 보낸다.
+   - 응답마다 `Connection: close`를 붙인다. 브라우저가 다음 시도의 콜백을 이미 닫힌 서버의 keep-alive 연결로 보내 로그인이 멈추는 일을 막는다.
+   - 서버는 바로 닫는다. 5분이 지나면 timeout으로 끝낸다. 로그인 화면의 [취소]로 언제든 멈출 수 있다. 채팅의 [다시 로그인]도 로그인 화면의 대기 상태로 보낸다.
+6. `/api/accounts/oauth/token`에서 발급 ID, code, verifier, 같은 `redirect_uri`, `resource`로 토큰을 교환한다.
+   - ID 토큰을 검증한다(`main/idtoken.ts`, Node 내장 `crypto`, 새 의존성 없음). JWKS의 RS256 서명, `iss`, `aud`에 든 발급 ID, `exp`, `nonce`, `sub`를 본다. 실패하면 `id_token_invalid`.
+   - 재인증이면 `sub`가 저장된 계정과 같아야 한다. 다르면 `account_mismatch`로 거부하고 기존 등록을 지킨다.
+   - 부여된 scope에 `chatgpt.tokens.use.direct`가 없으면 아무것도 저장하지 않고 "ChatGPT Plus·Pro 계정이 필요해요"를 띄운다. 이 화면의 [다른 계정으로 Continue with ChatGPT]는 새 등록으로 시작한다. 문서의 "로그인은 유지하고 플랜 사용만 끄기"와 `prompt=consent` 재동의는 v1에서 하지 않는다.
+7. refresh는 single-flight Promise 하나로 묶고, 만료 60초 전에 한다. 발급 ID, `refresh_token`, `resource`를 보내고 scope는 보내지 않는다.
+   - access token, refresh token, 만료, scope, `id_token`을 한꺼번에 바꾼다. 응답에 없는 값은 이전 값을 쓴다.
+   - 문서에 적힌 refresh 오류(`invalid_grant`, `invalid_refresh_token`, `token_expired`, `refresh_token_expired`, `refresh_token_invalidated`, `refresh_token_reused`)와 그 밖의 4xx면 토큰을 지우고 `auth:changed`를 보낸다. `invalid_client`면 등록도 지운다.
+   - 네트워크 오류, 5xx, 429면 토큰을 남기고 네트워크 오류로 알린다.
+8. 로그아웃은 revocation endpoint(`/api/accounts/oauth/revoke`)로 refresh token을 폐기한 뒤 로컬 토큰을 지운다. 네트워크 오류나 5xx면 한 번 더 시도한다. 발급 ID, 계정, host id는 남긴다. 폐기를 확인하지 못하면 로그인 화면에 한 줄로 알린다.
 
 **토큰 저장:**
-- 대상은 `{access_token, refresh_token, expires_at, scopes, email}`이다.
+- 대상은 `{access_token, refresh_token, id_token, expires_at, scopes, email}`이다. `id_token`은 다음 로그인의 `id_token_hint`로만 쓴다.
 - `safeStorage.encryptStringAsync`로 암호화해 `auth.bin.tmp`에 쓰고 rename해서 `userData/auth.bin`으로 교체한다.
 - 읽을 때 `shouldReEncrypt`가 true면 다시 저장한다.
 - **async API만 쓴다.** sync API는 Electron 46에서 제거된다.
 - 암호화를 쓸 수 없으면 디스크에 쓰지 않고 메모리에만 둔다.
-- 발급받은 `client_id`는 `settings`에 두고 로그아웃해도 유지한다. 로그아웃 뒤 처리는 M0 결과로 확정한다.
+- 발급 `client_id`, 계정 `sub`, email은 `settings`(`issued_client_id`, `account_sub`, `account_email`)에 두고 로그아웃해도 유지한다.
 - 한계: DPAPI는 같은 Windows 사용자로 도는 다른 앱을 막지 못한다. TSD에 적는다.
 
 ### 3.8 스트리밍과 채팅 입력
@@ -551,7 +563,9 @@ Electron 앱은 **크롬 브라우저 창 하나와 Node.js를 한 프로그램�
 - `card`: `has_learning` 두 갈래, 경계값, `result:null`.
 - `sse`: 정상, failed, incomplete, chunk 분할, **한글 멀티바이트가 중간에서 잘린 경우**.
 - `buildInput`: seq 순서, reasoning item 처리, 금지 필드 없음, `store:false`와 `stream:true`.
-- `auth`: authorize URL 파라미터, state 불일치, error 파라미터, 잘못된 경로, scope 미부여, timeout, signIn과 refresh의 single-flight.
+- `auth`: 첫 등록과 재인증의 authorize URL 파라미터, 발급 `client_id` 확인, state 불일치, error 파라미터, 잘못된 경로, timeout, 교환·refresh·revoke 요청 본문, refresh 오류 분류, single-flight.
+- `idtoken`: 서명, `iss`, `aud`, `exp`, `nonce`, `sub`, 알고리즘 거부, 키 교체 때 JWKS 다시 받기. RSA 키는 테스트 중에 만든다.
+- `session`: 가짜 OAuth 서버로 첫 등록 → 재인증 → refresh → 로그아웃, 계정 불일치, scope 미부여, 다른 계정 새 등록.
 - `tokens`: 원자적 쓰기, 암호화 불가일 때 디스크에 쓰지 않음, `shouldReEncrypt`.
 - `db`: **임시 파일 DB**로 마이그레이션과 `VACUUM INTO` 백업, 카드 트랜잭션 롤백, ID를 유지하는 upsert, 최신 대화일 때만 추천 교체, 시작한 추천 칸 숨김, 로드맵 쿼리.
 - `ipc`: 잘못된 payload 거부, sender 거부, 같은 대화에 동시 전송 거부.
@@ -625,6 +639,7 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
    - M0 S1에서 추가로 확인할 것:
      - 동의 화면에서 `chatgpt.tokens.use.direct`가 부여되는지
      - `subscription_sharing_user_not_eligible` 오류(403, 사용자·워크스페이스·정책 제한)나 지역 정책 403이 나오는지
+   - 2026-10-30 확인: 개인 Plus 계정에서는 부여됐고 403이 없었다. Business/Edu 워크스페이스 계정은 `3p_delegated_access_policy_denied`로 막혔고 콜백이 오지 않았다. 그래서 로그인은 개인 계정, 개인 워크스페이스로 한다.
    - 배포하기 전에 OpenAI 약관과 DevKit 라이선스를 검토한다.
 1. **SIWC 자격.** 셀프 등록 흐름은 "로컬에서 도는 개인 프로젝트"까지만 허용한다. Phase A 빌드는 창업자 PC 밖으로 내보내지 않는다. 랜딩 다운로드 버튼은 계속 fake door로 둔다. 테스터에게 주려면 Phase B나 C가 먼저 필요하다.
 2. **확인되지 않은 프리뷰 파라미터.** reasoning item 재전송, `include`, 구조화 출력, 포트 변경이 해당한다. M0에서 확인하고, 영향은 `responses.ts`, `auth.ts`, `cards.ts` 안에 가둔다.
@@ -641,7 +656,7 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
 - **O8** 추적되지 않는 Codex 변환본(`.agents/skills/verify-landing`, `.codex/agents/*`)을 커밋할지 지울지.
 - **O9** (확정, D) 채팅 답변은 마크다운으로 렌더한다. `react-markdown`을 쓰고 raw HTML은 끄며, 링크는 텍스트로만 둔다. 코드 블록은 줄바꿈해 가로 스크롤을 만들지 않는다.
 - **O10** M0 S1이 실패했을 때 Phase A를 무엇으로 대신할지.
-- **O11** 기본 모델 ID. (M0의 `/v1/models` 결과를 보고 정함)
+- **O11** (확정, M0) 기본 모델은 `/v1/models`가 준 순서에서 첫 `list` 모델이다. 2026-10-30에는 `gpt-6.1-sol`이었다. 특정 모델을 고정하지 않는다. 바꾸려면 `settings.default_model`을 쓴다.
 - **O12** 앱 이름과 ID(Experii/Experi). `appUserModelId`, userData 폴더 이름, 설치 파일 이름에 쓰인다.
 - **O13** 랜딩 PRD 6장의 "모바일" 문구 정리.
 
@@ -774,13 +789,13 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
 
 | 항목 | 결과 | 결정 |
 |---|---|---|
-| SIWC 셀프 등록(`dynamic_agent_client`)과 발급 `client_id` | | |
-| loopback 포트 변경 허용 | | |
-| `chatgpt.tokens.use.direct` 부여, 지역·정책 403 여부 | | |
-| `/v1/models` 목록과 기본 모델 | | |
-| `store:false` 2턴 재전송, reasoning item·`include`, item id 유지·제거 | | |
-| 구조화 출력: `json_schema` strict / strict tool / zod 재시도 | | |
-| refresh 회전, 로그아웃 뒤 `client_id` | | |
+| SIWC 셀프 등록(`dynamic_agent_client`)과 발급 `client_id` | **통과** (2026-10-30, 새 개인 Plus 계정, 개인 워크스페이스). 첫 등록 콜백이 `code`, `state`, `scope`, `client_id`를 줬고, `client_id`는 `oaiapp_` 접두사로 발급됐다. 그 ID로 교환하면 200이고, access token의 `client_id`도 같다. ID 토큰은 RS256이고 `kid`가 JWKS에 있었다. `aud`는 발급 ID를 담은 배열이었고 nonce가 맞았다. 앱에서 따로 로그인하니 실험과 다른 ID가 발급됐다(host id도 다름). 앞선 두 번의 실패 원인은 주소 잘림, 그리고 Business/Edu 계정의 정책 거부였다 | 발급 ID를 `settings.issued_client_id`에 두고 교환, refresh, revoke, 재인증에 쓴다. 첫 등록 콜백에 ID가 없으면 등록 실패로 본다. ID 토큰은 `idtoken.ts`로 검증한다 |
+| loopback 포트 변경 허용 | **통과**. 첫 등록은 1455로 했다. 1455를 다른 프로세스가 잡아 둔 채 앱에서 다시 로그인하자 앱이 빈 포트로 열었고, 같은 발급 ID로 로그인이 끝났다. 1455로는 요청이 오지 않았다 | 1455가 막히면 빈 포트로 연다(3.7) |
+| `chatgpt.tokens.use.direct` 부여, 지역·정책 403 여부 | **통과**. 요청한 6개 scope가 모두 부여됐다. `/v1/models`와 `/v1/responses`에서 403이 없었다 | 부여 scope로 플랜 사용 여부를 판단한다 |
+| `/v1/models` 목록과 기본 모델 | **통과**. 응답은 `{models:[…]}`이다(`data`가 아니다). 10개 중 `visibility:"list"`는 8개였다: `gpt-6.1-sol`, `gpt-6-astra`, `gpt-6.1-terra`, `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`. 항목에는 `slug`, `display_name`, `context_window`, `default_reasoning_level` 등이 있다 | `slug`를 `model`로 쓴다. 기본 모델은 O11 |
+| `store:false` 2턴 재전송, reasoning item·`include`, item id 유지·제거 | **통과**. `include:['reasoning.encrypted_content']`는 허용됐다(400 없음). 출력 item의 id를 남기든 지우든, message만 보내든 2턴째에 앞 내용을 기억했다. 앱의 첫 턴에서는 `include` 없이도 reasoning item에 `encrypted_content`가 들어 있었고, 다음 턴에 그대로 다시 보내도 됐다. 앱에서 3턴 대화가 됐다(뒤 답이 앞 예시를 이어받음). 재시작 뒤 이어 보내기는 실계정으로 보내 보지 않았다. 이력은 턴마다 DB에서 다시 만들어 재시작 전과 같은 경로이고, mock e2e가 재시작 뒤 전체 이력 재전송을 확인한다 | id와 status를 지우는 지금 방식을 유지한다. `include`는 v1에서 켜지 않는다 |
+| 구조화 출력: `json_schema` strict / strict tool / zod 재시도 | **통과**. json_schema strict는 JSON 텍스트로, strict function tool은 `function_call` 인자로 왔다. 앱에서 실제 카드 스키마로 카드가 만들어졌다(`card-v1`, 가림 0건, 지어낸 내용 없음) | 지금 방식(`json_schema` strict, zod 검증, 1회 재시도)을 유지한다 |
+| refresh 회전, 로그아웃 뒤 `client_id` | **통과**. 발급 ID, `refresh_token`, `resource`로 보낸 refresh(scope 없음)가 200이었다. refresh token이 바뀌었고 `scope`, `id_token`, `earliest_refresh_at`도 다시 왔다. 토큰 응답의 `earliest_refresh_at`은 Unix 초로 발급 약 54분 뒤였지만, 그보다 일찍 한 refresh도 성공했다. revoke는 빈 200이었다. 그 뒤 access token은 401, refresh는 `invalid_grant`("refresh token has been invalidated")였다. 앱에서 로그아웃하자 로그인 화면으로 돌아갔고, 다시 로그인해도 발급 ID·계정(sub)·호스트 ID가 그대로였다. 앱이 보낸 revoke의 응답은 기록하지 않았다(요청은 실험과 같은 모양이다) | 만료 60초 전에 refresh한다. `earliest_refresh_at` 뒤라 따로 맞추지 않는다. 로그아웃하면 revoke한 뒤 로컬 토큰을 지우고 발급 ID는 남긴다 |
 | Forge 8 + Vite 8 + plugin-react HMR (Windows) | **통과** (2026-10-29). Electron 45.1.0(Node 24.22.1), Forge 8.0.1, Vite 8.3.5, `@vitejs/plugin-react` 6.1.2. 파일을 고치면 새로고침 없이 반영된다(Playwright로 확인). scaffold 명령은 `npx create-electron-app@latest apps/desktop --template vite --typescript --skip-git`이다. `--template=vite-typescript`는 Forge 8에서 없어졌다. `npm start`는 터미널을 탭형 화면으로 바꾼다(`q` 종료, `r` 재시작) | Forge 8 유지. electron-vite로 바꾸지 않는다 |
 | 번들된 main에서 `node:sqlite` WAL, `VACUUM INTO` | **통과**(SQLite 3.53.4, 한글 왕복, 개발 빌드와 패키지 exe 모두). 처음에는 실패했다. Vite가 접두사 전용 내장 모듈 `node:sqlite`를 몰라 빈 객체로 바꿔 넣었다. `vite.main.config.mts`의 `build.rolldownOptions.external`에 `node:sqlite`를 넣어 해결했다 | **`node:sqlite` 채택.** better-sqlite3는 쓰지 않는다 |
 | `safeStorage` async 왕복 | **통과**. `isAsyncEncryptionAvailable()`은 `Promise<boolean>`이고 true였다. `decryptStringAsync`는 `{result, shouldReEncrypt}`를 돌려준다. sync API는 타입 정의에 Deprecated로 표시돼 있다 | 계획대로 async만 쓴다 |
@@ -824,10 +839,16 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
 
   | 상황 | 문구 | 버튼 |
   |---|---|---|
-  | 재로그인 필요 | | [다시 로그인] |
+  | 재로그인 필요 | | [다시 로그인]: 로그인 화면의 대기 상태로 가고 [취소]할 수 있다 |
   | 네트워크 오류 | | [다시 보내기] |
   | 컨텍스트 초과 | "대화가 너무 길어요" | [경험으로 남기기] [새 대화] |
   | 학습 없음 | "카드로 남길 학습 내용이 없어요" | [계속 대화하기] |
+  | 사용량 한도 | "사용량 한도에 걸렸어요" | [Manage usage](주 버튼, `chatgpt.com/settings/usage`) |
+
+  OpenAI 오류는 SIWC "Errors and recovery" 문서의 `error.code`로 연결한다. main 로그에는 status, code, request id만 남긴다.
+  - `subscription_sharing_usage_limit_exceeded`(429, 스트림 중 `response.failed`로도 온다) → 사용량 한도
+  - `subscription_sharing_usage_unavailable`(503)와 그 밖의 403·5xx → 네트워크 오류
+  - `subscription_sharing_user_not_eligible`(403), 플랜 scope가 없는 로그인 → Plus·Pro 필요 화면
 
 - **대화 상자**
   - 덮어쓰기 확인: "카드를 다시 만들까요?" 평가가 지워지고, 최신 대화면 추천 칸도 바뀐다고 적는다. [취소] [다시 만들기].
