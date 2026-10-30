@@ -71,3 +71,8 @@
 |---|---|---|---|
 | 2026-10-31 | 승인 | 1쪽 요약 승인, 추천안 4개. 실제 앱 화면 제외는 창업자 지시 | 대화 |
 | 2026-10-31 | 이동 | 창업자 요청으로 클라우드 세션으로 옮김. 브랜치 `claude/mobile-landing-wireframe` | 대화 |
+| 2026-10-31 | 1 재료 | `questions.md`: 블록 7개별 질문과 근거, 보드 흐름에서 지킬 사실 8개, 어제 고칠 곳 3개 → 블록 대응 | 이 폴더 `questions.md` |
+| 2026-10-31 | 2 레퍼런스 | `references.md`: 사례 9곳, 배울 점 5, 따라 하지 않을 점. 서비스 사이트는 네트워크 허용 목록 밖이라 모두 간접 확인(검색 요약·리뷰·W3C·NN/g) | 이 폴더 `references.md` |
+| 2026-10-31 | 3 시안 | 독립 HTML 3개(CSS·바닐라 JS, 라이브러리 없음, scratchpad, 커밋 안 함). Artifact 게시: A https://claude.ai/artifact/RH4oJFpCSeFu9CtbvDKAkn , B https://claude.ai/artifact/Vszm2KoAJ4ywet57xTjyU4 , C https://claude.ai/artifact/HvkfFrcYVXFgByZ27okkrG | Playwright 측정 스크립트 |
+| 2026-10-31 | 3 측정 | 6개 화면(3안 × 390×844·360×780) 모두: 최소 글자 13px(13px 미만 0개), 가로 스크롤 0(scrollWidth = clientWidth), 누름 영역 44px 미만 0개, 페이지 오류 0, 멈춤 뒤 시간 정지 확인, 움직임 줄이기에서 마지막 장면(로드맵 + 다음 공부 칸 + 경험 카드) 보임. 캡처 첫 화면·장면 1·3·5(A는 2·4 추가)·움직임 줄이기 38장. 첫 화면 보드 위치: A·B 위 끝 335~339px, C 541px(390×844) | scratchpad `wf/shots/report.json` |
+| 2026-10-31 | 4 고르기 | 창업자에게 링크 3개와 장단점, 추천안을 주고 멈춤 | 대화 |
