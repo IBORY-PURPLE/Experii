@@ -57,4 +57,23 @@ export const MIGRATIONS: string[] = [
     rank INTEGER NOT NULL
   );
   `,
+  // Every note is an answer excerpt for now; kind and format get no CHECK because SQLite changes one only by rebuilding the table.
+  `
+  CREATE TABLE notes (
+    id TEXT PRIMARY KEY,
+    conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    source_seq INTEGER,
+    question_no INTEGER,
+    kind TEXT NOT NULL DEFAULT 'excerpt',
+    format TEXT NOT NULL DEFAULT 'plain',
+    text TEXT NOT NULL CHECK (length(text) BETWEEN 1 AND 4000),
+    x REAL NOT NULL DEFAULT 0,
+    y REAL NOT NULL DEFAULT 0,
+    w REAL,
+    h REAL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  );
+  CREATE INDEX notes_conversation ON notes(conversation_id, created_at);
+  `,
 ];

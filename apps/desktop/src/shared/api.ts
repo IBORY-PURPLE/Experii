@@ -6,6 +6,10 @@ import type {
   ChatEvent,
   ConversationView,
   ModelList,
+  Note,
+  NoteCreated,
+  NoteDraft,
+  NotePatch,
   Result,
   Roadmap,
   SignOutResult,
@@ -37,6 +41,10 @@ export type ExperiiApi = {
   cancelCard(conversationId: string): Promise<Result<null>>;
   getCard(id: string): Promise<Result<StoredCard>>;
   rateCard(id: string, useful: boolean): Promise<Result<null>>;
+  listNotes(conversationId: string): Promise<Result<Note[]>>;
+  createNote(draft: NoteDraft): Promise<Result<NoteCreated>>;
+  updateNote(id: string, patch: NotePatch): Promise<Result<Note>>;
+  deleteNote(id: string): Promise<Result<Note>>;
   openUsage(): Promise<Result<null>>;
   onChatEvent(listener: (event: ChatEvent) => void): () => void;
   onToolEvent(listener: (event: ToolEvent) => void): () => void;
@@ -61,6 +69,10 @@ export const API_KEYS: Array<keyof ExperiiApi> = [
   'cancelCard',
   'getCard',
   'rateCard',
+  'listNotes',
+  'createNote',
+  'updateNote',
+  'deleteNote',
   'openUsage',
   'onChatEvent',
   'onToolEvent',

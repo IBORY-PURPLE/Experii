@@ -26,6 +26,8 @@ const done: DoneNode = {
   summary: '예전 요약',
   interviewLine: '예전 한 마디',
   useful: null,
+  turns: 1,
+  notes: 0,
   createdAt: 0,
 };
 const nodes: RoadmapNode[] = [
@@ -35,6 +37,7 @@ const nodes: RoadmapNode[] = [
     conversationId: 'c-now',
     title: 'LEFT JOIN이 헷갈려요',
     turns: 2,
+    notes: 0,
     createdAt: 1,
   },
 ];
@@ -50,12 +53,9 @@ const roadmap = (making: string | null, fields: Fields | null) =>
       activeConversationId: null,
       makingConversationId: making,
       makingFields: fields,
-      openCardId: null,
       openLockedId: null,
-      cardView: null,
       lockedBubble: null,
-      onOpenConversation: () => {},
-      onOpenCard: () => {},
+      onOpenPage: () => {},
       onOpenLocked: () => {},
     }),
   );

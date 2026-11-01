@@ -7,6 +7,7 @@ import type {
   DoneNode,
   CurrentNode,
   LockedNode,
+  Note,
   Roadmap,
   Subject,
 } from '../shared/ipc';
@@ -31,6 +32,28 @@ export type CardSearch = {
 
 const SEARCHED = `(c.title || ' ' || c.summary || ' ' || c.interview_line || ' ' || c.concepts_json || ' ' ||
   c.star_action || ' ' || c.next_steps)`;
+
+export type NewNote = Pick<
+  Note,
+  'conversationId' | 'format' | 'text' | 'sourceSeq' | 'questionNo' | 'x' | 'y'
+>;
+export type NoteChange = Partial<Pick<Note, 'x' | 'y' | 'w' | 'h'>>;
+const NOTE_COLUMNS = ['x', 'y', 'w', 'h'] as const;
+
+const noteOf = (r: Row): Note => ({
+  id: String(r.id),
+  conversationId: String(r.conversation_id),
+  format: r.format === 'md' ? 'md' : 'plain',
+  text: String(r.text),
+  sourceSeq: Number(r.source_seq),
+  questionNo: Number(r.question_no),
+  x: Number(r.x),
+  y: Number(r.y),
+  w: r.w == null ? null : Number(r.w),
+  h: r.h == null ? null : Number(r.h),
+  createdAt: Number(r.created_at),
+  updatedAt: Number(r.updated_at),
+});
 
 const localDate = (ms: number) => {
   const d = new Date(ms);
@@ -211,7 +234,7 @@ export class Store {
   messages(conversationId: string): ChatMessage[] {
     const rows = this.db
       .prepare(
-        `SELECT role, text FROM items WHERE conversation_id = ? AND type = 'message' ORDER BY seq`,
+        `SELECT seq, role, text FROM items WHERE conversation_id = ? AND type = 'message' ORDER BY seq`,
       )
       .all(conversationId) as Row[];
     return rows
@@ -219,7 +242,81 @@ export class Store {
       .map((r) => ({
         role: r.role as ChatMessage['role'],
         text: String(r.text ?? ''),
+        seq: Number(r.seq),
       }));
+  }
+
+  // An answer belongs to the question count before it, tool rounds included; null when seq is not a saved answer.
+  questionNo(conversationId: string, seq: number): number | null {
+    const answer = this.db
+      .prepare(
+        `SELECT 1 FROM items WHERE conversation_id = ? AND seq = ? AND type = 'message' AND role = 'assistant'`,
+      )
+      .get(conversationId, seq);
+    if (!answer) return null;
+    const r = this.db
+      .prepare(
+        `SELECT COUNT(*) AS n FROM items WHERE conversation_id = ? AND seq < ? AND type = 'message' AND role = 'user'`,
+      )
+      .get(conversationId, seq) as Row;
+    return Number(r.n);
+  }
+
+  listNotes(conversationId: string): Note[] {
+    return (
+      this.db
+        .prepare(
+          'SELECT * FROM notes WHERE conversation_id = ? ORDER BY created_at, rowid',
+        )
+        .all(conversationId) as Row[]
+    ).map(noteOf);
+  }
+
+  getNote(id: string): Note | null {
+    const r = this.db.prepare('SELECT * FROM notes WHERE id = ?').get(id) as
+      | Row
+      | undefined;
+    return r ? noteOf(r) : null;
+  }
+
+  insertNote(n: NewNote): Note {
+    const id = randomUUID();
+    const at = this.now();
+    this.db
+      .prepare(
+        `INSERT INTO notes(id, conversation_id, source_seq, question_no, format, text, x, y, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        id,
+        n.conversationId,
+        n.sourceSeq,
+        n.questionNo,
+        n.format,
+        n.text,
+        n.x,
+        n.y,
+        at,
+        at,
+      );
+    return this.getNote(id)!;
+  }
+
+  updateNote(id: string, change: NoteChange): Note | null {
+    const columns = NOTE_COLUMNS.filter((c) => change[c] !== undefined);
+    this.db
+      .prepare(
+        `UPDATE notes SET ${columns.map((c) => `${c} = ?, `).join('')}updated_at = ? WHERE id = ?`,
+      )
+      .run(...columns.map((c) => change[c] ?? null), this.now(), id);
+    return this.getNote(id);
+  }
+
+  // Returns the row it removed, so the screen can put it back.
+  deleteNote(id: string): Note | null {
+    const note = this.getNote(id);
+    if (note) this.db.prepare('DELETE FROM notes WHERE id = ?').run(id);
+    return note;
   }
 
   // The user item and every output item land together or not at all, so a cancelled stream leaves nothing.
@@ -445,7 +542,8 @@ export class Store {
     const convs = this.db
       .prepare(
         `SELECT v.id, v.title, v.created_at, c.id AS card_id, c.title AS card_title, c.summary, c.interview_line, c.useful,
-           (SELECT COUNT(*) FROM items i WHERE i.conversation_id = v.id AND i.type = 'message' AND i.role = 'user') AS turns
+           (SELECT COUNT(*) FROM items i WHERE i.conversation_id = v.id AND i.type = 'message' AND i.role = 'user') AS turns,
+           (SELECT COUNT(*) FROM notes n WHERE n.conversation_id = v.id) AS notes
          FROM conversations v LEFT JOIN experience_cards c ON c.conversation_id = v.id
          WHERE v.subject_id = ? ORDER BY v.created_at, v.rowid`,
       )
@@ -462,6 +560,8 @@ export class Store {
           summary: String(r.summary),
           interviewLine: String(r.interview_line),
           useful: r.useful == null ? null : Number(r.useful) === 1,
+          turns: Number(r.turns),
+          notes: Number(r.notes),
           createdAt: Number(r.created_at),
         });
       } else if (Number(r.turns) > 0) {
@@ -470,6 +570,7 @@ export class Store {
           conversationId: String(r.id),
           title: String(r.title),
           turns: Number(r.turns),
+          notes: Number(r.notes),
           createdAt: Number(r.created_at),
         });
       }

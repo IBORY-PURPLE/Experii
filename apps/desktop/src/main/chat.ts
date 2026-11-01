@@ -118,6 +118,10 @@ export class ChatService {
     };
   }
 
+  isPending(id: string): boolean {
+    return this.pending.has(id);
+  }
+
   // The next send uses the model, and it becomes the default for new conversations.
   setModel(id: string, model: string) {
     const pending = this.pending.get(id);
