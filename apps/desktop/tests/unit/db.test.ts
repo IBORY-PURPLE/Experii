@@ -42,6 +42,12 @@ function conversation(
   return id;
 }
 
+const version = (db: DatabaseSync) =>
+  Number(
+    (db.prepare('PRAGMA user_version').get() as { user_version: number })
+      .user_version,
+  );
+
 describe('migrate', () => {
   it('backs up with VACUUM INTO before applying a newer migration', () => {
     const file = path.join(dir, 'up.db');
@@ -50,19 +56,46 @@ describe('migrate', () => {
     migrate(db, file);
     db.exec(`INSERT INTO settings VALUES ('k', 'v')`);
     migrate(db, file, [...MIGRATIONS, 'CREATE TABLE extra (x)']);
-    expect(existsSync(`${file}.bak-v1`)).toBe(true);
-    const backup = new DatabaseSync(`${file}.bak-v1`);
+    const bak = `${file}.bak-v${MIGRATIONS.length}`;
+    expect(existsSync(bak)).toBe(true);
+    const backup = new DatabaseSync(bak);
     expect(backup.prepare('SELECT value FROM settings').get()).toEqual({
       value: 'v',
     });
-    expect(
-      Number(
-        (db.prepare('PRAGMA user_version').get() as { user_version: number })
-          .user_version,
-      ),
-    ).toBe(2);
+    expect(version(db)).toBe(MIGRATIONS.length + 1);
     backup.close();
     db.close();
+  });
+
+  it('takes a version 1 database to the notes table and keeps a v1 backup', () => {
+    const file = path.join(dir, 'v1.db');
+    const old = new DatabaseSync(file);
+    old.exec('PRAGMA journal_mode = WAL');
+    migrate(old, file, MIGRATIONS.slice(0, 1));
+    old.exec(
+      `INSERT INTO subjects VALUES ('s', 'SQLD', 1, 1);
+       INSERT INTO conversations VALUES ('c', 's', NULL, 'm', '대화', 1, 1);`,
+    );
+    old.close();
+
+    const upgraded = new Store(file);
+    expect(version(upgraded.db)).toBe(2);
+    expect(upgraded.listNotes('c')).toEqual([]);
+    expect(upgraded.getConversationRow('c')?.title).toBe('대화');
+    upgraded.close();
+
+    const backup = new DatabaseSync(`${file}.bak-v1`);
+    expect(version(backup)).toBe(1);
+    expect(
+      backup
+        .prepare(`SELECT name FROM sqlite_master WHERE name = 'notes'`)
+        .get(),
+      'the backup is the database as it was before',
+    ).toBeUndefined();
+    expect(backup.prepare('SELECT title FROM subjects').get()).toEqual({
+      title: 'SQLD',
+    });
+    backup.close();
   });
 });
 
@@ -87,11 +120,11 @@ describe('Store', () => {
       [assistant('둘 답')],
     );
     expect(store.items(id).map((i) => i.seq)).toEqual([1, 2, 3, 4]);
-    expect(store.messages(id).map((m) => m.text)).toEqual([
-      '질문',
-      '답',
-      '둘',
-      '둘 답',
+    expect(store.messages(id).map((m) => [m.seq, m.text])).toEqual([
+      [1, '질문'],
+      [2, '답'],
+      [3, '둘'],
+      [4, '둘 답'],
     ]);
   });
 
@@ -165,6 +198,62 @@ describe('Store', () => {
     expect(locked.map((n) => n.title)).toEqual(['최신 추천']);
   });
 
+  it('searches cards for every word, newest first, taking %, _ and \\ literally', () => {
+    const sql = store.createSubject('SQLD');
+    const net = store.createSubject('네트워크');
+    store.upsertCard(conversation(sql.id), cardBody(), {}, 'm', 'v');
+    store.upsertCard(
+      conversation(sql.id),
+      cardBody({
+        title: '인덱스 100% 활용',
+        summary: '조인 순서와 인덱스 a_b',
+        concepts: ['INDEX'],
+        next_steps: '실행 계획 보기',
+      }),
+      {},
+      'm',
+      'v',
+    );
+    store.upsertCard(
+      conversation(net.id),
+      cardBody({
+        title: 'TCP와 JOIN 없는 세상',
+        summary: 'SYN acb',
+        concepts: ['TCP'],
+        next_steps: 'UDP',
+      }),
+      {},
+      'm',
+      'v',
+    );
+    const titles = (query: string) =>
+      store.searchCards(query).cards.map((c) => c.title);
+
+    const join = store.searchCards('join');
+    expect(join.total).toBe(2);
+    expect(join.cards.map((c) => [c.subject, c.title])).toEqual([
+      ['네트워크', 'TCP와 JOIN 없는 세상'],
+      ['SQLD', cardBody().title],
+    ]);
+    expect(join.cards[1]).toMatchObject({
+      summary: cardBody().summary,
+      interview_line: cardBody().interview_line,
+      concepts: cardBody().concepts,
+      created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    });
+    expect(titles('JOIN  LEFT')).toEqual([cardBody().title]);
+    expect(titles('%')).toEqual(['인덱스 100% 활용']);
+    expect(titles('a_b')).toEqual(['인덱스 100% 활용']);
+    expect(titles('\\')).toEqual([]);
+
+    const all = store.searchCards('  ', 2);
+    expect(all.total).toBe(3);
+    expect(all.cards.map((c) => c.title)).toEqual([
+      'TCP와 JOIN 없는 세상',
+      '인덱스 100% 활용',
+    ]);
+  });
+
   it('builds the roadmap: done, then in-progress, then unstarted locked nodes', () => {
     const s = store.createSubject('SQLD');
     const a = conversation(s.id);
@@ -192,7 +281,9 @@ describe('Store', () => {
       kind: 'current',
       conversationId: a,
       turns: 1,
+      notes: 0,
     });
+    expect(map.nodes[0]).toMatchObject({ kind: 'done', turns: 1, notes: 0 });
     expect(map.stats).toEqual({ cards: 1, useful: 0, rated: 0, unrated: 1 });
 
     const rec = map.nodes.find(

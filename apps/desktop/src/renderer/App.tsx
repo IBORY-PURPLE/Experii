@@ -1,21 +1,64 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type DragEvent,
+} from 'react';
 import type { StoredCard } from '../shared/card';
 import type {
   AuthStatus,
+  CardField,
   ChatEvent,
   ConversationView,
+  CurrentNode,
   DoneNode,
   LockedNode,
+  ModelList,
+  Note,
   Result,
   Roadmap as RoadmapData,
   Subject,
 } from '../shared/ipc';
+import type { Point } from './canvas';
 import { CardView } from './CardView';
 import { ChatPanel, type Banner } from './ChatPanel';
+import {
+  REFUSALS,
+  carriesNote,
+  draggedPick,
+  readDrop,
+  type Pick,
+} from './collect';
 import { NewSubjectDialog, RegenerateDialog } from './Dialog';
+import { dayLabel } from './format';
 import { Gate } from './Gate';
+import { Page } from './icons';
+import { ModelSelect } from './ModelSelect';
+import { NotePage, consultDraft, type PageInfo } from './NotePage';
+import {
+  DEFAULT_VIEW,
+  activePlace,
+  canBack,
+  canForward,
+  closeTab,
+  keepOnly,
+  loadSaved,
+  samePlace,
+  startPages,
+  step,
+  storeSaved,
+  visit,
+  type Pages,
+  type Saved,
+  type View,
+} from './pages';
+import { Pane, useLayout } from './Panes';
 import { LockedBubble, Roadmap } from './Roadmap';
 import { Sidebar } from './Sidebar';
+import { TabBar, type TabInfo } from './Tabs';
+import { withToolEvent, type LiveToolLine } from './ToolLines';
 
 const api = window.experii;
 
@@ -36,13 +79,34 @@ type Stream = {
   conversationId: string;
   text: string;
   sent: string;
+  tools: LiveToolLine[];
 };
 
-type Making = { conversationId: string; subjectId: string; title: string };
+type Making = {
+  conversationId: string;
+  subjectId: string;
+  title: string;
+  fields: Partial<Record<CardField, string>>;
+};
 
 type DialogState =
   | { kind: 'subject' }
   | { kind: 'regenerate'; conversationId: string };
+
+type Toast = {
+  key: number;
+  text: string;
+  action?: { label: string; run(): void };
+};
+
+type PathNode = DoneNode | CurrentNode;
+
+const NOTE_ERRORS: Record<string, string> = {
+  not_saved: '첫 답을 받은 뒤 필기할 수 있어요',
+  invalid_source: '저장된 GPT 답에서만 필기할 수 있어요',
+};
+
+const ROADMAP = { kind: 'roadmap' } as const;
 
 export function App() {
   const [auth, setAuth] = useState<AuthStatus | null>(null);
@@ -62,6 +126,20 @@ export function App() {
   const [card, setCard] = useState<StoredCard | null>(null);
   const [openLockedId, setOpenLockedId] = useState<string | null>(null);
   const [making, setMaking] = useState<Making | null>(null);
+  const [models, setModels] = useState<ModelList | null>(null);
+  const [pages, setPagesState] = useState<Pages>(() => startPages());
+  const [saved, setSaved] = useState<Saved>(loadSaved);
+  const [notes, setNotes] = useState<Record<string, Note[]>>({});
+  const [pendingPick, setPendingPick] = useState<
+    (Pick & { key: number }) | null
+  >(null);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [freshPin, setFreshPin] = useState<string | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
+  const [reveal, setReveal] = useState<{ id: string; key: number } | null>(
+    null,
+  );
+  const [roadDrop, setRoadDrop] = useState<Point | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const streamRef = useRef<Stream | null>(null);
   streamRef.current = stream;
@@ -70,6 +148,22 @@ export function App() {
   convRef.current = conv;
   const subjectRef = useRef<string | null>(null);
   subjectRef.current = subjectId;
+  const cardRef = useRef<StoredCard | null>(null);
+  cardRef.current = card;
+  const pagesRef = useRef(pages);
+  const savedRef = useRef(saved);
+  savedRef.current = saved;
+  const notesRef = useRef(notes);
+  notesRef.current = notes;
+  const pickSeq = useRef(0);
+  // the last removed note, to put back once
+  const undoRef = useRef<{ page: string; run(): void } | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const roadEl = useRef<HTMLDivElement>(null);
+  const roadScroll = useRef(0);
+  const { layout, setOpen } = useLayout(
+    auth?.state === 'signed_in' && !gate.planRequired,
+  );
 
   const loadRoadmap = useCallback(async (id: string) => {
     const [map, list] = await Promise.all([
@@ -83,6 +177,17 @@ export function App() {
 
   const stopStream = useCallback(() => {
     if (streamRef.current) void api.cancel(streamRef.current.id);
+  }, []);
+
+  const setPages = useCallback((next: Pages) => {
+    pagesRef.current = next;
+    setPagesState(next);
+  }, []);
+
+  const showToast = useCallback((text: string, action?: Toast['action']) => {
+    clearTimeout(toastTimer.current);
+    setToast({ key: Date.now(), text, action });
+    toastTimer.current = setTimeout(() => setToast(null), action ? 8000 : 3200);
   }, []);
 
   const showConversation = useCallback((view: ConversationView) => {
@@ -99,32 +204,66 @@ export function App() {
     [stopStream, showConversation],
   );
 
-  const newConversation = useCallback(
-    async (sid: string, recommendedNodeId?: string) => {
-      stopStream();
-      showConversation(
-        await call(api.openConversation(sid, recommendedNodeId)),
-      );
-    },
-    [stopStream, showConversation],
-  );
-
   const showCard = useCallback(async (cardId: string) => {
     setCard(await call(api.getCard(cardId)));
     setOpenLockedId(null);
   }, []);
+
+  const loadNotes = useCallback(async (id: string) => {
+    const r = await api.listNotes(id);
+    if (r.ok) setNotes((m) => ({ ...m, [id]: r.data }));
+  }, []);
+
+  // Moving between places keeps the chat on the page in front; the roadmap leaves the chat as it is.
+  const go = useCallback(
+    (next: Pages) => {
+      const place = activePlace(next);
+      const before = activePlace(pagesRef.current);
+      setPages(next);
+      if (!samePlace(place, before)) {
+        setCard(null);
+        setOpenLockedId(null);
+        setReveal(null);
+      }
+      if (place.kind !== 'page') return;
+      if (convRef.current?.id !== place.id) void openConversation(place.id);
+      if (!notesRef.current[place.id]) void loadNotes(place.id);
+    },
+    [setPages, openConversation, loadNotes],
+  );
+
+  const openPage = useCallback(
+    (id: string) => go(visit(pagesRef.current, { kind: 'page', id })),
+    [go],
+  );
+
+  // A new conversation gets its own page tab when asked for one (the tab strip's +) or when a page is in front, so the
+  // chat keeps showing the page in the middle; from the roadmap it stays on the roadmap.
+  const newConversation = useCallback(
+    async (sid: string, recommendedNodeId?: string, tab = false) => {
+      stopStream();
+      const view = await call(api.openConversation(sid, recommendedNodeId));
+      showConversation(view);
+      if (!tab && activePlace(pagesRef.current).kind !== 'page') return;
+      convRef.current = view;
+      go(visit(pagesRef.current, { kind: 'page', id: view.id }));
+    },
+    [stopStream, showConversation, go],
+  );
 
   // Past conversations reopen only from the path or a card; entering a subject, at launch too, always starts a new one.
   const selectSubject = useCallback(
     async (id: string) => {
       stopStream();
       setSubjectId(id);
+      setPages(startPages(savedRef.current.tabs[id]));
+      setPendingPick(null);
       setCard(null);
       setOpenLockedId(null);
       await loadRoadmap(id);
       await newConversation(id);
     },
-    [loadRoadmap, newConversation, stopStream],
+    [loadRoadmap, newConversation, stopStream, setPages],
   );
 
   const enterApp = useCallback(async () => {
@@ -170,18 +309,28 @@ export function App() {
     setConv(null);
     setCard(null);
     setOpenLockedId(null);
-  }, [stopStream]);
+    setPages(startPages());
+    setPendingPick(null);
+  }, [stopStream, setPages]);
 
   const send = useCallback(
     async (override?: string) => {
       const text = (override ?? input).trim();
       if (!conv || !text || streamRef.current) return;
       const id = crypto.randomUUID();
-      setConv({
-        ...conv,
-        messages: [...conv.messages, { role: 'user', text }],
-      });
-      const next = { id, conversationId: conv.id, text: '', sent: text };
+      // A banner's resend runs a send from before the failed question was taken back, so append to the latest state.
+      setConv((c) =>
+        c && c.id === conv.id
+          ? { ...c, messages: [...c.messages, { role: 'user', text }] }
+          : c,
+      );
+      const next = {
+        id,
+        conversationId: conv.id,
+        text: '',
+        sent: text,
+        tools: [],
+      };
       streamRef.current = next;
       setStream(next);
       setInput('');
@@ -201,7 +350,21 @@ export function App() {
     [conv, input],
   );
 
-  const focusInput = () => inputRef.current?.focus();
+  const pickModel = async (model: string) => {
+    const target = convRef.current;
+    if (!target || streamRef.current || target.model === model) return;
+    const set = (value: string | null) =>
+      setConv((c) => (c && c.id === target.id ? { ...c, model: value } : c));
+    set(model);
+    const r = await api.setConversationModel(target.id, model);
+    if (!r.ok) set(target.model);
+    else setModels((l) => l && { ...l, current: model });
+  };
+
+  const focusInput = () => {
+    setOpen('chat', true);
+    inputRef.current?.focus();
+  };
 
   // The sign-in screen shows the waiting state and its cancel button; the banner alone could not.
   const relogin = () => {
@@ -233,6 +396,7 @@ export function App() {
   const bannerFor = (code: string, sent: string): Banner => {
     const kept = '보낸 메시지는 입력창에 그대로 있어요.';
     const target = convRef.current;
+    const resend = { label: '다시 보내기', run: () => void send(sent) };
     switch (code) {
       case 'unauthorized':
         return reloginBanner(`로그인이 만료됐어요. ${kept}`);
@@ -262,12 +426,26 @@ export function App() {
           body: '답이 끝나면 다시 보내 주세요.',
           actions: [],
         };
+      case 'unsupported':
+        return {
+          tone: 'err',
+          title: '이 계정이 받지 않는 기능이 있었어요',
+          body: `로그인한 ChatGPT 계정이 이번 요청에 쓴 기능 하나를 받지 않았어요. ${kept}`,
+          actions: [resend],
+        };
+      case 'tool_limit':
+        return {
+          tone: 'err',
+          title: '도구를 너무 여러 번 불렀어요',
+          body: `GPT가 답을 쓰면서 도구를 계속 불러서 중간에 멈췄어요. ${kept}`,
+          actions: [resend],
+        };
       default:
         return {
           tone: 'err',
           title: '답을 받지 못했어요',
           body: `네트워크가 끊겼거나 응답이 중간에 멈췄어요. ${kept}`,
-          actions: [{ label: '다시 보내기', run: () => void send(sent) }],
+          actions: [resend],
         };
     }
   };
@@ -350,14 +528,28 @@ export function App() {
         node && node.kind !== 'locked'
           ? node.title
           : (convRef.current?.title ?? ''),
+      fields: {},
     });
     const r = await api.generateCard(conversationId);
+    const cardId = r.ok && r.data.kind === 'card' ? r.data.cardId : null;
+    // The tile keeps the fields it streamed until the reloaded path has the card, so it never flashes back.
+    if (cardId && subjectRef.current === sid)
+      await loadRoadmap(sid).catch(() => null);
     setMaking(null);
     if (subjectRef.current !== sid) return;
-    if (r.ok && r.data.kind === 'card') {
-      const { cardId } = r.data;
-      await loadRoadmap(sid);
-      await showCard(cardId);
+    if (cardId) {
+      // A card that lands while an answer streams waits on the path, so the reader keeps their place.
+      // Otherwise its page comes to the front with the summary and the rating in view.
+      if (!streamRef.current) {
+        openPage(conversationId);
+        setFreshPin(conversationId);
+        setTimeout(
+          () => setFreshPin((f) => (f === conversationId ? null : f)),
+          2000,
+        );
+      }
+      if (cardRef.current?.conversationId === conversationId)
+        await showCard(cardId);
       setConv((c) => (c && c.id === conversationId ? { ...c, cardId } : c));
       return;
     }
@@ -370,27 +562,13 @@ export function App() {
     setBanner(cardBanner(r.ok ? r.data.kind : r.code, conversationId));
   };
 
-  const openDone = async (node: DoneNode, toggle: boolean) => {
-    if (toggle && card?.id === node.cardId) {
-      setCard(null);
-      return;
-    }
-    await showCard(node.cardId);
-    if (convRef.current?.id !== node.conversationId)
-      await openConversation(node.conversationId);
-  };
-
-  const rate = async (useful: boolean) => {
-    if (!card || !subjectId) return;
-    await call(api.rateCard(card.id, useful));
-    setCard(await call(api.getCard(card.id)));
+  // The rating is the same from the pinned summary and from the whole card.
+  const rate = async (cardId: string, useful: boolean) => {
+    if (!subjectId) return;
+    await call(api.rateCard(cardId, useful));
+    if (cardRef.current?.id === cardId)
+      setCard(await call(api.getCard(cardId)));
     await loadRoadmap(subjectId);
-  };
-
-  const reopen = async (target: StoredCard) => {
-    if (convRef.current?.id !== target.conversationId)
-      await openConversation(target.conversationId);
-    focusInput();
   };
 
   const regenerate = async (target: StoredCard) => {
@@ -409,6 +587,158 @@ export function App() {
     setOpenLockedId(null);
     await newConversation(subjectId, node.id);
     focusInput();
+  };
+
+  const refreshPath = () => {
+    if (subjectRef.current) void loadRoadmap(subjectRef.current);
+  };
+
+  const putNote = (note: Note) =>
+    setNotes((m) => {
+      const list = m[note.conversationId] ?? [];
+      const next = list.some((n) => n.id === note.id)
+        ? list.map((n) => (n.id === note.id ? note : n))
+        : [...list, note];
+      return { ...m, [note.conversationId]: next };
+    });
+
+  const dropNote = (note: Note) =>
+    setNotes((m) => ({
+      ...m,
+      [note.conversationId]: (m[note.conversationId] ?? []).filter(
+        (n) => n.id !== note.id,
+      ),
+    }));
+
+  const flashNote = (id: string) => {
+    setFlash(id);
+    setTimeout(() => setFlash((f) => (f === id ? null : f)), 1700);
+  };
+
+  // A note the user just made, or the one the same words already made, is brought into view.
+  const showNote = (id: string) => {
+    flashNote(id);
+    setReveal({ id, key: ++pickSeq.current });
+  };
+
+  const placeNote = async (pick: Pick, at: Point) => {
+    setPendingPick(null);
+    const r = await api.createNote({
+      conversationId: pick.conversationId,
+      text: pick.text,
+      sourceSeq: pick.seq,
+      questionNo: pick.q,
+      x: at.x,
+      y: at.y,
+    });
+    if (!r.ok) {
+      showToast(NOTE_ERRORS[r.code] ?? '필기를 저장하지 못했어요');
+      return;
+    }
+    const { note, duplicate } = r.data;
+    showNote(note.id);
+    if (duplicate) {
+      showToast('이미 필기한 부분이에요');
+      return;
+    }
+    putNote(note);
+    showToast(`Q${note.questionNo} 답에서 필기를 남겼어요`);
+    refreshPath();
+  };
+
+  // Words kept without a spot to land on (the button, or a drop on the roadmap) go to the page, which finds them room.
+  const collect = (pick: Pick) => {
+    if (pick.conversationId !== convRef.current?.id) return;
+    openPage(pick.conversationId);
+    setPendingPick({ ...pick, key: ++pickSeq.current });
+  };
+
+  const moveNote = async (note: Note, at: Point) => {
+    putNote({ ...note, ...at, updatedAt: Date.now() });
+    const r = await api.updateNote(note.id, at);
+    if (r.ok) putNote(r.data);
+    else {
+      putNote(note);
+      showToast('필기를 옮기지 못했어요');
+    }
+  };
+
+  const restoreNote = async (old: Note) => {
+    const r = await api.createNote({
+      conversationId: old.conversationId,
+      text: old.text,
+      sourceSeq: old.sourceSeq,
+      x: old.x,
+      y: old.y,
+    });
+    if (!r.ok) {
+      showToast('되돌리지 못했어요');
+      return;
+    }
+    putNote(r.data.note);
+    flashNote(r.data.note.id);
+    refreshPath();
+  };
+
+  const deleteNote = async (note: Note) => {
+    dropNote(note);
+    const r = await api.deleteNote(note.id);
+    if (!r.ok) {
+      putNote(note);
+      showToast('필기를 지우지 못했어요');
+      return;
+    }
+    refreshPath();
+    // One step back, from the toast or Ctrl+Z, whichever comes first.
+    const undo = {
+      page: note.conversationId,
+      run: () => {
+        if (undoRef.current !== undo) return;
+        undoRef.current = null;
+        void restoreNote(r.data);
+      },
+    };
+    undoRef.current = undo;
+    showToast('필기를 지웠어요', { label: '되돌리기', run: undo.run });
+  };
+
+  // The answer a note came from, brought into view in the chat beside it.
+  const showSource = (note: Note) => {
+    const answer = document.querySelector<HTMLElement>(
+      `.messages .msg-ai[data-seq="${note.sourceSeq}"]`,
+    );
+    if (!answer) return;
+    setOpen('chat', true);
+    answer.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    answer.animate(
+      [
+        { backgroundColor: 'var(--wash-2)' },
+        { backgroundColor: 'transparent' },
+      ],
+      { duration: 1400, easing: 'ease-out' },
+    );
+  };
+
+  const consult = (conversationId: string, locked: LockedNode[]) => {
+    const draft = consultDraft(locked, notesRef.current[conversationId] ?? []);
+    setInput((cur) => (cur.trim() ? `${cur.trimEnd()}\n\n${draft}` : draft));
+    focusInput();
+  };
+
+  const onRoadDrag = (e: DragEvent<HTMLDivElement>) => {
+    if (!carriesNote(e.dataTransfer)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    const r = e.currentTarget.getBoundingClientRect();
+    setRoadDrop({ x: e.clientX - r.left, y: e.clientY - r.top });
+  };
+
+  const onRoadDrop = (e: DragEvent<HTMLDivElement>) => {
+    if (!carriesNote(e.dataTransfer)) return;
+    e.preventDefault();
+    setRoadDrop(null);
+    const pick = readDrop(e.dataTransfer);
+    if (pick) collect(pick);
   };
 
   function onStreamError(ev: ChatEvent, sent: string) {
@@ -455,6 +785,20 @@ export function App() {
 
   useEffect(() => {
     const offChat = api.onChatEvent((ev) => handlerRef.current(ev));
+    const offTool = api.onToolEvent((ev) =>
+      setStream((cur) =>
+        cur?.id === ev.streamId
+          ? { ...cur, tools: withToolEvent(cur.tools, ev) }
+          : cur,
+      ),
+    );
+    const offCard = api.onCardEvent((ev) =>
+      setMaking((m) =>
+        m?.conversationId === ev.conversationId
+          ? { ...m, fields: { ...m.fields, [ev.field]: ev.text } }
+          : m,
+      ),
+    );
     const offAuth = api.onAuthChanged(() => {
       void call(api.authStatus()).then(setAuth);
     });
@@ -464,9 +808,99 @@ export function App() {
     });
     return () => {
       offChat();
+      offTool();
+      offCard();
       offAuth();
     };
   }, [enterApp]);
+
+  // Main keeps the list once the server sends it, so asking per conversation is cheap and recovers from a failure.
+  const convId = conv?.id;
+  useEffect(() => {
+    if (!convId) return;
+    let live = true;
+    void api.listModels().then((r) => {
+      if (live) setModels(r.ok ? r.data : null);
+    });
+    return () => {
+      live = false;
+    };
+  }, [convId]);
+
+  useEffect(() => storeSaved(saved), [saved]);
+
+  // The chat marks what its conversation already has as notes, wherever the middle is.
+  const chatSaved = conv?.saved ? conv.id : null;
+  useEffect(() => {
+    if (chatSaved && !notesRef.current[chatSaved]) void loadNotes(chatSaved);
+  }, [chatSaved, loadNotes]);
+
+  // The open tabs are kept per subject, as they are now.
+  useEffect(() => {
+    if (!subjectId) return;
+    setSaved((s) =>
+      (s.tabs[subjectId] ?? []).join() === pages.tabs.join()
+        ? s
+        : { ...s, tabs: { ...s.tabs, [subjectId]: pages.tabs } },
+    );
+  }, [pages.tabs, subjectId]);
+
+  // Tabs kept from an earlier launch whose conversation is no longer on the path close.
+  useEffect(() => {
+    if (!roadmap || roadmap.subject.id !== subjectRef.current) return;
+    const alive = new Set(
+      roadmap.nodes.flatMap((n) =>
+        n.kind === 'locked' ? [] : [n.conversationId],
+      ),
+    );
+    if (convRef.current) alive.add(convRef.current.id);
+    const next = keepOnly(pagesRef.current, alive);
+    if (next !== pagesRef.current) setPages(next);
+  }, [roadmap, setPages]);
+
+  // Alt+← and Alt+→, or the mouse's side buttons, go back and forward between places, as a browser does.
+  const stepRef = useRef<(by: -1 | 1) => void>(() => {});
+  stepRef.current = (by) => go(step(pagesRef.current, by));
+  const signedIn = auth?.state === 'signed_in';
+  useEffect(() => {
+    if (!signedIn) return;
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.ctrlKey && !e.altKey && !e.shiftKey && e.code === 'KeyZ') {
+        // Text boxes keep their own undo; elsewhere Ctrl+Z puts back the note just removed from the page in front.
+        const t = e.target as HTMLElement | null;
+        if (t?.closest?.('input, textarea, [contenteditable="true"]')) return;
+        const undo = undoRef.current;
+        const front = activePlace(pagesRef.current);
+        if (!undo || front.kind !== 'page' || front.id !== undo.page) return;
+        e.preventDefault();
+        undo.run();
+        return;
+      }
+      if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      stepRef.current(e.key === 'ArrowLeft' ? -1 : 1);
+    };
+    const onMouse = (e: MouseEvent) => {
+      if (e.button !== 3 && e.button !== 4) return;
+      e.preventDefault();
+      stepRef.current(e.button === 3 ? -1 : 1);
+    };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('mouseup', onMouse);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('mouseup', onMouse);
+    };
+  }, [signedIn]);
+
+  const place = activePlace(pages);
+  const placeKey = place.kind === 'page' ? place.id : 'roadmap';
+  useLayoutEffect(() => {
+    if (placeKey === 'roadmap' && roadEl.current)
+      roadEl.current.scrollTop = roadScroll.current;
+  }, [placeKey]);
 
   const createSubject = async (title: string) => {
     const r = await api.createSubject(title);
@@ -504,6 +938,71 @@ export function App() {
     (n): n is LockedNode => n.kind === 'locked' && n.id === openLockedId,
   );
   const makingHere = making?.subjectId === subjectId ? making : null;
+  const path = (roadmap?.nodes.filter((n) => n.kind !== 'locked') ??
+    []) as PathNode[];
+  const locked = (roadmap?.nodes.filter((n) => n.kind === 'locked') ??
+    []) as LockedNode[];
+  // Recommendations come only from the card of the subject's latest conversation (db.ts upsertCard).
+  const latestDone =
+    path.reduce<PathNode | null>(
+      (a, n) => (!a || n.createdAt >= a.createdAt ? n : a),
+      null,
+    )?.kind === 'done';
+
+  // A conversation in the chat may have no node yet: not saved (a new page) or just saved before the path reloads.
+  const pageInfo = (id: string): PageInfo | null => {
+    const i = path.findIndex((n) => n.conversationId === id);
+    const node = path[i];
+    const chat = conv?.id === id ? conv : null;
+    if (!subject || (!node && !chat)) return null;
+    const saved = !!node || !!chat?.saved;
+    return {
+      conversationId: id,
+      title: node?.title ?? (saved ? chat!.title : '새 페이지'),
+      subjectTitle: subject.title,
+      order: (i < 0 ? path.length : i) + 1,
+      turns:
+        node?.turns ?? chat!.messages.filter((m) => m.role === 'user').length,
+      card: node?.kind === 'done' ? node : null,
+      saved,
+    };
+  };
+
+  const tabs: TabInfo[] = pages.tabs.flatMap((id) => {
+    const info = pageInfo(id);
+    if (!info) return [];
+    const node = path.find((n) => n.conversationId === id);
+    return [
+      {
+        id,
+        title: info.title,
+        notes: notes[id]?.length ?? node?.notes ?? 0,
+        done: !!info.card,
+        state: info.card
+          ? dayLabel(info.card.createdAt)
+          : info.saved
+            ? '진행 중'
+            : '첫 답 전',
+      },
+    ];
+  });
+
+  const page = place.kind === 'page' ? pageInfo(place.id) : null;
+  const pageId = page?.conversationId ?? null;
+  const pageCard = page?.card ?? null;
+  const fullCard =
+    page && card?.conversationId === page.conversationId && subject ? (
+      <CardView
+        card={card}
+        subjectTitle={subject.title}
+        regenerating={making?.conversationId === card.conversationId}
+        onRate={(useful) => void rate(card.id, useful)}
+        onAsk={focusInput}
+        onRegenerate={() => void regenerate(card)}
+        onClose={() => setCard(null)}
+      />
+    ) : null;
+  const dropping = roadDrop && draggedPick();
 
   const headAction = conv?.saved ? (
     making?.conversationId === conv.id ? (
@@ -531,52 +1030,166 @@ export function App() {
   ) : null;
 
   return (
-    <div className="app">
-      <Sidebar
-        subjects={subjects}
-        subjectId={subjectId}
-        experiences={[...done].reverse()}
-        making={makingHere}
-        openCardId={card?.id ?? null}
-        account="ChatGPT Plus"
-        onSelect={(id) => void selectSubject(id)}
-        onNewSubject={() => setDialog({ kind: 'subject' })}
-        onOpenCard={(n) => void openDone(n, false)}
-        onSignOut={() => void signOut()}
-      />
+    <div
+      className="app"
+      data-sidebar={layout.sidebar ? 'open' : 'folded'}
+      data-chat={layout.chat ? 'open' : 'folded'}
+    >
+      <Pane
+        panel="sidebar"
+        open={layout.sidebar}
+        onOpen={() => setOpen('sidebar', true)}
+      >
+        <Sidebar
+          subjects={subjects}
+          subjectId={subjectId}
+          experiences={[...done].reverse()}
+          making={makingHere}
+          openCardId={pageCard?.cardId ?? null}
+          account="ChatGPT Plus"
+          onSelect={(id) => void selectSubject(id)}
+          onNewSubject={() => setDialog({ kind: 'subject' })}
+          onOpenCard={(n) => openPage(n.conversationId)}
+          onSignOut={() => void signOut()}
+          onFold={() => setOpen('sidebar', false)}
+        />
+      </Pane>
       <main className="middle">
         {roadmap && subject ? (
-          <Roadmap
-            roadmap={roadmap}
-            activeConversationId={conv?.id ?? null}
-            makingConversationId={makingHere?.conversationId ?? null}
-            openCardId={card?.id ?? null}
-            openLockedId={lockedNode?.id ?? null}
-            cardView={
-              card && (
-                <CardView
-                  card={card}
-                  subjectTitle={subject.title}
-                  regenerating={making?.conversationId === card.conversationId}
-                  onRate={(useful) => void rate(useful)}
-                  onReopen={() => void reopen(card)}
-                  onRegenerate={() => void regenerate(card)}
-                  onClose={() => setCard(null)}
+          <>
+            <TabBar
+              subjectTitle={subject.title}
+              tabs={tabs}
+              active={pageId}
+              canBack={canBack(pages)}
+              canForward={canForward(pages)}
+              onBack={() => stepRef.current(-1)}
+              onForward={() => stepRef.current(1)}
+              onRoadmap={() => go(visit(pagesRef.current, ROADMAP))}
+              onOpen={openPage}
+              onClose={(id) => go(closeTab(pagesRef.current, id))}
+              onNew={() =>
+                void newConversation(subject.id, undefined, true).then(() =>
+                  focusInput(),
+                )
+              }
+            />
+            <div className="view">
+              {page ? (
+                <NotePage
+                  key={page.conversationId}
+                  page={page}
+                  notes={notes[page.conversationId] ?? (page.saved ? null : [])}
+                  view={saved.views[page.conversationId] ?? DEFAULT_VIEW}
+                  making={
+                    makingHere?.conversationId === page.conversationId
+                      ? makingHere.fields
+                      : null
+                  }
+                  fullCard={fullCard}
+                  fresh={freshPin === page.conversationId}
+                  flash={flash}
+                  reveal={reveal}
+                  pick={pendingPick}
+                  locked={locked}
+                  nothingNext={
+                    latestDone
+                      ? '추천한 공부를 모두 시작했어요.'
+                      : '이 과목의 가장 최근 대화를 경험으로 남기면 다음 공부 추천이 생겨요.'
+                  }
+                  onView={(v: View) =>
+                    setSaved((s) => ({
+                      ...s,
+                      views: {
+                        ...Object.fromEntries(
+                          Object.entries(s.views).filter(
+                            ([id]) => id !== page.conversationId,
+                          ),
+                        ),
+                        [page.conversationId]: v,
+                      },
+                    }))
+                  }
+                  onPlace={(pick, at) => void placeNote(pick, at)}
+                  onElsewhere={collect}
+                  onMove={(note, at) => void moveNote(note, at)}
+                  onDelete={(note) => void deleteNote(note)}
+                  onSource={showSource}
+                  onRate={(useful) =>
+                    pageCard && void rate(pageCard.cardId, useful)
+                  }
+                  onExpand={() => pageCard && void showCard(pageCard.cardId)}
+                  onStart={(node) => void startRecommended(node)}
+                  onConsult={() => consult(page.conversationId, locked)}
                 />
-              )
-            }
-            lockedBubble={
-              lockedNode && (
-                <LockedBubble
-                  node={lockedNode}
-                  onStart={() => void startRecommended(lockedNode)}
-                />
-              )
-            }
-            onOpenConversation={(id) => void openConversation(id)}
-            onOpenCard={(n) => void openDone(n, true)}
-            onOpenLocked={toggleLocked}
-          />
+              ) : (
+                <div
+                  className="roadmap-view"
+                  ref={roadEl}
+                  onScroll={(e) =>
+                    (roadScroll.current = e.currentTarget.scrollTop)
+                  }
+                  onDragEnter={onRoadDrag}
+                  onDragOver={onRoadDrag}
+                  onDragLeave={(e) => {
+                    const to = e.relatedTarget as Node | null;
+                    if (!to || !e.currentTarget.contains(to)) setRoadDrop(null);
+                  }}
+                  onDrop={onRoadDrop}
+                >
+                  <Roadmap
+                    roadmap={roadmap}
+                    activeConversationId={conv?.id ?? null}
+                    makingConversationId={makingHere?.conversationId ?? null}
+                    makingFields={makingHere?.fields ?? null}
+                    openLockedId={lockedNode?.id ?? null}
+                    lockedBubble={
+                      lockedNode && (
+                        <LockedBubble
+                          node={lockedNode}
+                          onStart={() => void startRecommended(lockedNode)}
+                        />
+                      )
+                    }
+                    onOpenPage={openPage}
+                    onOpenLocked={toggleLocked}
+                  />
+                </div>
+              )}
+              {roadDrop && !page && (
+                <>
+                  <div className="dropzone" aria-hidden />
+                  <p
+                    className="droptag"
+                    style={{ left: roadDrop.x + 16, top: roadDrop.y + 16 }}
+                    aria-hidden
+                  >
+                    <Page />
+                    <b>놓으면 필기 페이지가 열려요</b>
+                    {dropping && conv?.id === dropping.conversationId && (
+                      <span>{conv.title}</span>
+                    )}
+                  </p>
+                </>
+              )}
+              {toast && (
+                <div className="toast" role="status" key={toast.key}>
+                  <span>{toast.text}</span>
+                  {toast.action && (
+                    <button
+                      className="btn small"
+                      onClick={() => {
+                        setToast(null);
+                        toast.action?.run();
+                      }}
+                    >
+                      {toast.action.label}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
         ) : (
           <div className="path-empty">
             <div className="ghost-path" aria-hidden>
@@ -597,23 +1210,50 @@ export function App() {
           </div>
         )}
       </main>
-      <ChatPanel
-        subjectTitle={subject?.title ?? null}
-        conversation={conv}
-        streamingText={
-          stream && stream.conversationId === conv?.id ? stream.text : null
-        }
-        banner={banner}
-        input={input}
-        inputRef={inputRef}
-        headAction={headAction}
-        makingCard={!!conv && making?.conversationId === conv.id}
-        onInput={setInput}
-        onSend={() => void send()}
-        onStop={stopStream}
-        onNewConversation={() => subjectId && void newConversation(subjectId)}
-        onOpenUsage={() => void api.openUsage()}
-      />
+      <Pane
+        panel="chat"
+        open={layout.chat}
+        onOpen={() => setOpen('chat', true)}
+      >
+        <ChatPanel
+          subjectTitle={subject?.title ?? null}
+          conversation={conv}
+          streamingText={
+            stream && stream.conversationId === conv?.id ? stream.text : null
+          }
+          streamingTools={
+            stream && stream.conversationId === conv?.id ? stream.tools : []
+          }
+          banner={banner}
+          input={input}
+          inputRef={inputRef}
+          headAction={headAction}
+          makingCard={!!conv && making?.conversationId === conv.id}
+          modelPicker={
+            conv && (
+              <ModelSelect
+                list={models}
+                model={conv.model}
+                busy={!!stream}
+                onPick={(model) => void pickModel(model)}
+              />
+            )
+          }
+          onInput={setInput}
+          onSend={() => void send()}
+          onStop={stopStream}
+          onNewConversation={() => subjectId && void newConversation(subjectId)}
+          onOpenUsage={() => void api.openUsage()}
+          onFold={() => setOpen('chat', false)}
+          onAddNote={collect}
+          onNoteRefused={(why) => showToast(REFUSALS[why])}
+          noted={conv ? notes[conv.id] : undefined}
+          onOpenNote={(note) => {
+            openPage(note.conversationId);
+            showNote(note.id);
+          }}
+        />
+      </Pane>
       {dialog?.kind === 'subject' && (
         <NewSubjectDialog
           onCreate={createSubject}

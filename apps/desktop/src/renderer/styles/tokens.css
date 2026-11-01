@@ -78,6 +78,19 @@
   --w-path: 640px;
   --w-dialog: 440px;
   --w-gate: 400px;
+  --w-fold: 20px; /* the strip a folded side panel leaves at the window edge, with its handle */
+  /* the middle's tabs: the roadmap's, a note page's smallest and largest */
+  --w-tab-road: 120px;
+  --w-tab: 176px;
+  --w-tab-max: 264px;
+  /* a note page: a note on the canvas (canvas.ts NOTE_W is the same number), the pinned card summary closed and open,
+     and the next study panel at its widest and narrowest */
+  --w-note: 264px;
+  --w-pin: 328px;
+  --w-pin-open: 380px;
+  --w-pin-min: 220px;
+  --w-next: 320px;
+  --w-next-min: 248px;
 
   /* circles use --r-pill */
   --r-1: 4px;
@@ -88,6 +101,8 @@
 
   /* ring, sh-1 card and lifted row, sh-2 open card, sh-3 popover, sh-4 dialog; the knob depths are for path knobs only */
   --ring: 0 0 0 1px var(--line);
+  --ring-r: inset -1px 0 0 var(--line); /* the edge line of a side panel that has folded away: right of the sidebar's column */
+  --ring-l: inset 1px 0 0 var(--line); /* left of the chat's */
   --sh-1: 0 1px 2px rgb(26 34 51 / 0.06);
   --sh-2: 0 1px 2px rgb(26 34 51 / 0.05), 0 6px 18px -6px rgb(26 34 51 / 0.12);
   --sh-3:
@@ -111,9 +126,12 @@
   --sh-knob-slot:
     0 3px 2px -1px rgb(26 34 51 / 0.1), 0 8px 14px -6px rgb(26 34 51 / 0.14);
 
-  /* dur-1 press and dialog fade, dur-2 hover and state colour, dur-3 card open */
+  /* dur-1 press and dialog fade, dur-2 hover and state colour, dur-3 card open, a panel folding and a toast coming in;
+     land is a dropped note settling in place, settle the grey it fades out of on arrival */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-1: 100ms;
   --dur-2: 160ms;
   --dur-3: 240ms;
+  --dur-land: 560ms;
+  --dur-settle: 1600ms;
 }

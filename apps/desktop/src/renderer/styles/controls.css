@@ -137,6 +137,10 @@
   color: var(--ink-4);
 }
 
+.icon-btn.ghost:disabled {
+  border-color: transparent;
+}
+
 .btn:active:not(:disabled),
 .icon-btn:active:not(:disabled) {
   transform: scale(0.97);

@@ -15,6 +15,7 @@ import { ChatService } from './main/chat';
 import { Store } from './main/db';
 import { registerHandlers } from './main/handlers';
 import { StreamRegistry } from './main/ipc';
+import { NoteService } from './main/notes';
 import { authFile, dbFile, devEnv, setupUserData } from './main/paths';
 import {
   applySessionPolicy,
@@ -144,6 +145,7 @@ app.whenReady().then(() => {
   );
   const chat = new ChatService(store, session, streams, fetchImpl);
   const cards = new CardService(store, session, streams, fetchImpl);
+  const notes = new NoteService(store, (id) => chat.isPending(id));
   applySessionPolicy();
   handleAppProtocol();
   registerHandlers({
@@ -151,6 +153,7 @@ app.whenReady().then(() => {
     session,
     chat,
     cards,
+    notes,
     streams,
     isTrusted: makeSenderCheck(() => mainWindow),
     openExternal,

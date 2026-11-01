@@ -110,19 +110,48 @@ button:disabled {
   background-color: var(--ink-4);
 }
 
+/* A folded side panel gives its column up to a thin strip (panes.css), and the middle takes the room. */
 .app {
+  --side-w: var(--w-side);
+  --chat-w: var(--w-chat);
+
   display: grid;
-  grid-template-columns: var(--w-side) minmax(0, 1fr) var(--w-chat);
+  grid-template-columns: var(--side-w) minmax(0, 1fr) var(--chat-w);
   height: 100%;
+  transition: grid-template-columns var(--dur-3) var(--ease-out);
+}
+
+.app[data-sidebar='folded'] {
+  --side-w: var(--w-fold);
+}
+
+.app[data-chat='folded'] {
+  --chat-w: var(--w-fold);
+}
+
+/* The tab head on top, then the view: the roadmap, or the note page of the tab in front. */
+.middle {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-main);
+}
+
+.view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  container-type: inline-size;
 }
 
 /* Scrolling to a node or to a focused control stops below the sticky stat bar and leaves room for the focus ring. */
-.middle {
-  min-width: 0;
-  min-height: 0;
+.roadmap-view {
+  position: absolute;
+  inset: 0;
   overflow-y: auto;
   scroll-padding: calc(var(--band) + var(--sp-2)) 0 var(--sp-2);
-  background: var(--bg-main);
 }
 
 @keyframes spin {

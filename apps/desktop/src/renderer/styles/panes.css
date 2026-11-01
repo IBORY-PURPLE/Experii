@@ -1,0 +1,84 @@
+/* A side panel is a grid column whose body slides out of the window when folded. The column stays as a strip with the
+   panel's own ground and edge line, and the handle in it brings the panel back. */
+.pane {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sidebar-pane {
+  background: var(--bg-side);
+  box-shadow: var(--ring-r);
+}
+
+.chat-pane {
+  display: flex;
+  justify-content: flex-end;
+  background: var(--surface);
+  box-shadow: var(--ring-l);
+}
+
+.pane-body {
+  flex: none;
+  height: 100%;
+  transition: transform var(--dur-3) var(--ease-out);
+}
+
+.sidebar-pane .pane-body {
+  width: var(--w-side);
+}
+
+.chat-pane .pane-body {
+  width: var(--w-chat);
+}
+
+.app[data-sidebar='folded'] .sidebar-pane .pane-body {
+  transform: translateX(-100%);
+}
+
+.app[data-chat='folded'] .chat-pane .pane-body {
+  transform: translateX(100%);
+}
+
+.pane-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: var(--w-fold);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-4);
+  animation: handle-in var(--dur-3) var(--ease-out);
+}
+
+.pane-handle[hidden] {
+  display: none;
+}
+
+.sidebar-pane .pane-handle {
+  left: 0;
+}
+
+.chat-pane .pane-handle {
+  right: 0;
+}
+
+.pane-handle:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+
+/* The strip sits on the window edge, so its ring goes inside. */
+.pane-handle:focus-visible {
+  outline-offset: -2px;
+}
+
+@keyframes handle-in {
+  from {
+    opacity: 0;
+  }
+}

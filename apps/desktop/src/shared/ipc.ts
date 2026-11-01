@@ -16,6 +16,8 @@ export type DoneNode = {
   summary: string;
   interviewLine: string;
   useful: boolean | null;
+  turns: number;
+  notes: number;
   createdAt: number;
 };
 export type CurrentNode = {
@@ -23,6 +25,7 @@ export type CurrentNode = {
   conversationId: string;
   title: string;
   turns: number;
+  notes: number;
   createdAt: number;
 };
 export type LockedNode = {
@@ -45,7 +48,12 @@ export type Roadmap = {
   nodes: RoadmapNode[];
 };
 
-export type ChatMessage = { role: 'user' | 'assistant'; text: string };
+// seq is the saved item's place in the conversation; the question still on its way has none yet.
+export type ChatMessage = {
+  role: 'user' | 'assistant';
+  text: string;
+  seq?: number;
+};
 export type ConversationView = {
   id: string;
   subjectId: string;
@@ -54,7 +62,39 @@ export type ConversationView = {
   cardId: string | null;
   saved: boolean;
   draft?: string;
+  // null until the conversation or the new-conversation default names one; models:list has the current default.
+  model: string | null;
+  toolCalls: ToolCallView[];
 };
+
+// afterMessage is the index in messages of the message the call came after; count is null when the call failed.
+export type ToolCallView = {
+  afterMessage: number;
+  name: string;
+  label: string;
+  query: string;
+  count: number | null;
+};
+
+// A note keeps an answer's words as they were, with the answer's seq and question number.
+export type Note = {
+  id: string;
+  conversationId: string;
+  format: 'plain' | 'md';
+  text: string;
+  sourceSeq: number;
+  questionNo: number;
+  x: number;
+  y: number;
+  w: number | null;
+  h: number | null;
+  createdAt: number;
+  updatedAt: number;
+};
+export type NoteCreated = { note: Note; duplicate: boolean };
+
+export type ModelOption = { slug: string; displayName: string };
+export type ModelList = { models: ModelOption[]; current: string | null };
 
 export type AuthStatus =
   | { state: 'signed_out' }
@@ -77,6 +117,9 @@ export type CardResult =
   | { kind: 'too_long' };
 
 const id = z.string().uuid();
+const coord = z.number().finite().min(-1_000_000).max(1_000_000);
+const size = z.number().finite().positive().max(10_000).nullable();
+const noteText = z.string().trim().min(1).max(4000);
 
 export const channels = {
   'auth:status': z.undefined(),
@@ -90,6 +133,11 @@ export const channels = {
     recommendedNodeId: id.optional(),
   }),
   'conversations:get': z.object({ id }),
+  'conversations:setModel': z.object({
+    id,
+    model: z.string().trim().min(1).max(80),
+  }),
+  'models:list': z.undefined(),
   'chat:send': z.object({
     conversationId: id,
     streamId: id,
@@ -100,11 +148,30 @@ export const channels = {
   'cards:cancel': z.object({ conversationId: id }),
   'cards:get': z.object({ id }),
   'cards:rate': z.object({ id, useful: z.boolean() }),
+  'notes:list': z.object({ conversationId: id }),
+  'notes:create': z.object({
+    conversationId: id,
+    text: noteText,
+    sourceSeq: z.number().int().positive(),
+    questionNo: z.number().int().positive().optional(),
+    x: coord,
+    y: coord,
+  }),
+  'notes:update': z.object({
+    id,
+    x: coord.optional(),
+    y: coord.optional(),
+    w: size.optional(),
+    h: size.optional(),
+  }),
+  'notes:delete': z.object({ id }),
   'links:openUsage': z.undefined(),
 } as const;
 
 export type Channel = keyof typeof channels;
 export type Payload<C extends Channel> = z.infer<(typeof channels)[C]>;
+export type NoteDraft = z.input<(typeof channels)['notes:create']>;
+export type NotePatch = Omit<z.input<(typeof channels)['notes:update']>, 'id'>;
 
 export type ChatEvent = {
   streamId: string;
@@ -114,5 +181,29 @@ export type ChatEvent = {
   code?: string;
 };
 
+// A tool call during a stream, sent on its own channel so chat:event keeps its three types.
+export type ToolEvent = {
+  streamId: string;
+  conversationId: string;
+  callId: string;
+  name: string;
+  label: string;
+  query: string;
+  status: 'running' | 'done' | 'error';
+  count?: number;
+};
+
+export type CardField = 'title' | 'summary' | 'interview_line';
+
+// Sent once per field, in the order the strings close; a retried request sends its fields again with the new text.
+export type CardEvent = {
+  conversationId: string;
+  type: 'progress';
+  field: CardField;
+  text: string;
+};
+
 export const EVENT_CHAT = 'chat:event';
+export const EVENT_TOOL = 'chat:tool';
+export const EVENT_CARD = 'cards:event';
 export const EVENT_AUTH = 'auth:changed';

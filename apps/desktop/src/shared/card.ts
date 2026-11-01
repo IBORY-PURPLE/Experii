@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const PROMPT_VERSION = 'card-v1';
+// card-v1.1: same instructions as card-v1, generated with low reasoning effort, so H2 is measured apart.
+export const PROMPT_VERSION = 'card-v1.1';
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 

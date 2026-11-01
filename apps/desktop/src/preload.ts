@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
 import type { ExperiiApi } from './shared/api';
-import type { ChatEvent } from './shared/ipc';
+import type { CardEvent, ChatEvent, ToolEvent } from './shared/ipc';
 
 const invoke = (channel: string, payload?: unknown) =>
   ipcRenderer.invoke(channel, payload);
@@ -24,6 +24,9 @@ const api: ExperiiApi = {
   openConversation: (subjectId, recommendedNodeId) =>
     invoke('conversations:open', { subjectId, recommendedNodeId }),
   getConversation: (id) => invoke('conversations:get', { id }),
+  listModels: () => invoke('models:list'),
+  setConversationModel: (id, model) =>
+    invoke('conversations:setModel', { id, model }),
   send: (conversationId, streamId, text) =>
     invoke('chat:send', { conversationId, streamId, text }),
   cancel: (streamId) => invoke('chat:cancel', { streamId }),
@@ -32,8 +35,14 @@ const api: ExperiiApi = {
   cancelCard: (conversationId) => invoke('cards:cancel', { conversationId }),
   getCard: (id) => invoke('cards:get', { id }),
   rateCard: (id, useful) => invoke('cards:rate', { id, useful }),
+  listNotes: (conversationId) => invoke('notes:list', { conversationId }),
+  createNote: (draft) => invoke('notes:create', draft),
+  updateNote: (id, patch) => invoke('notes:update', { ...patch, id }),
+  deleteNote: (id) => invoke('notes:delete', { id }),
   openUsage: () => invoke('links:openUsage'),
   onChatEvent: (listener) => subscribe<ChatEvent>('chat:event', listener),
+  onToolEvent: (listener) => subscribe<ToolEvent>('chat:tool', listener),
+  onCardEvent: (listener) => subscribe<CardEvent>('cards:event', listener),
   onAuthChanged: (listener) => subscribe<void>('auth:changed', listener),
 };
 

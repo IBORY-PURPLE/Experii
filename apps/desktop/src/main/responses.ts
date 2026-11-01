@@ -15,15 +15,19 @@ export type ChatErrorCode =
   | 'not_eligible_plan'
   | 'rate_limited'
   | 'context_too_long'
+  | 'unsupported'
   | 'incomplete'
   | 'network'
   | 'cancelled'
+  | 'tool_limit'
   | 'server';
 
+// param is the request field the server objected to, such as tools[0] for a refused tool.
 export class ResponsesError extends Error {
   constructor(
     readonly code: ChatErrorCode,
     message: string = code,
+    readonly param?: string,
   ) {
     super(message);
   }
@@ -37,17 +41,35 @@ export function userMessage(text: string): InputItem {
   };
 }
 
-// store:false means the server keeps nothing, so ids would point at items it cannot find.
+// Reasoning only reads back on the model that wrote it, so a saved reasoning item carries that model in x_model.
+export function tagModel(item: InputItem, model: string): InputItem {
+  return item.type === 'reasoning' ? { ...item, x_model: model } : item;
+}
+
+// store:false means the server keeps nothing, so ids would point at items it cannot find. x_ keys are the app's own.
+export function sendable(item: InputItem, model?: string): InputItem | null {
+  if (
+    item.type === 'reasoning' &&
+    (!item.encrypted_content || !model || item.x_model !== model)
+  )
+    return null;
+  const out: InputItem = { type: item.type };
+  for (const [key, value] of Object.entries(item)) {
+    if (key !== 'id' && key !== 'status' && !key.startsWith('x_'))
+      out[key] = value;
+  }
+  return out;
+}
+
 export function buildInput(
   items: StoredItem[],
   userText?: string,
+  model?: string,
 ): InputItem[] {
   const out: InputItem[] = [];
   for (const row of [...items].sort((a, b) => a.seq - b.seq)) {
-    const item = JSON.parse(row.item_json) as InputItem;
-    if (item.type === 'reasoning' && !item.encrypted_content) continue;
-    const { id: _id, status: _status, ...rest } = item;
-    out.push(rest as InputItem);
+    const item = sendable(JSON.parse(row.item_json) as InputItem, model);
+    if (item) out.push(item);
   }
   if (userText !== undefined) out.push(userMessage(userText));
   return out;
@@ -63,13 +85,17 @@ export function developerMessage(text: string): InputItem {
 
 // The direct-token API rejects instructions, previous_response_id, conversation, temperature,
 // max_output_tokens and truncation, so the body is limited to these keys.
+export type ReasoningEffort = 'minimal' | 'low' | 'medium' | 'high';
+
 export type RequestBody = {
   model: string;
   input: InputItem[];
   store: false;
   stream: true;
   include?: string[];
+  reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
+  tools?: unknown[];
 };
 
 export const FORBIDDEN_BODY_KEYS = [
@@ -85,7 +111,9 @@ export function buildRequestBody(opts: {
   model: string;
   input: InputItem[];
   includeReasoning?: boolean;
+  reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
+  tools?: unknown[];
 }): RequestBody {
   const body: RequestBody = {
     model: opts.model,
@@ -94,20 +122,28 @@ export function buildRequestBody(opts: {
     stream: true,
   };
   if (opts.includeReasoning) body.include = ['reasoning.encrypted_content'];
+  if (opts.reasoning) body.reasoning = opts.reasoning;
   if (opts.text) body.text = opts.text;
+  if (opts.tools) body.tools = opts.tools;
   return body;
 }
 
 export type ResponsesEvent = { type: string; [key: string]: unknown };
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
-function errorCodeOf(bodyText: string): string {
+function errorOf(error: unknown): { code: string; param?: string } {
+  const e = error as { code?: unknown; param?: unknown } | null | undefined;
+  return {
+    code: typeof e?.code === 'string' ? e.code : '',
+    param: typeof e?.param === 'string' ? e.param : undefined,
+  };
+}
+
+function errorOfBody(bodyText: string): { code: string; param?: string } {
   try {
-    const code = (JSON.parse(bodyText) as { error?: { code?: unknown } }).error
-      ?.code;
-    return typeof code === 'string' ? code : '';
+    return errorOf((JSON.parse(bodyText) as { error?: unknown }).error);
   } catch {
-    return '';
+    return { code: '' };
   }
 }
 
@@ -119,6 +155,9 @@ export function codeForError(
 ): ChatErrorCode {
   if (code === 'subscription_sharing_user_not_eligible')
     return 'not_eligible_plan';
+  // The plan token refuses the input, tool or feature named in error.param; the caller may resend without it.
+  if (code === 'subscription_sharing_unsupported_capability')
+    return 'unsupported';
   if (code === 'subscription_sharing_usage_limit_exceeded' || status === 429)
     return 'rate_limited';
   if (status === 401) return 'unauthorized';
@@ -166,13 +205,14 @@ export async function* streamResponse(
   if (!res) throw new ResponsesError('network');
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '');
-    const code = errorCodeOf(text);
+    const { code, param } = errorOfBody(text);
     console.warn(
-      `[responses] HTTP ${res.status} ${code || '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
+      `[responses] HTTP ${res.status} ${code || '-'} param ${param ?? '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
     );
     throw new ResponsesError(
       codeForError(code, res.status, text),
       `HTTP ${res.status}`,
+      param,
     );
   }
   try {
@@ -213,23 +253,23 @@ export async function runTurn(
       case 'response.completed':
         return { outputItems, text };
       case 'response.failed': {
-        const error = (
-          ev.response as { error?: { code?: string; message?: string } }
-        )?.error;
-        const code = error?.code ?? '';
-        console.warn(`[responses] failed ${code || '-'}`);
+        const error = (ev.response as { error?: { message?: string } })?.error;
+        const { code, param } = errorOf(error);
+        console.warn(`[responses] failed ${code || '-'} param ${param ?? '-'}`);
         throw new ResponsesError(
           codeForError(code),
           error?.message ?? 'failed',
+          param,
         );
       }
       case 'response.incomplete':
         throw new ResponsesError('incomplete');
       case 'error': {
-        const code = String(ev.code ?? '');
+        const { code, param } = errorOf(ev);
         throw new ResponsesError(
           codeForError(code),
           String(ev.message ?? code),
+          param,
         );
       }
     }

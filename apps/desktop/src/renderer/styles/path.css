@@ -250,6 +250,36 @@
   line-height: var(--lh-20);
 }
 
+/* Every node that is a conversation leads to its note page: the footer counts the notes and says where the tile goes. */
+.tile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+}
+
+.tile-notes {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--ink-2);
+  font-weight: var(--fw-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-go {
+  font-weight: var(--fw-2);
+  transition: color var(--dur-2) var(--ease-out);
+}
+
+.tile:hover .tile-go {
+  color: var(--ink);
+}
+
 .tile.locked {
   display: flex;
   align-items: center;

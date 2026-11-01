@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useEffect,
   useRef,
   useState,
@@ -6,9 +7,18 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
-import type { ConversationView } from '../shared/ipc';
+import type { ConversationView, Note } from '../shared/ipc';
+import {
+  questionNumbers,
+  useCollect,
+  useNotedMarks,
+  type Pick,
+  type Refusal,
+} from './collect';
 import { ArrowUp, Stop } from './icons';
 import { Markdown } from './Markdown';
+import { PaneToggle } from './Panes';
+import { ToolLines, savedLinesBefore, type ToolLine } from './ToolLines';
 
 // Banner actions are all secondary buttons, so a banner never adds a second filled button to the screen.
 export type Banner = {
@@ -22,24 +32,43 @@ type Props = {
   subjectTitle: string | null;
   conversation: ConversationView | null;
   streamingText: string | null;
+  streamingTools: ToolLine[];
   banner: Banner | null;
   input: string;
   inputRef: RefObject<HTMLTextAreaElement | null>;
   headAction: ReactNode;
   // The open conversation's card is being made: the head gives 새 대화's room to the title until it lands.
   makingCard: boolean;
+  modelPicker: ReactNode;
   onInput(text: string): void;
   onSend(): void;
   onStop(): void;
   onNewConversation(): void;
   onOpenUsage(): void;
+  onFold(): void;
+  // Without these the answers cannot become notes.
+  onAddNote?(pick: Pick): void;
+  onNoteRefused?(why: Refusal): void;
+  noted?: Note[];
+  onOpenNote?(note: Note): void;
 };
 
 export function ChatPanel(p: Props) {
+  const panel = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const [composing, setComposing] = useState(false);
   const streaming = p.streamingText !== null;
   const disabled = !p.conversation;
+  const calls = p.conversation?.toolCalls ?? [];
+  const asked = questionNumbers(p.conversation?.messages ?? []);
+  const collect = useCollect({
+    panel,
+    root: scroller,
+    conversationId: p.conversation?.id ?? null,
+    onAdd: p.onAddNote,
+    onRefuse: p.onNoteRefused,
+  });
+  useNotedMarks(scroller, p.noted, p.conversation?.messages, p.onOpenNote);
 
   // A banner shortens the list too, so its arrival also brings the latest message back into view.
   useEffect(() => {
@@ -48,6 +77,7 @@ export function ChatPanel(p: Props) {
   }, [
     p.conversation?.messages.length,
     p.streamingText,
+    p.streamingTools.length,
     p.conversation?.id,
     p.banner,
   ]);
@@ -61,7 +91,7 @@ export function ChatPanel(p: Props) {
   };
 
   return (
-    <section className="chat" aria-label="GPT 대화">
+    <section className="chat" aria-label="GPT 대화" ref={panel}>
       <header className="chat-head">
         <div className="ttl">
           <h2 className="band-title" title={p.conversation?.title}>
@@ -69,22 +99,26 @@ export function ChatPanel(p: Props) {
           </h2>
           <p>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</p>
         </div>
-        {(p.conversation || p.headAction) && (
-          <div className="actions">
-            {p.conversation && !p.makingCard && (
-              <button
-                className="btn small"
-                onClick={p.onNewConversation}
-                disabled={streaming}
-              >
-                새 대화
-              </button>
-            )}
-            {p.headAction}
-          </div>
-        )}
+        <div className="actions">
+          {p.conversation && !p.makingCard && (
+            <button
+              className="btn small"
+              onClick={p.onNewConversation}
+              disabled={streaming}
+            >
+              새 대화
+            </button>
+          )}
+          {p.headAction}
+          <PaneToggle panel="chat" onFold={p.onFold} />
+        </div>
       </header>
-      <div className="messages" ref={scroller}>
+      <div
+        className="messages"
+        ref={scroller}
+        onDragStart={collect.onDragStart}
+        onDragEnd={collect.onDragEnd}
+      >
         {p.conversation && (
           <div className="day">
             {p.conversation.saved ? '이어서 공부하는 중' : '새 대화'}
@@ -92,19 +126,27 @@ export function ChatPanel(p: Props) {
         )}
         {p.conversation?.messages.map((m, i) =>
           m.role === 'user' ? (
-            <div key={i} className="msg-user">
-              {m.text}
-            </div>
+            <Fragment key={i}>
+              <ToolLines lines={savedLinesBefore(calls, i)} />
+              <div className="msg-user">{m.text}</div>
+            </Fragment>
           ) : (
-            <div key={i} className="msg-ai">
+            <div key={i} className="msg-ai" data-seq={m.seq} data-q={asked[i]}>
               <div className="who">ChatGPT</div>
+              <ToolLines lines={savedLinesBefore(calls, i)} />
               <Markdown text={m.text} />
             </div>
           ),
         )}
+        {p.conversation && (
+          <ToolLines
+            lines={savedLinesBefore(calls, p.conversation.messages.length)}
+          />
+        )}
         {streaming && (
           <div className="msg-ai" aria-live="polite">
             <div className="who">ChatGPT</div>
+            <ToolLines lines={p.streamingTools} />
             {p.streamingText ? (
               <Markdown text={p.streamingText} caret />
             ) : (
@@ -113,6 +155,7 @@ export function ChatPanel(p: Props) {
           </div>
         )}
       </div>
+      {collect.button}
       {p.banner && (
         <div
           className={`banner ${p.banner.tone === 'err' ? 'err' : ''}`}
@@ -168,7 +211,8 @@ export function ChatPanel(p: Props) {
           )}
         </div>
         <div className="plan-row">
-          <span>Using ChatGPT plan</span>
+          {p.modelPicker}
+          <span className="plan">Using ChatGPT plan</span>
           <button className="link" onClick={p.onOpenUsage}>
             Manage usage
           </button>

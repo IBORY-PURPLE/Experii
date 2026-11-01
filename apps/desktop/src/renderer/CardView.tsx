@@ -9,7 +9,7 @@ type Props = {
   subjectTitle: string;
   regenerating: boolean;
   onRate(useful: boolean): void;
-  onReopen(): void;
+  onAsk(): void;
   onRegenerate(): void;
   onClose(): void;
 };
@@ -138,8 +138,8 @@ export function CardView(p: Props) {
       <footer className="cv-foot">
         <span>지시문 {c.promptVersion}</span>
         <div className="cv-foot-actions">
-          <button className="btn ghost" onClick={p.onReopen}>
-            대화 다시 열기
+          <button className="btn ghost" onClick={p.onAsk}>
+            이어서 묻기
           </button>
           <button
             className="btn ghost"
