@@ -17,6 +17,27 @@ type Row = Record<string, unknown>;
 
 export class DuplicateSubjectError extends Error {}
 
+export type CardSearch = {
+  total: number;
+  cards: Array<{
+    subject: string;
+    title: string;
+    summary: string;
+    interview_line: string;
+    concepts: string[];
+    created_at: string;
+  }>;
+};
+
+const SEARCHED = `(c.title || ' ' || c.summary || ' ' || c.interview_line || ' ' || c.concepts_json || ' ' ||
+  c.star_action || ' ' || c.next_steps)`;
+
+const localDate = (ms: number) => {
+  const d = new Date(ms);
+  const two = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`;
+};
+
 export function migrate(
   db: DatabaseSync,
   file: string,
@@ -171,6 +192,12 @@ export class Store {
       title: String(r.title),
       createdAt: Number(r.created_at),
     };
+  }
+
+  setConversationModel(id: string, model: string) {
+    this.db
+      .prepare('UPDATE conversations SET model = ? WHERE id = ?')
+      .run(model, id);
   }
 
   items(conversationId: string): StoredItem[] {
@@ -379,6 +406,37 @@ export class Store {
       )
       .run(useful ? 1 : 0, this.now(), id);
     if (Number(res.changes) === 0) throw new Error('card not found');
+  }
+
+  // Every word has to appear in the card; %, _ and \ in a word match themselves.
+  searchCards(query: string, limit = 5): CardSearch {
+    const words = query.slice(0, 200).split(/\s+/).filter(Boolean).slice(0, 10);
+    const where =
+      words.map(() => `${SEARCHED} LIKE ? ESCAPE '\\'`).join(' AND ') || '1';
+    const params = words.map((w) => `%${w.replace(/[\\%_]/g, '\\$&')}%`);
+    const total = this.db
+      .prepare(`SELECT COUNT(*) AS n FROM experience_cards c WHERE ${where}`)
+      .get(...params) as Row;
+    const rows = this.db
+      .prepare(
+        `SELECT c.title, c.summary, c.interview_line, c.concepts_json, c.created_at, s.title AS subject
+         FROM experience_cards c
+         JOIN conversations v ON v.id = c.conversation_id
+         JOIN subjects s ON s.id = v.subject_id
+         WHERE ${where} ORDER BY c.created_at DESC, c.rowid DESC LIMIT ?`,
+      )
+      .all(...params, limit) as Row[];
+    return {
+      total: Number(total.n),
+      cards: rows.map((r) => ({
+        subject: String(r.subject),
+        title: String(r.title),
+        summary: String(r.summary),
+        interview_line: String(r.interview_line),
+        concepts: JSON.parse(String(r.concepts_json)) as string[],
+        created_at: localDate(Number(r.created_at)),
+      })),
+    };
   }
 
   roadmap(subjectId: string): Roadmap | null {

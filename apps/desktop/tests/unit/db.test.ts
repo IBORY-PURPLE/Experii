@@ -165,6 +165,62 @@ describe('Store', () => {
     expect(locked.map((n) => n.title)).toEqual(['최신 추천']);
   });
 
+  it('searches cards for every word, newest first, taking %, _ and \\ literally', () => {
+    const sql = store.createSubject('SQLD');
+    const net = store.createSubject('네트워크');
+    store.upsertCard(conversation(sql.id), cardBody(), {}, 'm', 'v');
+    store.upsertCard(
+      conversation(sql.id),
+      cardBody({
+        title: '인덱스 100% 활용',
+        summary: '조인 순서와 인덱스 a_b',
+        concepts: ['INDEX'],
+        next_steps: '실행 계획 보기',
+      }),
+      {},
+      'm',
+      'v',
+    );
+    store.upsertCard(
+      conversation(net.id),
+      cardBody({
+        title: 'TCP와 JOIN 없는 세상',
+        summary: 'SYN acb',
+        concepts: ['TCP'],
+        next_steps: 'UDP',
+      }),
+      {},
+      'm',
+      'v',
+    );
+    const titles = (query: string) =>
+      store.searchCards(query).cards.map((c) => c.title);
+
+    const join = store.searchCards('join');
+    expect(join.total).toBe(2);
+    expect(join.cards.map((c) => [c.subject, c.title])).toEqual([
+      ['네트워크', 'TCP와 JOIN 없는 세상'],
+      ['SQLD', cardBody().title],
+    ]);
+    expect(join.cards[1]).toMatchObject({
+      summary: cardBody().summary,
+      interview_line: cardBody().interview_line,
+      concepts: cardBody().concepts,
+      created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    });
+    expect(titles('JOIN  LEFT')).toEqual([cardBody().title]);
+    expect(titles('%')).toEqual(['인덱스 100% 활용']);
+    expect(titles('a_b')).toEqual(['인덱스 100% 활용']);
+    expect(titles('\\')).toEqual([]);
+
+    const all = store.searchCards('  ', 2);
+    expect(all.total).toBe(3);
+    expect(all.cards.map((c) => c.title)).toEqual([
+      'TCP와 JOIN 없는 세상',
+      '인덱스 100% 활용',
+    ]);
+  });
+
   it('builds the roadmap: done, then in-progress, then unstarted locked nodes', () => {
     const s = store.createSubject('SQLD');
     const a = conversation(s.id);

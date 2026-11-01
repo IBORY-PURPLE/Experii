@@ -19,8 +19,10 @@ export type ChatErrorCode =
   | 'incomplete'
   | 'network'
   | 'cancelled'
+  | 'tool_limit'
   | 'server';
 
+// param is the request field the server objected to, such as tools[0] for a refused tool.
 export class ResponsesError extends Error {
   constructor(
     readonly code: ChatErrorCode,
@@ -39,17 +41,35 @@ export function userMessage(text: string): InputItem {
   };
 }
 
-// store:false means the server keeps nothing, so ids would point at items it cannot find.
+// Reasoning only reads back on the model that wrote it, so a saved reasoning item carries that model in x_model.
+export function tagModel(item: InputItem, model: string): InputItem {
+  return item.type === 'reasoning' ? { ...item, x_model: model } : item;
+}
+
+// store:false means the server keeps nothing, so ids would point at items it cannot find. x_ keys are the app's own.
+export function sendable(item: InputItem, model?: string): InputItem | null {
+  if (
+    item.type === 'reasoning' &&
+    (!item.encrypted_content || !model || item.x_model !== model)
+  )
+    return null;
+  const out: InputItem = { type: item.type };
+  for (const [key, value] of Object.entries(item)) {
+    if (key !== 'id' && key !== 'status' && !key.startsWith('x_'))
+      out[key] = value;
+  }
+  return out;
+}
+
 export function buildInput(
   items: StoredItem[],
   userText?: string,
+  model?: string,
 ): InputItem[] {
   const out: InputItem[] = [];
   for (const row of [...items].sort((a, b) => a.seq - b.seq)) {
-    const item = JSON.parse(row.item_json) as InputItem;
-    if (item.type === 'reasoning' && !item.encrypted_content) continue;
-    const { id: _id, status: _status, ...rest } = item;
-    out.push(rest as InputItem);
+    const item = sendable(JSON.parse(row.item_json) as InputItem, model);
+    if (item) out.push(item);
   }
   if (userText !== undefined) out.push(userMessage(userText));
   return out;
@@ -75,6 +95,7 @@ export type RequestBody = {
   include?: string[];
   reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
+  tools?: unknown[];
 };
 
 export const FORBIDDEN_BODY_KEYS = [
@@ -92,6 +113,7 @@ export function buildRequestBody(opts: {
   includeReasoning?: boolean;
   reasoning?: { effort: ReasoningEffort };
   text?: Record<string, unknown>;
+  tools?: unknown[];
 }): RequestBody {
   const body: RequestBody = {
     model: opts.model,
@@ -102,21 +124,24 @@ export function buildRequestBody(opts: {
   if (opts.includeReasoning) body.include = ['reasoning.encrypted_content'];
   if (opts.reasoning) body.reasoning = opts.reasoning;
   if (opts.text) body.text = opts.text;
+  if (opts.tools) body.tools = opts.tools;
   return body;
 }
 
 export type ResponsesEvent = { type: string; [key: string]: unknown };
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
-function errorOf(bodyText: string): { code: string; param?: string } {
+function errorOf(error: unknown): { code: string; param?: string } {
+  const e = error as { code?: unknown; param?: unknown } | null | undefined;
+  return {
+    code: typeof e?.code === 'string' ? e.code : '',
+    param: typeof e?.param === 'string' ? e.param : undefined,
+  };
+}
+
+function errorOfBody(bodyText: string): { code: string; param?: string } {
   try {
-    const error = (
-      JSON.parse(bodyText) as { error?: { code?: unknown; param?: unknown } }
-    ).error;
-    return {
-      code: typeof error?.code === 'string' ? error.code : '',
-      param: typeof error?.param === 'string' ? error.param : undefined,
-    };
+    return errorOf((JSON.parse(bodyText) as { error?: unknown }).error);
   } catch {
     return { code: '' };
   }
@@ -180,9 +205,9 @@ export async function* streamResponse(
   if (!res) throw new ResponsesError('network');
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => '');
-    const { code, param } = errorOf(text);
+    const { code, param } = errorOfBody(text);
     console.warn(
-      `[responses] HTTP ${res.status} ${code || '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
+      `[responses] HTTP ${res.status} ${code || '-'} param ${param ?? '-'} request ${res.headers.get('x-request-id') ?? '-'}`,
     );
     throw new ResponsesError(
       codeForError(code, res.status, text),
@@ -228,23 +253,23 @@ export async function runTurn(
       case 'response.completed':
         return { outputItems, text };
       case 'response.failed': {
-        const error = (
-          ev.response as { error?: { code?: string; message?: string } }
-        )?.error;
-        const code = error?.code ?? '';
-        console.warn(`[responses] failed ${code || '-'}`);
+        const error = (ev.response as { error?: { message?: string } })?.error;
+        const { code, param } = errorOf(error);
+        console.warn(`[responses] failed ${code || '-'} param ${param ?? '-'}`);
         throw new ResponsesError(
           codeForError(code),
           error?.message ?? 'failed',
+          param,
         );
       }
       case 'response.incomplete':
         throw new ResponsesError('incomplete');
       case 'error': {
-        const code = String(ev.code ?? '');
+        const { code, param } = errorOf(ev);
         throw new ResponsesError(
           codeForError(code),
           String(ev.message ?? code),
+          param,
         );
       }
     }

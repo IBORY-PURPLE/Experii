@@ -10,11 +10,16 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { CONTEXT_VERSION } from '../../src/main/context';
 import { API_KEYS } from '../../src/shared/api';
 import { PROMPT_VERSION } from '../../src/shared/card';
+import type { ToolEvent } from '../../src/shared/ipc';
 import {
   MOCK_CARD,
+  MOCK_MODEL,
+  MOCK_MODEL_ALT,
   MOCK_TOKEN,
+  MOCK_TOOL_QUERY,
   TRIGGERS,
   startMockOpenAI,
   type MockServer,
@@ -337,6 +342,7 @@ test('restores the conversation from its node after a restart and resends the wh
     .filter((i) => i.type === 'message')
     .map((i) => [i.role, itemText(i)]);
   expect(messages).toEqual([
+    ['developer', expect.stringContaining(`맥락 버전: ${CONTEXT_VERSION}`)],
     ['user', 'LEFT JOIN이 헷갈려요'],
     ['assistant', expect.stringContaining('핵심 정리')],
     ['user', '행이 3개 나왔어요'],
@@ -578,6 +584,220 @@ test('without a session the sign-in screen comes first', async () => {
   } finally {
     await signedOut.app.close();
   }
+});
+
+test.describe('the chat knows the app, switches models and searches cards', () => {
+  let brain: Running | null = null;
+  let brainData: string;
+
+  test.afterAll(async () => {
+    await brain?.app.close().catch(() => {});
+  });
+
+  const running = () => {
+    if (!brain) throw new Error('app is not running');
+    return brain;
+  };
+
+  // Which form the tools went out in: a namespace, an additional_tools item, plain functions, or none.
+  const form = (body: Record<string, unknown>) => {
+    const tools = body.tools as Array<{ type: string }> | undefined;
+    if (tools?.[0]?.type === 'namespace') return 'namespace';
+    if (tools?.[0]?.type === 'function') return 'flat';
+    return (body.input as Item[]).some((i) => i.type === 'additional_tools')
+      ? 'additional_tools'
+      : 'off';
+  };
+
+  const latestConversation = (dir: string) => {
+    const db = new DatabaseSync(path.join(dir, 'experii.db'));
+    try {
+      const row = db
+        .prepare(
+          'SELECT id FROM conversations ORDER BY created_at DESC, rowid DESC LIMIT 1',
+        )
+        .get() as { id: string };
+      return row.id;
+    } finally {
+      db.close();
+    }
+  };
+
+  const types = (dir: string, conversationId: string) => {
+    const db = new DatabaseSync(path.join(dir, 'experii.db'));
+    try {
+      return (
+        db
+          .prepare(
+            'SELECT type FROM items WHERE conversation_id = ? ORDER BY seq',
+          )
+          .all(conversationId) as Array<{ type: string }>
+      ).map((r) => r.type);
+    } finally {
+      db.close();
+    }
+  };
+
+  test('a card search runs as a tool call and the answer quotes what it found', async () => {
+    brainData = tempDir();
+    brain = await launch(brainData);
+    const { win } = brain;
+    await win.getByRole('button', { name: '첫 과목 만들기' }).click();
+    const dialog = win.getByRole('dialog', { name: '새 과목' });
+    await dialog.getByLabel('과목 이름').fill('SQLD');
+    await dialog.getByRole('button', { name: '만들기' }).click();
+    await sendAndWait(win, 'LEFT JOIN이 헷갈려요');
+    await makeButton(win).click();
+    await expect(cardView(win)).toBeVisible();
+    await win.getByRole('button', { name: '새 대화' }).click();
+    await expect(win.locator('.msg-user')).toHaveCount(0);
+
+    await win.evaluate(() => {
+      const w = window as unknown as { toolEvents: unknown[] };
+      w.toolEvents = [];
+      window.experii.onToolEvent((e) => w.toolEvents.push(e));
+    });
+    mock.requests.length = 0;
+    await sendAndWait(win, `${TRIGGERS.tool} 내 카드에서 JOIN 찾아줘`);
+
+    const events = await win.evaluate(
+      () => (window as unknown as { toolEvents: ToolEvent[] }).toolEvents,
+    );
+    expect(events.map((e) => [e.status, e.label, e.query, e.count])).toEqual([
+      ['running', '내 경험 카드 검색', MOCK_TOOL_QUERY, undefined],
+      ['done', '내 경험 카드 검색', MOCK_TOOL_QUERY, 1],
+    ]);
+    const answer = win.locator('.msg-ai').last();
+    await expect(answer).toContainText('1장을 찾았어요');
+    await expect(answer).toContainText(MOCK_CARD.card.title);
+    await expect(win.getByRole('alert')).toHaveCount(0);
+
+    expect(mock.requests.map(form)).toEqual(['namespace', 'namespace']);
+    const [first, second] = mock.requests.map((b) => b.input as Item[]);
+    expect(first[0].role).toBe('developer');
+    expect(itemText(first[0])).toContain('지금 과목: SQLD');
+    expect(itemText(first[0])).toContain('search_experience_cards');
+    const call = second.find((i) => i.type === 'function_call') as Item & {
+      call_id: string;
+    };
+    const output = second.find(
+      (i) => i.type === 'function_call_output',
+    ) as Item & { call_id: string; output: string };
+    expect(output.call_id).toBe(call.call_id);
+    expect(JSON.parse(output.output)).toMatchObject({
+      total: 1,
+      cards: [{ subject: 'SQLD', title: MOCK_CARD.card.title }],
+    });
+    expect(types(brainData, latestConversation(brainData))).toEqual([
+      'message',
+      'reasoning',
+      'function_call',
+      'function_call_output',
+      'reasoning',
+      'message',
+    ]);
+  });
+
+  test('a model chosen for the conversation goes out from the next request and becomes the default', async () => {
+    const { win } = running();
+    expect(await win.evaluate(() => window.experii.listModels())).toEqual({
+      ok: true,
+      data: {
+        models: [
+          { slug: MOCK_MODEL, displayName: 'Mock' },
+          { slug: MOCK_MODEL_ALT, displayName: 'Mock mini' },
+        ],
+        current: MOCK_MODEL,
+      },
+    });
+    const id = latestConversation(brainData);
+    expect(
+      await win.evaluate(
+        ([cid, model]) => window.experii.setConversationModel(cid, model),
+        [id, MOCK_MODEL_ALT],
+      ),
+    ).toEqual({ ok: true, data: null });
+
+    mock.requests.length = 0;
+    await sendAndWait(win, '모델을 바꿨어요');
+    await expect(win.getByRole('alert')).toHaveCount(0);
+    expect(mock.requests).toHaveLength(1);
+    const body = mock.requests[0];
+    expect(body.model).toBe(MOCK_MODEL_ALT);
+    const input = body.input as Item[];
+    expect(itemText(input[0])).toContain(`Mock mini (${MOCK_MODEL_ALT})`);
+    expect(
+      input.filter((i) => i.type === 'reasoning'),
+      'reasoning from the other model stays in the app',
+    ).toEqual([]);
+
+    const view = await win.evaluate(
+      (cid) => window.experii.getConversation(cid),
+      id,
+    );
+    expect(view).toMatchObject({
+      ok: true,
+      data: {
+        model: MOCK_MODEL_ALT,
+        toolCalls: [
+          {
+            afterMessage: 0,
+            label: '내 경험 카드 검색',
+            query: MOCK_TOOL_QUERY,
+            count: 1,
+          },
+        ],
+      },
+    });
+    expect(await win.evaluate(() => window.experii.listModels())).toMatchObject(
+      { ok: true, data: { current: MOCK_MODEL_ALT } },
+    );
+  });
+
+  test('after a restart the saved call and its output go out again as a pair', async () => {
+    await running().app.close();
+    brain = await launch(brainData);
+    const { win } = brain;
+    await win.locator('.tile', { hasText: '진행 중' }).click();
+    await expect(win.locator('.msg-user')).toHaveCount(2);
+    mock.requests.length = 0;
+    await sendAndWait(win, '다시 켰어요');
+    await expect(win.getByRole('alert')).toHaveCount(0);
+    const body = mock.requests[0];
+    expect(body.model).toBe(MOCK_MODEL_ALT);
+    const input = body.input as Item[];
+    expect(input.map((i) => [i.type, i.role])).toEqual([
+      ['message', 'developer'],
+      ['message', 'user'],
+      ['function_call', undefined],
+      ['function_call_output', undefined],
+      ['message', 'assistant'],
+      ['message', 'user'],
+      ['reasoning', undefined],
+      ['message', 'assistant'],
+      ['message', 'user'],
+    ]);
+    const [call, output] = input.slice(2, 4) as Array<
+      Item & { call_id: string }
+    >;
+    expect(output.call_id).toBe(call.call_id);
+  });
+
+  test('a refused tool form falls back within the send, and the next request carries no tools', async () => {
+    const { win } = running();
+    mock.requests.length = 0;
+    await sendAndWait(win, `${TRIGGERS.toolRefused} 내 카드 찾아줘`);
+    await expect(win.getByRole('alert')).toHaveCount(0);
+    expect(mock.requests.map(form)).toEqual([
+      'namespace',
+      'additional_tools',
+      'flat',
+      'off',
+    ]);
+    await sendAndWait(win, '고마워요');
+    expect(mock.requests).toHaveLength(5);
+    expect(form(mock.requests[4])).toBe('off');
+  });
 });
 
 test.describe('card speed', () => {
