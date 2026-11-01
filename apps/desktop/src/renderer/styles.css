@@ -371,6 +371,16 @@ button:not(:disabled):active {
   color: var(--ink-4);
 }
 
+.exp .sum {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
 .rate-dot {
   width: 8px;
   height: 8px;
@@ -1077,6 +1087,49 @@ button:not(:disabled):active {
   background: var(--ink);
 }
 
+/* a tool call the answer made, one quiet line above the text it led to */
+.tool-lines {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  margin: 2px 0 8px;
+}
+
+.tool-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.tool-line span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-line svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+
+.tool-line .spin {
+  width: 10px;
+  height: 10px;
+}
+
+.tool-line.error {
+  background: var(--err-tint);
+  color: var(--err);
+}
+
 .md > :first-child {
   margin-top: 0;
 }
@@ -1335,14 +1388,51 @@ button:not(:disabled):active {
 
 .plan-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
   margin-top: 8px;
   font-size: 13px;
   color: var(--ink-3);
 }
 
-.plan-row span::before {
+.plan-row .plan {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-row .link {
+  flex: none;
+  margin-left: auto;
+}
+
+.model-select {
+  min-width: 0;
+  max-width: 140px;
+  height: 26px;
+  padding: 0 2px 0 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink-2);
+  font: inherit;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.model-select:hover:not(:disabled) {
+  border-color: var(--line-3);
+}
+
+.model-select:disabled {
+  background: var(--surface);
+  color: var(--ink-4);
+  cursor: default;
+}
+
+.plan-row .plan::before {
   content: '';
   display: inline-block;
   width: 7px;

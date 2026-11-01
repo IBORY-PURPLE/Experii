@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { StoredCard } from '../shared/card';
 import type {
   AuthStatus,
+  CardField,
   ChatEvent,
   ConversationView,
   DoneNode,
   LockedNode,
+  ModelList,
   Result,
   Roadmap as RoadmapData,
   Subject,
@@ -14,9 +16,11 @@ import { CardView } from './CardView';
 import { ChatPanel, type Banner } from './ChatPanel';
 import { NewSubjectDialog, RegenerateDialog } from './Dialog';
 import { Gate } from './Gate';
+import { ModelSelect } from './ModelSelect';
 import { Pane, useLayout } from './Panes';
 import { LockedBubble, Roadmap } from './Roadmap';
 import { Sidebar } from './Sidebar';
+import { withToolEvent, type LiveToolLine } from './ToolLines';
 
 const api = window.experii;
 
@@ -37,9 +41,15 @@ type Stream = {
   conversationId: string;
   text: string;
   sent: string;
+  tools: LiveToolLine[];
 };
 
-type Making = { conversationId: string; subjectId: string; title: string };
+type Making = {
+  conversationId: string;
+  subjectId: string;
+  title: string;
+  fields: Partial<Record<CardField, string>>;
+};
 
 type DialogState =
   | { kind: 'subject' }
@@ -63,6 +73,7 @@ export function App() {
   const [card, setCard] = useState<StoredCard | null>(null);
   const [openLockedId, setOpenLockedId] = useState<string | null>(null);
   const [making, setMaking] = useState<Making | null>(null);
+  const [models, setModels] = useState<ModelList | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const streamRef = useRef<Stream | null>(null);
   streamRef.current = stream;
@@ -181,11 +192,19 @@ export function App() {
       const text = (override ?? input).trim();
       if (!conv || !text || streamRef.current) return;
       const id = crypto.randomUUID();
-      setConv({
-        ...conv,
-        messages: [...conv.messages, { role: 'user', text }],
-      });
-      const next = { id, conversationId: conv.id, text: '', sent: text };
+      // A banner's resend runs a send from before the failed question was taken back, so append to the latest state.
+      setConv((c) =>
+        c && c.id === conv.id
+          ? { ...c, messages: [...c.messages, { role: 'user', text }] }
+          : c,
+      );
+      const next = {
+        id,
+        conversationId: conv.id,
+        text: '',
+        sent: text,
+        tools: [],
+      };
       streamRef.current = next;
       setStream(next);
       setInput('');
@@ -204,6 +223,17 @@ export function App() {
     },
     [conv, input],
   );
+
+  const pickModel = async (model: string) => {
+    const target = convRef.current;
+    if (!target || streamRef.current || target.model === model) return;
+    const set = (value: string | null) =>
+      setConv((c) => (c && c.id === target.id ? { ...c, model: value } : c));
+    set(model);
+    const r = await api.setConversationModel(target.id, model);
+    if (!r.ok) set(target.model);
+    else setModels((l) => l && { ...l, current: model });
+  };
 
   const focusInput = () => {
     setOpen('chat', true);
@@ -243,6 +273,11 @@ export function App() {
   const bannerFor = (code: string, sent: string): Banner => {
     const kept = '보낸 메시지는 입력창에 그대로 있어요.';
     const target = convRef.current;
+    const resend = {
+      label: '다시 보내기',
+      primary: true,
+      run: () => void send(sent),
+    };
     switch (code) {
       case 'unauthorized':
         return reloginBanner(`로그인이 만료됐어요. ${kept}`);
@@ -273,14 +308,26 @@ export function App() {
           body: '답이 끝나면 다시 보내 주세요.',
           actions: [],
         };
+      case 'unsupported':
+        return {
+          tone: 'err',
+          title: '이 계정이 받지 않는 기능이 있었어요',
+          body: `로그인한 ChatGPT 계정이 이번 요청에 쓴 기능 하나를 받지 않았어요. ${kept}`,
+          actions: [resend],
+        };
+      case 'tool_limit':
+        return {
+          tone: 'err',
+          title: '도구를 너무 여러 번 불렀어요',
+          body: `GPT가 답을 쓰면서 도구를 계속 불러서 중간에 멈췄어요. ${kept}`,
+          actions: [resend],
+        };
       default:
         return {
           tone: 'err',
           title: '답을 받지 못했어요',
           body: `네트워크가 끊겼거나 응답이 중간에 멈췄어요. ${kept}`,
-          actions: [
-            { label: '다시 보내기', primary: true, run: () => void send(sent) },
-          ],
+          actions: [resend],
         };
     }
   };
@@ -365,14 +412,18 @@ export function App() {
         node && node.kind !== 'locked'
           ? node.title
           : (convRef.current?.title ?? ''),
+      fields: {},
     });
     const r = await api.generateCard(conversationId);
+    const cardId = r.ok && r.data.kind === 'card' ? r.data.cardId : null;
+    // The tile keeps the fields it streamed until the reloaded path has the card, so it never flashes back.
+    if (cardId && subjectRef.current === sid)
+      await loadRoadmap(sid).catch(() => null);
     setMaking(null);
     if (subjectRef.current !== sid) return;
-    if (r.ok && r.data.kind === 'card') {
-      const { cardId } = r.data;
-      await loadRoadmap(sid);
-      await showCard(cardId);
+    if (cardId) {
+      // A card that lands while an answer streams waits folded on the path, so the reader keeps their place.
+      if (!streamRef.current) await showCard(cardId);
       setConv((c) => (c && c.id === conversationId ? { ...c, cardId } : c));
       return;
     }
@@ -470,6 +521,20 @@ export function App() {
 
   useEffect(() => {
     const offChat = api.onChatEvent((ev) => handlerRef.current(ev));
+    const offTool = api.onToolEvent((ev) =>
+      setStream((cur) =>
+        cur?.id === ev.streamId
+          ? { ...cur, tools: withToolEvent(cur.tools, ev) }
+          : cur,
+      ),
+    );
+    const offCard = api.onCardEvent((ev) =>
+      setMaking((m) =>
+        m?.conversationId === ev.conversationId
+          ? { ...m, fields: { ...m.fields, [ev.field]: ev.text } }
+          : m,
+      ),
+    );
     const offAuth = api.onAuthChanged(() => {
       void call(api.authStatus()).then(setAuth);
     });
@@ -479,9 +544,24 @@ export function App() {
     });
     return () => {
       offChat();
+      offTool();
+      offCard();
       offAuth();
     };
   }, [enterApp]);
+
+  // Main keeps the list once the server sends it, so asking per conversation is cheap and recovers from a failure.
+  const convId = conv?.id;
+  useEffect(() => {
+    if (!convId) return;
+    let live = true;
+    void api.listModels().then((r) => {
+      if (live) setModels(r.ok ? r.data : null);
+    });
+    return () => {
+      live = false;
+    };
+  }, [convId]);
 
   const createSubject = async (title: string) => {
     const r = await api.createSubject(title);
@@ -576,6 +656,7 @@ export function App() {
             roadmap={roadmap}
             activeConversationId={conv?.id ?? null}
             makingConversationId={makingHere?.conversationId ?? null}
+            makingFields={makingHere?.fields ?? null}
             openCardId={card?.id ?? null}
             openLockedId={lockedNode?.id ?? null}
             cardView={
@@ -627,10 +708,23 @@ export function App() {
           streamingText={
             stream && stream.conversationId === conv?.id ? stream.text : null
           }
+          streamingTools={
+            stream && stream.conversationId === conv?.id ? stream.tools : []
+          }
           banner={banner}
           input={input}
           inputRef={inputRef}
           headAction={headAction}
+          modelPicker={
+            conv && (
+              <ModelSelect
+                list={models}
+                model={conv.model}
+                busy={!!stream}
+                onPick={(model) => void pickModel(model)}
+              />
+            )
+          }
           onInput={setInput}
           onSend={() => void send()}
           onStop={stopStream}

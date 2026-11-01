@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useEffect,
   useRef,
   useState,
@@ -10,6 +11,7 @@ import type { ConversationView } from '../shared/ipc';
 import { ArrowUp, Stop } from './icons';
 import { Markdown } from './Markdown';
 import { PaneToggle } from './Panes';
+import { ToolLines, savedLinesBefore, type ToolLine } from './ToolLines';
 
 export type Banner = {
   tone: 'err' | 'info';
@@ -22,10 +24,12 @@ type Props = {
   subjectTitle: string | null;
   conversation: ConversationView | null;
   streamingText: string | null;
+  streamingTools: ToolLine[];
   banner: Banner | null;
   input: string;
   inputRef: RefObject<HTMLTextAreaElement | null>;
   headAction: ReactNode;
+  modelPicker: ReactNode;
   onInput(text: string): void;
   onSend(): void;
   onStop(): void;
@@ -39,11 +43,17 @@ export function ChatPanel(p: Props) {
   const [composing, setComposing] = useState(false);
   const streaming = p.streamingText !== null;
   const disabled = !p.conversation;
+  const calls = p.conversation?.toolCalls ?? [];
 
   useEffect(() => {
     const el = scroller.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [p.conversation?.messages.length, p.streamingText, p.conversation?.id]);
+  }, [
+    p.conversation?.messages.length,
+    p.streamingText,
+    p.streamingTools.length,
+    p.conversation?.id,
+  ]);
 
   // Korean IME: Enter that confirms a syllable must not send the message.
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -80,19 +90,27 @@ export function ChatPanel(p: Props) {
         )}
         {p.conversation?.messages.map((m, i) =>
           m.role === 'user' ? (
-            <div key={i} className="msg-user">
-              {m.text}
-            </div>
+            <Fragment key={i}>
+              <ToolLines lines={savedLinesBefore(calls, i)} />
+              <div className="msg-user">{m.text}</div>
+            </Fragment>
           ) : (
             <div key={i} className="msg-ai">
               <div className="who">ChatGPT</div>
+              <ToolLines lines={savedLinesBefore(calls, i)} />
               <Markdown text={m.text} />
             </div>
           ),
         )}
+        {p.conversation && (
+          <ToolLines
+            lines={savedLinesBefore(calls, p.conversation.messages.length)}
+          />
+        )}
         {streaming && (
           <div className="msg-ai" aria-live="polite">
             <div className="who">ChatGPT</div>
+            <ToolLines lines={p.streamingTools} />
             {p.streamingText ? <Markdown text={p.streamingText} /> : null}
             <span className="cursor" aria-hidden />
           </div>
@@ -151,7 +169,8 @@ export function ChatPanel(p: Props) {
           )}
         </div>
         <div className="plan-row">
-          <span>Using ChatGPT plan</span>
+          {p.modelPicker}
+          <span className="plan">Using ChatGPT plan</span>
           <button className="link" onClick={p.onOpenUsage}>
             Manage usage
           </button>
