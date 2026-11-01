@@ -1,5 +1,6 @@
 import type { DoneNode, Subject } from '../shared/ipc';
 import { SUBJECT_COLORS, dayLabel, rateLabel } from './format';
+import { PaneToggle } from './Panes';
 
 type Props = {
   subjects: Subject[];
@@ -12,6 +13,7 @@ type Props = {
   onNewSubject(): void;
   onOpenCard(node: DoneNode): void;
   onSignOut(): void;
+  onFold(): void;
 };
 
 export function Sidebar(p: Props) {
@@ -23,7 +25,10 @@ export function Sidebar(p: Props) {
       : null;
   return (
     <aside className="sidebar">
-      <div className="brand">Experii</div>
+      <div className="side-top">
+        <div className="brand">Experii</div>
+        <PaneToggle panel="sidebar" onFold={p.onFold} />
+      </div>
       <div className="side-scroll">
         <div className="side-head">
           과목

@@ -43,3 +43,92 @@ describe('Markdown emphasis next to Korean', () => {
       expect(html(text)).not.toContain('​');
   });
 });
+
+describe('Markdown GFM tables and code', () => {
+  const table = [
+    '| emp_id | name | dept_name |',
+    '| ---: | --- | --- |',
+    '| 1 | 김하나 | 영업 |',
+    '| 2 | **“이두리”**는 | NULL |',
+    '| 3 | NULL값 | `NULL` |',
+  ].join('\n');
+
+  it('draws a table inside a scrollable region', () => {
+    const out = html(`결과예요.\n\n${table}`);
+    expect(out).toMatch(
+      /<div class="md-table" role="region" aria-label="표" tabindex="0"><table><thead><tr><th style="text-align:right">emp_id<\/th><th>name<\/th>/,
+    );
+    expect(out).toContain('<td style="text-align:right">1</td>');
+    expect(out).toContain('<td>김하나</td>');
+    expect(out).not.toContain('|');
+  });
+
+  it('marks only a cell whose value is exactly NULL', () => {
+    const out = html(table);
+    expect(out.match(/class="null"/g)).toHaveLength(1);
+    expect(out).toContain('<td class="null">NULL</td>');
+    expect(out).toContain('<td>NULL값</td>');
+    expect(out).toContain('<td><code>NULL</code></td>');
+  });
+
+  it('lets only cells with spaces wrap', () => {
+    const out = html(
+      [
+        '| 구분 | 설명 | 입사일 |',
+        '| --- | --- | --- |',
+        '| LEFT | 왼쪽 행을 **모두** 남겨요 | 2024-01-08 |',
+      ].join('\n'),
+    );
+    expect(out).toContain(
+      '<td>LEFT</td><td class="wrap">왼쪽 행을 <strong>모두</strong> 남겨요</td><td>2024-01-08</td>',
+    );
+  });
+
+  it('keeps Korean bold working inside a cell', () => {
+    const out = html(table);
+    expect(out).toContain('<td><strong>“이두리”</strong>는</td>');
+    expect(out).not.toMatch(/\*/);
+    expect(out).not.toContain('​');
+  });
+
+  it('keeps raw HTML as text, in a paragraph and in a cell', () => {
+    const out = html(
+      [
+        '<b>굵게</b> <script>alert(1)</script>',
+        '',
+        '| 태그 |',
+        '| --- |',
+        '| <img src=x onerror=alert(1)> |',
+      ].join('\n'),
+    );
+    expect(out).toContain('&lt;b&gt;굵게&lt;/b&gt;');
+    expect(out).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(out).toContain(
+      '<td class="wrap">&lt;img src=x onerror=alert(1)&gt;</td>',
+    );
+    expect(out).not.toMatch(/<(b|script|img)[\s>]/);
+  });
+
+  it('turns bare URLs into text, not links', () => {
+    const out = html('문서는 https://example.com/join 에 있어요.');
+    expect(out).toContain(
+      '<span class="link-text">https://example.com/join</span>',
+    );
+    expect(out).not.toContain('<a');
+  });
+
+  it('strikes through only with two tildes', () => {
+    expect(html('보통 3~5초, 길면 10~20초 걸려요.')).not.toContain('<del>');
+    expect(html('~~틀린 답~~ 맞는 답')).toContain('<del>틀린 답</del>');
+  });
+
+  it('labels a code block with its language', () => {
+    const out = html('```sql\nSELECT * FROM emp;\n```');
+    expect(out).toContain(
+      '<div class="md-code"><div class="md-code-lang">sql</div><pre><code class="language-sql">SELECT * FROM emp;\n</code></pre></div>',
+    );
+    expect(html('```\nplain\n```')).toContain(
+      '<div class="md-code"><pre><code>plain\n</code></pre></div>',
+    );
+  });
+});

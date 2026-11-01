@@ -9,6 +9,7 @@ import {
 import type { ConversationView } from '../shared/ipc';
 import { ArrowUp, Stop } from './icons';
 import { Markdown } from './Markdown';
+import { PaneToggle } from './Panes';
 
 export type Banner = {
   tone: 'err' | 'info';
@@ -30,6 +31,7 @@ type Props = {
   onStop(): void;
   onNewConversation(): void;
   onOpenUsage(): void;
+  onFold(): void;
 };
 
 export function ChatPanel(p: Props) {
@@ -68,6 +70,7 @@ export function ChatPanel(p: Props) {
           </button>
         )}
         {p.headAction}
+        <PaneToggle panel="chat" onFold={p.onFold} />
       </header>
       <div className="messages" ref={scroller}>
         {p.conversation && (
