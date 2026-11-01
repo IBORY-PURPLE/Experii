@@ -101,8 +101,6 @@
 
   /* ring, sh-1 card and lifted row, sh-2 open card, sh-3 popover, sh-4 dialog; the knob depths are for path knobs only */
   --ring: 0 0 0 1px var(--line);
-  --ring-r: inset -1px 0 0 var(--line); /* the edge line of a side panel that has folded away: right of the sidebar's column */
-  --ring-l: inset 1px 0 0 var(--line); /* left of the chat's */
   --sh-1: 0 1px 2px rgb(26 34 51 / 0.06);
   --sh-2: 0 1px 2px rgb(26 34 51 / 0.05), 0 6px 18px -6px rgb(26 34 51 / 0.12);
   --sh-3:

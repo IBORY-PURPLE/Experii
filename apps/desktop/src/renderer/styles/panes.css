@@ -9,14 +9,31 @@
 
 .sidebar-pane {
   background: var(--bg-side);
-  box-shadow: var(--ring-r);
 }
 
 .chat-pane {
   display: flex;
   justify-content: flex-end;
   background: var(--surface);
-  box-shadow: var(--ring-l);
+}
+
+/* The edge line stays when the body slides away, so it belongs to the column and not to the panel. */
+.pane::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  pointer-events: none;
+}
+
+.sidebar-pane::after {
+  right: 0;
+}
+
+.chat-pane::after {
+  left: 0;
 }
 
 .pane-body {
