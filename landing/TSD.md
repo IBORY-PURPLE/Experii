@@ -498,11 +498,16 @@ CSV가 필요하면 대시보드 테이블 화면에서 내보낸다.
 | LCP | 2.5초 이하 (히어로 제목) |
 | CLS | 0.05 이하 (폰트 교체 때 밀림 포함) |
 | INP | 200ms 이하 |
-| 첫 로드 JS (gzip) | 150KB 이하. 클라이언트 컴포넌트는 `LoopStepper`·`SignupForm`·`StickyCta`·attribution만 |
+| 첫 로드 JS (gzip) | 150KB 이하. GSAP는 넣지 않는다(아래). 클라이언트 컴포넌트는 `HeroDemo`·`LoopStepper`·`TickNav`·`StickyCta`·`SignupForm`·`SignupSuccess`·`DownloadNote`·`CtaTracker`·`ScrollReveal`·attribution |
 | 이미지 | OG 이미지 외 래스터 이미지 없음 |
 | Lighthouse | Performance 90 · Accessibility 95 · Best Practices 95 · SEO 95 이상 |
 
-애니메이션 라이브러리는 넣지 않는다. 전환은 CSS transition으로 한다.
+**애니메이션** (2026-11-02 창업자 결정으로 "애니메이션 라이브러리는 넣지 않는다"를 바꿨다. 홈페이지 모션을 영상이 아니라 실제 웹 요소로 하려는 것이다):
+
+- GSAP(`gsap` 3.15.0)와 ScrollTrigger만 쓰고, 스크롤에 따른 제목·카드 등장에만 쓴다. 다른 애니메이션 라이브러리는 넣지 않는다. 히어로 등장과 버튼 hover는 CSS, 매 프레임 계산이 필요한 효과(히어로 데모)만 `requestAnimationFrame`이다.
+- GSAP는 첫 로드 JS에 넣지 않는다(본체만 약 28KB gzip이라 한도를 넘는다). `ScrollReveal`이 방문자의 첫 스크롤·키·클릭 뒤에 `import()`로 별도 청크(ScrollTrigger 포함 약 45KB gzip)를 받는다. 숨김은 GSAP가 실행된 뒤에만 걸어서, 청크가 늦거나 실패하거나 JS가 없어도 내용은 숨지 않는다.
+- `prefers-reduced-motion: reduce`이면 GSAP를 받지 않고 내용을 즉시 보인다. 움직이는 속성은 `transform`과 `opacity`뿐이다(DESIGN 3.4).
+- 라이선스: GSAP "Standard 'no charge' license"(Webflow). 상업 사용이 가능하고, 코드 없이 시각 애니메이션을 만드는 도구로 Webflow와 경쟁하는 사용만 금지다. 랜딩에서만 쓴다.
 
 가이드 페이지는 서버 컴포넌트만 쓴다. 모바일 목차는 `<details>`로 접어 JS 없이 동작한다.
 

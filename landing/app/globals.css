@@ -53,6 +53,8 @@
   --dur-press: 160ms;
   --dur-sticky: 300ms;
   --dur-tick: 350ms;
+  --dur-hero: 700ms;
+  --hero-step: 90ms;
 }
 
 @media (min-width: 640px) {
@@ -96,6 +98,11 @@
   }
 
   [hidden] { display: none !important; }
+
+  /* the scroll-in motion hides elements with inline styles; a page printed before they appear still prints whole */
+  @media print {
+    [data-reveal] { opacity: 1 !important; transform: none !important; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -142,6 +149,10 @@
     cursor: pointer;
     white-space: nowrap;
     transition: transform var(--dur-press) var(--ease-out-quint), opacity 0.2s;
+  }
+  /* stays above .btn:active so a press still wins */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .btn:where(:not(:disabled)):hover { transform: translateY(-2px); }
   }
   .btn:active { transform: scale(0.97); }
   .btn-ink { background: var(--color-ink); color: #fff; }
@@ -336,6 +347,21 @@
     .hero-sub span { display: inline; }
     .cta-row { margin-top: 18px; }
   }
+
+  /* hero entrance, CSS only so the LCP text never waits for a script */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-kicker,
+    .hero h1,
+    .hero-sub { animation: hero-rise var(--dur-hero) var(--ease-out-quint) backwards; }
+    .hero-sub { animation-delay: var(--hero-step); }
+    .cta-row { animation: hero-fade var(--dur-hero) var(--ease-out-quint) calc(var(--hero-step) * 2) backwards; }
+    .hero-demo,
+    .hero-demo-note { animation: hero-fade var(--dur-hero) var(--ease-out-quint) calc(var(--hero-step) * 3) backwards; }
+  }
+  /* text only rises: text at opacity 0 counts as unpainted, which moved LCP from 1.3s to 3.4s on a throttled phone */
+  @keyframes hero-rise { from { transform: translateY(24px); } }
+  /* buttons and the app window only fade, so nothing pressable moves */
+  @keyframes hero-fade { from { opacity: 0; } }
 
   /* download fake door */
   .btn-dl { gap: 8px; }

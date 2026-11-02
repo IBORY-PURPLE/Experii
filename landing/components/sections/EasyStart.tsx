@@ -7,7 +7,7 @@ export function EasyStart() {
   return (
     <section id="start" className="sec easy" aria-labelledby="es-h">
       <div className="wrap">
-        <div className="sec-head">
+        <div className="sec-head" data-reveal="">
           <h2 id="es-h" className="h2">
             {easyStart.title}
           </h2>
@@ -16,7 +16,7 @@ export function EasyStart() {
           <ExampleBadge label={easyStart.badge} />
           <ol className="es-steps">
             {easyStart.steps.map((s, i) => (
-              <li key={s.lead}>
+              <li key={s.lead} data-reveal="">
                 <span className="es-num" aria-hidden="true">
                   {i + 1}
                 </span>
@@ -52,7 +52,7 @@ export function EasyStart() {
             ))}
           </ol>
         </div>
-        <div className="es-band">
+        <div className="es-band" data-reveal="">
           <p className="two">
             <RichText parts={easyStart.band} />
           </p>

@@ -49,6 +49,19 @@ test.describe('JS 없음', () => {
     await expect(page.locator('#download-note')).toBeHidden();
   });
 
+  test('스크롤 등장 대상은 JS가 없으면 숨지 않고 처음부터 모두 보인다', async ({ page }) => {
+    await page.goto('/');
+    const states = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-reveal]')].map((el) => {
+        const cs = getComputedStyle(el);
+        return { opacity: cs.opacity, transform: cs.transform, style: el.getAttribute('style') };
+      }),
+    );
+    expect(states.length, 'the page marks its reveal targets').toBeGreaterThan(20);
+    expect(states.filter((s) => s.opacity !== '1' || s.transform !== 'none' || s.style)).toEqual([]);
+    await expect(page.locator('html')).not.toHaveAttribute('data-motion', /.*/);
+  });
+
   test('폰 프레임이 없다', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('[class*="phone" i]')).toHaveCount(0);
@@ -72,5 +85,22 @@ test.describe('JS 없음', () => {
     await page.locator('.docs-mtoc').getByRole('link', { name: '자주 묻는 질문' }).click();
     await expect(page).toHaveURL(/\/docs\/faq$/);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('자주 묻는 질문');
+  });
+});
+
+test.describe('JS 없음, 움직임 허용', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('히어로 등장은 CSS만으로 끝나 글씨와 버튼이 모두 보이고, 스크롤 등장 대상은 숨지 않는다', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1_600); // the entrance lasts under 1s
+    for (const sel of ['.hero-kicker', '#hero-h', '.hero-sub', '#hero-cta']) {
+      await expect(page.locator(sel)).toHaveCSS('opacity', '1');
+      await expect(page.locator(sel)).toHaveCSS('transform', 'none');
+    }
+    const held = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-reveal]')].filter((el) => getComputedStyle(el).opacity !== '1' || el.hasAttribute('style')).length,
+    );
+    expect(held).toBe(0);
   });
 });

@@ -5,19 +5,19 @@ export function Problem() {
   return (
     <section id="problem" className="sec problem" aria-labelledby="pr-h">
       <div className="wrap">
-        <div className="sec-head">
+        <div className="sec-head" data-reveal="">
           <h2 id="pr-h" className="h2">
             {problem.title}
           </h2>
         </div>
         <div className="quotes">
           {problem.quotes.map((q) => (
-            <blockquote key={q}>{q}</blockquote>
+            <blockquote key={q} data-reveal="">{q}</blockquote>
           ))}
         </div>
         <p className="q-src">{problem.source}</p>
         <div className="pr-low">
-          <div className="memos" aria-hidden="true">
+          <div className="memos" aria-hidden="true" data-reveal="">
             <div className="memo-pile">
               {problem.memo.stamps.map((stamp) => (
                 <div className="memo" key={stamp}>
@@ -42,7 +42,7 @@ export function Problem() {
           </div>
           <div className="pr-sum">
             {problem.summary.map((parts, i) => (
-              <p key={i}>
+              <p key={i} data-reveal="">
                 <RichText parts={parts} />
               </p>
             ))}

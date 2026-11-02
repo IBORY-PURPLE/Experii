@@ -7,7 +7,7 @@ export function Difference() {
   return (
     <section id="difference" className="sec diff" aria-labelledby="df-h">
       <div className="wrap">
-        <div className="sec-head">
+        <div className="sec-head" data-reveal="">
           <h2 id="df-h" className="h2">
             {difference.title}
           </h2>
@@ -16,7 +16,7 @@ export function Difference() {
           </p>
         </div>
         <figure className="tl">
-          <div className="tl-grid" aria-hidden="true">
+          <div className="tl-grid" aria-hidden="true" data-reveal="">
             <span className="ax ax-study">{difference.axis.study}</span>
             <span className="ax ax-apply">{difference.axis.apply}</span>
             <span className="ax ax-iv">{difference.axis.interview}</span>
@@ -30,19 +30,19 @@ export function Difference() {
           <figcaption className="sr-only">{difference.figcaption}</figcaption>
           <ol className="tl-cards">
             {difference.cards.map((c, i) => (
-              <li key={c.when} className={i === last ? 'tc tc-now' : 'tc'}>
+              <li key={c.when} className={i === last ? 'tc tc-now' : 'tc'} data-reveal="">
                 <p className="tc-when">{c.when}</p>
                 <p className="tc-meta">{c.meta}</p>
                 <p className="tc-a">{c.answer}</p>
               </li>
             ))}
           </ol>
-          <div className="tl-foot">
+          <div className="tl-foot" data-reveal="">
             <ExampleBadge label={difference.badge} />
             <span className="two">{difference.foot}</span>
           </div>
         </figure>
-        <div className="diff-notes">
+        <div className="diff-notes" data-reveal="">
           {difference.notes.map((parts, i) => (
             <p key={i}>
               <RichText parts={parts} />
