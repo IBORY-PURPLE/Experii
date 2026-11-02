@@ -2,8 +2,7 @@
 
 import { useEffect } from 'react';
 
-// GSAP (scroll-reveal.ts) is fetched after the visitor's first scroll, key or click, never on load: a page nobody
-// scrolls loads none of it. With "reduce motion" on, or if the chunk fails, nothing is ever hidden.
+// GSAP is fetched after the visitor's first scroll, key or click, so a page nobody scrolls loads none of it.
 export function ScrollReveal() {
   useEffect(() => {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');

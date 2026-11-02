@@ -1,8 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// The scroll-in motion (components/motion: GSAP + ScrollTrigger, its own chunk) is fetched after the visitor's first
-// scroll, key or click, and flags itself on <html data-motion>: "on" while it holds elements back, "done" once every
-// one is shown. Each [data-reveal] element is a candidate. It never hides anything before it runs.
+// The scroll-in motion starts after the first scroll, key or click and flags itself on <html data-motion>: "on" while it holds elements back, "done" once all are shown.
 
 const wake = (page: Page) => page.keyboard.press('Shift');
 // A key pressed before hydration is lost, so it is pressed again until the motion answers.
@@ -68,8 +66,7 @@ test.describe('움직임 허용', () => {
     await page.addInitScript(() => {
       const seen: string[] = [];
       (window as unknown as { __hero: string[] }).__hero = seen;
-      // The hero text must be visible from its first frame: text at opacity 0 is not painted, which pushed the LCP
-      // of a throttled phone from 1.3s to 3.4s when the entrance faded it in.
+      // text at opacity 0 counts as unpainted: fading the hero text in moved the LCP of a throttled phone from 1.3s to 3.4s
       const text = { lowest: 1, frames: 0 };
       (window as unknown as { __text: typeof text }).__text = text;
       const t0 = performance.now();
