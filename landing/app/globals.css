@@ -304,7 +304,7 @@
     position: relative;
     overflow: hidden;
     border-radius: var(--radius-stage-sm);
-    padding: 40px 16px 0;
+    padding: 40px 16px 20px;
     text-align: center;
     background:
       radial-gradient(55% 45% at 8% 0%, rgb(61 90 153 / 0.13), rgb(61 90 153 / 0) 70%),
@@ -313,19 +313,18 @@
       linear-gradient(180deg, #f5f7fb 0%, #edf1f8 100%);
   }
   .hero-kicker { font-size: 14px; font-weight: 650; color: var(--color-ink-2); margin: 0 0 10px; }
+  .hero-kicker b { font-weight: 720; color: var(--color-ink); }
   .hero h1 { font-size: 30px; line-height: 1.3; margin: 0; }
   .hero h1 span { display: block; }
   .hero-sub { font-size: 17px; line-height: 1.62; color: var(--color-ink-2); max-width: 30em; margin: 14px auto 0; text-wrap: balance; }
   .cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 24px; }
   .cta-row .btn { padding: 0 20px; font-size: 15.5px; }
-  .hero-demo-note { display: none; }
-  @media (max-width: 767.98px) {
+  @media (min-width: 768px) {
     .hero-card { padding-bottom: 32px; }
-    .hero-demo-note { display: block; margin: 20px auto 0; font-size: 14px; color: var(--color-ink-3); }
   }
   @media (min-width: 1024px) {
     .hero { padding: 12px 16px 0; }
-    .hero-card { border-radius: var(--radius-stage); padding: 48px 48px 0; }
+    .hero-card { border-radius: var(--radius-stage); padding: 48px 48px 32px; }
     .hero-kicker { font-size: 16px; margin-bottom: 12px; }
     .hero h1 { font-size: 48px; line-height: 1.22; letter-spacing: -0.028em; }
     .hero-sub { font-size: 19px; margin-top: 16px; max-width: none; }
@@ -337,8 +336,7 @@
     .hero h1 { font-size: 56px; }
     .hero-sub { font-size: 20px; }
   }
-  /* short laptop windows (1536×730, 1366×657, 1280×690): tighter copy lifts the app window so that every
-     scene of its loop plays on the first screen */
+  /* short laptop windows (1536×730, 1366×657, 1280×690): tighter copy lifts the app window */
   @media (min-width: 1024px) and (max-height: 760px) {
     .hero-card { padding-top: 20px; }
     .hero-kicker { margin-bottom: 6px; line-height: 1.4; }
@@ -355,8 +353,7 @@
     .hero-sub { animation: hero-rise var(--dur-hero) var(--ease-out-quint) backwards; }
     .hero-sub { animation-delay: var(--hero-step); }
     .cta-row { animation: hero-fade var(--dur-hero) var(--ease-out-quint) calc(var(--hero-step) * 2) backwards; }
-    .hero-demo,
-    .hero-demo-note { animation: hero-fade var(--dur-hero) var(--ease-out-quint) calc(var(--hero-step) * 3) backwards; }
+    .bd-stage { animation: hero-fade var(--dur-hero) var(--ease-out-quint) calc(var(--hero-step) * 3) backwards; }
   }
   /* text only rises: text at opacity 0 counts as unpainted, which moved LCP from 1.3s to 3.4s on a throttled phone */
   @keyframes hero-rise { from { transform: translateY(24px); } }
@@ -464,6 +461,66 @@
   .sec-head .lead { margin-top: 14px; }
   @media (min-width: 640px) { .sec { padding: 112px 0; } }
   @media (min-width: 1024px) { .sec { padding: 128px 0; } }
+
+  /* flow: three steps on a rail; on wide screens the heading stays beside them. BeforeAfter's top padding supplies the space below. */
+  .flow { padding-bottom: 0; }
+  .flow-grid { --k: 36px; --kg: 16px; display: grid; gap: 40px; }
+  .flow-tl ol { list-style: none; margin: 0; padding: 0; counter-reset: flows; }
+  .flow-knot::before { counter-increment: flows; content: counter(flows); }
+  .flow-step { position: relative; display: grid; grid-template-columns: var(--k) minmax(0, 1fr); column-gap: var(--kg); padding-bottom: 40px; }
+  .flow-step::before {
+    content: "";
+    position: absolute;
+    left: calc(var(--k) / 2 - 1px);
+    top: var(--k);
+    bottom: -4px;
+    width: 2px;
+    background: var(--color-line-2);
+  }
+  .flow-knot {
+    position: relative;
+    z-index: 1;
+    width: var(--k);
+    height: var(--k);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--color-ink);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 760;
+  }
+  .flow-t { margin: 0; font-size: 22px; line-height: 1.35; padding-top: 2px; text-wrap: balance; }
+  .flow-u { color: var(--color-ink-3); }
+  .flow-step p { margin: 8px 0 0; font-size: 16px; line-height: 1.65; color: var(--color-ink-2); text-wrap: pretty; }
+  .flow-end { position: relative; margin: 0; padding-left: calc(var(--k) + var(--kg)); }
+  .flow-end::before {
+    content: "";
+    position: absolute;
+    left: calc(var(--k) / 2 - 10px);
+    top: 4px;
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 2px solid var(--color-ink);
+    background: #fff;
+  }
+  .flow-end span { display: block; }
+  .flow-old { font-size: 17px; line-height: 1.6; color: var(--color-ink-3); }
+  .flow-new { margin-top: 6px; font-size: 21px; line-height: 1.5; color: var(--color-ink); text-wrap: balance; }
+  .flow-new b { font-weight: 760; white-space: nowrap; }
+  @media (min-width: 1024px) {
+    .flow-grid { --k: 52px; --kg: 28px; grid-template-columns: 380px minmax(0, 1fr); gap: 88px; align-items: start; }
+    .flow-head { position: sticky; top: 110px; }
+    .flow-knot { font-size: 22px; }
+    .flow-step { padding-bottom: 56px; }
+    .flow-t { font-size: 26px; padding-top: 10px; }
+    .flow-step p { font-size: 18px; margin-top: 10px; }
+    .flow-end::before { top: 6px; }
+    .flow-old { font-size: 19px; }
+    .flow-new { font-size: 26px; margin-top: 8px; }
+  }
 
   /* problem */
   .quotes { display: grid; gap: 26px; margin-top: 40px; }

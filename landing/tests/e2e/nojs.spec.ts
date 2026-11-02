@@ -1,6 +1,15 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('JS 없음', () => {
+  test('흐름 섹션의 세 단계와 연결 문구가 모두 보인다', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#flow h2')).toBeVisible();
+    const steps = page.locator('#flow .flow-step');
+    await expect(steps).toHaveCount(3);
+    for (let i = 0; i < 3; i++) await expect(steps.nth(i)).toBeVisible();
+    await expect(page.locator('#flow .flow-new')).toBeVisible();
+  });
+
   test('작동 방식 4단계가 세로로 모두 보인다', async ({ page }) => {
     await page.goto('/');
     const panels = page.locator('#stage .panel');
@@ -11,29 +20,30 @@ test.describe('JS 없음', () => {
   });
 
   for (const size of [
+    { width: 360, height: 780 },
     { width: 1440, height: 900 },
     { width: 1280, height: 800 },
     { width: 1536, height: 730 },
     { width: 1366, height: 657 },
     { width: 1280, height: 690 },
   ]) {
-    test(`데스크톱 폭에서 히어로 앱 창은 루프를 마친 마지막 장면으로 멈춰 있다 (${size.width}×${size.height})`, async ({ page }) => {
+    test(`히어로 앱 창과 캡션은 ChatGPT 연결 직후의 정지 화면으로 보인다 (${size.width}×${size.height})`, async ({ page }) => {
       await page.setViewportSize(size);
       await page.goto('/');
-      const win = page.locator('.hd-win');
+      const win = page.locator('.bd-win');
       await expect(win).toBeVisible();
-      const on = win.locator('.hd-scene.on');
-      await expect(on).toHaveCount(1);
-      await expect(on.locator('.revisit-line')).toContainText('다시 본 날');
-      await expect(on.locator('.revisit-line .dot.on')).toHaveCount(3);
-      await expect(on.locator('.xcard .xc-a')).toBeVisible();
-      await expect(on.locator('.follow')).toBeVisible();
-      await expect(win.locator('.aw-count')).toHaveText('4');
-      await expect(win.locator('.aw-bar')).toContainText('예시 화면');
-      const bar = (await win.locator('.aw-bar').boundingBox())!;
+      await expect(win.locator('.tab-label')).toHaveText('필기 3개');
+      await expect(win.locator('.world .sticky:visible')).toHaveCount(3);
+      await expect(win.locator('.chat-head h2')).toHaveText('새 대화');
+      await expect(win.locator('.subject .count')).toHaveText('0');
+      await expect(page.locator('.bd-now-text:visible')).toHaveText('쓰던 ChatGPT 연결');
+      await expect(page.locator('.bd-steps li')).toHaveText(['연결', '캡처', '정리', '추천', '면접']);
+      await expect(page.locator('.bd-steps li[aria-current="step"]')).toHaveText('연결');
+      await expect(page.locator('#bd')).toHaveAttribute('data-play', 'idle');
+      await expect(page.locator('.hero-demo-note')).toBeVisible();
+      await expect(page.locator('.bd-pause')).toBeHidden();
+      const bar = (await win.locator('.bd-titlebar').boundingBox())!;
       expect(bar.y + bar.height, "the window's title bar is whole on the first screen").toBeLessThanOrEqual(size.height);
-      await expect(page.locator('.hd-ctrl')).toBeHidden();
-      await expect(page.locator('.hd-dock[data-dock]'), 'nothing docks without JS').toHaveCount(0);
     });
   }
 

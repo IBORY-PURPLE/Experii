@@ -192,7 +192,7 @@ SQLD 공부 하나가 면접 답변이 되기까지를 한 이야기로 보여 �
 - **동작**: 탭 4개와 패널 하나. 사용자가 누를 때만 넘어가고 자동 진행은 하지 않는다(WCAG 2.2.2). P1에서 모바일 가로 스와이프를 더한다.
 - **JS가 없을 때**: 4단계가 세로로 모두 보인다. 탭 UI는 hydration 뒤에 켜진다.
 - **접근성**: `role="tablist"`·`tab`·`tabpanel`, 좌우 화살표 키 이동, `aria-selected`, `aria-controls`. `prefers-reduced-motion`이면 전환 애니메이션을 끈다.
-- 모든 목업 위에 `ExampleBadge`("예시 화면")를 붙인다.
+- 모든 목업 위에 `ExampleBadge`("예시 화면")를 붙인다. 히어로의 앱 창은 예외다: 실제 앱 화면의 복제(`components/hero/board-demo`)라서 창 위에 배지를 달지 않고, 창과 캡션 줄 아래 노트 "출시 전 제품 · 화면은 개발 중인 예시예요."(`hero.demoNote`)가 모든 폭에서 보인다.
 - 단계를 처음 열 때 `loop_step` 이벤트를 보낸다(9.2).
 
 ### 6.3 카피와 근거 관리
@@ -498,15 +498,17 @@ CSV가 필요하면 대시보드 테이블 화면에서 내보낸다.
 | LCP | 2.5초 이하 (히어로 제목) |
 | CLS | 0.05 이하 (폰트 교체 때 밀림 포함) |
 | INP | 200ms 이하 |
-| 첫 로드 JS (gzip) | 150KB 이하. GSAP는 넣지 않는다(아래). 클라이언트 컴포넌트는 `HeroDemo`·`LoopStepper`·`TickNav`·`StickyCta`·`SignupForm`·`SignupSuccess`·`DownloadNote`·`CtaTracker`·`ScrollReveal`·attribution |
+| 첫 로드 JS (gzip) | 150KB 이하. GSAP는 넣지 않는다(아래). 클라이언트 컴포넌트는 `BoardDemoPlayer`·`LoopStepper`·`TickNav`·`StickyCta`·`SignupForm`·`SignupSuccess`·`DownloadNote`·`CtaTracker`·`ScrollReveal`·attribution |
 | 이미지 | OG 이미지 외 래스터 이미지 없음 |
 | Lighthouse | Performance 90 · Accessibility 95 · Best Practices 95 · SEO 95 이상 |
 
 **애니메이션** (2026-11-02 창업자 결정으로 "애니메이션 라이브러리는 넣지 않는다"를 바꿨다. 홈페이지 모션을 영상이 아니라 실제 웹 요소로 하려는 것이다):
 
-- GSAP(`gsap` 3.15.0)와 ScrollTrigger만 쓰고, 스크롤에 따른 제목·카드 등장에만 쓴다. 다른 애니메이션 라이브러리는 넣지 않는다. 히어로 등장과 버튼 hover는 CSS, 매 프레임 계산이 필요한 효과(히어로 데모)만 `requestAnimationFrame`이다.
+- GSAP(`gsap` 3.15.0)와 ScrollTrigger만 쓰고, 스크롤에 따른 제목·카드 등장에만 쓴다. 다른 애니메이션 라이브러리는 넣지 않는다. 히어로 등장과 버튼 hover는 CSS이고, 히어로 앱 창의 흐름(약 29초 한 판)은 GSAP 코어 타임라인(ScrollTrigger 없음)이다. 직접 쓰는 `requestAnimationFrame` 루프는 없다.
 - GSAP는 첫 로드 JS에 넣지 않는다(본체만 약 28KB gzip이라 한도를 넘는다). `ScrollReveal`이 방문자의 첫 스크롤·키·클릭 뒤에 `import()`로 별도 청크(ScrollTrigger 포함 약 45KB gzip)를 받는다. 숨김은 GSAP가 실행된 뒤에만 걸어서, 청크가 늦거나 실패하거나 JS가 없어도 내용은 숨지 않는다.
-- `prefers-reduced-motion: reduce`이면 GSAP를 받지 않고 내용을 즉시 보인다. 움직이는 속성은 `transform`과 `opacity`뿐이다(DESIGN 3.4).
+- 결합: `tests/unit/board-demo-assets.test.ts`가 데스크톱 앱 CSS(`apps/desktop/src/renderer/styles`)를 읽는다. 데스크톱 스타일만 바뀌어도 다음 랜딩 게이트가 실패하고, 그때 `node scripts/build-board-demo-css.mjs`로 다시 만든 뒤 데모 화면을 눈으로 확인한다.
+- 히어로 앱 창의 타임라인(`board-demo-timeline.ts`)도 별도 청크다. 창이 처음 받는 양은 공유 GSAP 코어 약 27KB와 타임라인 약 5KB를 합쳐 약 32KB(gzip)다. `BoardDemoPlayer`가 `load` 뒤 유휴 시간(`requestIdleCallback`, 최대 1.5초 대기)이면서 창이 35% 이상 보일 때 `import()`로 받아 재생한다. 창이 화면 밖이거나 탭이 숨으면 멈추고 돌아오면 이어 가며, 방문자가 누른 일시정지는 유지한다. 끝 장면을 3초 머문 뒤 창 안쪽이 0.3초 사라졌다 나타나며 처음 화면으로 돌아가 반복한다. 청크가 늦거나 실패하거나 JS가 없어도 서버가 그린 시작 화면이 남는다.
+- `prefers-reduced-motion: reduce`이면 GSAP를 받지 않고 내용을 즉시 보인다. 히어로 앱 창은 시작 화면에 머물고, 방문자가 재생 단추를 누르면 그때 받아 재생한다. 움직이는 속성은 `transform`과 `opacity`가 기본이다. 히어로 앱 창 안의 작은 부품만 예외다(카드 열림 폭 `--x-open`, 틀이 자라는 `clip-path`와 틀 상자의 `left/top/width/height`, 캡처 사각형의 `--cap-w`·`--cap-h`가 움직이는 width·height, 경험 행의 `height`와 그 `box-shadow` 링, 카메라가 움직일 때 보드 점 배경의 `background-size`·`background-position`, 확대율 글자의 `textContent`(값이 바뀔 때만)). 페이지의 흐름 레이아웃은 움직이지 않는다(DESIGN 3.4).
 - 라이선스: GSAP "Standard 'no charge' license"(Webflow). 상업 사용이 가능하고, 코드 없이 시각 애니메이션을 만드는 도구로 Webflow와 경쟁하는 사용만 금지다. 랜딩에서만 쓴다.
 
 가이드 페이지는 서버 컴포넌트만 쓴다. 모바일 목차는 `<details>`로 접어 JS 없이 동작한다.

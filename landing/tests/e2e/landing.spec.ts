@@ -28,14 +28,15 @@ for (const viewport of [null, ...SHORT]) {
       test.beforeEach(({}, info) => test.skip(info.project.name !== 'desktop', 'short windows run once, under desktop'));
     }
 
-    test('Before→After 그림과 출처 칩이 히어로 바로 아래에 있다', async ({ page }) => {
+    // the flow section sits between the hero and this figure (founder's placement, 2026-11-03)
+    test('Before→After 그림과 출처 칩이 흐름 섹션 바로 아래에 있다', async ({ page }) => {
       await page.goto('/');
-      const heroBottom = (await page.locator('.hero-card').boundingBox())!;
+      const flowBottom = (await page.locator('#flow').boundingBox())!;
       const figure = page.locator('.ba figure.interview');
       for (const sel of ['.bub-q', '.bub-before', '.bub-after', '.src-chip']) await expect(figure.locator(sel)).toHaveCount(1);
       const box = (await figure.boundingBox())!;
-      expect(box.y).toBeGreaterThan(heroBottom.y + heroBottom.height - 1);
-      expect(box.y - (heroBottom.y + heroBottom.height)).toBeLessThan(200);
+      expect(box.y).toBeGreaterThan(flowBottom.y + flowBottom.height - 1);
+      expect(box.y - (flowBottom.y + flowBottom.height)).toBeLessThan(200);
     });
 
     test('히어로 CTA를 누르면 사전 신청으로 간다', async ({ page }) => {
@@ -163,12 +164,12 @@ test.describe('landing', () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /localhost:3000\/?$/);
   });
 
-  test('360px에서도 가로 넘침이 없고 앱 창 대신 안내 한 줄이 보인다', async ({ page }) => {
+  test('360px에서도 가로 넘침이 없고 앱 창이 통째로 줄어들어 보인다', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto('/');
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
     await expect(page.locator('.hero-demo-note')).toBeVisible();
-    await expect(page.locator('.hd-win')).toBeHidden();
+    await expect(page.locator('.bd-win')).toBeVisible();
     await page.locator('#stage').scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   });

@@ -1,0 +1,178 @@
+/* Hero app window: the frame, the scale and the line under it. The window's insides are app-scoped.generated.css (scripts/build-board-demo-css.mjs).
+   The window is laid out at the app's own default size, 1427 x 865 under a 32px title bar, and scaled to the box as a whole. */
+.bd-stage {
+  width: min(1180px, 100%);
+  margin: 32px auto 0;
+  text-align: left;
+}
+@media (min-width: 1024px) and (max-height: 760px) {
+  .bd-stage { margin-top: 18px; }
+}
+.bd { margin: 0; }
+
+/* The box keeps the window's proportions at any width, so nothing moves when the page lays out. Nothing here may set will-change:
+   a layer of its own rasterises the scaled text blurry. */
+.bd-box {
+  position: relative;
+  aspect-ratio: 1427 / 897;
+  container-type: inline-size;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--shadow-key), 0 0 0 1px var(--color-line-2);
+}
+.bd-box > .bd-win {
+  --bd-s: 0.25;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1427px;
+  height: 897px;
+  overflow: hidden;
+  background: var(--surface);
+  transform: scale(var(--bd-s));
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+/* Without tan(), atan2() or cqw (Firefox 108-109 and Safari 15.4-15.6 have the functions but not the unit) the player sets --bd-s from the
+   box's width (BoardDemoPlayer). */
+@supports (transform: scale(tan(atan2(100cqw, 1427px)))) {
+  .bd-box > .bd-win { --bd-s: tan(atan2(100cqw, 1427px)); }
+}
+@media (max-width: 767.98px) {
+  .bd-stage { margin: 32px -8px 0; width: auto; }
+  .bd-box { border-radius: 5px; }
+}
+
+.bd-app .bd-titlebar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: var(--h-32);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+  user-select: none;
+}
+.bd-app .bd-titlebar-icon { flex: none; margin-left: var(--sp-4); }
+.bd-app .bd-titlebar-title { margin-left: var(--sp-4); }
+.bd-app .bd-titlebar-controls { display: flex; align-self: stretch; margin-left: auto; }
+.bd-app .bd-titlebar-controls i { display: grid; place-items: center; width: 46px; font-style: normal; }
+.bd-app .bd-body {
+  position: relative;
+  width: 1427px;
+  height: 865px;
+  overflow: hidden;
+  background: var(--bg-main);
+}
+
+/* What the timeline adds inside the window. The flow's own parts (cursors, capture, cards, suggestions) are in parts.src.css. */
+.bd-app .bd-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bd-app .bd-float { position: absolute; left: 0; top: 0; margin: 0; transform-origin: 0 0; background: var(--surface); }
+.bd-app .bd-float.lifted { box-shadow: var(--sh-3); }
+.bd-app .bd-shot { background: var(--surface); }
+/* a cursor that selects (the capture) shows no name tag over what it selects; the tag is smaller than the film's, which was seen at full size */
+.bd-app .x-cursor[data-notag] .x-cursor-tag { display: none; }
+.bd-box > .bd-win .x-cursor-tag { left: 14px; top: 20px; height: 20px; padding: 0 6px; font-size: 11px; line-height: 16px; }
+/* the replica's focus ring (the app's :focus-visible needs a real key press) */
+.bd-app .inputbox.is-focused { outline: 2px solid var(--ink); outline-offset: -1px; }
+/* The window is shown at a quarter to four fifths of its size, so what is drawn for the eye is sized by the scale: the capture's shade and
+   edge stay as thick on screen as at full size (the cursors take their size from the timeline: zoom cannot read container units). */
+.bd-box > .bd-win .x-photo-spot { background: rgb(26 34 51 / 0.16); box-shadow: 0 0 0 1px rgb(26 34 51 / 0.4); }
+.bd-box > .bd-win .x-capture { --scrim: rgb(26 34 51 / 0.34); }
+.bd-box > .bd-win .x-capture[data-state='grab'] .x-capture-edge {
+  inset: calc(var(--sp-1) / -2);
+  border: clamp(2px, calc(2.2px / var(--bd-s)), 9px) dashed var(--ink);
+}
+.bd-box > .bd-win .x-capture[data-state='shot'] .x-capture-edge {
+  inset: -1px;
+  border: clamp(1px, calc(1.6px / var(--bd-s)), 7px) solid var(--ink);
+}
+
+/* The line under the window: what it is doing now, where in the five steps, and pause. */
+.bd-cap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: 18px;
+}
+.bd-now { margin: 0; min-width: 0; }
+.bd-now-label { display: block; font-size: 13px; font-weight: 600; color: var(--color-ink-3); line-height: 1.2; }
+/* every line sits in one grid cell and only the current one shows, so the row is as tall as the tallest line at any width */
+.bd-now-lines { display: grid; margin-top: 2px; }
+.bd-now-text {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: var(--color-ink);
+}
+.bd-now-text[data-on] { visibility: visible; }
+.bd-ctl { display: flex; align-items: center; gap: 12px; }
+.bd-steps { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.bd-steps li {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink-3);
+  font-size: 13.5px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.bd-steps li.done { background: var(--color-talk-tint); color: var(--color-talk); }
+.bd-steps li.on { background: var(--color-ink); color: #fff; }
+.bd-pause {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 16px 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--color-line-2);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 680;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-out-quint);
+}
+.bd-pause:active { transform: scale(0.97); }
+.bd-pause i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--color-ink); color: #fff; }
+.bd-pause svg { display: block; }
+/* the slot stays so that the row does not change height when the script arrives */
+html:not(.js) .bd-pause { visibility: hidden; }
+.hero-demo-note { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: var(--color-ink-3); text-align: left; }
+
+@media (max-width: 767.98px) {
+  .bd-cap { flex-direction: column; align-items: stretch; gap: 10px; margin-top: 14px; }
+  .bd-now-text { font-size: 18px; }
+  .bd-ctl { gap: 8px; }
+  .bd-steps { flex: 1; gap: 4px; }
+  .bd-steps li { flex: 1; padding: 0 4px; }
+  .bd-pause { justify-content: center; padding: 0; width: 44px; }
+  .bd-pause span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* A paused window holds still: the CSS animations inside it (the card's spinner) stop with the timeline. */
+.bd:not([data-play='playing']) .bd-win :is(*, *::before, *::after) { animation-play-state: paused !important; }

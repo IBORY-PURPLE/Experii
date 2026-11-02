@@ -474,21 +474,38 @@ export const loopCopy = {
   },
 };
 
-// Hero window autoplay (set A). Tiles reuse the card list lines of sets A and B.
+// The card list lines of sets A and B (HowItWorks counts them) and the play control's words (heroBoard takes them).
 export const heroDemo = {
   recentTitle: '최근 경험 카드',
   recent: [joinTopic.list.old[0], joinTopic.list.old[1], groupTopic.list.old[1]],
-  control: { idle: '재생', playing: '일시정지', paused: '재생', ended: '다시 보기' },
-  controlTarget: '앱 예시 화면',
-  // shown beside the control when the window has no room for the next scene
-  cue: {
-    start: { down: '조금 내리면 재생돼요', up: '조금 올리면 재생돼요' },
-    resume: { down: '조금 내리면 이어서 재생돼요', up: '조금 올리면 이어서 재생돼요' },
-  },
+  control: { idle: '재생', playing: '일시정지', paused: '재생' },
+};
+
+// Hero window: the app replica (components/hero/board-demo) and the line under it that says what it is doing.
+export const heroBoard = {
+  figureLabel: 'Experii 앱 화면 예시',
   summary:
-    '예시 화면: SQLD 공부 중 막힌 걸 물으면 AI가 예시 표로 설명하고, 현장 과제를 풀면 면접 답변 한 줄이 경험 카드로 저장돼요. 1일, 7일, 30일 뒤 리마인드 알림(출시 예정 기능)이 오고, 30일 알림을 누르면 같은 카드가 다시 열려요.',
+    '예시 화면: 쓰던 ChatGPT를 연결하면 SQLD 학습 주제와 이전 필기가 보드에 열려요. 대화를 캡처해 보드에 붙이면 AI가 필기 카드로 만들고, 제안을 수락하면 필기를 이어서 정리해요. 다음 학습을 AI가 추천하고, 고른 주제로 AI 면접관이 질문해 연습을 마치면 내 경험으로 남아요.',
+  nowLabel: '지금 하는 일',
+  stepsLabel: '진행 단계',
+  steps: [
+    { id: 'connect', name: '연결', lines: ['쓰던 ChatGPT 연결', 'SQLD 공부 중'] },
+    { id: 'capture', name: '캡처', lines: ['대화를 캡처', '보드에 붙여넣기', 'AI가 필기 카드로'] },
+    { id: 'organize', name: '정리', lines: ['제안을 수락하면 정리'] },
+    { id: 'recommend', name: '추천', lines: ['다음 학습 추천', '골라서 이어 가기'] },
+    { id: 'interview', name: '면접', lines: ['AI 면접관이 질문', '연습 통과 · 내 경험'] },
+  ],
+  control: heroDemo.control,
+  // what the two cursors say in the interview (the storyboard's lines)
+  talk: {
+    interviewer1: '왜 3행이 4행이 됐죠?',
+    me1: 'LEFT JOIN은 서준도 남겨서요.',
+    interviewer2: '서준 칸은 왜 NULL이죠?',
+    me2: '주문이 없어서요.',
+    pass: '좋아요, 연습 통과예요.',
+  },
 };
 
 export type LoopShared = typeof loopShared;
-export type HeroDemoCopy = typeof heroDemo;
+export type HeroBoardCopy = typeof heroBoard;
 export type LoopCopy = typeof loopCopy;

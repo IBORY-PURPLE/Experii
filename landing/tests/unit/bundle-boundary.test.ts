@@ -135,6 +135,16 @@ describe('client bundle boundary (TSD 12)', () => {
     expect([...r.packages.keys()]).toContain('gsap');
   });
 
+  it('the hero timeline is the only other place gsap comes in, and only through import()', () => {
+    const player = join(ROOT, 'components/hero/board-demo/BoardDemoPlayer.tsx');
+    const r = reach(player);
+    expect(r.modules.map(rel)).toContain('components/hero/board-demo/board-demo-timeline.ts');
+    expect([...r.packages.keys()]).toContain('gsap');
+    expect(valueSpecifiers(player), 'a static import would put gsap in the first load').not.toContain('./board-demo-timeline');
+    const importers = clientFiles.filter((f) => reach(f).packages.has('gsap')).map(rel).sort();
+    expect(importers).toEqual(['components/hero/board-demo/BoardDemoPlayer.tsx', 'components/motion/ScrollReveal.tsx']);
+  });
+
   it('the walk does see zod and content/loop.ts where the server uses them', () => {
     expect(leaks(join(ROOT, 'app/actions/signup.ts')).some((l) => l.endsWith('-> zod'))).toBe(true);
     expect(leaks(join(ROOT, 'components/sections/HowItWorks.tsx')).some((l) => l.endsWith('content/loop.ts'))).toBe(true);

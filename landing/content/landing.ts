@@ -25,6 +25,8 @@ export const tickNav = [
 export const tickNavLabel = '섹션 바로 가기';
 
 export const hero = {
+  // the product name leads the kicker in a heavier tone; the OG image keeps the plain kicker
+  brand: 'Experii AI Whiteboard',
   kicker: '면접에 집중한 학습 앱',
   headlines: {
     h1: ['공부하는 오늘이,', '면접에서 말할 경험이 됩니다'],
@@ -33,7 +35,7 @@ export const hero = {
   } satisfies Record<HeroVariant, [string, string]>,
   sub: ['내 ChatGPT 계정을 Experii 앱에 등록하면, 이제 공부만 하세요.', '면접 소재는 Experii가 쌓아 둡니다.'],
   ctaSignup: '사전 신청하기',
-  demoNote: '앱 예시 화면은 데스크톱 화면에서 볼 수 있어요.',
+  demoNote: '출시 전 제품 · 화면은 개발 중인 예시예요.',
   figureLabel: '같은 면접 질문에 대한 두 가지 답변 예시',
   badge: '예시',
   interviewer: '면접관',
@@ -44,6 +46,32 @@ export const hero = {
   after: '주문 없는 회원을 찾는 과제에서 LEFT JOIN으로 이렇게 써 봤어요.',
   source: '10월 26일 SQLD 대화에서',
 } as const;
+
+export const flow = {
+  title: '어떻게 경험이 되나요?',
+  lead: 'AI로 공부한 흔적이 흩어지지 않도록. 칠판에 쌓고, 말로 꺼내 봅니다.',
+  steps: [
+    {
+      unit: '1단계',
+      title: '캡처해서 붙이기',
+      body: 'AI 설명 중 중요하거나 모르는 부분을 캡처해 칠판에 붙이세요. 필기는 AI가 카드로 정리합니다.',
+    },
+    {
+      unit: '2단계',
+      title: '칠판에 경험이 쌓이기',
+      body: '모르는 카드는 이어서 설명받고, 다음에 공부할 스텝은 칠판이 추천합니다. 버튼 한 번이면 칠판이 깔끔하게 정리됩니다.',
+    },
+    {
+      unit: '3단계',
+      title: '내 칠판으로 면접 준비까지',
+      body: '쌓인 칠판은 면접 준비로 이어집니다. 내가 실제로 공부한 기록에서 AI 면접관이 질문하고, 말로 설명해 보며 이해한 것과 아직 모르는 것을 확인합니다. 약한 부분은 다시 칠판으로 돌아옵니다.',
+    },
+  ],
+  bridge: {
+    other: '일반 모의면접은 이력서에서 질문합니다.',
+    ours: ['Experii는 ', { b: '내가 공부한 기록' }, '에서 질문합니다.'] satisfies Rich[],
+  },
+};
 
 export const download = {
   label: 'Windows 앱 다운로드',

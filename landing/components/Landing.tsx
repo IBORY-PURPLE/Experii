@@ -1,6 +1,7 @@
 import { download, sticky, tickNav, tickNavLabel } from '@/content/landing';
 import { SiteHeader } from '@/components/SiteHeader';
 import { Hero } from '@/components/sections/Hero';
+import { Flow } from '@/components/sections/Flow';
 import { BeforeAfter } from '@/components/sections/BeforeAfter';
 import { Problem } from '@/components/sections/Problem';
 import { Shift } from '@/components/sections/Shift';
@@ -23,6 +24,7 @@ export function Landing({ variant }: { variant: HeroVariant }) {
       <TickNav items={tickNav} label={tickNavLabel} />
       <main>
         <Hero variant={variant} />
+        <Flow />
         <BeforeAfter />
         <Problem />
         <Shift />

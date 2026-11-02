@@ -75,19 +75,21 @@ for (const viewport of HERO_VIEWPORTS) {
     test.use({ viewport });
 
     test(`히어로 데모가 끝까지 재생된다 ${v}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
       await open(page);
-      await at(page, '.hd-ask.typing', 700);
-      await shot(page, `hero-${v}-01-home`);
-      await at(page, '.hd-flow .task', 900);
-      await shot(page, `hero-${v}-02-task`);
-      await at(page, '.hd-flow .blank.is-right');
-      await shot(page, `hero-${v}-03-left-join-press`);
-      await at(page, '.hd-flow .fake.save.done', 120);
-      await shot(page, `hero-${v}-04-card-saved`);
-      await at(page, '.hero-demo[data-remind="3"]', 500);
-      await shot(page, `hero-${v}-05-remind-30`);
-      await at(page, '.hero-demo[data-play="ended"]', 400);
-      await shot(page, `hero-${v}-06-reopened-card`);
+      await page.evaluate(() => document.querySelector('#bd')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
+      await at(page, '#bd[data-play="playing"]', 300);
+      await shot(page, `hero-${v}-01-connect`);
+      await at(page, '#bd-capture[data-state="shot"]', 150);
+      await shot(page, `hero-${v}-02-capture`);
+      await at(page, '#bd-card-1[data-state="read"]:not([hidden])', 1_200);
+      await shot(page, `hero-${v}-03-note-card`);
+      await at(page, '#bd-proposal:not([hidden])', 2_000);
+      await shot(page, `hero-${v}-04-proposal`);
+      await at(page, '#bd-rec-3:not([hidden])', 1_200);
+      await shot(page, `hero-${v}-05-recommend`);
+      await at(page, '#bd-stamp:not([hidden])', 1_200);
+      await shot(page, `hero-${v}-06-stamp`);
       await keepVideo(page, `hero-${v}`);
     });
   });
@@ -165,7 +167,7 @@ test('모션: 히어로는 제목 → 설명 → 버튼 → 앱 창 순서로 �
   // The hero's own animations are held before the first frame, then stepped, so each still is the same moment on every run.
   await page.addInitScript(() => {
     const st = document.createElement('style');
-    st.textContent = '.hero-kicker,.hero h1,.hero-sub,.cta-row,.hero-demo,.hero-demo-note{animation-play-state:paused !important}';
+    st.textContent = '.hero-kicker,.hero h1,.hero-sub,.cta-row,.bd-stage{animation-play-state:paused !important}';
     const mo = new MutationObserver(() => {
       if (document.head) {
         document.head.append(st);
@@ -175,7 +177,7 @@ test('모션: 히어로는 제목 → 설명 → 버튼 → 앱 창 순서로 �
     mo.observe(document, { childList: true, subtree: true });
   });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.hero-demo');
+  await page.waitForSelector('.bd-stage');
   for (const ms of [0, 150, 350, 600, 1000]) {
     await hold(page, ms);
     await page.waitForTimeout(80);

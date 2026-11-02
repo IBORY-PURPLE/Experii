@@ -1,7 +1,6 @@
 import { download, hero } from '@/content/landing';
-import { heroDemo, loopShared, loopTopics } from '@/content/loop';
 import { DownloadButton } from '@/components/download/Download';
-import { HeroDemo } from '@/components/hero/HeroDemo';
+import { BoardDemo } from '@/components/hero/board-demo/BoardDemo';
 import type { HeroVariant } from '@/lib/signup-fields';
 
 export function Hero({ variant }: { variant: HeroVariant }) {
@@ -9,7 +8,9 @@ export function Hero({ variant }: { variant: HeroVariant }) {
   return (
     <section id="top" className="hero" aria-labelledby="hero-h">
       <div className="hero-card">
-        <p className="hero-kicker">{hero.kicker}</p>
+        <p className="hero-kicker">
+          <b>{hero.brand}</b> · {hero.kicker}
+        </p>
         <h1 id="hero-h">
           <span>{line1}</span> <span>{line2}</span>
         </h1>
@@ -22,8 +23,7 @@ export function Hero({ variant }: { variant: HeroVariant }) {
             {hero.ctaSignup}
           </a>
         </div>
-        <p className="hero-demo-note">{hero.demoNote}</p>
-        <HeroDemo topic={loopTopics.join} shared={loopShared} copy={heroDemo} />
+        <BoardDemo note={hero.demoNote} />
       </div>
     </section>
   );

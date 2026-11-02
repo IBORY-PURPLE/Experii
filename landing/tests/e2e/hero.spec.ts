@@ -2,240 +2,23 @@ import { expect, test, type Page } from '@playwright/test';
 
 type Size = { width: number; height: number };
 
-// Real laptop windows, where the app window starts low on the first screen: 1920×1080 at 125% (1536×730),
-// and 1366×768 or 1280×800 screens less the browser's own chrome. The project's own viewport (1440×900 or
-// 1280×800) runs as `null`; the short windows run once, under the desktop project.
+// Laptop windows where the app window starts low on the first screen: 1920×1080 at 125% (1536×730), and 1366×768 or 1280×800
+// screens less the browser's own chrome. The project's own viewport (360×780, 1440×900 or 1280×800) runs as `null`; the short
+// windows run once, under the desktop project.
 const SIZES: (Size | null)[] = [null, { width: 1536, height: 730 }, { width: 1366, height: 657 }, { width: 1280, height: 690 }];
 const sizeName = (s: Size | null) => (s ? `${s.width}×${s.height}` : '기준 화면');
 
 const prepare = (page: Page, size: Size | null) => {
-  test.skip(page.viewportSize()!.width < 1024, 'desktop layout only');
   test.skip(!!size && test.info().project.name !== 'desktop', 'short windows run once, under the desktop project');
 };
 
-const inFirstScreen = async (page: Page, selector: string) => {
-  const vh = page.viewportSize()!.height;
-  const box = await page.locator(selector).first().boundingBox();
-  expect(box, selector).not.toBeNull();
-  expect(box!.y, selector).toBeGreaterThanOrEqual(0);
-  expect(box!.y, selector).toBeLessThan(vh);
-  return box!;
+const box = async (page: Page, selector: string) => {
+  const b = await page.locator(selector).first().boundingBox();
+  expect(b, selector).not.toBeNull();
+  return b!;
 };
 
-// html has scroll-behavior: smooth; tests jump.
-const jump = (page: Page, y: number) => page.evaluate((top) => scrollTo({ top, behavior: 'instant' }), y);
-const winTop = (page: Page) => page.evaluate(() => document.querySelector('.hd-win')!.getBoundingClientRect().top + scrollY);
-// Scrolls the way a visitor brings the window up to watch it: its title bar just under the header.
-const toWindow = async (page: Page) => jump(page, (await winTop(page)) - 72);
-const label = (page: Page) => page.locator('.hd-ctrl-l .on').textContent();
-
-interface Watch {
-  changes: number;
-  lies: string[];
-  read: Record<'task' | 'solve' | 'result' | 'answer', number>;
-  playMs: number;
-  rests: string[];
-  beats: string[];
-  moved: string[] | null;
-  toast: { min: number; seen: string[]; slack: number; backText: number };
-  dates: number;
-  dotTween: number;
-  maxScroll: number;
-}
-const watched = (page: Page) => page.evaluate(() => (window as unknown as { __hd: Watch }).__hd);
-
-// Installed before the page loads. Per animation frame it records whether the window's picture changed
-// (anything inside the window but its play control, and the thread's camera slide that follows scrolling),
-// and flags each frame where the control's label disagrees: the picture changing under 재생/다시 보기, or
-// 일시정지 shown over a picture that has not changed for 3.5s (the script's longest still stretch is ~3s).
-// It also times each key beat whole on screen, the time spent playing, and any text the pointer rests on;
-// how much empty room the front reminder keeps below its text; and frames where a revisit dot is mid-fill.
-const watch = (page: Page) =>
-  page.addInitScript(() => {
-    const KEY = { task: '.hd-flow .task', solve: '.hd-flow .solve', result: '.hd-flow .result', answer: '.hd-flow .xc-a' };
-    const w: Watch = {
-      changes: 0,
-      lies: [],
-      read: { task: 0, solve: 0, result: 0, answer: 0 },
-      playMs: 0,
-      rests: [],
-      beats: [],
-      moved: null,
-      toast: { min: 1, seen: [], slack: 0, backText: 0 },
-      dates: 0,
-      dotTween: 0,
-      maxScroll: 0,
-    };
-    (window as unknown as { __hd: Watch }).__hd = w;
-    let dirty = '';
-    new MutationObserver((recs) => {
-      for (const r of recs) {
-        const el = r.target instanceof Element ? r.target : r.target.parentElement;
-        if (!el?.closest('.hd-win') || el.closest('.hd-slot')) continue;
-        if (r.type === 'attributes' && r.attributeName === 'style' && el.classList.contains('hd-flow')) continue;
-        dirty ||= `${r.type} ${r.attributeName ?? ''} on .${[...el.classList].join('.')}`;
-      }
-    }).observe(document, { subtree: true, childList: true, attributes: true, characterData: true });
-
-    const boxes = () =>
-      ['.hd-win', '.hd-ctrl', '.aw-side', '#hero-cta'].map((s) => {
-        const r = document.querySelector(s)?.getBoundingClientRect();
-        return r ? `${s} ${r.x},${r.y + scrollY},${r.width},${r.height}` : `${s} missing`;
-      });
-    let prev: string[] = [];
-    const logBeat = () => {
-      const hd = document.querySelector<HTMLElement>('.hero-demo');
-      if (!hd) return;
-      const beat = `${hd.dataset.scene}:${hd.dataset.remind}`;
-      const last = w.beats[w.beats.length - 1];
-      if (last === 'opened:0' && beat === 'home:0' && !w.moved) {
-        const now = boxes();
-        w.moved = now.filter((b, i) => b !== prev[i]);
-      }
-      if (last !== beat) w.beats.push(beat);
-    };
-    new MutationObserver(logBeat).observe(document, { subtree: true, attributes: true, attributeFilter: ['data-scene', 'data-remind'] });
-
-    let ready = false;
-    document.addEventListener('DOMContentLoaded', () => {
-      logBeat();
-      requestAnimationFrame(() => (ready = true));
-    });
-    let text = '';
-    let since = 0;
-    let last = 0;
-    let lastChange = 0;
-    let pending = 0;
-    let why = '';
-    let pos = '';
-    let still = 0;
-    let checked = 0;
-    const range = document.createRange();
-    const tick = (ts: number) => {
-      const dt = last ? ts - last : 0;
-      last = ts;
-      const hd = document.querySelector<HTMLElement>('.hero-demo');
-      if (hd) {
-        prev = boxes();
-        const now = hd.querySelector('.hd-ctrl-l .on')?.textContent ?? '';
-        if (now !== text) {
-          text = now;
-          since = ts;
-        }
-        const claims = text === '일시정지';
-        // React renders the label a frame after the clock moves the pointer, so a change is a lie only if
-        // the label has not caught up 150ms later.
-        if (dirty && ready) {
-          w.changes++;
-          lastChange = ts;
-          if (!claims && ts - since > 150 && !pending) {
-            pending = ts;
-            why = `${dirty} under "${text}" (${hd.dataset.play} ${hd.dataset.scene} y${Math.round(scrollY)})`;
-          }
-        }
-        dirty = '';
-        if (claims) pending = 0;
-        else if (pending && ts - pending > 150) {
-          w.lies.push(`${Math.round(pending)}ms: ${why}`);
-          pending = 0;
-        }
-        if (claims && ready && ts - Math.max(lastChange, since) > 3500) {
-          w.lies.push(`${Math.round(ts)}ms: "${text}" over a picture still for 3.5s`);
-          lastChange = ts;
-        }
-        if (hd.dataset.play === 'playing') w.playMs += dt;
-        w.maxScroll = Math.max(w.maxScroll, scrollY);
-
-        const dock = hd.querySelector('.hd-dock')!;
-        if (hd.dataset.scene === 'study' && hd.dataset.remind === '0') {
-          const thread = hd.querySelector('.hd-thread')!.getBoundingClientRect();
-          const top = Math.max(
-            thread.top,
-            document.querySelector('.nav')?.getBoundingClientRect().bottom ?? 0,
-            dock.hasAttribute('data-dock') ? dock.getBoundingClientRect().bottom : 0,
-          );
-          const bottom = Math.min(thread.bottom, innerHeight);
-          for (const [k, s] of Object.entries(KEY)) {
-            const el = hd.querySelector<HTMLElement>(s);
-            if (!el) continue;
-            const r = el.getBoundingClientRect();
-            const opaque = +getComputedStyle(el.closest('.hd-flow > *')!).opacity >= 0.99;
-            if (opaque && r.height > 0 && r.top >= top - 0.5 && r.bottom <= bottom + 0.5) w.read[k as keyof typeof KEY] += dt;
-          }
-        }
-
-        const cursor = hd.querySelector<HTMLElement>('.hd-cursor')!;
-        if (cursor.style.transform !== pos) {
-          pos = cursor.style.transform;
-          still = ts;
-        } else if (hd.dataset.play === 'playing' && ts - still > 600 && ts - checked > 100) {
-          checked = ts;
-          const a = cursor.querySelector('svg')!.getBoundingClientRect();
-          const tip = { l: a.left + 3, t: a.top + 1, r: a.left + 15, b: a.top + 19 };
-          const root = hd.querySelector(hd.dataset.remind !== '0' ? '.hd-remind' : '.hd-scene.on')!;
-          const thread = hd.querySelector('.hd-thread')!.getBoundingClientRect();
-          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-          for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-            const words = n.textContent!.trim();
-            const el = n.parentElement!;
-            if (!words || !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
-            const clip = el.closest('.hd-thread') ? thread : null;
-            range.selectNodeContents(n);
-            for (const r of range.getClientRects()) {
-              const t = Math.max(r.top, clip?.top ?? -Infinity, tip.t);
-              const b = Math.min(r.bottom, clip?.bottom ?? Infinity, tip.b);
-              if (b - t > 1 && Math.min(r.right, tip.r) - Math.max(r.left, tip.l) > 1 && !w.rests.includes(words)) w.rests.push(words);
-            }
-          }
-        }
-
-        if (hd.dataset.remind !== '0') {
-          const front = hd.querySelector<HTMLElement>('.hd-toasts .notif[data-off="0"]');
-          if (front && getComputedStyle(front).visibility === 'visible') {
-            w.toast.min = Math.min(w.toast.min, +getComputedStyle(front).opacity);
-            if (!w.toast.seen.includes(hd.dataset.remind!)) w.toast.seen.push(hd.dataset.remind!);
-            const text = front.lastElementChild!.getBoundingClientRect().bottom + parseFloat(getComputedStyle(front).paddingBottom);
-            w.toast.slack = Math.max(w.toast.slack, front.getBoundingClientRect().bottom - text);
-          }
-          for (const n of hd.querySelectorAll<HTMLElement>('.hd-toasts .notif:not([data-off="0"])'))
-            if (getComputedStyle(n.querySelector('.n-body')!).visibility === 'visible') w.toast.backText++;
-          const box = hd.querySelector('.hd-date')!.getBoundingClientRect();
-          const shown = [...hd.querySelectorAll<HTMLElement>('.hd-date .md')]
-            .filter((el) => +getComputedStyle(el.closest('.ld')!).opacity > 0.02)
-            .map((el) => el.getBoundingClientRect())
-            .map((r) => [Math.max(r.top, box.top), Math.min(r.bottom, box.bottom)])
-            .filter(([x, y]) => y > x);
-          for (let i = 1; i < shown.length; i++) if (shown[i][0] < shown[i - 1][1] && shown[i - 1][0] < shown[i][1]) w.dates++;
-        }
-
-        if (hd.dataset.scene === 'opened' && hd.dataset.play === 'playing') {
-          for (const dot of hd.querySelectorAll('.hd-scene.on .revisit-line .dot')) {
-            const tf = getComputedStyle(dot, '::after').transform;
-            const scale = tf === 'none' ? 1 : new DOMMatrixReadOnly(tf).a;
-            if (scale > 0.02 && scale < 0.98) w.dotTween++;
-          }
-        }
-      }
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  });
-
-// Autoplay starts on the first screen of every window here, the short laptop ones included, without the
-// visitor scrolling, and with the question box whole on screen.
-const startsAutoplay = async (page: Page) => {
-  const hd = page.locator('.hero-demo');
-  await expect(hd).toHaveAttribute('data-play', 'playing', { timeout: 4_000 });
-  expect(await page.evaluate(() => scrollY)).toBe(0);
-  await expect(hd.locator('.hd-ask .typed')).toContainText('LEFT', { timeout: 3_000 });
-  const ask = await hd.locator('.hd-ask').evaluate((el) => el.getBoundingClientRect().bottom);
-  expect(ask, 'the question box is whole on screen while it types').toBeLessThanOrEqual(page.viewportSize()!.height);
-};
-
-const advances = async (page: Page, within: number) => {
-  const from = (await watched(page)).changes;
-  await expect.poll(async () => (await watched(page)).changes, { timeout: within, intervals: [100] }).toBeGreaterThan(from + 2);
-};
+const STEPS = ['연결', '캡처', '정리', '추천', '면접'];
 
 test.describe('히어로', () => {
   for (const size of SIZES) {
@@ -246,340 +29,687 @@ test.describe('히어로', () => {
         prepare(page, size);
         await page.goto('/');
         const vh = page.viewportSize()!.height;
-        const h1 = await inFirstScreen(page, '#hero-h');
+        const h1 = await box(page, '#hero-h');
+        expect(h1.y).toBeGreaterThanOrEqual(0);
         expect(h1.y + h1.height).toBeLessThan(vh);
-        const dl = await inFirstScreen(page, '#hero-cta [data-download="hero"]');
+        const dl = await box(page, '#hero-cta [data-download="hero"]');
         expect(dl.y + dl.height).toBeLessThan(vh);
         await expect(page.locator('#hero-cta [data-download="hero"]')).toHaveText(/Windows 앱 다운로드/);
         await expect(page.locator('#hero-cta [data-download="hero"]')).toContainText('출시 예정');
         await expect(page.locator('#hero-cta a[href="#signup"]')).toHaveText('사전 신청하기');
-        const win = await inFirstScreen(page, '.hd-win .aw');
-        if (size) {
-          const bar = (await page.locator('.hd-win .aw-bar').boundingBox())!;
-          expect(bar.y + bar.height, "the window's title bar is whole on the first screen").toBeLessThanOrEqual(vh);
-        } else expect(vh - win.y, 'the window shows at least 300px above the fold').toBeGreaterThanOrEqual(300);
-        await expect(page.locator('.hd-win .aw-bar')).toContainText('예시 화면');
-        await expect(page.locator('.hd-win .aw-side')).toContainText('오늘 공부');
-        await expect(page.locator('.hd-win .aw-side')).toContainText('리마인드');
-        await expect(page.locator('.hd-win .aw-side')).toContainText('SQLD · 2과목');
-        const said = await page.locator('.hero-demo').ariaSnapshot();
-        expect(said, 'read aloud, the 1·7·30-day reminders carry the same 출시 예정 mark as on screen').toMatch(
-          /1일, 7일, 30일 뒤[^"\n]*출시 예정 기능/,
-        );
+        const win = await box(page, '.bd-box');
+        expect(win.y, 'the window starts on the first screen').toBeLessThan(vh);
+        expect(vh - win.y, 'at least its top part shows above the fold').toBeGreaterThanOrEqual(size ? 100 : 200);
+        await expect(page.locator('.bd-win .bd-titlebar')).toBeVisible();
+        await expect(page.locator('.bd-win .sidebar')).toContainText('학습 주제');
+        await expect(page.locator('.bd-win .sidebar')).toContainText('SQLD에 쌓인 경험');
       });
+    });
+  }
 
-      test('앱 창은 히어로 카드 아래 경계에서 잘린다', async ({ page }) => {
-        prepare(page, size);
-        await page.goto('/');
-        const card = (await page.locator('.hero-card').boundingBox())!;
-        const win = (await page.locator('.hd-win .aw').boundingBox())!;
-        expect(win.y + win.height).toBeGreaterThan(card.y + card.height);
+  test('창은 실제 앱 크기 1427×897의 비율로 줄어들고, 높이가 미리 잡혀 있다', async ({ page }) => {
+    await page.goto('/');
+    const b = await box(page, '.bd-box');
+    expect(b.width / b.height).toBeCloseTo(1427 / 897, 2);
+    const vw = page.viewportSize()!.width;
+    expect(b.x).toBeGreaterThanOrEqual(0);
+    expect(b.x + b.width).toBeLessThanOrEqual(vw);
+    expect(b.width).toBeLessThanOrEqual(1181);
+    const win = await page.locator('.bd-win').evaluate((el: HTMLElement) => ({ w: el.offsetWidth, h: el.offsetHeight, transform: getComputedStyle(el).transform }));
+    expect([win.w, win.h]).toEqual([1427, 897]);
+    const scale = Number(/matrix\(([\d.]+)/.exec(win.transform)![1]);
+    expect(scale * 1427).toBeCloseTo(b.width, 0);
+    const bodyH = await page.locator('.bd-body').evaluate((el: HTMLElement) => el.offsetHeight);
+    expect(bodyH).toBe(865);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 'the hero adds no sideways overflow').toBeLessThanOrEqual(0);
+  });
+
+  test('창 위에 "예시 화면" 배지가 없고, 노트는 창과 캡션 아래에서 모든 폭에 보인다', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero .ex')).toHaveCount(0);
+    await expect(page.locator('.bd-box')).not.toContainText('예시 화면');
+    const win = await box(page, '.bd-box');
+    const cap = await box(page, '.bd-cap');
+    const note = page.locator('.hero-demo-note');
+    await expect(note).toBeVisible();
+    await expect(note).toHaveText('출시 전 제품 · 화면은 개발 중인 예시예요.');
+    const n = await box(page, '.hero-demo-note');
+    expect(cap.y).toBeGreaterThanOrEqual(win.y + win.height);
+    expect(n.y).toBeGreaterThanOrEqual(cap.y + cap.height);
+  });
+
+  test('단계 표시는 다섯 개이고 지금 단계가 정해져 있고, 지금 하는 일 글이 하나 보인다', async ({ page }) => {
+    await page.goto('/');
+    const steps = page.locator('.bd-steps li');
+    await expect(steps).toHaveText(STEPS);
+    await expect(page.locator('.bd-steps')).toHaveAttribute('aria-label', '진행 단계');
+    await expect(page.locator('.bd-steps li[aria-current="step"]')).toHaveText('연결');
+    await expect(page.locator('.bd-steps li[aria-current]')).toHaveCount(1);
+    await expect(page.locator('.bd-steps button')).toHaveCount(0);
+    const fig = page.locator('#bd');
+    await expect(fig).toHaveAttribute('data-step', 'connect');
+    await expect(fig).toHaveAttribute('data-play', 'idle');
+    await expect(page.locator('.bd-now-label')).toHaveText('지금 하는 일');
+    await expect(page.locator('.bd-now-text:visible')).toHaveCount(1);
+    await expect(page.locator('.bd-now-text:visible')).toHaveText('쓰던 ChatGPT 연결');
+    await expect(page.locator('.bd-now-lines')).toHaveAttribute('aria-live', 'off');
+  });
+
+  test('재생 단추는 44px 이상이고, 동작 줄이기에서는 눌러야 재생된다', async ({ page }) => {
+    await page.goto('/');
+    const btn = page.locator('.bd-pause');
+    await expect(btn).toBeVisible();
+    const b = await box(page, '.bd-pause');
+    expect(b.width).toBeGreaterThanOrEqual(44);
+    expect(b.height).toBeGreaterThanOrEqual(44);
+    await expect(btn).toHaveAccessibleName('재생');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'idle');
+    await btn.click();
+    await expect(btn).toHaveAccessibleName('일시정지');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'playing');
+    await btn.click();
+    await expect(btn).toHaveAccessibleName('재생');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+  });
+
+  test('캡션 줄의 높이는 글이 바뀌어도 고정이다', async ({ page }) => {
+    await page.goto('/');
+    const before = await box(page, '.bd-cap');
+    await page.locator('.bd-now-text').evaluateAll((els) => {
+      const longest = els.reduce((a, b) => ((b.textContent ?? '').length > (a.textContent ?? '').length ? b : a));
+      els.forEach((el) => el.toggleAttribute('data-on', el === longest));
+    });
+    const after = await box(page, '.bd-cap');
+    expect(after.height).toBe(before.height);
+    expect(after.y).toBe(before.y);
+  });
+
+  test('창 안은 ChatGPT를 연결한 직후 앱 화면이고, 앱 글꼴이 로드된다', async ({ page }) => {
+    await page.goto('/');
+    const win = page.locator('.bd-win');
+    await expect(win.locator('.subject')).toContainText('SQLD');
+    await expect(win.locator('.subject .count')).toHaveText('0');
+    await expect(win.locator('.side-empty')).toHaveText('아직 경험 카드가 없어요');
+    await expect(win.locator('.account')).toContainText('ChatGPT Plus');
+    await expect(win.locator('.account')).toContainText('로그인됨');
+    await expect(win.locator('.tab-title')).toHaveText('SQLD 보드');
+    await expect(win.locator('.tab-label')).toHaveText('필기 3개');
+    await expect(win.locator('.world .sticky:visible')).toHaveCount(3);
+    await expect(win.getByRole('button', { name: '정리하기' })).toHaveCount(0); // hidden from assistive tech, but drawn
+    await expect(win.locator('.board-top .btn')).toHaveText('정리하기');
+    await expect(win.locator('.zoom-pct')).toHaveText('90%');
+    await expect(win.locator('.hint')).toBeVisible();
+    await expect(win.locator('.toolbar .tool')).toHaveCount(2);
+    await expect(win.locator('.chat-head h2')).toHaveText('새 대화');
+    await expect(win.locator('.chat-head .ttl p')).toHaveText('SQLD · 대화');
+    await expect(win.locator('.messages .msg-user:visible, .messages .msg-ai:visible')).toHaveCount(0);
+    await expect(win.locator('.x-cursor:visible, .x-capture:visible, .x-section:visible, .x-rec:visible')).toHaveCount(0);
+    await expect(win.locator('textarea')).toHaveAttribute('placeholder', 'SQLD에 대해 물어보세요');
+    await expect(win.locator('.model-select')).toContainText('기본 모델');
+    await expect(win.locator('.plan')).toHaveText('Using ChatGPT plan');
+    await expect(win.locator('.plan-row .link')).toHaveText('Manage usage');
+    const loaded = await page.evaluate(async () => {
+      await document.fonts.ready;
+      return [...document.fonts].some((f) => f.family.includes('bd-pretendard') && f.status === 'loaded');
+    });
+    expect(loaded, "the window's own Pretendard subset is in use").toBe(true);
+  });
+
+  test('창은 탭 이동에 걸리지 않고 보조 기술에는 그림 설명 하나로만 읽힌다', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.bd-box')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.bd-box')).toHaveJSProperty('inert', true);
+    const fig = page.locator('#bd');
+    await expect(fig).toHaveAccessibleName('Experii 앱 화면 예시');
+    await expect(fig).toHaveAccessibleDescription(/SQLD 학습 주제/);
+    expect(await fig.ariaSnapshot(), 'the replica adds nothing the reader would hear').not.toContain('로그아웃');
+    const inside: string[] = [];
+    for (let i = 0; i < 14; i++) {
+      await page.keyboard.press('Tab');
+      inside.push(await page.evaluate(() => (document.activeElement?.closest('.bd-win') ? 'in-window' : '-')));
+    }
+    expect(inside).not.toContain('in-window');
+  });
+
+  test('랜딩의 전역 스타일이 창 안으로 새지 않는다', async ({ page }) => {
+    await page.goto('/');
+    const got = await page.evaluate(() => {
+      const cs = (sel: string) => getComputedStyle(document.querySelector(sel)!);
+      const app = cs('.bd-win');
+      return {
+        textAlign: app.textAlign,
+        letterSpacing: app.letterSpacing,
+        textWrap: app.textWrap,
+        fontSize: app.fontSize,
+        lineHeight: app.lineHeight,
+        btnH: (document.querySelector('.bd-win .chat-head .btn')! as HTMLElement).offsetHeight,
+        btnMinH: cs('.bd-win .chat-head .btn').minHeight,
+        h2LetterSpacing: cs('.bd-win .chat-head h2').letterSpacing,
+        h2Weight: cs('.bd-win .chat-head h2').fontWeight,
+        whoSize: cs('.bd-win .account .who').fontSize,
+        svgDisplay: cs('.bd-win .icon-btn svg').display,
+        pageAlign: cs('.hero-card').textAlign,
+      };
+    });
+    expect(got.pageAlign, 'the hero card is centred; the window is not').toBe('center');
+    expect(got.textAlign).toBe('start');
+    expect(got.letterSpacing).toBe('normal');
+    expect(got.textWrap).toBe('wrap');
+    expect(got.fontSize).toBe('14px');
+    expect(got.lineHeight).toBe('21px');
+    expect(got.btnH, '.btn of the page has min-height 52px').toBe(32);
+    expect(got.btnMinH).toBe('auto');
+    expect(got.h2LetterSpacing).toBe('normal');
+    expect(got.h2Weight).toBe('600');
+    expect(got.whoSize).toBe('14px');
+    expect(got.svgDisplay).toBe('block');
+  });
+
+  test('로드 직후 앱 창과 캡션 줄은 레이아웃이 밀리지 않는다 (CLS)', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __shifts: { value: number; sources: string[] }[] };
+      w.__shifts = [];
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean; sources?: { node?: Node }[] }[]) {
+          if (e.hadRecentInput) continue;
+          w.__shifts.push({
+            value: e.value,
+            sources: (e.sources ?? []).map((s) => {
+              const el = s.node instanceof Element ? s.node : s.node?.parentElement;
+              return el?.closest('.bd-stage') ? 'window' : (el?.tagName ?? '?');
+            }),
+          });
+        }
+      }).observe({ type: 'layout-shift', buffered: true });
+    });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(1_500);
+    const shifts = await page.evaluate(() => (window as unknown as { __shifts: { value: number; sources: string[] }[] }).__shifts);
+    expect(shifts.filter((s) => s.sources.includes('window')), 'the window, caption and note never move').toEqual([]);
+  });
+
+  test('동작 줄이기에서는 GSAP를 받지 않고 시작 화면에 머문다', async ({ page }) => {
+    const story = storyRequests(page);
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(2_500);
+    expect(story.count(), 'the story is not even fetched').toBe(0);
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'idle');
+    await expect(page.locator('#bd')).toHaveAttribute('data-step', 'connect');
+    const running = await page.locator('.bd-box').evaluate((el) => el.getAnimations({ subtree: true }).length);
+    expect(running, 'nothing runs inside the window').toBe(0);
+    await expect(page.locator('.bd-win .tab-label')).toHaveText('필기 3개');
+    await page.locator('.bd-pause').click();
+    await expect.poll(() => story.count(), { message: 'play asked for it' }).toBeGreaterThan(0);
+  });
+});
+
+// A request for the story's chunk: the one module that draws the capture box.
+function storyRequests(page: Page) {
+  let n = 0;
+  page.on('response', async (r) => {
+    if (r.url().endsWith('.js') && (await r.text().catch(() => '')).includes('x-capture-box')) n += 1;
+  });
+  return { count: () => n };
+}
+
+// --- the story ---------------------------------------------------------------------------------------------------------------------
+// Time is the page's fake clock, so every moment below is exact: the clock is paused and moved with runFor.
+
+const attr = (page: Page, name: string) => page.locator('#bd').getAttribute(name);
+const inside = (page: Page) => page.locator('.bd-win').evaluate((el) => el.innerHTML);
+const advance = async (page: Page, ms: number) => {
+  for (let left = ms; left > 0; left -= 100) await page.clock.runFor(Math.min(100, left));
+};
+// Opens the page with the clock frozen and the window in view; returns the window as the server drew it once the story plays (it
+// begins within 50 ms of this).
+async function startStory(page: Page) {
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 200));
+  await page.goto('/', { waitUntil: 'load' });
+  const ssr = await inside(page);
+  await page.evaluate(() => document.querySelector('#bd')!.scrollIntoView({ block: 'center' }));
+  for (let i = 0; i < 80; i++) {
+    await page.clock.runFor(50);
+    await page.waitForTimeout(50);
+    if ((await attr(page, 'data-play')) === 'playing') return ssr;
+  }
+  throw new Error('the story did not start');
+}
+
+test.describe('히어로 재생', () => {
+  test.use({ reducedMotion: 'no-preference' });
+  test.setTimeout(120_000);
+
+  test('창이 보이면 3초 안에 재생이 시작된다', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => document.querySelector('#bd')!.scrollIntoView({ block: 'center' }));
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'playing', { timeout: 3_000 });
+    await expect(page.locator('.bd-pause')).toHaveAccessibleName('일시정지');
+  });
+
+  test('단계 표시와 캡션이 시간에 따라 연결, 캡처, 정리, 추천, 면접으로 바뀐다', async ({ page }) => {
+    await startStory(page);
+    const names: Record<string, string> = { connect: '연결', capture: '캡처', organize: '정리', recommend: '추천', interview: '면접' };
+    const marks: [number, string, string][] = [
+      [1.0, 'connect', '쓰던 ChatGPT 연결'],
+      [3.0, 'connect', 'SQLD 공부 중'],
+      [5.0, 'capture', '대화를 캡처'],
+      [7.0, 'capture', '보드에 붙여넣기'],
+      [9.0, 'capture', 'AI가 필기 카드로'],
+      [11.5, 'organize', '제안을 수락하면 정리'],
+      [15.2, 'recommend', '다음 학습 추천'],
+      [17.5, 'recommend', '골라서 이어 가기'],
+      [20.0, 'interview', 'AI 면접관이 질문'],
+      [26.0, 'interview', '연습 통과 · 내 경험'],
+    ];
+    let at = 0;
+    for (const [t, step, line] of marks) {
+      await advance(page, t * 1000 - at);
+      at = t * 1000;
+      await expect(page.locator('#bd')).toHaveAttribute('data-step', step);
+      await expect(page.locator('.bd-now-text:visible')).toHaveText(line);
+      await expect(page.locator('.bd-steps li[aria-current="step"]')).toHaveText(names[step]);
+    }
+    await expect(page.locator('.bd-steps li.done'), 'the steps before the current one are marked done').toHaveCount(4);
+  });
+
+  test('일시정지하면 멈추고 재생하면 이어진다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 5_000);
+    await expect(page.locator('#bd')).toHaveAttribute('data-step', 'capture');
+    const btn = page.locator('.bd-pause');
+    await btn.click();
+    await expect(btn).toHaveAccessibleName('재생');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    const frozen = await inside(page);
+    await advance(page, 12_000);
+    expect(await inside(page), 'nothing moves while paused').toBe(frozen);
+    await expect(page.locator('#bd')).toHaveAttribute('data-step', 'capture');
+    await btn.click();
+    await expect(btn).toHaveAccessibleName('일시정지');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'playing');
+    await advance(page, 8_000);
+    await expect(page.locator('#bd')).toHaveAttribute('data-step', 'organize');
+  });
+
+  test('탭이 숨으면 멈추고 돌아오면 이어서 재생한다, 방문자가 누른 일시정지는 유지한다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 3_000);
+    const hide = (hidden: boolean) =>
+      page.evaluate((h) => {
+        Object.defineProperty(document, 'hidden', { value: h, configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      }, hidden);
+    await hide(true);
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    const at = await inside(page);
+    await advance(page, 10_000);
+    expect(await inside(page)).toBe(at);
+    await hide(false);
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'playing');
+    await advance(page, 3_000);
+    expect(await inside(page)).not.toBe(at);
+    await page.locator('.bd-pause').click();
+    await hide(true);
+    await hide(false);
+    await expect(page.locator('#bd'), 'the visitor paused it').toHaveAttribute('data-play', 'paused');
+  });
+
+  test('창이 화면 밖이면 멈추고, 돌아오면 이어서 재생한다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 2_000);
+    await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    const at = await inside(page);
+    await advance(page, 6_000);
+    expect(await inside(page)).toBe(at);
+    await page.evaluate(() => document.querySelector('#bd')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'playing');
+  });
+
+  test('캡처 구간에서 점선 사각형이 표를 덮고, 놓으면 실선이 된다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 5_600);
+    const rects = () =>
+      page.evaluate(() => {
+        const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+        const box = r('#bd-capture .x-capture-box');
+        const table = r('#bd-a1-table');
+        return {
+          box: [box.left, box.top, box.right, box.bottom],
+          table: [table.left, table.top, table.right, table.bottom],
+          state: document.querySelector('#bd-capture')!.getAttribute('data-state'),
+        };
       });
+    await expect(page.locator('#bd-capture')).toBeVisible();
+    const before = await rects();
+    expect(before.state).toBe('grab');
+    expect(before.box[2] - before.box[0], 'the box grows while it is dragged').toBeLessThan(before.table[2] - before.table[0]);
+    await expect(page.locator('#bd-capture .x-capture-edge')).toHaveCSS('border-top-style', 'dashed');
+    await advance(page, 700);
+    const after = await rects();
+    expect(after.state).toBe('shot');
+    expect(after.box[0]).toBeLessThanOrEqual(after.table[0]);
+    expect(after.box[1]).toBeLessThanOrEqual(after.table[1]);
+    expect(after.box[2]).toBeGreaterThanOrEqual(after.table[2]);
+    expect(after.box[3]).toBeGreaterThanOrEqual(after.table[3]);
+    await expect(page.locator('#bd-capture .x-capture-edge')).toHaveCSS('border-top-style', 'solid');
+  });
 
-      test('동작 줄이기에서는 처음부터 마지막 장면이 정지 화면으로 보인다', async ({ page }) => {
-        prepare(page, size);
-        await page.addInitScript(() => {
-          const w = window as unknown as { __scenes: string[] };
-          w.__scenes = [];
-          const log = () => {
-            const s = document.querySelector<HTMLElement>('.hero-demo')?.dataset.scene;
-            if (s && w.__scenes[w.__scenes.length - 1] !== s) w.__scenes.push(s);
+  test('한 바퀴가 끝나면 시작 화면으로 정확히 돌아가 다시 시작하고, 콘솔 오류가 없다', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+    page.on('pageerror', (e) => errors.push(String(e)));
+    const ssr = await startStory(page);
+    await advance(page, 26_000);
+    await expect(page.locator('.bd-win #bd-stamp')).toBeVisible();
+    await expect(page.locator('.bd-win #bd-exp-row')).toBeVisible();
+    await expect(page.locator('.bd-win #bd-count')).toHaveText('1');
+    for (let i = 0; i < 60 && (await attr(page, 'data-loop')) !== '1'; i++) await advance(page, 100);
+    expect(await attr(page, 'data-loop'), 'a second loop began').toBe('1');
+    await advance(page, 450);
+    await expect(page.locator('#bd')).toHaveAttribute('data-step', 'connect');
+    const clean = (html: string) => html.replace(/ style=""/g, '');
+    expect(clean(await inside(page)), "the window's text, classes and styles are the server's again").toBe(clean(ssr));
+    await advance(page, 5_000);
+    await expect(page.locator('#bd-cursor-me'), 'the cursor is back in the second loop').toHaveJSProperty('hidden', false);
+    expect(errors).toEqual([]);
+  });
+
+  for (const size of [
+    { width: 360, height: 780 },
+    { width: 390, height: 844 },
+    { width: 768, height: 1024 },
+    { width: 1440, height: 900 },
+  ]) {
+    test(`재생 중에도 가로 넘침이 없고 캡션 줄과 노트가 제자리다 (${size.width}×${size.height})`, async ({ page }) => {
+      await page.setViewportSize(size);
+      await startStory(page);
+      const geometry = () =>
+        page.evaluate(() => {
+          const y = (s: string) => {
+            const b = document.querySelector(s)!.getBoundingClientRect();
+            return [Math.round(b.top + scrollY), Math.round(b.height)];
           };
-          new MutationObserver(log).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-scene'] });
+          return { over: document.documentElement.scrollWidth - innerWidth, cap: y('.bd-cap'), note: y('.hero-demo-note'), box: y('.bd-box') };
         });
-        await page.goto('/');
-        const hd = page.locator('.hero-demo');
-        await expect(hd).toHaveAttribute('data-play', 'ended');
-        await expect(hd).toHaveAttribute('data-scene', 'opened');
-        await expect(hd.locator('.hd-scene.on .revisit-line')).toContainText('다시 본 날');
-        await expect(hd.locator('.hd-scene.on .revisit-line .dot.on')).toHaveCount(3);
-        await expect(hd.locator('.aw-count')).toHaveText('4');
-        await expect(hd.locator('.hd-cursor')).toHaveCSS('opacity', '0');
-        await expect(page.getByRole('button', { name: /다시 보기/ })).toBeVisible();
-        // the short windows show the reopened card's revisit dots; the reference ones its answer line too
-        const last = (await hd.locator(size ? '.hd-scene.on .revisit-line' : '.hd-scene.on .xc-a').boundingBox())!;
-        expect(last.y + last.height, 'the finished loop reads on the first screen').toBeLessThanOrEqual(page.viewportSize()!.height);
-        await page.waitForTimeout(1_000);
-        expect(await page.evaluate(() => (window as unknown as { __scenes: string[] }).__scenes), 'the first frame never flashes').toEqual(['opened']);
-      });
+      const first = await geometry();
+      expect(first.over).toBeLessThanOrEqual(0);
+      for (const t of [4_000, 6_000, 8_000, 6_000, 8_000]) {
+        await advance(page, t);
+        const g = await geometry();
+        expect(g.over).toBeLessThanOrEqual(0);
+        expect(g.cap, 'the caption row does not move').toEqual(first.cap);
+        expect(g.note).toEqual(first.note);
+        expect(g.box).toEqual(first.box);
+      }
     });
   }
 });
 
-test.describe('히어로 자동 재생', () => {
+// --- where the cursors are when it matters ----------------------------------------------------------------------------------------------
+
+const tip = (page: Page, id: string) =>
+  page.evaluate((i) => {
+    const r = document.getElementById(i)!.getBoundingClientRect();
+    return { x: r.left, y: r.top };
+  }, id);
+const rect = (page: Page, selector: string) =>
+  page.evaluate((s) => {
+    const r = document.querySelector(s)!.getBoundingClientRect();
+    return { l: r.left, t: r.top, r: r.right, b: r.bottom };
+  }, selector);
+const within = (p: { x: number; y: number }, r: { l: number; t: number; r: number; b: number }, slack = 1) =>
+  p.x >= r.l - slack && p.x <= r.r + slack && p.y >= r.t - slack && p.y <= r.b + slack;
+
+test.describe('히어로 커서', () => {
   test.use({ reducedMotion: 'no-preference' });
+  test.setTimeout(120_000);
 
-  for (const size of SIZES) {
-    test.describe(sizeName(size), () => {
-      if (size) test.use({ viewport: size });
+  // [seconds into the story the press starts, who, target]. The page's clock is the story's: 0.6 s of still comes first.
+  const CLICKS: [number, string, string, string][] = [
+    [1.75, 'bd-cursor-me', '#bd-input', '입력창'],
+    [9.05, 'bd-cursor-me', '#bd-tonote .btn', '[보드에 필기]'],
+    [13.3, 'bd-cursor-me', '#bd-accept', '[수락]'],
+    [17.1, 'bd-cursor-me', '#bd-rec-1 .x-rec-act .btn', '[이걸로 시작]'],
+    [19.3, 'bd-cursor-me', '#bd-practice', '[면접 연습]'],
+  ];
 
-      test('스크롤 없이 첫 화면에서 끝까지 26초 안에 한 번 재생되고, 핵심 장면은 2초 이상 온전히 보이며, 일시정지·다시 보기가 듣는다', async ({ page }) => {
-        prepare(page, size);
-        test.setTimeout(150_000);
-        await watch(page);
-        await page.goto('/');
-        await startsAutoplay(page);
-        const hd = page.locator('.hero-demo');
+  test('누르는 순간 커서 끝은 누르는 단추 위에 있다', async ({ page }) => {
+    await startStory(page);
+    let at = 0;
+    for (const [t, who, target, name] of CLICKS) {
+      const ms = (t + 0.6 + 0.04) * 1000;
+      await advance(page, ms - at);
+      at = ms;
+      const point = await tip(page, who);
+      const box = await rect(page, target);
+      expect(within(point, box), `${name}: the cursor's tip ${JSON.stringify(point)} is in ${JSON.stringify(box)}`).toBe(true);
+    }
+  });
 
-        await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
-        await expect(
-          hd.locator('.hd-win').getByText('SQLD · 2과목', { exact: true }).filter({ visible: true }),
-          'the window names its subject once, in the sidebar',
-        ).toHaveCount(1);
-        const pause = page.getByRole('button', { name: /일시정지/ });
-        await expect(pause).toBeVisible();
-        const ctrlBox = await pause.boundingBox();
-        await pause.click();
-        await expect(hd).toHaveAttribute('data-play', 'paused');
-        const shown = () => hd.locator('.hd-flow').evaluate((el) => el.querySelectorAll('*').length);
-        const before = await shown();
-        await page.waitForTimeout(2_000);
-        expect(await shown(), 'nothing new appears while paused').toBe(before);
-        expect(await page.getByRole('button', { name: /재생/ }).boundingBox(), 'the button keeps its box when its label changes').toEqual(ctrlBox);
-        await page.getByRole('button', { name: /재생/ }).click();
-        await expect(hd).toHaveAttribute('data-play', 'playing');
+  test('[수락]으로 가는 커서는 [나중에] 위를 지나지 않는다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, (11.2 + 0.6) * 1000);
+    const later = page.locator('#bd-proposal .btn').nth(1);
+    let crossed = false;
+    for (let i = 0; i < 25; i++) {
+      await advance(page, 100);
+      const r = await later.evaluate((el) => { const b = el.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom }; });
+      if (within(await tip(page, 'bd-cursor-me'), r, 0)) crossed = true;
+    }
+    expect(crossed, 'the tip never touches [나중에]').toBe(false);
+  });
 
-        await expect(hd.locator('.opt.on')).toHaveText('LEFT JOIN', { timeout: 20_000 });
-        await expect(hd.locator('.blank.is-right')).toHaveText('LEFT JOIN');
-        await expect(hd.locator('.res-table caption')).toHaveText('결과 2행');
-        await expect(hd.locator('.aw-count')).toHaveText('4', { timeout: 15_000 });
-        await expect(hd.locator('.hd-toasts .notif[data-off="0"]')).toContainText('11월 25일 수요일', { timeout: 15_000 });
+  test('두 말풍선이 함께 보이지 않는다', async ({ page }) => {
+    await startStory(page);
+    const talking = () => page.evaluate(() => ['bd-cursor-me', 'bd-cursor-ai'].filter((i) => document.getElementById(i)!.dataset.talk === 'on').length);
+    let both = 0;
+    let said = 0;
+    for (let ms = 0; ms < 28_000; ms += 100) {
+      await advance(page, 100);
+      const n = await talking();
+      if (n > 1) both += 1;
+      if (n > 0) said += 1;
+    }
+    expect(said, 'the cursors did talk').toBeGreaterThan(20);
+    expect(both, 'never two bubbles at once').toBe(0);
+  });
 
-        await expect(hd).toHaveAttribute('data-play', 'ended', { timeout: 20_000 });
-        await expect(hd).toHaveAttribute('data-scene', 'opened');
-        await expect(hd.locator('.hd-scene.on .revisit-line .dot.on')).toHaveCount(3);
-        expect(await page.getByRole('button', { name: /다시 보기/ }).boundingBox()).toEqual(ctrlBox);
-        const got = await watched(page);
-        expect(got.beats[0], 'the server HTML shows the finished loop').toBe('opened:0');
-        expect(got.moved, 'switching from the finished loop to the first frame moves nothing').toEqual([]);
-        expect(got.beats).toEqual(expect.arrayContaining(['home:0', 'study:0', 'study:1', 'study:2', 'study:3', 'opened:0']));
-        expect(got.beats.indexOf('study:1')).toBeLessThan(got.beats.indexOf('study:3'));
-        expect(got.beats.indexOf('study:3')).toBeLessThan(got.beats.lastIndexOf('opened:0'));
-        expect(got.toast.seen.sort(), 'every reminder arrived as the front toast').toEqual(['1', '2', '3']);
-        expect(got.toast.min, 'the arriving toast is opaque from its first frame, so the one behind never shows through').toBe(1);
-        expect(got.toast.slack, 'the front toast is as tall as its text, with no empty band below').toBeLessThanOrEqual(1);
-        expect(got.toast.backText, 'the toasts behind show only their edges, never their text').toBe(0);
-        expect(got.dates, 'outgoing and incoming dates never overlap').toBe(0);
-        expect(got.dotTween, 'the revisit dots fill in with a transition, not a jump').toBeGreaterThan(0);
-        expect(got.maxScroll, 'the whole loop played without the visitor scrolling').toBe(0);
-        // soft, so one run reports every broken promise of the pass
-        for (const [k, ms] of Object.entries(got.read)) expect.soft(ms, `${k} whole on screen (ms)`).toBeGreaterThanOrEqual(2_000);
-        expect.soft(got.playMs, 'one pass plays in about 26 seconds').toBeLessThanOrEqual(26_300);
-        expect.soft(got.lies, 'the control label always matches whether the picture moves').toEqual([]);
-        expect.soft(got.rests, 'the resting pointer covers no text').toEqual([]);
+  test('Q2가 보일 때 포인터 끝은 서준 행 안이고 말풍선은 행의 글자와 겹치지 않는다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, (22.5 + 0.6) * 1000);
+    await expect(page.locator('#bd-cursor-ai')).toHaveAttribute('data-talk', 'on');
+    await expect(page.locator('#bd-cursor-ai .x-bubble p')).toHaveText('서준 칸은 왜 NULL이죠?');
+    const point = await tip(page, 'bd-cursor-ai');
+    const row = await rect(page, '#bd-card-1-fig .bd-shot tbody tr:nth-child(3)');
+    const spot = await rect(page, '#bd-card-1-spot');
+    expect(within(point, row), `the tip ${JSON.stringify(point)} is in the Seojun row ${JSON.stringify(row)}`).toBe(true);
+    expect(within(point, spot)).toBe(true);
+    const bubble = await rect(page, '#bd-cursor-ai .x-bubble');
+    const cells = await page.locator('#bd-card-1-fig .bd-shot tbody tr:nth-child(3) td').evaluateAll((els) =>
+      els.map((el) => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; }),
+    );
+    for (const c of cells) {
+      const overlaps = bubble.l < c.r && bubble.r > c.l && bubble.t < c.b && bubble.b > c.t;
+      expect(overlaps, `the bubble ${JSON.stringify(bubble)} leaves the cell ${JSON.stringify(c)}`).toBe(false);
+    }
+    const win = await rect(page, '.bd-box');
+    expect(bubble.r).toBeLessThanOrEqual(win.r);
+    expect(bubble.b).toBeLessThanOrEqual(win.b);
+  });
 
-        await page.getByRole('button', { name: /다시 보기/ }).click();
-        await expect(hd).toHaveAttribute('data-play', 'playing');
-        await expect(hd).toHaveAttribute('data-scene', 'home');
-        await expect(hd.locator('.aw-count')).toHaveText('3');
-        await expect(hd.locator('.hd-ask .typed'), '다시 보기 plays from the start within 2s').toContainText('LEFT', { timeout: 2_000 });
-        expect((await watched(page)).lies).toEqual([]);
-      });
+  test('읽기가 끝난 뒤에는 도는 아이콘이 남지 않는다', async ({ page }) => {
+    await startStory(page);
+    const spinners = () =>
+      page.evaluate(() => [...document.querySelectorAll<HTMLElement>('.bd-win .spin')].filter((el) => el.getClientRects().length > 0).length);
+    let at = 0;
+    for (const t of [8.3, 15.5, 16.5, 20, 27]) {
+      await advance(page, (t + 0.6) * 1000 - at);
+      at = (t + 0.6) * 1000;
+      expect(await spinners(), `no spinner left at ${t}s`).toBe(0);
+    }
+  });
 
-      test('재생을 누르면 2초 안에 장면이 움직인다: 첫 화면에서도, 헤더 밑에 붙은 버튼에서도', async ({ page }) => {
-        prepare(page, size);
-        test.setTimeout(60_000);
-        await watch(page);
-        await page.goto('/');
-        await page.waitForTimeout(1_500);
-        const hd = page.locator('.hero-demo');
-        const ctrl = page.locator('.hd-ctrl');
-        if ((await hd.getAttribute('data-play')) === 'playing') {
-          await ctrl.click();
-          await expect(hd).toHaveAttribute('data-play', 'paused');
-        } else {
-          expect(await label(page), 'a demo that is not moving offers 재생').toBe('재생');
-          await ctrl.click();
-          await advances(page, 2_000);
-          await expect(hd).toHaveAttribute('data-scene', 'home');
-          await expect(hd.locator('.hd-ask .typed')).toContainText('LEFT', { timeout: 2_000 });
-          await ctrl.click();
-          await expect(hd).toHaveAttribute('data-play', 'paused');
-        }
-        await jump(page, (await winTop(page)) - 72 + 60);
-        await expect(page.locator('.hd-dock'), 'past the header the control docks under it').toHaveAttribute('data-dock', '');
-        const uncovered = await ctrl.evaluate((el) => {
-          const b = el.getBoundingClientRect();
-          const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
-          return !!hit && el.contains(hit);
-        });
-        expect(uncovered, 'the docked control is on top').toBe(true);
-        await ctrl.click();
-        await advances(page, 2_000);
-        expect(await label(page)).toBe('일시정지');
-        expect((await watched(page)).lies).toEqual([]);
-      });
+  test('[이걸로 시작]은 눌림이 한 번 보인 뒤에 진행 중 칩으로 바뀐다', async ({ page }) => {
+    await startStory(page);
+    const started = () => page.locator('#bd-rec-1').evaluate((el) => el.classList.contains('is-started'));
+    await advance(page, (17.14 + 0.6) * 1000);
+    expect(await started(), 'pressed, not yet started').toBe(false);
+    await advance(page, 150);
+    expect(await started()).toBe(true);
+  });
 
-      test('스크롤 위치마다 일시정지 버튼과 예시 화면 표시는 보이고, 창이 보이는 동안 표시 없이 멈추지 않으며, 라벨은 실제 재생과 같다', async ({ page }) => {
-        prepare(page, size);
-        test.setTimeout(120_000);
-        await watch(page);
-        await page.goto('/');
-        await startsAutoplay(page);
-        const top = (await winTop(page)) - 72;
-        // the bar under the header first (while the loop still runs), then the bar on screen, then mostly gone
-        const spots = [
-          { y: top + 50, covered: true },
-          { y: top + 200, covered: true },
-          { y: top + 360, covered: true },
-          { y: Math.max(0, top - 40), covered: false },
-          { y: 0, covered: false },
-          { y: top + 620, covered: false },
-        ];
-        const seen: { y: number; covered: boolean; moving: boolean; uncovered: boolean; marked: boolean; label: string }[] = [];
-        for (const spot of spots) {
-          await jump(page, spot.y);
-          await page.waitForTimeout(300);
-          const from = (await watched(page)).changes;
-          await page.waitForTimeout(3_600);
-          const r = await page.evaluate(() => {
-            const onTop = (el: HTMLElement) => {
-              const b = el.getBoundingClientRect();
-              const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
-              return b.top >= 0 && b.bottom <= innerHeight && !!hit && el.contains(hit);
-            };
-            const ctrl = document.querySelector<HTMLElement>('.hd-ctrl')!;
-            const badge = document.querySelector<HTMLElement>('.hero-demo .aw-ex')!;
-            return { uncovered: onTop(ctrl), marked: badge.textContent === '예시 화면' && onTop(badge), label: ctrl.querySelector('.hd-ctrl-l .on')!.textContent! };
-          });
-          seen.push({ ...spot, ...r, moving: (await watched(page)).changes > from });
-        }
-        for (const s of seen) {
-          expect(s.uncovered || !s.moving, `scrollY ${s.y}: the demo moves while its pause button is covered`).toBe(true);
-          if (s.covered) expect(s.uncovered, `scrollY ${s.y}: the window shows, so its control docks under the header`).toBe(true);
-          if (s.uncovered) expect(s.marked, `scrollY ${s.y}: wherever the control shows, the 예시 화면 badge shows beside it`).toBe(true);
-        }
-        expect(
-          seen.some((s) => s.covered && s.moving),
-          'with the title bar under the header, the window keeps playing',
-        ).toBe(true);
-        expect((await watched(page)).lies, 'the control label always matches whether the picture moves').toEqual([]);
-      });
+  test('캡처 중에는 "나" 이름표가 선택하는 표를 가리지 않는다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, (4.9 + 0.6) * 1000);
+    await expect(page.locator('#bd-capture')).toBeVisible();
+    await expect(page.locator('#bd-cursor-me .x-cursor-tag')).toBeHidden();
+    await advance(page, 1_500);
+    await expect(page.locator('#bd-cursor-me .x-cursor-tag')).toBeVisible();
+  });
 
-      test('재생 중 스크롤해도 커서는 누르는 순간 LEFT JOIN 보기와 저장 버튼 위에 있다', async ({ page }) => {
-        prepare(page, size);
-        test.setTimeout(90_000);
-        await watch(page);
-        await page.goto('/');
-        await startsAutoplay(page);
-        const hd = page.locator('.hero-demo');
-        await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
-        await page.evaluate(() => {
-          const w = window as unknown as { __press: Record<string, boolean> };
-          w.__press = {};
-          const pressed: Record<string, string> = { answer: '.opt.on', save: '.fake.save.done' };
-          new MutationObserver(() => {
-            for (const [t, sel] of Object.entries(pressed)) {
-              if (t in w.__press || !document.querySelector(`.hd-flow ${sel}`)) continue;
-              const tip = document.querySelector('.hd-cursor')!.getBoundingClientRect();
-              const r = document.querySelector(`.hd-flow [data-t="${t}"]`)!.getBoundingClientRect();
-              w.__press[t] = tip.left >= r.left && tip.left <= r.right && tip.top >= r.top && tip.top <= r.bottom;
-            }
-          }).observe(document.querySelector('.hero-demo')!, { subtree: true, childList: true, attributes: true });
-        });
-        const moveStarts = async (target: string) => {
-          await page.locator(`.hd-flow [data-t="${target}"]`).waitFor({ state: 'attached', timeout: 30_000 });
-          const from = await page.locator('.hd-cursor').evaluate((el) => el.style.transform);
-          await page.waitForFunction((t) => document.querySelector<HTMLElement>('.hd-cursor')!.style.transform !== t, from, {
-            polling: 'raf',
-            timeout: 30_000,
-          });
-          await page.waitForTimeout(250);
-        };
-        if (size) await toWindow(page);
-        await page.mouse.move(640, 300);
-        await moveStarts('answer');
-        await page.mouse.wheel(0, 120);
-        await moveStarts('save');
-        await page.mouse.wheel(0, -100);
-        await expect
-          .poll(() => page.evaluate(() => (window as unknown as { __press: Record<string, boolean> }).__press), { timeout: 30_000 })
-          .toEqual({ answer: true, save: true });
-        expect((await watched(page)).lies).toEqual([]);
-      });
+  test('표는 행과 함께 나타나고, 빈 격자가 먼저 보이지 않는다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, (3.5 + 0.6) * 1000);
+    const clip = () => page.locator('#bd-a1-table').evaluate((el) => el.style.clipPath);
+    expect(await clip()).toMatch(/inset\(0px 0px 100%/);
+    const seen = new Set<string>();
+    for (let i = 0; i < 12; i++) {
+      await advance(page, 50);
+      seen.add(await clip());
+    }
+    expect(seen.size, 'the table comes down in steps').toBeGreaterThan(3);
+    await advance(page, 400);
+    expect(await clip()).toBe('none');
+  });
+});
 
-      test('탭이 숨으면 재생 라벨로 멈추고, 돌아오면 이어서 재생한다', async ({ page }) => {
-        prepare(page, size);
-        await watch(page);
-        await page.goto('/');
-        await startsAutoplay(page);
-        const hd = page.locator('.hero-demo');
-        await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
-        const setHidden = (hidden: boolean) =>
-          page.evaluate((h) => {
-            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (h ? 'hidden' : 'visible') });
-            document.dispatchEvent(new Event('visibilitychange'));
-          }, hidden);
-        await setHidden(true);
-        await expect(hd).toHaveAttribute('data-play', 'held');
-        expect(await label(page)).toBe('재생');
-        await expect(page.locator('.hd-cue'), 'a hidden tab is no reason to ask for a scroll').toHaveCount(0);
-        const shown = () => hd.locator('.hd-flow').evaluate((el) => el.querySelectorAll('*').length);
-        const before = await shown();
-        await page.waitForTimeout(2_000);
-        expect(await shown()).toBe(before);
-        await setHidden(false);
-        await expect(hd).toHaveAttribute('data-play', 'playing');
-        await expect.poll(shown, { timeout: 5_000 }).toBeGreaterThan(before);
-        expect((await watched(page)).lies).toEqual([]);
-      });
+// --- the visitor's controls under odd timing -----------------------------------------------------------------------------------------------
 
-      test('재생 도중 동작 줄이기를 켜면 바로 마지막 장면에서 멈춘다', async ({ page }) => {
-        prepare(page, size);
-        await watch(page);
-        await page.goto('/');
-        await startsAutoplay(page);
-        const hd = page.locator('.hero-demo');
-        await expect(hd).toHaveAttribute('data-scene', 'study', { timeout: 10_000 });
-        await page.emulateMedia({ reducedMotion: 'reduce' });
-        await expect(hd).toHaveAttribute('data-play', 'ended', { timeout: 1_000 });
-        await expect(hd).toHaveAttribute('data-scene', 'opened');
-        await expect(hd.locator('.hd-scene.on .revisit-line .dot.on')).toHaveCount(3);
-        await expect(hd.locator('.aw-count')).toHaveText('4');
-        expect(await label(page)).toBe('다시 보기');
-        const from = (await watched(page)).changes;
-        await page.waitForTimeout(2_000);
-        expect((await watched(page)).changes, 'nothing moves after the switch').toBe(from);
-        expect((await watched(page)).lies).toEqual([]);
-      });
+test.describe('히어로 일시정지 경계', () => {
+  test.use({ reducedMotion: 'no-preference' });
+  test.setTimeout(120_000);
+
+  test('일시정지가 화면 밖을 다녀와도 유지된다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 3_000);
+    await page.locator('.bd-pause').click();
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+    await advance(page, 500);
+    await page.evaluate(() => document.querySelector('#bd')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await advance(page, 500);
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    const at = await inside(page);
+    await advance(page, 3_000);
+    expect(await inside(page)).toBe(at);
+  });
+
+  test('일시정지 중에는 창 안 CSS 애니메이션도 멈춘다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 7_600);
+    const states = () => page.evaluate(() => document.querySelector('.bd-win')!.getAnimations({ subtree: true }).map((a) => `${(a as CSSAnimation).animationName}:${a.playState}`));
+    const running = await states();
+    expect(running.some((s) => s.startsWith('bd-spin') && s.endsWith('running')), `the card's spinner turns: ${running}`).toBe(true);
+    await page.locator('.bd-pause').click();
+    const held = await states();
+    expect(held.length).toBeGreaterThan(0);
+    expect(held.every((s) => s.endsWith('paused')), `everything holds: ${held}`).toBe(true);
+    await page.locator('.bd-pause').click();
+    expect((await states()).some((s) => s.endsWith('running'))).toBe(true);
+  });
+
+  test('한 판이 끝나기 직전에 멈추면 멈춘 채 있고, 다시 누르면 다음 판으로 넘어간다', async ({ page }) => {
+    // (the tick between a loop's end and the next one's start cannot be hit from outside; the code keeps `want` for it)
+    const ssr = await startStory(page);
+    await advance(page, 30_050);
+    await page.locator('.bd-pause').click();
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    await advance(page, 3_000);
+    expect(await attr(page, 'data-loop'), 'no next loop while paused').toBeNull();
+    await page.locator('.bd-pause').click();
+    await advance(page, 200);
+    expect(await attr(page, 'data-loop'), 'the next loop began').toBe('1');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'playing');
+    await advance(page, 300);
+    const clean = (html: string) => html.replace(/ style=""/g, '');
+    expect(clean(await inside(page))).toBe(clean(ssr));
+  });
+
+  test('동작 줄이기를 재생 중에 켜면 멈추고, 끄면 자동 재생 조건으로 이어진다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 4_000);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    const at = await inside(page);
+    await advance(page, 5_000);
+    expect(await inside(page)).toBe(at);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect(page.locator('#bd'), 'the window is on screen, so it plays again').toHaveAttribute('data-play', 'playing');
+    await advance(page, 2_000);
+    expect(await inside(page)).not.toBe(at);
+  });
+
+  test('방문자가 멈춘 것은 동작 줄이기를 껐다 켜도 멈춰 있다', async ({ page }) => {
+    await startStory(page);
+    await advance(page, 4_000);
+    await page.locator('.bd-pause').click();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+  });
+
+  test('다른 쪽으로 갔다 돌아와도 창은 다시 시작 화면이고 오류가 없다', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+    page.on('pageerror', (e) => errors.push(String(e)));
+    const ssr = await startStory(page);
+    await advance(page, 6_000);
+    await page.getByRole('link', { name: '가이드' }).first().click();
+    await expect(page).toHaveURL(/\/docs/);
+    await page.goBack();
+    await expect(page.locator('#bd')).toBeVisible();
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'idle');
+    const clean = (html: string) => html.replace(/ style=""/g, '');
+    expect(clean(await inside(page)), 'the window came back as the server draws it').toBe(clean(ssr));
+    expect(errors).toEqual([]);
+  });
+});
+
+test.describe('히어로 청크를 받는 동안', () => {
+  // reduced motion (the project's default): nothing starts by itself, so the visitor's presses are the only input
+  test('받는 중에 한 번 더 누르면 일시정지로 유지된다', async ({ page }) => {
+    await page.route('**/_next/static/**/*.js', async (route) => {
+      const res = await route.fetch();
+      const body = await res.text();
+      if (body.includes('x-capture-box')) await new Promise((r) => setTimeout(r, 1_800));
+      await route.fulfill({ response: res, body });
     });
-  }
+    await page.goto('/');
+    const btn = page.locator('.bd-pause');
+    await btn.click();
+    await expect(btn).toHaveAccessibleName('일시정지');
+    await btn.click();
+    await expect(btn).toHaveAccessibleName('재생');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'paused');
+    const before = await page.locator('.bd-win').evaluate((el) => el.innerHTML);
+    await page.waitForTimeout(3_200);
+    await expect(page.locator('#bd'), 'the chunk came, the pause stayed').toHaveAttribute('data-play', 'paused');
+    expect(await page.locator('.bd-win').evaluate((el) => el.innerHTML)).toBe(before);
+  });
 
-  // Shorter than any laptop above: one scene (the SQL with its options) or even the question box does not
-  // fit the first screen, so the loop waits there, and says so beside its control.
-  for (const { size, waits, cue } of [
-    { size: { width: 1280, height: 600 }, waits: 'held', cue: '조금 내리면 이어서 재생돼요' },
-    { size: { width: 1280, height: 560 }, waits: 'idle', cue: '조금 내리면 재생돼요' },
-  ]) {
-    test.describe(sizeName(size), () => {
-      test.use({ viewport: size });
-
-      test('장면이 다 들어가지 않는 곳에서는 조금 내리면 재생된다는 안내가 보이고, 조금 내리면 끝까지 재생된다', async ({ page }) => {
-        prepare(page, size);
-        test.setTimeout(90_000);
-        await watch(page);
-        await page.goto('/');
-        const hd = page.locator('.hero-demo');
-        const shown = page.locator('.hd-cue');
-        await expect(shown).toBeVisible({ timeout: 20_000 });
-        await expect(shown).toHaveText(cue);
-        await expect(hd).toHaveAttribute('data-play', waits);
-        expect(await label(page)).toBe('재생');
-        const box = (await shown.boundingBox())!;
-        expect(box.y, 'the cue is on the first screen').toBeGreaterThanOrEqual(0);
-        expect(box.y + box.height, 'the cue is on the first screen').toBeLessThanOrEqual(size.height);
-        const from = (await watched(page)).changes;
-        await page.waitForTimeout(2_000);
-        expect((await watched(page)).changes, 'the waiting picture stays still').toBe(from);
-
-        await page.mouse.move(640, 300);
-        await page.mouse.wheel(0, 120);
-        await expect(hd).toHaveAttribute('data-play', 'playing', { timeout: 2_000 });
-        await expect(shown).toHaveCount(0);
-        await expect(hd).toHaveAttribute('data-play', 'ended', { timeout: 30_000 });
-        await expect(hd).toHaveAttribute('data-scene', 'opened');
-        expect((await watched(page)).lies).toEqual([]);
-      });
+  test('받기가 실패하면 라벨이 일시정지에 남지 않는다', async ({ page }) => {
+    await page.route('**/_next/static/**/*.js', async (route) => {
+      const res = await route.fetch();
+      const body = await res.text();
+      if (body.includes('x-capture-box')) return route.abort();
+      return route.fulfill({ response: res, body });
     });
-  }
+    await page.goto('/');
+    const btn = page.locator('.bd-pause');
+    await btn.click();
+    await expect(btn).toHaveAccessibleName('재생');
+    await expect(page.locator('#bd')).toHaveAttribute('data-play', 'idle');
+  });
 });

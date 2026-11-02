@@ -296,10 +296,19 @@ test.describe('움직임 허용', () => {
     await jump(page, await bottom(page)); // the hero window is off screen here, so its own clock is paused too
     await expect(page.locator('html')).toHaveAttribute('data-motion', 'done', { timeout: 6_000 });
     await page.waitForTimeout(300);
-    await page.evaluate(() => ((window as unknown as { __raf: number }).__raf = 0));
-    await page.waitForTimeout(1_000);
+    // The hero's paused story stays a child of GSAP's global timeline, so the ticker winds down by itself, 120 frames
+    // (1 to 2 s) after its last tween, instead of being put to sleep early. Wait for one whole quiet second.
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => ((window as unknown as { __raf: number }).__raf = 0));
+          await page.waitForTimeout(1_000);
+          return page.evaluate(() => (window as unknown as { __raf: number }).__raf);
+        },
+        { message: 'the animation frame loop winds down and stays quiet', timeout: 12_000, intervals: [0] },
+      )
+      .toBe(0);
     expect(await page.evaluate(() => (window as unknown as { __live: Set<number> }).__live.size), 'no interval is left running').toBe(0);
-    expect(await page.evaluate(() => (window as unknown as { __raf: number }).__raf), 'no animation frame is requested').toBe(0);
   });
 
   test('키보드로 닿은 숨은 입력칸도 나타나고 쓸 수 있다', async ({ page }) => {
@@ -341,11 +350,13 @@ test.describe('움직임 허용', () => {
   test('아무것도 하지 않으면 모션 코드를 받지 않고, 첫 입력 뒤에 받는다', async ({ page }) => {
     let gsap = false;
     page.on('response', async (r) => {
-      if (r.url().endsWith('.js') && (await r.text().catch(() => '')).includes('ScrollTrigger')) gsap = true;
+      const body = r.url().endsWith('.js') ? await r.text().catch(() => '') : '';
+      // the scroll-in's own chunk; the hero window fetches GSAP core by itself once it is on screen (hero.spec.ts)
+      if (body.includes('ScrollTrigger') && body.includes('data-reveal')) gsap = true;
     });
     await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(3_500);
-    expect(gsap, 'nobody scrolled: no GSAP').toBe(false);
+    expect(gsap, 'nobody scrolled: no scroll-in code').toBe(false);
     await expect(page.locator('html')).not.toHaveAttribute('data-motion', /.*/);
     expect(await notShown(page)).toBe(0);
     await started(page);
