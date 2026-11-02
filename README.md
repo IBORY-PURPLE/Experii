@@ -21,8 +21,8 @@ Experii는 AI 에이전트와 공부하다가 중요한 메모나 모르는 지�
 ## GPT 연결
 
 - **Phase A (지금):** 내 ChatGPT Plus 계정으로 "Continue with ChatGPT" 로그인. 창업자 PC에서만 쓴다.
-- **Phase B (상업 출시 초기):** Experii 릴레이 서버를 거쳐 GPT를 쓰고 비용은 Experii가 낸다.
-- **Phase C (OpenAI 승인 뒤):** 사용자가 자기 ChatGPT 계정으로 로그인한다.
+- **Phase B (만들지 않음):** 릴레이 서버 방식이다. 2026-11-02에 Phase C 승인을 기다리기로 했다.
+- **Phase C (OpenAI 승인 뒤):** 사용자가 자기 ChatGPT 계정으로 로그인한다. 공개 출시는 이때 한다.
 
 ## 데이터
 
