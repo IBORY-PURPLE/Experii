@@ -120,7 +120,7 @@ export function App() {
   const [roadmap, setRoadmap] = useState<RoadmapData | null>(null);
   const [conv, setConv] = useState<ConversationView | null>(null);
   const [stream, setStream] = useState<Stream | null>(null);
-  const [input, setInput] = useState('');
+  const [input, setInputState] = useState('');
   const [banner, setBanner] = useState<Banner | null>(null);
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [card, setCard] = useState<StoredCard | null>(null);
@@ -141,6 +141,12 @@ export function App() {
   );
   const [roadDrop, setRoadDrop] = useState<Point | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  // Unsent text of the conversations the chat has left, so switching never throws a half-typed question away.
+  const drafts = useRef(new Map<string, string>());
+  // What the composer holds, current even before the next render, so a switch keeps what was typed up to that moment.
+  const typed = useRef('');
+  // The conversation in the chat, set the moment it switches, so replies and clicks before the next render see where the user is.
+  const shownId = useRef<string | null>(null);
   const streamRef = useRef<Stream | null>(null);
   streamRef.current = stream;
   // Card generation outlives clicks, so its result checks where the user is now, not where they started.
@@ -184,20 +190,37 @@ export function App() {
     setPagesState(next);
   }, []);
 
+  const setInput = useCallback((next: string | ((cur: string) => string)) => {
+    typed.current = typeof next === 'function' ? next(typed.current) : next;
+    setInputState(typed.current);
+  }, []);
+
   const showToast = useCallback((text: string, action?: Toast['action']) => {
     clearTimeout(toastTimer.current);
     setToast({ key: Date.now(), text, action });
     toastTimer.current = setTimeout(() => setToast(null), action ? 8000 : 3200);
   }, []);
 
-  const showConversation = useCallback((view: ConversationView) => {
-    setConv(view);
-    setBanner(null);
-    setInput(view.draft ?? '');
-  }, []);
+  const showConversation = useCallback(
+    (view: ConversationView) => {
+      const left = shownId.current;
+      if (left === view.id) return;
+      if (left) {
+        if (typed.current.trim()) drafts.current.set(left, typed.current);
+        else drafts.current.delete(left);
+      }
+      shownId.current = view.id;
+      setConv(view);
+      setBanner(null);
+      setInput(drafts.current.get(view.id) ?? view.draft ?? '');
+    },
+    [setInput],
+  );
 
   const openConversation = useCallback(
     async (id: string) => {
+      // The conversation already in the chat keeps its text, its banner and an answer in progress.
+      if (shownId.current === id) return;
       stopStream();
       showConversation(await call(api.getConversation(id)));
     },
@@ -235,6 +258,16 @@ export function App() {
   const openPage = useCallback(
     (id: string) => go(visit(pagesRef.current, { kind: 'page', id })),
     [go],
+  );
+
+  // A click on the conversation already in the chat reloads nothing; the cursor goes to its composer.
+  const pickPage = useCallback(
+    (id: string) => {
+      const inChat = shownId.current === id;
+      openPage(id);
+      if (inChat) inputRef.current?.focus();
+    },
+    [openPage],
   );
 
   // A new conversation gets its own page tab when asked for one (the tab strip's +) or when a page is in front, so the
@@ -307,6 +340,8 @@ export function App() {
     setSubjectId(null);
     setRoadmap(null);
     setConv(null);
+    shownId.current = null;
+    drafts.current.clear();
     setCard(null);
     setOpenLockedId(null);
     setPages(startPages());
@@ -749,13 +784,17 @@ export function App() {
         ? { ...c, messages: c.messages.slice(0, -1) }
         : c,
     );
-    setInput((cur) => cur || sent);
+    // A stream stopped by leaving its conversation hands the text back to that conversation, not to the one shown.
+    const shown = shownId.current === ev.conversationId;
+    if (shown) setInput((cur) => cur || sent);
+    else if (!drafts.current.get(ev.conversationId))
+      drafts.current.set(ev.conversationId, sent);
     if (ev.code === 'cancelled') return;
     if (ev.code === 'not_eligible_plan') {
       setGate({ waiting: false, error: null, planRequired: true });
       return;
     }
-    setBanner(bannerFor(ev.code ?? 'server', sent));
+    if (shown) setBanner(bannerFor(ev.code ?? 'server', sent));
   }
 
   const handlerRef = useRef<(ev: ChatEvent) => void>(() => {});
@@ -1049,7 +1088,7 @@ export function App() {
           account="ChatGPT Plus"
           onSelect={(id) => void selectSubject(id)}
           onNewSubject={() => setDialog({ kind: 'subject' })}
-          onOpenCard={(n) => openPage(n.conversationId)}
+          onOpenCard={(n) => pickPage(n.conversationId)}
           onSignOut={() => void signOut()}
           onFold={() => setOpen('sidebar', false)}
         />
@@ -1066,7 +1105,7 @@ export function App() {
               onBack={() => stepRef.current(-1)}
               onForward={() => stepRef.current(1)}
               onRoadmap={() => go(visit(pagesRef.current, ROADMAP))}
-              onOpen={openPage}
+              onOpen={pickPage}
               onClose={(id) => go(closeTab(pagesRef.current, id))}
               onNew={() =>
                 void newConversation(subject.id, undefined, true).then(() =>
@@ -1151,7 +1190,7 @@ export function App() {
                         />
                       )
                     }
-                    onOpenPage={openPage}
+                    onOpenPage={pickPage}
                     onOpenLocked={toggleLocked}
                   />
                 </div>

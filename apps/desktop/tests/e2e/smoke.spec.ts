@@ -140,6 +140,42 @@ async function sendAndWait(win: Page, text: string) {
   });
 }
 
+// Holds the main process's error events back for `delay` ms and turns them into a failure, so a stop reaches the window
+// after the chat has already moved on. restoreStops puts the real send back.
+async function delayStops(app: ElectronApplication, delay: number) {
+  await app.evaluate(({ BrowserWindow }, ms) => {
+    const wc = BrowserWindow.getAllWindows()[0].webContents;
+    const held = globalThis as unknown as {
+      stopsDelivered: number;
+      restoreStops: () => void;
+    };
+    const send = wc.send;
+    held.stopsDelivered = 0;
+    held.restoreStops = () => {
+      wc.send = send;
+    };
+    wc.send = (channel: string, ...args: unknown[]) => {
+      const event = args[0] as { type?: string } | undefined;
+      if (channel !== 'chat:event' || event?.type !== 'error')
+        return send.call(wc, channel, ...args);
+      setTimeout(() => {
+        send.call(wc, channel, { ...event, code: 'server' });
+        held.stopsDelivered++;
+      }, ms);
+    };
+  }, delay);
+}
+
+const stopsDelivered = (app: ElectronApplication) =>
+  app.evaluate(
+    () => (globalThis as unknown as { stopsDelivered: number }).stopsDelivered,
+  );
+
+const restoreStops = (app: ElectronApplication) =>
+  app.evaluate(() =>
+    (globalThis as unknown as { restoreStops?: () => void }).restoreStops?.(),
+  );
+
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
@@ -645,6 +681,135 @@ test('error banners keep the sent message in the input', async () => {
   await expect(input).toHaveValue(long);
   await shot(win, 'm3-banner-too-long');
 });
+
+test('the chat keeps each conversation unsent text, and a click on the open one reloads nothing', async () => {
+  const { win } = current();
+  const input = win.getByLabel('메시지');
+  const banner = win.getByRole('alert');
+  const inProgress = win.locator('.tile', { hasText: '진행 중' });
+  const tab = (name: string) =>
+    win.locator('.tab.page', { hasText: name }).locator('.tab-main');
+  const card = MOCK_CARD.card.title;
+  const stalled = await input.inputValue();
+  expect(stalled, 'the last test left its question unsent').not.toBe('');
+  await expect(roadmapTab(win)).toHaveAttribute('aria-current', 'page');
+  await expect(banner).toContainText('대화가 너무 길어요');
+
+  // The conversation already in the chat is not reloaded: its text and banner stay, and the cursor goes to its input.
+  await inProgress.click();
+  await expect(tab('진행 중')).toHaveAttribute('aria-current', 'page');
+  await expect(input, 'the open conversation is not reloaded').toHaveValue(
+    stalled,
+  );
+  await expect(banner).toContainText('대화가 너무 길어요');
+  await expect(input).toBeFocused();
+
+  // Another conversation shows its own text, and the one left is kept for the way back.
+  await roadmapTab(win).click();
+  await doneTile(win).click();
+  await expect(tab(card)).toHaveAttribute('aria-current', 'page');
+  await expect(win.locator('.msg-user')).toHaveCount(3);
+  await expect(input).toHaveValue('');
+  await expect(banner).toHaveCount(0);
+  const asked = '회원 테이블과 주문 테이블을 어떤 키로 이어야 할지';
+  await input.fill(asked);
+  await tab('진행 중').click();
+  await expect(win.locator('.msg-user')).toHaveCount(2);
+  await expect(input, 'a tab brings back the text left there').toHaveValue(
+    stalled,
+  );
+  await tab(card).click();
+  await expect(input).toHaveValue(asked);
+
+  await win.getByRole('button', { name: '뒤로' }).click();
+  await expect(input, 'back and forward switch the same way').toHaveValue(
+    stalled,
+  );
+  await win.getByRole('button', { name: '앞으로' }).click();
+  await expect(input).toHaveValue(asked);
+
+  // A new conversation leaves the text of the one it came from where it was.
+  await win.getByRole('button', { name: '새 대화' }).click();
+  await expect(win.locator('.tab.active')).toContainText('새 페이지');
+  await expect(win.locator('.msg-user')).toHaveCount(0);
+  await expect(input).toHaveValue('');
+  await tab(card).click();
+  await expect(input).toHaveValue(asked);
+
+  // A tile and a card bring the text back too.
+  await roadmapTab(win).click();
+  await inProgress.click();
+  await expect(input).toHaveValue(stalled);
+  const experience = win.locator('.exp', { hasText: card });
+  await experience.click();
+  await expect(input).toHaveValue(asked);
+  await experience.click();
+  await expect(input, 'the open conversation is not reloaded').toHaveValue(
+    asked,
+  );
+  await expect(input).toBeFocused();
+
+  await input.fill('');
+  await tab('진행 중').click();
+  await expect(input).toHaveValue(stalled);
+  await input.fill('');
+  await roadmapTab(win).click();
+});
+
+// Leaving a conversation stops its answer. The stop reaches the window before the switch, or after it as a failure that
+// raced it, and either way the question goes back to the conversation it was asked in, not to the one now shown.
+for (const late of [false, true]) {
+  test(`an answer stopped by leaving its conversation gives its question back to that conversation${late ? ', also when the stop comes after the switch' : ''}`, async () => {
+    const { app, win } = current();
+    const input = win.getByLabel('메시지');
+    const live = win.locator('.msg-ai[aria-live]');
+    const tab = (name: string) =>
+      win.locator('.tab.page', { hasText: name }).locator('.tab-main');
+    const before = savedItems(userData);
+    await tab('진행 중').click();
+    const prompt = `${TRIGGERS.slow} 답을 받다가 다른 대화로 가 볼게요`;
+    // The answer holds a few seconds after its last word, so there is time to click around while it is still going.
+    mock.pace.holdMs = 4_000;
+    if (late) await delayStops(app, 600);
+    try {
+      await input.fill(prompt);
+      await input.press('Enter');
+      await expect(live).toContainText('확인했어요');
+
+      // Clicking the conversation the answer is for does not stop it.
+      await roadmapTab(win).click();
+      await win.locator('.tile', { hasText: '진행 중' }).click();
+      await expect(input).toBeFocused();
+      await expect(live, 'the answer in progress stays').toBeVisible();
+
+      await tab(MOCK_CARD.card.title).click();
+      await expect(live).toBeHidden();
+      if (late) {
+        await expect.poll(() => stopsDelivered(app)).toBeGreaterThan(0);
+        await win.waitForTimeout(200);
+      }
+    } finally {
+      mock.pace.holdMs = 0;
+      if (late) await restoreStops(app);
+    }
+    await expect(input, 'the conversation shown is not given it').toHaveValue(
+      '',
+    );
+    await expect(win.getByRole('alert')).toHaveCount(0);
+    await tab('진행 중').click();
+    await expect(
+      input,
+      'the question is back in the conversation it was asked in',
+    ).toHaveValue(prompt);
+    await expect(win.getByRole('alert')).toHaveCount(0);
+    expect(savedItems(userData), 'nothing from the stopped answer').toEqual(
+      before,
+    );
+
+    await input.fill('');
+    await roadmapTab(win).click();
+  });
+}
 
 test('the main screen fits a 1280 wide window', async () => {
   const { app, win } = current();
