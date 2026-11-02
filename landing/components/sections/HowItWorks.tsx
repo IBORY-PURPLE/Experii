@@ -7,7 +7,7 @@ export function HowItWorks({ variant }: { variant: HeroVariant }) {
   return (
     <section id="how" className="sec how" aria-labelledby="how-h">
       <div className="wrap">
-        <div className="sec-head">
+        <div className="sec-head" data-reveal="">
           <h2 id="how-h" className="h2">
             {how.title}
           </h2>
@@ -20,7 +20,7 @@ export function HowItWorks({ variant }: { variant: HeroVariant }) {
           variant={variant}
           cardsBefore={heroDemo.recent.length}
         />
-        <div className="how-after">
+        <div className="how-after" data-reveal="">
           <p className="how-caption">{how.caption}</p>
           <p className="how-close">{how.close}</p>
           <a className="how-link" href="#signup" data-cta="how">

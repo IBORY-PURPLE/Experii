@@ -53,9 +53,9 @@ const open = async (page: Page) => {
   await expect(page.locator('nextjs-portal'), 'a production page, not the dev server').toHaveCount(0);
 };
 
-const shot = async (page: Page, scene: string) => {
+const shot = async (page: Page, scene: string, clip?: { x: number; y: number; width: number; height: number }) => {
   const file = `${scene}.png`;
-  await page.screenshot({ path: join(DIR, file) });
+  await page.screenshot({ path: join(DIR, file), ...(clip ? { clip } : {}) });
   files.push({ file, scene, viewport: size(page) });
 };
 
@@ -104,6 +104,7 @@ test('다운로드 버튼은 출시 전 안내를 연다', async ({ page }) => {
 test('비포·애프터 면접 답변', async ({ page }) => {
   await open(page);
   await jumpTo(page, '.ba figure.interview', 200);
+  await expect(page.locator('.ba figure.interview'), 'the scroll-in has finished').toHaveCSS('opacity', '1');
   await page.waitForTimeout(600);
   await shot(page, 'before-after-1440x900');
 });
@@ -140,4 +141,125 @@ test('섹션 4에서 직접 해 보기: 대화 → 과제 → 카드 → 알림'
   await at(page, '#loop-panel-4 .l-card.shown', 1000);
   await shot(page, 's4-1440x900-4c-reopened-card');
   await keepVideo(page, 's4-1440x900');
+});
+
+// Web motion (2026-11-02): hero entrance, scroll-in, button hover, and the same page with motion off or without JS.
+// The scroll-in starts after load and idle and flags itself on <html data-motion>.
+const motionOn = (page: Page) => expect(page.locator('html')).toHaveAttribute('data-motion', /^(on|done)$/, { timeout: 30_000 });
+const hold = (page: Page, ms: number) =>
+  page.evaluate(
+    (t) => document.getAnimations().filter((a) => (a as CSSAnimation).animationName?.startsWith('hero-')).forEach((a) => { a.pause(); a.currentTime = t; }),
+    ms,
+  );
+
+test('모션: 히어로는 제목 → 설명 → 버튼 → 앱 창 순서로 등장한다 (단계별 정지 화면)', async ({ page }) => {
+  // The hero's own animations are held before the first frame, then stepped, so each still is the same moment on every run.
+  await page.addInitScript(() => {
+    const st = document.createElement('style');
+    st.textContent = '.hero-kicker,.hero h1,.hero-sub,.cta-row,.hero-demo,.hero-demo-note{animation-play-state:paused !important}';
+    const mo = new MutationObserver(() => {
+      if (document.head) {
+        document.head.append(st);
+        mo.disconnect();
+      }
+    });
+    mo.observe(document, { childList: true, subtree: true });
+  });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.hero-demo');
+  for (const ms of [0, 150, 350, 600, 1000]) {
+    await hold(page, ms);
+    await page.waitForTimeout(80);
+    await shot(page, `motion-hero-1440x900-t${String(ms).padStart(4, '0')}ms`);
+  }
+});
+
+test('모션: 히어로 등장과 버튼 hover를 실제 속도로 본다', async ({ page }) => {
+  await open(page);
+  await page.waitForTimeout(1_600);
+  await page.hover('#hero-cta .btn-soft');
+  await page.waitForTimeout(400);
+  await shot(page, 'motion-hover-1440x900-cta', { x: 400, y: 360, width: 640, height: 150 });
+  await keepVideo(page, 'motion-hero-load-1440x900');
+});
+
+test('모션: 스크롤하면 제목과 카드가 아래에서 올라온다 (1440×900)', async ({ page }) => {
+  await open(page);
+  await motionOn(page);
+  await jumpTo(page, '.quotes', 380);
+  await page.waitForTimeout(230);
+  await shot(page, 'motion-scroll-1440x900-1-quotes-mid');
+  await expect(page.locator('.quotes blockquote').last()).toHaveCSS('opacity', '1');
+  await page.waitForTimeout(150);
+  await shot(page, 'motion-scroll-1440x900-2-quotes-done');
+  await jumpTo(page, '.tl-cards', 330);
+  await page.waitForTimeout(230);
+  await shot(page, 'motion-scroll-1440x900-3-cards-mid');
+  await expect(page.locator('.tl-cards .tc').last()).toHaveCSS('opacity', '1');
+  await page.waitForTimeout(150);
+  await shot(page, 'motion-scroll-1440x900-4-cards-done');
+  // like a visitor: the wheel, top to bottom, recorded
+  await jumpTo(page, '#top', 0);
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < height; y += 260) {
+    await page.mouse.wheel(0, 260);
+    await page.waitForTimeout(110);
+  }
+  await page.waitForTimeout(1_200);
+  await shot(page, 'motion-scroll-1440x900-5-bottom');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 'no sideways scroll at 1440').toBeLessThanOrEqual(0);
+  await keepVideo(page, 'motion-scroll-1440x900');
+});
+
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 360, height: 780 },
+]) {
+  const v = `${viewport.width}x${viewport.height}`;
+  test.describe(`모션 폰 ${v}`, () => {
+    test.use({ viewport, hasTouch: true });
+
+    test(`모션: 폰에서 위에서 아래로 스크롤한다 (${v})`, async ({ page }) => {
+      await open(page);
+      await motionOn(page);
+      const base = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      const height = await page.evaluate(() => document.documentElement.scrollHeight);
+      let worst = base;
+      let step = 0;
+      for (let y = 0; y < height; y += 280) {
+        await page.mouse.wheel(0, 280);
+        await page.waitForTimeout(110);
+        worst = Math.max(worst, await page.evaluate(() => document.documentElement.scrollWidth - innerWidth));
+        if (++step % 6 === 0) await shot(page, `motion-phone-${v}-${String(step).padStart(2, '0')}`);
+      }
+      await page.waitForTimeout(1_200);
+      await shot(page, `motion-phone-${v}-bottom`);
+      // the 360px sign-up field already overflows on main (22px); what the motion adds is what counts
+      expect(worst, 'the motion adds no sideways scroll').toBeLessThanOrEqual(base);
+      await keepVideo(page, `motion-phone-${v}`);
+    });
+  });
+}
+
+test.describe('모션 줄이기', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  test('모션: 모션 줄이기에서는 아래쪽 내용이 스크롤 전부터 모두 보인다', async ({ page }) => {
+    await open(page);
+    await jumpTo(page, '#difference', 72);
+    await shot(page, 'motion-reduce-1440x900-difference-at-once');
+    expect(await page.locator('[data-reveal]').evaluateAll((els) => els.filter((el) => getComputedStyle(el).opacity !== '1').length)).toBe(0);
+  });
+});
+
+test.describe('JS 없음', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('모션: JS가 없으면 처음부터 모든 섹션이 보인다', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1_500);
+    await page.screenshot({ path: join(DIR, 'motion-nojs-1440x900-full.png'), fullPage: true });
+    files.push({ file: 'motion-nojs-1440x900-full.png', scene: 'motion-nojs-1440x900-full', viewport: size(page) });
+    expect(await page.locator('[data-reveal]').evaluateAll((els) => els.filter((el) => getComputedStyle(el).opacity !== '1').length)).toBe(0);
+  });
 });

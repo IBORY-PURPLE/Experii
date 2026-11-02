@@ -5,7 +5,7 @@ export function BeforeAfter() {
   return (
     <section className="ba">
       <div className="wrap">
-        <figure className="interview" aria-label={hero.figureLabel}>
+        <figure className="interview" aria-label={hero.figureLabel} data-reveal="">
           <ExampleBadge label={hero.badge} />
           <div className="iv">
             <span className="who">{hero.interviewer}</span>

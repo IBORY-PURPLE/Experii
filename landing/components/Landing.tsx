@@ -12,6 +12,7 @@ import { Footer } from '@/components/sections/Footer';
 import { TickNav } from '@/components/ui/TickNav';
 import { StickyCta } from '@/components/ui/StickyCta';
 import { CtaTracker } from '@/components/ui/CtaTracker';
+import { ScrollReveal } from '@/components/motion/ScrollReveal';
 import { DownloadNote } from '@/components/download/DownloadNote';
 import type { HeroVariant } from '@/lib/signup-fields';
 
@@ -34,6 +35,7 @@ export function Landing({ variant }: { variant: HeroVariant }) {
       <StickyCta label={sticky.cta} />
       <DownloadNote copy={download} />
       <CtaTracker variant={variant} />
+      <ScrollReveal />
     </>
   );
 }
