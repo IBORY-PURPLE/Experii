@@ -376,21 +376,18 @@ export function App() {
     tone: 'err',
     title: '다시 로그인해 주세요',
     body,
-    actions: [{ label: '다시 로그인', primary: true, run: relogin }],
+    actions: [{ label: '다시 로그인', run: relogin }],
   });
 
   const usageBanner = (body: string): Banner => ({
     tone: 'err',
     title: '사용량 한도에 걸렸어요',
     body,
-    actions: [
-      { label: 'Manage usage', primary: true, run: () => void api.openUsage() },
-    ],
+    actions: [{ label: 'Manage usage', run: () => void api.openUsage() }],
   });
 
-  const newConversationAction = (primary: boolean) => ({
+  const newConversationAction = () => ({
     label: '새 대화',
-    primary,
     run: () => {
       if (subjectRef.current) void newConversation(subjectRef.current);
     },
@@ -399,11 +396,7 @@ export function App() {
   const bannerFor = (code: string, sent: string): Banner => {
     const kept = '보낸 메시지는 입력창에 그대로 있어요.';
     const target = convRef.current;
-    const resend = {
-      label: '다시 보내기',
-      primary: true,
-      run: () => void send(sent),
-    };
+    const resend = { label: '다시 보내기', run: () => void send(sent) };
     switch (code) {
       case 'unauthorized':
         return reloginBanner(`로그인이 만료됐어요. ${kept}`);
@@ -417,12 +410,11 @@ export function App() {
               ? [
                   {
                     label: '경험으로 남기기',
-                    primary: true,
                     run: () => void makeCard(target.id),
                   },
                 ]
               : []),
-            newConversationAction(!target?.saved),
+            newConversationAction(),
           ],
         };
       case 'rate_limited':
@@ -466,7 +458,6 @@ export function App() {
       actions: [
         {
           label: '다시 만들기',
-          primary: true,
           run: () => void makeCard(conversationId, true),
         },
       ],
@@ -480,7 +471,6 @@ export function App() {
           actions: [
             {
               label: '계속 대화하기',
-              primary: true,
               run: () => {
                 setBanner(null);
                 focusInput();
@@ -493,7 +483,7 @@ export function App() {
           tone: 'err',
           title: '대화가 너무 길어요',
           body: '최근 대화만 남겨도 GPT가 읽을 수 있는 길이를 넘어서 카드를 만들지 못했어요. 새 대화로 이어 가 주세요.',
-          actions: [newConversationAction(true)],
+          actions: [newConversationAction()],
         };
       case 'invalid':
         return failed('GPT 답이 카드 형식에 맞지 않았어요. 다시 눌러 주세요.');
@@ -721,7 +711,10 @@ export function App() {
     setOpen('chat', true);
     answer.scrollIntoView({ block: 'center', behavior: 'smooth' });
     answer.animate(
-      [{ backgroundColor: '#e8ecf1' }, { backgroundColor: 'transparent' }],
+      [
+        { backgroundColor: 'var(--wash-2)' },
+        { backgroundColor: 'transparent' },
+      ],
       { duration: 1400, easing: 'ease-out' },
     );
   };
@@ -1014,10 +1007,10 @@ export function App() {
   const headAction = conv?.saved ? (
     making?.conversationId === conv.id ? (
       <>
-        <button className="btn small amber" disabled aria-busy="true">
+        <span className="head-status" role="status">
           <i className="spin" aria-hidden />
           카드 만드는 중…
-        </button>
+        </span>
         <button
           className="btn small"
           onClick={() => void api.cancelCard(conv.id)}
@@ -1027,7 +1020,7 @@ export function App() {
       </>
     ) : (
       <button
-        className="btn small amber"
+        className="btn small primary"
         disabled={!!stream || !!making}
         onClick={() => void makeCard(conv.id)}
       >
@@ -1199,14 +1192,21 @@ export function App() {
           </>
         ) : (
           <div className="path-empty">
-            <h2>과목을 만들면 여기에 길이 생겨요</h2>
-            <p>공부한 대화가 경험 카드가 되어 이 길에 하나씩 쌓여요.</p>
-            <button
-              className="btn primary"
-              onClick={() => setDialog({ kind: 'subject' })}
-            >
-              첫 과목 만들기
-            </button>
+            <div className="ghost-path" aria-hidden>
+              <span />
+              <span />
+              <span />
+            </div>
+            <div>
+              <h2>과목을 만들면 여기에 길이 생겨요</h2>
+              <p>공부한 대화가 경험 카드가 되어 이 길에 하나씩 쌓여요.</p>
+              <button
+                className="btn primary large"
+                onClick={() => setDialog({ kind: 'subject' })}
+              >
+                첫 과목 만들기
+              </button>
+            </div>
           </div>
         )}
       </main>
@@ -1228,6 +1228,7 @@ export function App() {
           input={input}
           inputRef={inputRef}
           headAction={headAction}
+          makingCard={!!conv && making?.conversationId === conv.id}
           modelPicker={
             conv && (
               <ModelSelect

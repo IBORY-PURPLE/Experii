@@ -1,3 +1,5 @@
+import { LogoMark, Wordmark } from './Logo';
+
 const SIGN_IN_ERRORS: Record<string, string> = {
   timeout: '5분 안에 로그인을 마치지 않아 멈췄어요. 다시 시도해 주세요.',
   denied: '로그인이 취소됐어요. 다시 시도해 주세요.',
@@ -27,13 +29,16 @@ export function Gate(p: Props) {
   return (
     <main className="gate">
       <div className="gate-card">
-        <div className="brand">Experii</div>
+        <div className="gate-brand">
+          <LogoMark size={40} ink />
+          <Wordmark />
+        </div>
         {p.mode === 'sign_in' ? (
-          <h1>공부한 과정이 면접 경험으로 쌓여요</h1>
+          <h1 className="gate-title">공부한 과정이 면접 경험으로 쌓여요</h1>
         ) : (
           <>
-            <h1>ChatGPT Plus·Pro 계정이 필요해요</h1>
-            <p className="fine" style={{ margin: '-8px 0 20px' }}>
+            <h1 className="gate-title">ChatGPT Plus·Pro 계정이 필요해요</h1>
+            <p className="gate-desc">
               {p.account ? `${p.account} 계정은 ` : '로그인한 계정은 '}
               Plus·Pro 플랜이 아니라서 Experii에서 쓸 수 없어요.
             </p>
@@ -41,17 +46,28 @@ export function Gate(p: Props) {
         )}
         {p.waiting ? (
           <>
-            <button className="btn" disabled>
+            <button
+              className="btn primary large gate-action"
+              disabled
+              aria-busy="true"
+            >
+              <i className="spin" aria-hidden />
               브라우저에서 로그인을 마쳐 주세요…
             </button>
-            <p className="fine">
-              <button className="link" onClick={p.onCancel}>
-                취소
-              </button>
-            </p>
+            {/* This state replaces the button that had focus, so focus moves on to 취소. */}
+            <button
+              className="btn ghost gate-cancel"
+              onClick={p.onCancel}
+              autoFocus
+            >
+              취소
+            </button>
           </>
         ) : (
-          <button className="btn primary" onClick={p.onSignIn}>
+          <button
+            className="btn primary large gate-action"
+            onClick={p.onSignIn}
+          >
             {p.mode === 'sign_in'
               ? 'Continue with ChatGPT'
               : '다른 계정으로 Continue with ChatGPT'}
@@ -62,8 +78,8 @@ export function Gate(p: Props) {
             {SIGN_IN_ERRORS[p.error] ?? SIGN_IN_ERRORS.internal}
           </p>
         )}
-        <p className="fine">ChatGPT Plus·Pro 계정으로 로그인해요</p>
-        <p className="note">
+        <p className="gate-hint">ChatGPT Plus·Pro 계정으로 로그인해요</p>
+        <p className="gate-note">
           대화와 카드는 이 PC에만 저장돼요. 답을 받으려고 대화 내용은 OpenAI로
           보내요.
         </p>

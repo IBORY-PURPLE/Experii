@@ -271,7 +271,7 @@ export function useCollect(o: {
 
   const button = shown && (
     <button
-      className="addnote"
+      className="btn small addnote"
       style={{ left: shown.left, top: shown.top }}
       // keeps the selection alive until the click lands
       onMouseDown={(e) => e.preventDefault()}

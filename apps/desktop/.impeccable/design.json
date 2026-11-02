@@ -1,0 +1,897 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-01T08:29:53.928Z",
+  "title": "Design System: Experii Desktop",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "잉크",
+        "canonical": "#1a2233",
+        "purpose": "본문 글자, 칠한 버튼, 포커스 링, 캐럿",
+        "tonalRamp": [
+          "#090b0f",
+          "#20242c",
+          "#3a404c",
+          "#555e6f",
+          "#778094",
+          "#9da5b4",
+          "#c5cbd6",
+          "#ebeef5"
+        ]
+      },
+      "ink-hover": {
+        "role": "neutral",
+        "displayName": "잉크 hover",
+        "canonical": "#2d3544",
+        "purpose": "칠한 버튼 hover",
+        "tonalRamp": [
+          "#090b0f",
+          "#21242b",
+          "#3a404a",
+          "#565e6c",
+          "#788190",
+          "#9ea5b2",
+          "#c6cbd4",
+          "#eceff4"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "잉크 2",
+        "canonical": "#444b59",
+        "purpose": "보조 글",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#21242a",
+          "#3b4049",
+          "#575e6a",
+          "#79808e",
+          "#9fa5b0",
+          "#c7cbd3",
+          "#eceef3"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "잉크 3",
+        "canonical": "#5c626e",
+        "purpose": "메타 글, 이름표, 조용한 진행 상태",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#222429",
+          "#3c4047",
+          "#585e68",
+          "#7b808c",
+          "#a0a5ae",
+          "#c7cbd1",
+          "#eceef2"
+        ]
+      },
+      "ink-4": {
+        "role": "neutral",
+        "displayName": "잉크 4",
+        "canonical": "#7e828c",
+        "purpose": "조작 테두리와 장식, 글자에는 쓰지 않음",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#222428",
+          "#3d4046",
+          "#5a5d66",
+          "#7c8089",
+          "#a2a4ac",
+          "#c8cad0",
+          "#edeef1"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "선",
+        "canonical": "#e4e5e7",
+        "purpose": "장식 1px 선",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242425",
+          "#3f4041",
+          "#5d5e5f",
+          "#7f8082",
+          "#a4a4a6",
+          "#cacacb",
+          "#eeeeef"
+        ]
+      },
+      "line-2": {
+        "role": "neutral",
+        "displayName": "진한 선",
+        "canonical": "#d0d2d5",
+        "purpose": "점선, 걷지 않은 길",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232425",
+          "#3f4041",
+          "#5c5e60",
+          "#7f8083",
+          "#a3a5a7",
+          "#c9cacc",
+          "#eeeeef"
+        ]
+      },
+      "wash": {
+        "role": "neutral",
+        "displayName": "물",
+        "canonical": "rgb(26 34 51 / 0.05)",
+        "purpose": "hover 면 (잉크 5%)",
+        "tonalRamp": [
+          "#090b0f",
+          "#20242c",
+          "#3a404c",
+          "#555e6f",
+          "#778094",
+          "#9da5b4",
+          "#c5cbd6",
+          "#ebeef5"
+        ]
+      },
+      "wash-2": {
+        "role": "neutral",
+        "displayName": "물 2",
+        "canonical": "#edeeef",
+        "purpose": "사용자 말풍선, 개념 칩, 가린 문자열",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#3f4040",
+          "#5d5e5e",
+          "#7f8081",
+          "#a4a5a5",
+          "#cacacb",
+          "#eeeeef"
+        ]
+      },
+      "wash-3": {
+        "role": "neutral",
+        "displayName": "물 3",
+        "canonical": "#f3f4f5",
+        "purpose": "보조 버튼 hover, 가림 알림, 코드 블록",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#3f4040",
+          "#5d5e5e",
+          "#7f8081",
+          "#a4a5a5",
+          "#cacacb",
+          "#eeeeef"
+        ]
+      },
+      "on-ink": {
+        "role": "neutral",
+        "displayName": "잉크 위 흰색",
+        "canonical": "#ffffff",
+        "purpose": "잉크와 파랑 위 글자",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "select": {
+        "role": "neutral",
+        "displayName": "선택",
+        "canonical": "rgb(26 34 51 / 0.1)",
+        "purpose": "글자 선택 (잉크 10%)",
+        "tonalRamp": [
+          "#090b0f",
+          "#20242c",
+          "#3a404c",
+          "#555e6f",
+          "#778094",
+          "#9da5b4",
+          "#c5cbd6",
+          "#ebeef5"
+        ]
+      },
+      "blue": {
+        "role": "primary",
+        "displayName": "길 파랑",
+        "canonical": "#3d5a99",
+        "purpose": "Blue Places Rule의 다섯 자리",
+        "tonalRamp": [
+          "#060b18",
+          "#17233d",
+          "#2c3e66",
+          "#425c93",
+          "#627fbb",
+          "#8da5d4",
+          "#bacbed",
+          "#e7efff"
+        ]
+      },
+      "blue-hi": {
+        "role": "primary",
+        "displayName": "손잡이 위 파랑",
+        "canonical": "#5c74a9",
+        "purpose": "완료 칸 그라데이션 위 끝",
+        "tonalRamp": [
+          "#070b15",
+          "#1a2338",
+          "#303f5f",
+          "#485d89",
+          "#697fb0",
+          "#92a5cb",
+          "#bdcbe6",
+          "#e7effe"
+        ]
+      },
+      "blue-lo": {
+        "role": "primary",
+        "displayName": "손잡이 아래 파랑",
+        "canonical": "#324a7d",
+        "purpose": "완료 칸 그라데이션 아래 끝",
+        "tonalRamp": [
+          "#060b16",
+          "#192439",
+          "#2f3f60",
+          "#465d8a",
+          "#6780b2",
+          "#91a5cd",
+          "#bccbe7",
+          "#e7effe"
+        ]
+      },
+      "blue-rail": {
+        "role": "primary",
+        "displayName": "길 줄 파랑",
+        "canonical": "#b1bdd6",
+        "purpose": "걸은 길, 채팅에 열린 대화의 타일 테두리",
+        "tonalRamp": [
+          "#090b10",
+          "#20242d",
+          "#39404e",
+          "#555e71",
+          "#768095",
+          "#9da5b6",
+          "#c5cbd7",
+          "#ebeef6"
+        ]
+      },
+      "blue-wash": {
+        "role": "primary",
+        "displayName": "파랑 물",
+        "canonical": "#eff2f7",
+        "purpose": "\"진행 중\" 칩 바탕",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232426",
+          "#3e4042",
+          "#5b5e61",
+          "#7e8084",
+          "#a3a5a8",
+          "#c9cacd",
+          "#eeeef0"
+        ]
+      },
+      "err": {
+        "role": "error",
+        "displayName": "오류 빨강",
+        "canonical": "#b42318",
+        "purpose": "오류 글에만",
+        "tonalRamp": [
+          "#1c0301",
+          "#450d08",
+          "#731c14",
+          "#a42c20",
+          "#d05041",
+          "#e98475",
+          "#feb6aa",
+          "#fee9e5"
+        ]
+      },
+      "bg-side": {
+        "role": "neutral",
+        "displayName": "사이드바 바탕",
+        "canonical": "#f4f5f6",
+        "purpose": "사이드바",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#3f4040",
+          "#5d5e5e",
+          "#7f8081",
+          "#a4a5a5",
+          "#cacacb",
+          "#eeeeef"
+        ]
+      },
+      "bg-main": {
+        "role": "neutral",
+        "displayName": "가운데 바탕",
+        "canonical": "#f8f9f9",
+        "purpose": "길, 로그인 화면, 창 바탕",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#3f4040",
+          "#5d5e5e",
+          "#7f8080",
+          "#a4a5a5",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "흰 면",
+        "canonical": "#ffffff",
+        "purpose": "카드와 열의 면",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "knob-now-top": {
+        "role": "neutral",
+        "displayName": "진행 중 칸 위",
+        "canonical": "#ffffff",
+        "purpose": "진행 중 칸 면",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "knob-now-bottom": {
+        "role": "neutral",
+        "displayName": "진행 중 칸 아래",
+        "canonical": "#f2f3f4",
+        "purpose": "진행 중 칸 면",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#3f4040",
+          "#5d5e5e",
+          "#7f8081",
+          "#a4a5a5",
+          "#cacacb",
+          "#eeeeef"
+        ]
+      },
+      "knob-off-top": {
+        "role": "neutral",
+        "displayName": "잠긴 칸 위",
+        "canonical": "#f7f7f7",
+        "purpose": "잠긴 칸 면",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "knob-off-bottom": {
+        "role": "neutral",
+        "displayName": "잠긴 칸 아래",
+        "canonical": "#e5e6e8",
+        "purpose": "잠긴 칸 면",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242425",
+          "#3f4041",
+          "#5d5e5f",
+          "#7f8082",
+          "#a4a4a6",
+          "#cacacb",
+          "#eeeeef"
+        ]
+      },
+      "scrim": {
+        "role": "neutral",
+        "displayName": "덮개",
+        "canonical": "rgb(26 34 51 / 0.15)",
+        "purpose": "대화 상자 덮개 (잉크 15%)",
+        "tonalRamp": [
+          "#090b0f",
+          "#20242c",
+          "#3a404c",
+          "#555e6f",
+          "#778094",
+          "#9da5b4",
+          "#c5cbd6",
+          "#ebeef5"
+        ]
+      },
+      "scrollbar": {
+        "role": "neutral",
+        "displayName": "스크롤바",
+        "canonical": "rgb(26 34 51 / 0.2)",
+        "purpose": "스크롤바 손잡이 (잉크 20%)",
+        "tonalRamp": [
+          "#090b0f",
+          "#20242c",
+          "#3a404c",
+          "#555e6f",
+          "#778094",
+          "#9da5b4",
+          "#c5cbd6",
+          "#ebeef5"
+        ]
+      },
+      "icon-tile": {
+        "role": "brand",
+        "displayName": "아이콘 판 파랑",
+        "canonical": "#5474bb",
+        "purpose": "작업 표시줄·ICO 판 전용, 앱 화면에는 없음",
+        "tonalRamp": [
+          "#050b18",
+          "#17233f",
+          "#2b3e69",
+          "#415b97",
+          "#607ec0",
+          "#8ca4d8",
+          "#b9cbef",
+          "#e7effe"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "wordmark-lockup": {
+        "displayName": "Logo",
+        "purpose": "로그인 카드 로크업의 워드마크에만 (--fs-logo, 예외 E5)"
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "사이드바 워드마크"
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "고정 막대의 과목명, 빈 화면 제목"
+      },
+      "title-lg": {
+        "displayName": "Title Large",
+        "purpose": "펼친 카드, 대화 상자, 로그인 카드 제목"
+      },
+      "value": {
+        "displayName": "Value",
+        "purpose": "고정 막대의 숫자 (고정폭 숫자)"
+      },
+      "quote": {
+        "displayName": "Quote",
+        "purpose": "펼친 카드의 면접 한 마디"
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "타일, 채팅 머리, 말풍선 제목"
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "버튼 글자"
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "본문"
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "이름표와 칩"
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "메타 줄, 안내, 진행 상태"
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "답변 속 코드와 가린 문자열"
+      }
+    },
+    "shadows": [
+      {
+        "name": "ring",
+        "value": "0 0 0 1px var(--line)",
+        "purpose": "사이드바 선택 행, 배너, 로그인 카드의 1px 윤곽"
+      },
+      {
+        "name": "sh-1",
+        "value": "0 1px 2px rgb(26 34 51 / 0.06)",
+        "purpose": "타일, 칠한 버튼, 선택 행, 채팅 입력 상자, 배너"
+      },
+      {
+        "name": "sh-2",
+        "value": "0 1px 2px rgb(26 34 51 / 0.05), 0 6px 18px -6px rgb(26 34 51 / 0.12)",
+        "purpose": "펼친 카드, 타일 hover"
+      },
+      {
+        "name": "sh-3",
+        "value": "0 2px 6px rgb(26 34 51 / 0.07), 0 14px 32px -10px rgb(26 34 51 / 0.18)",
+        "purpose": "잠긴 칸 말풍선, 로그인 카드"
+      },
+      {
+        "name": "sh-4",
+        "value": "0 0 0 1px rgb(26 34 51 / 0.06), 0 4px 12px rgb(26 34 51 / 0.08), 0 28px 56px -16px rgb(26 34 51 / 0.3)",
+        "purpose": "대화 상자"
+      },
+      {
+        "name": "sh-knob-done",
+        "value": "inset 0 1.5px 1px rgb(255 255 255 / 0.26), inset 0 -5px 4px rgb(16 26 52 / 0.32), 0 3px 1.5px -0.5px rgb(38 58 99 / 0.5), 0 9px 16px -6px rgb(26 34 51 / 0.3)",
+        "purpose": "완료 칸의 볼록한 깊이 (길의 칸 전용)"
+      },
+      {
+        "name": "sh-knob-pressed",
+        "value": "inset 0 -2px 2px rgb(16 26 52 / 0.3), 0 1px 1px rgb(38 58 99 / 0.4)",
+        "purpose": "누른 완료 칸 (2px 내려앉음)"
+      },
+      {
+        "name": "sh-knob-now",
+        "value": "inset 0 -4px 3px rgb(26 34 51 / 0.06), 0 3px 2px -1px rgb(26 34 51 / 0.14), 0 8px 14px -6px rgb(26 34 51 / 0.2)",
+        "purpose": "진행 중 칸 깊이"
+      },
+      {
+        "name": "sh-knob-off",
+        "value": "inset 0 1.5px 1px rgb(255 255 255 / 0.9), inset 0 -4px 3px rgb(26 34 51 / 0.07), 0 2px 2px -1px rgb(26 34 51 / 0.16), 0 6px 10px -6px rgb(26 34 51 / 0.2)",
+        "purpose": "잠긴 칸 깊이"
+      },
+      {
+        "name": "sh-knob-slot",
+        "value": "0 3px 2px -1px rgb(26 34 51 / 0.1), 0 8px 14px -6px rgb(26 34 51 / 0.14)",
+        "purpose": "빈 화면의 흐린 칸"
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "모든 전환의 곡선"
+      },
+      {
+        "name": "dur-1",
+        "value": "100ms",
+        "purpose": "누름(버튼 97%, 칸 2px), 대화 상자와 덮개 열림"
+      },
+      {
+        "name": "dur-2",
+        "value": "160ms",
+        "purpose": "hover와 상태 색"
+      },
+      {
+        "name": "dur-3",
+        "value": "240ms",
+        "purpose": "카드 펼침, 옆 패널이 접히고 펴지는 것, 알림이 들어오는 것"
+      },
+      {
+        "name": "dur-land",
+        "value": "560ms",
+        "purpose": "끌어 놓은 필기가 자리에 내려앉는 것"
+      },
+      {
+        "name": "dur-settle",
+        "value": "1600ms",
+        "purpose": "방금 놓인 필기와 새 요약 카드가 회색에서 풀리는 것"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "모든 애니메이션과 전환을 끈다. 상태는 바로 바뀌고 스피너는 글 옆에 멈춘다"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "window-min",
+        "value": "1200x720 (content 1184x681)"
+      },
+      {
+        "name": "window-check",
+        "value": "1280x800"
+      },
+      {
+        "name": "window-default",
+        "value": "1440x900 (content 1424x861)"
+      }
+    ],
+    "sizes": [
+      {
+        "name": "h-24",
+        "value": "24px"
+      },
+      {
+        "name": "h-28",
+        "value": "28px"
+      },
+      {
+        "name": "h-32",
+        "value": "32px"
+      },
+      {
+        "name": "h-36",
+        "value": "36px"
+      },
+      {
+        "name": "h-44",
+        "value": "44px"
+      },
+      {
+        "name": "knob",
+        "value": "56px"
+      },
+      {
+        "name": "rail",
+        "value": "6px"
+      },
+      {
+        "name": "lh-20",
+        "value": "20px"
+      },
+      {
+        "name": "lh-24",
+        "value": "24px"
+      },
+      {
+        "name": "band",
+        "value": "64px"
+      },
+      {
+        "name": "band-pad",
+        "value": "calc((var(--band) - var(--lh-24) - var(--lh-20)) / 2)"
+      },
+      {
+        "name": "w-side",
+        "value": "248px"
+      },
+      {
+        "name": "w-chat",
+        "value": "380px"
+      },
+      {
+        "name": "w-path",
+        "value": "640px"
+      },
+      {
+        "name": "w-dialog",
+        "value": "440px"
+      },
+      {
+        "name": "w-gate",
+        "value": "400px"
+      },
+      {
+        "name": "w-fold",
+        "value": "20px"
+      },
+      {
+        "name": "w-tab-road",
+        "value": "120px"
+      },
+      {
+        "name": "w-tab",
+        "value": "176px"
+      },
+      {
+        "name": "w-tab-max",
+        "value": "264px"
+      },
+      {
+        "name": "w-note",
+        "value": "264px"
+      },
+      {
+        "name": "w-pin",
+        "value": "328px"
+      },
+      {
+        "name": "w-pin-open",
+        "value": "380px"
+      },
+      {
+        "name": "w-pin-min",
+        "value": "220px"
+      },
+      {
+        "name": "w-next",
+        "value": "320px"
+      },
+      {
+        "name": "w-next-min",
+        "value": "248px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "칠한 버튼 (Primary)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "한 화면 상태에 하나뿐인 잉크 버튼.",
+      "html": "<button class=\"ds-btn-primary\">경험으로 남기기</button>",
+      "css": ".ds-btn-primary { height: var(--h-32, 32px); padding: 0 var(--sp-3, 12px); border: 0; border-radius: var(--r-2, 8px); background: var(--ink, #1a2233); color: var(--on-ink, #fff); font: var(--fw-2, 500) var(--fs-14, 14px) var(--font, 'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif); box-shadow: var(--sh-1, 0 1px 2px rgb(26 34 51 / 0.06)); cursor: pointer; transition: background var(--dur-2, 160ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)), transform var(--dur-1, 100ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-btn-primary:hover { background: var(--ink-hover, #2d3544); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ink, #1a2233); outline-offset: 2px; box-shadow: inset 0 0 0 1px var(--on-ink, #fff); } .ds-btn-primary:disabled { background: var(--wash-2, #edeeef); color: var(--ink-3, #5c626e); box-shadow: none; }"
+    },
+    {
+      "name": "테두리 버튼 (Secondary)",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "나머지 모든 동작. 배너 버튼과 대화 상자의 [취소].",
+      "html": "<button class=\"ds-btn\">새 대화</button>",
+      "css": ".ds-btn { height: var(--h-32, 32px); padding: 0 var(--sp-3, 12px); border: 1px solid var(--ink-4, #7e828c); border-radius: var(--r-2, 8px); background: var(--surface, #fff); color: var(--ink, #1a2233); font: var(--fw-2, 500) var(--fs-14, 14px) var(--font, 'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif); cursor: pointer; transition: background var(--dur-2, 160ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-btn:hover { background: var(--wash-3, #f3f4f5); } .ds-btn:active { transform: scale(0.97); } .ds-btn:focus-visible { outline: 2px solid var(--ink, #1a2233); outline-offset: 2px; } .ds-btn:disabled { border-color: var(--line-2, #d0d2d5); color: var(--ink-3, #5c626e); }"
+    },
+    {
+      "name": "고스트 버튼",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "카드의 접기, 대화 다시 열기, 카드 다시 만들기.",
+      "html": "<button class=\"ds-btn-ghost\">대화 다시 열기</button>",
+      "css": ".ds-btn-ghost { height: var(--h-32, 32px); padding: 0 var(--sp-2, 8px); border: 0; border-radius: var(--r-2, 8px); background: transparent; color: var(--ink-2, #444b59); font: var(--fw-2, 500) var(--fs-14, 14px) var(--font, 'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif); cursor: pointer; transition: background var(--dur-2, 160ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-btn-ghost:hover { background: var(--wash, rgb(26 34 51 / 0.05)); color: var(--ink, #1a2233); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--ink, #1a2233); outline-offset: 2px; }"
+    },
+    {
+      "name": "입력창",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "대화 상자의 입력. 포커스는 테두리 위 2px 잉크 링.",
+      "html": "<input class=\"ds-input\" placeholder=\"예: SQLD\" />",
+      "css": ".ds-input { height: var(--h-36, 36px); padding: 0 var(--sp-3, 12px); border: 1px solid var(--ink-4, #7e828c); border-radius: var(--r-2, 8px); background: var(--surface, #fff); color: var(--ink, #1a2233); font: var(--fw-1, 400) var(--fs-14, 14px) var(--font, 'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif); caret-color: var(--ink, #1a2233); } .ds-input::placeholder { color: var(--ink-3, #5c626e); } .ds-input:focus-visible { outline: 2px solid var(--ink, #1a2233); outline-offset: -1px; } .ds-input::selection { background: var(--select, rgb(26 34 51 / 0.1)); }"
+    },
+    {
+      "name": "칩 (상태와 평가)",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "24px 알약. \"진행 중\"만 파랑, 평가 전은 점선.",
+      "html": "<span class=\"ds-chip ds-chip-now\">진행 중</span> <span class=\"ds-chip ds-chip-useful\">쓸 만해요</span> <span class=\"ds-chip ds-chip-no\">아니에요</span> <span class=\"ds-chip ds-chip-unrated\">평가 전</span> <span class=\"ds-chip\">추천 · 잠김</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; height: var(--h-24, 24px); padding: 0 var(--sp-3, 12px); border-radius: var(--r-pill, 999px); background: var(--wash-3, #f3f4f5); color: var(--ink-3, #5c626e); font: var(--fw-2, 500) var(--fs-13, 13px) var(--font, 'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif); } .ds-chip-now { background: var(--blue-wash, #eff2f7); color: var(--blue, #3d5a99); } .ds-chip-useful { background: var(--wash-2, #edeeef); color: var(--ink, #1a2233); } .ds-chip-no { background: transparent; box-shadow: inset 0 0 0 1px var(--ink-4, #7e828c); color: var(--ink-2, #444b59); } .ds-chip-unrated { background: transparent; border: 1px dashed var(--ink-4, #7e828c); color: var(--ink-3, #5c626e); }"
+    },
+    {
+      "name": "타일",
+      "kind": "card",
+      "refersTo": "tile",
+      "description": "길 위의 경험 칸. 흰 면, 1px 선, sh-1, hover에 sh-2. 채팅에 열린 대화의 타일만 파랑 테두리.",
+      "html": "<button class=\"ds-tile\" aria-current=\"true\"><b>LEFT JOIN이 헷갈려요</b><span>왼쪽 표의 행을 모두 남기는 이유를 정리했다.</span></button>",
+      "css": ".ds-tile { display: grid; gap: var(--sp-1, 4px); width: 100%; padding: var(--sp-4, 16px) var(--sp-5, 20px); text-align: left; border: 1px solid var(--line, #e4e5e7); border-radius: var(--r-3, 12px); background: var(--surface, #fff); box-shadow: var(--sh-1, 0 1px 2px rgb(26 34 51 / 0.06)); font-family: var(--font, 'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif); cursor: pointer; transition: box-shadow var(--dur-2, 160ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-tile b { font-size: var(--fs-15, 15px); font-weight: var(--fw-3, 600); line-height: var(--lh-24, 24px); color: var(--ink, #1a2233); } .ds-tile span { font-size: var(--fs-14, 14px); color: var(--ink-2, #444b59); } .ds-tile:hover { box-shadow: var(--sh-2, 0 1px 2px rgb(26 34 51 / 0.05), 0 6px 18px -6px rgb(26 34 51 / 0.12)); } .ds-tile:focus-visible { outline: 2px solid var(--ink, #1a2233); outline-offset: 2px; } .ds-tile[aria-current='true'] { border-color: var(--blue-rail, #b1bdd6); }"
+    },
+    {
+      "name": "길의 둥근 칸 (signature)",
+      "kind": "custom",
+      "refersTo": "knob-done",
+      "description": "앱에서 유일한 입체. 완료는 파랗게 솟고, 진행 중은 파랑 고리와 점 셋, 잠김은 회색.",
+      "html": "<span class=\"ds-knob ds-knob-done\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></span> <span class=\"ds-knob ds-knob-now\"><i></i><i></i><i></i></span> <span class=\"ds-knob ds-knob-off\"></span>",
+      "css": ".ds-knob { display: inline-grid; place-items: center; grid-auto-flow: column; gap: var(--sp-1, 4px); width: var(--knob, 56px); height: var(--knob, 56px); border-radius: var(--r-pill, 999px); vertical-align: middle; } .ds-knob-done { color: var(--on-ink, #fff); background: linear-gradient(180deg, var(--blue-hi, #5c74a9) 0%, var(--blue, #3d5a99) 52%, var(--blue-lo, #324a7d) 100%); box-shadow: inset 0 1.5px 1px rgb(255 255 255 / 0.26), inset 0 -5px 4px rgb(16 26 52 / 0.32), 0 3px 1.5px -0.5px rgb(38 58 99 / 0.5), 0 9px 16px -6px rgb(26 34 51 / 0.3); transition: transform var(--dur-1, 100ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-knob-done:active { transform: translateY(2px); box-shadow: inset 0 -2px 2px rgb(16 26 52 / 0.3), 0 1px 1px rgb(38 58 99 / 0.4); } .ds-knob-done:focus-visible { outline: 2px solid var(--ink, #1a2233); outline-offset: 2px; } .ds-knob-now { border: 2px solid var(--blue, #3d5a99); background: linear-gradient(180deg, var(--knob-now-top, #fff), var(--knob-now-bottom, #f2f3f4)); box-shadow: inset 0 -4px 3px rgb(26 34 51 / 0.06), 0 3px 2px -1px rgb(26 34 51 / 0.14), 0 8px 14px -6px rgb(26 34 51 / 0.2); } .ds-knob-now i { width: 6px; height: 6px; border-radius: var(--r-pill, 999px); background: var(--blue, #3d5a99); } .ds-knob-off { background: linear-gradient(180deg, var(--knob-off-top, #f7f7f7), var(--knob-off-bottom, #e5e6e8)); box-shadow: inset 0 1.5px 1px rgb(255 255 255 / 0.9), inset 0 -4px 3px rgb(26 34 51 / 0.07), 0 2px 2px -1px rgb(26 34 51 / 0.16), 0 6px 10px -6px rgb(26 34 51 / 0.2); }"
+    },
+    {
+      "name": "사이드바 고른 행",
+      "kind": "nav",
+      "refersTo": "sidebar-row-selected",
+      "description": "고름은 색이 아니라 들어 올림(흰 면, 링, sh-1, 500).",
+      "html": "<nav class=\"ds-side\"><a class=\"ds-row\" aria-current=\"page\">SQLD<small>5</small></a><a class=\"ds-row\">정보처리기사<small>2</small></a></nav>",
+      "css": ".ds-side { display: grid; gap: var(--sp-1, 4px); padding: var(--sp-2, 8px); background: var(--bg-side, #f4f5f6); width: var(--w-side, 248px); font-family: var(--font, 'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif); } .ds-row { display: flex; justify-content: space-between; align-items: center; height: var(--h-32, 32px); padding: 0 var(--sp-2, 8px); border-radius: var(--r-2, 8px); color: var(--ink, #1a2233); font-size: var(--fs-14, 14px); cursor: pointer; transition: background var(--dur-2, 160ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-row small { font-size: var(--fs-13, 13px); color: var(--ink-3, #5c626e); font-variant-numeric: tabular-nums; } .ds-row:hover { background: var(--wash, rgb(26 34 51 / 0.05)); } .ds-row[aria-current] { background: var(--surface, #fff); box-shadow: var(--ring, 0 0 0 1px #e4e5e7), var(--sh-1, 0 1px 2px rgb(26 34 51 / 0.06)); font-weight: var(--fw-2, 500); } .ds-row:focus-visible { outline: 2px solid var(--ink, #1a2233); outline-offset: 2px; }"
+    },
+    {
+      "name": "탭",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "가운데 머리 띠의 52px 두 줄 칩. 앞에 있는 탭은 사이드바의 고른 행처럼 들어 올린다.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab\" aria-current=\"page\"><b>LEFT JOIN이 헷갈려요</b><small>필기 3개 · 진행 중</small></button><button class=\"ds-tab\"><b>GROUP BY</b><small>필기 0개 · 오늘</small></button></div>",
+      "css": ".ds-tabs { display: flex; gap: var(--sp-1, 4px); padding: var(--sp-1, 4px); background: var(--bg-main, #f8f9f9); } .ds-tab { display: grid; width: 176px; height: 52px; padding: var(--sp-1, 4px) var(--sp-3, 12px); border: 0; border-radius: var(--r-2, 8px); background: transparent; color: var(--ink, #1a2233); text-align: left; font: var(--fw-1, 400) var(--fs-14, 14px) var(--font, system-ui); } .ds-tab b { font-weight: var(--fw-1, 400); line-height: var(--lh-24, 24px); } .ds-tab small { color: var(--ink-3, #5c626e); font-size: var(--fs-13, 13px); line-height: var(--lh-20, 20px); } .ds-tab:hover { background: var(--wash, rgb(26 34 51 / 0.05)); } .ds-tab[aria-current] { background: var(--surface, #fff); box-shadow: var(--ring, 0 0 0 1px #e4e5e7), var(--sh-1, 0 1px 2px rgb(26 34 51 / 0.06)); } .ds-tab[aria-current] b { font-weight: var(--fw-2, 500); }"
+    },
+    {
+      "name": "필기",
+      "kind": "card",
+      "refersTo": "note",
+      "description": "필기 페이지의 흰 면. 점 격자 위에 놓이고 출처 버튼이 아래에 있다.",
+      "html": "<div class=\"ds-note\"><p>행 수가 늘어난 이유는 오른쪽 테이블에 같은 키가 여러 개 있어서예요.</p><button class=\"ds-note-src\">Q2 · 오후 5:00</button></div>",
+      "css": ".ds-note { display: grid; gap: var(--sp-2, 8px); width: 264px; padding: var(--sp-3, 12px) var(--sp-4, 16px); border: 1px solid var(--line, #e4e5e7); border-radius: var(--r-3, 12px); background: var(--surface, #fff); box-shadow: var(--sh-2, 0 1px 2px rgb(26 34 51 / 0.05), 0 6px 18px -6px rgb(26 34 51 / 0.12)); } .ds-note p { margin: 0; font-size: var(--fs-14, 14px); } .ds-note-src { justify-self: start; height: var(--h-24, 24px); margin-left: calc(var(--sp-2, 8px) * -1); padding: 0 var(--sp-2, 8px); border: 0; border-radius: var(--r-2, 8px); background: none; color: var(--ink-3, #5c626e); font-size: var(--fs-13, 13px); }"
+    },
+    {
+      "name": "요약 카드 (핀)",
+      "kind": "card",
+      "refersTo": "pin",
+      "description": "필기 페이지 왼쪽 위에 고정되는 타일 모양의 카드 요약. 평가 버튼 쌍이 맨 아래에 있다.",
+      "html": "<section class=\"ds-pin\"><header><h2>LEFT JOIN의 NULL 행을 직접 확인했다</h2><span class=\"ds-chip\">평가 전</span></header><p>INNER JOIN과 LEFT JOIN을 같은 테이블로 돌려 결과 행 수 차이를 비교했다.</p><footer><span>면접에 쓸 만한가요?</span><button>쓸 만해요</button><button>아니에요</button></footer></section>",
+      "css": ".ds-pin { width: 328px; border: 1px solid var(--line, #e4e5e7); border-radius: var(--r-3, 12px); background: var(--surface, #fff); box-shadow: var(--sh-2, 0 1px 2px rgb(26 34 51 / 0.05), 0 6px 18px -6px rgb(26 34 51 / 0.12)); } .ds-pin header { display: flex; gap: var(--sp-2, 8px); padding: var(--sp-3, 12px) var(--sp-3, 12px) 0 var(--sp-4, 16px); } .ds-pin h2 { flex: 1; margin: 0; font-size: var(--fs-15, 15px); font-weight: var(--fw-3, 600); line-height: var(--lh-24, 24px); } .ds-chip { height: var(--h-24, 24px); padding: 0 var(--sp-3, 12px); border: 1px dashed var(--ink-4, #7e828c); border-radius: var(--r-pill, 999px); font-size: var(--fs-13, 13px); font-weight: var(--fw-2, 500); line-height: 22px; } .ds-pin p { margin: var(--sp-2, 8px) var(--sp-4, 16px) var(--sp-3, 12px); color: var(--ink-2, #444b59); } .ds-pin footer { display: flex; align-items: center; gap: var(--sp-2, 8px); padding: var(--sp-2, 8px) var(--sp-3, 12px) var(--sp-2, 8px) var(--sp-4, 16px); border-top: 1px solid var(--line, #e4e5e7); font-size: var(--fs-13, 13px); font-weight: var(--fw-2, 500); } .ds-pin footer button { height: var(--h-28, 28px); padding: 0 var(--sp-3, 12px); border: 1px solid var(--ink-4, #7e828c); border-radius: var(--r-2, 8px); background: var(--surface, #fff); font: inherit; }"
+    },
+    {
+      "name": "떠 있는 패널 (다음 공부 정하기)",
+      "kind": "card",
+      "refersTo": "popover",
+      "description": "캔버스 위에 뜨는 흰 패널. sh-3와 12px 모서리, 추천마다 위 1px 선, 맨 아래 전체 폭 테두리 버튼.",
+      "html": "<section class=\"ds-popover\"><h2>다음 공부 정하기</h2><div class=\"ds-rec\"><b>ON과 WHERE 조건 차이</b><button>이걸로 시작</button></div><button class=\"ds-block\">GPT와 상의해서 정하기</button></section>",
+      "css": ".ds-popover { width: 320px; padding-bottom: var(--sp-4, 16px); border: 1px solid var(--line, #e4e5e7); border-radius: var(--r-3, 12px); background: var(--surface, #fff); box-shadow: var(--sh-3, 0 2px 6px rgb(26 34 51 / 0.07), 0 14px 32px -10px rgb(26 34 51 / 0.18)); } .ds-popover h2 { margin: 0; padding: var(--sp-3, 12px) var(--sp-4, 16px) 0; font-size: var(--fs-15, 15px); font-weight: var(--fw-3, 600); line-height: var(--lh-24, 24px); } .ds-rec { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3, 12px); margin-top: var(--sp-3, 12px); padding: var(--sp-3, 12px) var(--sp-4, 16px); border-top: 1px solid var(--line, #e4e5e7); } .ds-rec b { font-size: var(--fs-15, 15px); font-weight: var(--fw-3, 600); } .ds-rec button, .ds-block { height: var(--h-28, 28px); padding: 0 var(--sp-3, 12px); border: 1px solid var(--ink-4, #7e828c); border-radius: var(--r-2, 8px); background: var(--surface, #fff); font: var(--fw-2, 500) var(--fs-13, 13px) var(--font, system-ui); } .ds-block { display: block; width: calc(100% - var(--sp-8, 32px)); margin: 0 var(--sp-4, 16px); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "조용한 공부 책상",
+    "overview": "Experii 데스크톱은 GPT와 공부하는 책상이다. 오른쪽 열에서 대화하며 공부하고, 다 끝나면 [경험으로 남기기]로 대화를 경험 카드로 바꾼다. 카드는 가운데 길에 파랗게 솟은 둥근 칸으로 쌓이고, 머리줄은 쌓은 수를 센다. 이 책상에서 색과 입체를 가진 것은 쌓은 경험뿐이다. 나머지는 차가운 회색 바탕 위의 흰 면과 잉크 글자다.\n\n화면 모드는 Operate다. 사용자는 공부하고, 카드를 평가하고, 지난 대화를 다시 열러 온다. 훑어보기 쉬움, 일관성, Windows 앱다운 동작이 표현보다 앞선다. 품질 기준은 Aside 앱이고 원리만 가져온다. 거의 검정 하나(잉크)의 농도와 회색 단계, 굵기보다 크기와 회색으로 나눈 위계, 겹친 상자 대신 1px 선과 옅은 그림자, 12px 스피너와 글로 조용히 알리는 진행 상태가 그 원리다.\n\n이 방향은 창업자가 2026-10-30에 고른 화면 \"길\"과 로고 \"쌓이는 E\"다. 승인 시안은 저장소 밖 공유 노트에 있다(위치는 `docs/plans/2026-10-30-desktop-design/ai.md` 0장). 시안과 다르게 간 점은 그 계획 0장이 정했다: 잉크 `#1a2233`, 글자 크기 여섯 단, 카드 머리의 \"경험 카드 · 과목 · 날짜\"를 제목 아래 줄로 옮김. 화면 문구는 시안이 아니라 앱과 TSD를 따른다.",
+    "keyCharacteristics": [
+      "흰 면, 차가운 회색 바탕 두 단(사이드바와 가운데), 잉크 글자 네 단",
+      "파랑 하나는 경험이 쌓인 자리와 \"지금\"에만 쓴다",
+      "입체(그라데이션, 아래 턱, 손잡이 그림자)는 길의 둥근 칸에만 있다",
+      "색을 채운 버튼은 한 화면 상태에 하나이고 잉크색이다",
+      "세 열이 높이 64px 머리줄 하나를 나눠 쓴다",
+      "진행 상태는 12px 스피너와 하는 일을 적은 글로 조용히 알린다"
+    ],
+    "rules": [
+      {
+        "name": "The Blue Places Rule",
+        "body": "파랑은 다섯 자리에만 쓴다. (1) 완료 칸: 파랗게 솟은 둥근 칸과 흰 체크. (2) 길: 완료 칸에서 다음 완료 칸이나 진행 중 칸까지 잇는 6px 실선. (3) 진행 중 칸의 2px 고리와 점 세 개. (4) \"진행 중\" 칩: 길의 타일과 필기 페이지의 요약 카드에 있다. (5) 지금 채팅에 열린 대화의 타일 테두리: 한 번에 많아야 하나이고, 진행 중 타일일 수도 있고 접힌 완료 타일일 수도 있다. 버튼, 링크, 포커스 링, 글자 선택, 아이콘 버튼, 사이드바, 채팅, 탭, 필기 페이지의 필기와 도구에는 쓰지 않는다. 탭과 요약 카드 줄의 작은 칸 그림은 길의 칸을 줄인 것이지만 파랑이 아니라 잉크 3이다. 실측 감사는 14개 장면 모두에서 이 다섯 자리 밖의 파랑을 0개로 쟀다.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Ink Button Rule",
+        "body": "색을 채운 버튼은 한 화면 상태에 하나이고 잉크색이다. 나머지는 테두리 버튼, 고스트 버튼, 링크다. 배너의 버튼은 모두 테두리 버튼이라 둘째 칠한 버튼을 만들지 않는다. 대화 상자가 열려 있으면 그 안의 하나만 센다. 카드를 만드는 중이나 답을 받는 중처럼 누를 일이 없는 상태에는 하나도 없다.",
+        "section": "colors"
+      },
+      {
+        "name": "The Red For Errors Rule",
+        "body": "빨강은 오류 글에만 쓴다. 테두리, 바탕, 아이콘에는 쓰지 않는다. 호박·주황·초록·분홍은 데스크톱에서 쓰지 않는다(랜딩은 단계 색 세 개를 따로 쓴다).",
+        "section": "colors"
+      },
+      {
+        "name": "The Six Sizes Rule",
+        "body": "글자 크기는 13·14·15·16·18·20px 여섯뿐이다. 로그인 로크업의 워드마크 32px(`--fs-logo`)는 로고의 일부라 이 여섯에 넣지 않는다(예외 E5).",
+        "section": "typography"
+      },
+      {
+        "name": "The Size-And-Grey Rule",
+        "body": "위계는 크기와 잉크 단계로 만든다. 700 이상의 굵기는 쓰지 않는다. 워드마크도 600이다.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Band Rule",
+        "body": "세 열의 머리는 높이 64px 띠 하나다. 첫 줄은 제목이나 큰 숫자, 둘째 줄은 이름표다. 가운데의 머리는 탭이고, 과목 고정 막대는 로드맵 탭 첫 줄로 그 아래에 붙는다. 새 열이나 새 화면의 머리도 이 띠에 맞춘다.",
+        "section": "layout"
+      },
+      {
+        "name": "The 4px Rule",
+        "body": "여백, 안쪽 여백, 간격은 4px 배수 토큰만 쓴다. 남겨 둔 1~2px 광학 보정 여섯 곳은 예외 E7에 적었다. 선 굵기, 윤곽선, 변형, 화살표 위치는 간격이 아니다.",
+        "section": "layout"
+      },
+      {
+        "name": "The Knobs-Only Depth Rule",
+        "body": "그라데이션, 안쪽 그림자, 아래 턱은 길의 둥근 칸과 빈 화면의 흐린 칸에만 있다. 타일, 카드, 버튼, 대화 상자는 1px 선과 옅은 그림자로만 뜬다.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Lift Rule",
+        "body": "고른 항목은 색이 아니라 들어 올림으로 보인다. 흰 면, 링, sh-1, 굵기 500, `aria-current`가 함께 간다. 색 띠나 색 면으로 고름을 표시하지 않는다.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Dashed Means Not Yet Rule",
+        "body": "점선과 점은 아직 오지 않은 것(잠긴 추천, 평가 전, 걷지 않은 길, 첫 칸 자리)에만 쓴다.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** 색, 글자 크기, 모서리, 그림자, 간격을 `tokens.css`의 토큰으로만 쓴다. `tokens.css` 밖의 hex·rgb 리터럴과 TSX 안의 색·크기 리터럴은 0이다(그림 크기와 데이터 폭은 예외 E9).",
+      "**Do** 새 화면과 새 부품에도 파랑 자리 다섯, 칠한 버튼 하나, 입체는 칸에만을 그대로 적용한다. 밤 기능 PR의 필기 페이지, 모델 드롭다운, 도구 표시, 표·코드 표시, 좌우 접기도 같다(`docs/plans/2026-10-30-desktop-design/ai.md` 2장). 규칙에 없는 새 색 자리나 새 배치가 필요하면 만들기 전에 창업자에게 묻는다.",
+      "**Do** 머리는 64px 띠에 맞추고, 첫 줄에 제목이나 큰 숫자, 둘째 줄에 이름표를 둔다.",
+      "**Do** 진행 상태는 12px 스피너와 하는 일을 적은 글(잉크 2나 잉크 3)로 조용히 알린다.",
+      "**Do** 고른 항목은 들어 올리고(흰 면, 링, sh-1, 500, `aria-current`), 평가 전과 잠김은 점선으로 보인다.",
+      "**Do** 오류 배너는 `role=\"alert\"`, 안내 배너는 `role=\"status\"`로 둔다.",
+      "**Do** 새 화면은 1440과 1280 폭, Tab과 Shift+Tab 순서, Windows 고대비, 움직임 줄이기에서 확인하고, 글자 4.5:1과 조작 경계·아이콘 3:1을 잰다."
+    ],
+    "donts": [
+      "**Don't** 버튼, 링크, 포커스 링, 글자 선택, 아이콘 버튼, 사이드바, 채팅에 파랑을 쓰지 않는다.",
+      "**Don't** 빨강을 오류 글 밖에 쓰지 않는다. 호박, 주황, 초록, 분홍은 데스크톱에 없다.",
+      "**Don't** 둥근 칸 밖에 그라데이션, 안쪽 그림자, 아래 턱을 두지 않는다.",
+      "**Don't** 고름이나 강조를 색 띠(2px 이상의 왼쪽·오른쪽 테두리)나 색 면으로 보이지 않는다. 길의 6px 줄은 칸을 잇는 길이지 강조 띠가 아니다.",
+      "**Don't** 테두리나 그림자를 가진 면 안에 또 테두리·그림자 면을 겹치지 않는다. 카드의 구역은 여백으로 나누고, 안쪽 묶음(가림 알림, 코드 블록, 사용자 말풍선)은 테두리 없는 옅은 면(wash-2, wash-3)으로만 둔다.",
+      "**Don't** 700 이상의 굵기나 여섯 단 밖의 글자 크기를 쓰지 않는다(로그인 워드마크 32px만 예외).",
+      "**Don't** 마크와 워드마크를 가로로 붙이지 않는다.",
+      "**Don't** 어두운 테마나 메뉴 막대를 더하지 않는다(범위 밖). Aside, 듀오링고, 대시보드 상투에 대한 금지는 `PRODUCT.md`의 Anti-references를 따른다."
+    ]
+  }
+}

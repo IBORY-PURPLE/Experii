@@ -60,8 +60,24 @@ function current(): Running {
   return run;
 }
 
-const shot = (win: Page, name: string) =>
-  win.screenshot({ path: path.join(shots, `${name}.png`) });
+// setContentSize can land one CSS pixel wide on some Windows builds (1281 for 1280), so a width is met within 1px.
+async function expectWidth(win: Page, width: number) {
+  await expect
+    .poll(async () =>
+      Math.abs((await win.evaluate(() => window.innerWidth)) - width),
+    )
+    .toBeLessThanOrEqual(1);
+}
+
+// Shots show the settled screen: transitions and fades run to their end, and no hover is left from the last click.
+async function shot(win: Page, name: string) {
+  await win.mouse.move(0, 0);
+  await win.screenshot({
+    path: path.join(shots, `${name}.png`),
+    animations: 'disabled',
+    scale: 'css',
+  });
+}
 
 const itemText = (item: Item) =>
   (item.content ?? []).map((c) => c.text ?? '').join('');
@@ -142,6 +158,56 @@ test('the renderer is isolated and only sees the allowed bridge', async () => {
   const { app, win } = await launch(tempDir());
   await expect(win).toHaveTitle('Experii');
   expect(
+    await app.evaluate(({ BrowserWindow, Menu, nativeTheme }) => [
+      Menu.getApplicationMenu(),
+      nativeTheme.themeSource,
+      BrowserWindow.getAllWindows()[0].getBackgroundColor().toLowerCase(),
+    ]),
+    'no menu, the light theme and the --bg-main ground',
+  ).toEqual([null, 'light', '#f8f9f9']);
+
+  // Without a menu the zoom keys come from main.ts. The keys go in as native input, the way main.ts sees them
+  // (Playwright's keyboard skips that handler). The default window has room for two steps (120%).
+  const ctrl = (keyCode: string) =>
+    app.evaluate(({ BrowserWindow }, key) => {
+      const page = BrowserWindow.getAllWindows()[0].webContents;
+      page.sendInputEvent({
+        type: 'keyDown',
+        keyCode: key,
+        modifiers: ['control'],
+      });
+      page.sendInputEvent({
+        type: 'keyUp',
+        keyCode: key,
+        modifiers: ['control'],
+      });
+    }, keyCode);
+  const zoom = () =>
+    app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()[0].webContents.getZoomLevel(),
+    );
+  await ctrl('=');
+  await expect.poll(zoom).toBe(0.5);
+  await ctrl('=');
+  await ctrl('Plus');
+  await expect
+    .poll(zoom, { message: 'zoom stops before the columns shrink' })
+    .toBe(1);
+  await ctrl('-');
+  await expect.poll(zoom).toBe(0.5);
+  await ctrl('0');
+  await expect.poll(zoom).toBe(0);
+  await ctrl('=');
+  await ctrl('=');
+  await expect.poll(zoom).toBe(1);
+  await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()[0].setContentSize(1184, 681),
+  );
+  await expect
+    .poll(zoom, { message: 'the smallest window has no room to zoom in' })
+    .toBe(0);
+
+  expect(
     await win.evaluate(
       () => typeof (globalThis as { require?: unknown }).require,
     ),
@@ -178,6 +244,10 @@ test('a first run shows the empty state', async () => {
   const { win } = run;
   await expect(win.getByText('아직 과목이 없어요')).toBeVisible();
   await expect(
+    win.getByRole('button', { name: '과목 만들기', exact: true }),
+    'the sidebar offers one create button until a subject exists',
+  ).toHaveCount(1);
+  await expect(
     win.getByRole('heading', { name: '과목을 만들면 여기에 길이 생겨요' }),
   ).toBeVisible();
   const input = win.getByLabel('메시지');
@@ -200,6 +270,10 @@ test('creates a subject and streams two turns onto the screen', async () => {
   await expect(win.locator('.subject[aria-current="true"]')).toContainText(
     'SQLD',
   );
+  await expect(
+    win.getByRole('heading', { name: '오른쪽에서 첫 대화를 시작해 보세요' }),
+  ).toBeVisible();
+  await shot(win, 'm2-subject-empty');
 
   await win.getByRole('button', { name: '과목 만들기' }).click();
   await dialog.getByLabel('과목 이름').fill('sqld');
@@ -255,14 +329,22 @@ test('turns the conversation into a redacted card and grows the path', async () 
   const { win } = current();
   mock.pace.holdMs = 5_000;
   await makeButton(win).click();
-  await expect(
-    win.getByRole('button', { name: '카드 만드는 중…' }),
-  ).toBeDisabled();
-  await expect(win.getByRole('status')).toContainText('경험 카드를 만드는 중…');
+  const head = win.locator('.chat-head');
+  await expect(head.getByRole('status')).toHaveText('카드 만드는 중…');
+  await expect(makeButton(win)).toHaveCount(0);
+  await expect(head.getByRole('button', { name: '새 대화' })).toHaveCount(0);
+  expect(
+    await head.locator('h2').evaluate((el) => el.scrollWidth <= el.clientWidth),
+    'the conversation title is not cut while its card is made',
+  ).toBe(true);
+  await expect(win.locator('.sidebar').getByRole('status')).toContainText(
+    '경험 카드를 만드는 중…',
+  );
   await expect(win.locator('.chip.making')).toContainText('카드 만드는 중');
   await shot(win, 'm3-card-making');
   await win.getByRole('button', { name: '취소' }).click();
   await expect(makeButton(win)).toBeEnabled();
+  await expect(head.getByRole('button', { name: '새 대화' })).toBeVisible();
   await expect(win.locator('.tile', { hasText: '진행 중' })).toBeVisible();
   await expect(cardView(win)).toHaveCount(0);
 
@@ -519,8 +601,11 @@ test('a conversation with nothing learned does not become a card', async () => {
   await win.locator('.tile', { hasText: '진행 중' }).click();
   await sendAndWait(win, `${TRIGGERS.noLearning} 그냥 인사만 할게요`);
   await makeButton(win).click();
-  const banner = win.getByRole('alert');
-  await expect(banner).toContainText('카드로 남길 학습 내용이 없어요');
+  // The chat head says it is making the card in a status of its own, so the banner is found by its words.
+  const banner = win
+    .getByRole('status')
+    .filter({ hasText: '카드로 남길 학습 내용이 없어요' });
+  await expect(banner).toBeVisible();
   await shot(win, 'm3-no-learning');
   await banner.getByRole('button', { name: '계속 대화하기' }).click();
   await expect(banner).toBeHidden();
@@ -580,7 +665,7 @@ test('the main screen fits a 1280 wide window', async () => {
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].setContentSize(1280, 800),
   );
-  await expect.poll(() => win.evaluate(() => window.innerWidth)).toBe(1280);
+  await expectWidth(win, 1280);
   expect(
     await win.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -1145,9 +1230,7 @@ test.describe('answer tables and folding panels', () => {
           BrowserWindow.getAllWindows()[0].setContentSize(w, 800),
         width,
       );
-      await expect
-        .poll(() => win.evaluate(() => window.innerWidth))
-        .toBe(width);
+      await expectWidth(win, width);
       for (const keys of [
         'Control+KeyB',
         'Control+Shift+KeyB',
@@ -1177,7 +1260,7 @@ test.describe('answer tables and folding panels', () => {
     const { win } = current();
     const duration = () =>
       appRoot(win).evaluate((el) => getComputedStyle(el).transitionDuration);
-    expect(await duration()).toBe('0.22s');
+    expect(await duration()).toBe('0.24s');
     await win.emulateMedia({ reducedMotion: 'reduce' });
     expect(await duration()).toBe('0s');
     expect(
@@ -1255,6 +1338,7 @@ test.describe('model picker, tool line and card progress on screen', () => {
     await shot(win, 'night-view2-model-picker');
     await win.locator('.chat .composer').screenshot({
       path: path.join(shots, 'night-view2-model-picker-row.png'),
+      scale: 'css',
     });
 
     await win.getByRole('button', { name: '새 대화' }).click();
@@ -1286,7 +1370,7 @@ test.describe('model picker, tool line and card progress on screen', () => {
       const observer = new MutationObserver(() => {
         const tile = document.querySelector('.node:has(.chip.making) .tile');
         const text = tile?.textContent ?? '';
-        note('title', tile?.querySelector('h3')?.textContent === c.title);
+        note('title', tile?.querySelector('h2')?.textContent === c.title);
         note('summary', text.includes(c.summary));
         note('interview_line', text.includes(c.interview_line));
         note('card', !!document.querySelector('section.pin .pin-rate'));
@@ -1303,7 +1387,7 @@ test.describe('model picker, tool line and card progress on screen', () => {
     mock.pace.holdMs = 1_500;
     await makeButton(win).click();
     const tile = makingTile(win);
-    await expect(tile.locator('h3')).toHaveText(card.title);
+    await expect(tile.locator('h2')).toHaveText(card.title);
     await expect(tile).toContainText(card.summary);
     await expect(tile.locator('.line-box')).toContainText(card.interview_line);
     const item = win

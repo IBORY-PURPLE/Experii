@@ -1,4 +1,5 @@
 import type { ToolCallView, ToolEvent } from '../shared/ipc';
+import { Search } from './icons';
 
 export type ToolLine = {
   label: string;
@@ -60,17 +61,7 @@ export function ToolLines(p: { lines: ToolLine[] }) {
           {t.status === 'running' ? (
             <i className="spin" aria-hidden />
           ) : (
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.4}
-              strokeLinecap="round"
-              aria-hidden
-            >
-              <circle cx="11" cy="11" r="6.5" />
-              <path d="M16 16l4 4" />
-            </svg>
+            <Search />
           )}
           <span>{toolLineText(t)}</span>
         </div>

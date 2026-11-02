@@ -1,0 +1,187 @@
+/* The middle's third of the 64px header band: back and forward, the subject's roadmap, then one tab per note page.
+   A tab is two lines like the other heads, a 24px title over a 20px label inside 4px of padding (a 52px chip), so its
+   words sit on the band's lines. Everything hangs from the top, as in the other heads. */
+.tabbar {
+  --tab-h: calc(var(--lh-24) + var(--lh-20) + var(--sp-2));
+
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  height: var(--band);
+  padding: calc(var(--band-pad) - var(--sp-1)) var(--sp-3) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-main);
+}
+
+.tab-nav {
+  display: flex;
+  flex: none;
+  gap: var(--sp-1);
+  margin: calc((var(--tab-h) - var(--h-28)) / 2) var(--sp-2) 0 0;
+}
+
+.tab-new {
+  flex: none;
+  margin: calc((var(--tab-h) - var(--h-28)) / 2) 0 0 var(--sp-1);
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex: none;
+}
+
+.tab.road {
+  min-width: var(--w-tab-road);
+}
+
+.tab.page {
+  min-width: var(--w-tab);
+  max-width: var(--w-tab-max);
+}
+
+.tab-main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: var(--sp-4) minmax(0, 1fr);
+  grid-template-rows: var(--lh-24) var(--lh-20);
+  column-gap: var(--sp-2);
+  min-width: 0;
+  height: var(--tab-h);
+  padding: var(--sp-1) var(--sp-3);
+  border: 0;
+  border-radius: var(--r-2);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.tab.page .tab-main {
+  padding-right: calc(var(--sp-8) + var(--sp-1));
+}
+
+.tab-main:hover {
+  background: var(--wash);
+}
+
+/* The tab in front is lifted like the chosen row in the sidebar: a white face, a ring, a shadow and weight 500. */
+.tab.active .tab-main {
+  background: var(--surface);
+  box-shadow: var(--ring), var(--sh-1);
+}
+
+.tab.active .tab-title {
+  font-weight: var(--fw-2);
+}
+
+/* The strip sits on the window's inner edge, so a ring goes inside. */
+.tab-main:focus-visible {
+  outline-offset: -2px;
+}
+
+@media (forced-colors: active) {
+  .tab.active .tab-main {
+    border: 1px solid;
+  }
+}
+
+.tab-icon {
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+.tab-title {
+  grid-row: 1;
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-label {
+  grid-row: 2;
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A page's knob from the path in miniature, in the grey of the tab's other marks: filled once it is a card, a ring
+   while it is in progress. The blue places stay on the path. */
+.mini-knob {
+  display: inline-block;
+  flex: none;
+  width: var(--sp-3);
+  height: var(--sp-3);
+  border-radius: var(--r-pill);
+}
+
+.mini-knob.done {
+  background: var(--ink-3);
+}
+
+.mini-knob.now {
+  border: 2px solid var(--ink-3);
+  background: var(--surface);
+}
+
+.tab-close {
+  position: absolute;
+  top: calc((var(--tab-h) - var(--h-24)) / 2);
+  right: var(--sp-2);
+  display: grid;
+  place-items: center;
+  width: var(--h-24);
+  height: var(--h-24);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-2);
+  background: none;
+  color: var(--ink-3);
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-out);
+}
+
+.tab-close:hover {
+  background: var(--wash-2);
+  color: var(--ink);
+}
+
+.tab:hover .tab-close,
+.tab.active .tab-close,
+.tab-close:focus-visible {
+  opacity: 1;
+}
+
+.tab-sep {
+  flex: none;
+  width: 1px;
+  height: var(--lh-24);
+  margin: calc((var(--tab-h) - var(--lh-24)) / 2) var(--sp-1) 0;
+  background: var(--line-2);
+}
+
+/* The page tabs scroll sideways past eight, with no bar. The strip's padding gives the lifted tab's ring and shadow
+   room, and the negative margin keeps the tabs where they were. */
+.tabs {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  min-width: 0;
+  margin-block: calc(var(--sp-1) * -1);
+  padding-block: var(--sp-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}

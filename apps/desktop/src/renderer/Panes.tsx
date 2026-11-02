@@ -110,7 +110,7 @@ export function PaneToggle(p: { panel: Panel; onFold(): void }) {
   return (
     <button
       id={toggle}
-      className="pane-toggle"
+      className="icon-btn ghost pane-toggle"
       aria-label={`${LABEL[p.panel]} 접기`}
       title={`${LABEL[p.panel]} 접기 (${SHORTCUT[p.panel]})`}
       aria-expanded

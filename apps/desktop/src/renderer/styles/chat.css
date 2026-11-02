@@ -1,0 +1,525 @@
+.chat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+}
+
+/* The header band shared with the sidebar head and the stat bar: the title on line 1 (10–34px), its label on line 2 (34–54px).
+   Everything hangs from the top, so a hairline that rounds to a fraction of a pixel at 125% or 150% moves nothing.
+   The fold button ends the row and is a 28px icon button, so the head keeps room for a whole title while a card is made. */
+.chat-head {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  height: var(--band);
+  padding: var(--band-pad) var(--sp-2) 0 var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.chat-head .ttl {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-head h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-head .ttl p {
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The actions span both text lines, so the 32px buttons centre on them, at 16–48px. */
+.chat-head .actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--sp-2);
+  height: calc(var(--lh-24) + var(--lh-20));
+}
+
+.chat-head .actions .btn {
+  height: var(--h-32);
+}
+
+/* While a card is being made the head says so in quiet text beside 취소, as the path tile and the sidebar row do. */
+.chat-head .head-status {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  white-space: nowrap;
+}
+
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-4) var(--sp-5) var(--sp-6);
+}
+
+/* The list takes keyboard focus to scroll; the column ends at the window edge, so its ring sits inside. */
+.messages:focus-visible {
+  outline-offset: -2px;
+}
+
+.messages .day {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.messages .day::before,
+.messages .day::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--line);
+}
+
+.msg-user,
+.msg-ai {
+  margin-bottom: var(--sp-5);
+}
+
+.messages > :last-child {
+  margin-bottom: 0;
+}
+
+.msg-user {
+  width: fit-content;
+  max-width: 80%;
+  margin-left: auto;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-3) var(--r-3) var(--r-1);
+  background: var(--wash-2);
+  white-space: pre-wrap;
+}
+
+.msg-ai {
+  position: relative;
+  line-height: 1.6;
+}
+
+/* Answers carry no visible name; screen readers still hear who is speaking. */
+.msg-ai .who {
+  position: absolute;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Neither the hidden name nor the tool lines are the answer's words, so picking words never takes them along. */
+.msg-ai .who,
+.msg-ai .tool-lines {
+  user-select: none;
+}
+
+/* A tool call the answer made, one quiet chip above the text it led to. A running one has a spinner and a failed one
+   reads in the error colour; the chip itself stays grey. */
+.tool-lines {
+  display: grid;
+  justify-items: start;
+  gap: var(--sp-1);
+  margin: 0 0 var(--sp-2);
+}
+
+.tool-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  max-width: 100%;
+  height: var(--h-24);
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--wash-3);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+}
+
+.tool-line.running {
+  color: var(--ink-2);
+}
+
+.tool-line.error {
+  color: var(--err);
+}
+
+.tool-line span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-line svg {
+  flex: none;
+}
+
+:where(.md) :where(p, ul, ol, pre, blockquote, hr, h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+}
+
+.md > * + * {
+  margin-top: var(--sp-3);
+}
+
+.md > :is(h1, h2, h3, h4, h5, h6) + * {
+  margin-top: var(--sp-1);
+}
+
+.md > * + :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: var(--sp-5);
+}
+
+.md :is(h1, h2, h3, h4, h5, h6) {
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  line-height: 1.5;
+}
+
+.md strong {
+  font-weight: var(--fw-3);
+}
+
+.md :is(ul, ol) {
+  padding-left: var(--sp-5);
+}
+
+.md li + li {
+  margin-top: var(--sp-1);
+}
+
+.md li > :is(ul, ol),
+.md
+  li
+  > :is(p, ul, ol, .md-code, blockquote)
+  + :is(p, ul, ol, .md-code, blockquote) {
+  margin-top: var(--sp-2);
+}
+
+.md ul > li::marker {
+  color: var(--ink-4);
+}
+
+.md ol > li::marker {
+  color: var(--ink-3);
+}
+
+.md code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+}
+
+.md :not(pre) > code {
+  padding: calc(var(--sp-1) / 4) var(--sp-1);
+  border-radius: var(--r-1);
+  background: var(--wash-2);
+}
+
+/* A code block keeps its lines as written, since SQL reads by its layout: a long line scrolls inside the block
+   instead of wrapping, and the language, when the fence names one, heads it. */
+.md-code {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--wash-3);
+}
+
+.md-code-lang {
+  padding: var(--sp-1) var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+  user-select: none;
+}
+
+.md pre {
+  padding: var(--sp-2) var(--sp-3);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  line-height: 1.5;
+  tab-size: 2;
+}
+
+/* A result set scrolls inside its own box, so a wide table never widens the chat column. Values such as 2024-01-08
+   stay on one line in fixed-width figures; only cells with spaces in them wrap. */
+.md-table {
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+}
+
+.md-table:focus-visible {
+  outline-offset: -2px;
+}
+
+.md table {
+  border-collapse: collapse;
+  font-size: var(--fs-13);
+}
+
+.md th,
+.md td {
+  padding: var(--sp-1) var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.md th + th,
+.md td + td {
+  border-left: 1px solid var(--line);
+}
+
+.md th {
+  background: var(--wash-3);
+  font-weight: var(--fw-3);
+  white-space: nowrap;
+}
+
+.md td {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.md td.wrap {
+  min-width: 10em;
+  font-family: var(--font);
+  white-space: normal;
+}
+
+.md tbody tr:nth-child(even) td {
+  background: var(--wash-3);
+}
+
+.md tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.md td.null {
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.md .contains-task-list {
+  padding-left: var(--sp-1);
+  list-style: none;
+}
+
+.md .task-list-item input {
+  margin: 0 var(--sp-2) 0 0;
+}
+
+.md .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.md blockquote {
+  padding-left: var(--sp-3);
+  border-left: 1px solid var(--line-2);
+  color: var(--ink-2);
+}
+
+.md hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.cursor {
+  display: inline-block;
+  width: var(--sp-2);
+  height: var(--sp-4);
+  vertical-align: text-bottom;
+  background: var(--ink);
+  animation: blink 1s steps(2) infinite;
+}
+
+.md .cursor {
+  margin-left: var(--sp-1);
+}
+
+.banner {
+  flex: none;
+  margin: 0 var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--ring), var(--sh-1);
+}
+
+.banner b {
+  display: block;
+  font-weight: var(--fw-3);
+}
+
+.banner.err b {
+  color: var(--err);
+}
+
+.banner p {
+  margin: var(--sp-1) 0 0;
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+}
+
+.banner .actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+/* Windows high contrast drops the banner's ring and shadow, so it takes a real edge there. */
+@media (forced-colors: active) {
+  .banner {
+    border: 1px solid;
+  }
+}
+
+.composer {
+  flex: none;
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.inputbox {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);
+  border: 1px solid var(--ink-4);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-1);
+}
+
+/* The ring hugs the edge like .input; the send button keeps its own ring when it has focus. */
+.inputbox:has(textarea:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: -1px;
+}
+
+.inputbox:has(textarea:disabled) {
+  border-color: var(--line-2);
+  background: var(--wash-3);
+  box-shadow: none;
+}
+
+.inputbox textarea {
+  flex: 1;
+  min-width: 0;
+  height: calc(var(--h-44) + var(--sp-1));
+  padding: var(--sp-1) 0 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: none;
+}
+
+.inputbox textarea:disabled {
+  cursor: not-allowed;
+}
+
+.send {
+  width: var(--h-32);
+  height: var(--h-32);
+}
+
+.inputbox:has(textarea:disabled) .send {
+  background: transparent;
+}
+
+.plan-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-1) 0;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.plan-row .plan {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-row .link {
+  flex: none;
+  margin-left: auto;
+}
+
+/* The model of the open conversation, chosen from the list the account offers; with one model only it stays shut. */
+.model-select {
+  min-width: 0;
+  max-width: calc(var(--sp-10) * 4);
+  height: var(--h-28);
+  padding: 0 var(--sp-1) 0 var(--sp-2);
+  border: 1px solid var(--ink-4);
+  border-radius: var(--r-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: var(--fw-2);
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+
+.model-select:hover:not(:disabled) {
+  background: var(--wash-3);
+  color: var(--ink);
+}
+
+.model-select:disabled {
+  border-color: var(--line-2);
+  background: var(--wash-3);
+  color: var(--ink-3);
+  cursor: default;
+}
+
+/* Words picked from an answer offer this button beside them, for those who would rather not drag. It is a small
+   bordered button that floats over the answer, so it takes the popover's shadow. */
+.addnote {
+  position: absolute;
+  z-index: 7;
+  padding: 0 var(--sp-3) 0 var(--sp-2);
+  box-shadow: var(--sh-3);
+}
+
+/* Words already kept as notes are marked in the answers in grey, without touching the answer's DOM. */
+::highlight(noted) {
+  background-color: var(--wash-2);
+}

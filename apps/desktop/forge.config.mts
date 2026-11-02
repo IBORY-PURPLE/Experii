@@ -10,10 +10,18 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: 'assets/icon',
+    appCopyright: '© 2026 Experii',
+    win32metadata: {
+      CompanyName: 'Experii',
+      FileDescription: 'Experii',
+      ProductName: 'Experii',
+    },
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    // No iconUrl yet: Squirrel needs a public URL for the Apps and Features icon, and there is none.
+    new MakerSquirrel({ name: 'experii', setupIcon: 'assets/icon.ico' }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({}),

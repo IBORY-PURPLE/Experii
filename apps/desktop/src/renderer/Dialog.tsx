@@ -1,32 +1,105 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
+
+const FOCUSABLE = [
+  'button:not(:disabled)',
+  'input:not(:disabled)',
+  'textarea:not(:disabled)',
+  'select:not(:disabled)',
+  'a[href]',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
+
+const focusables = (root: HTMLElement) =>
+  [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+    (el) => el.getClientRects().length > 0,
+  );
 
 export function Dialog(p: {
   title: string;
+  description: ReactNode;
   children?: ReactNode;
   onClose(): void;
   actions: ReactNode;
 }) {
+  const titleId = useId();
+  const descId = useId();
+  const panel = useRef<HTMLDivElement>(null);
+  // Read during the first render, before anything inside takes focus, so closing can hand focus back to the opener.
+  const [opener] = useState(() => document.activeElement);
+  const onClose = useRef(p.onClose);
+  onClose.current = p.onClose;
+
   useEffect(() => {
+    const el = panel.current;
+    if (el && !el.contains(document.activeElement)) {
+      const first =
+        el.querySelector<HTMLElement>('[data-autofocus]') ?? focusables(el)[0];
+      (first ?? el).focus();
+    }
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') p.onClose();
+      if (e.key === 'Escape' && !e.isComposing) onClose.current();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [p.onClose]);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+    };
+  }, [opener]);
+
+  const keepTabInside = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Tab') return;
+    const items = focusables(e.currentTarget);
+    const first = items[0];
+    const last = items.at(-1);
+    if (!first || !last) {
+      e.preventDefault();
+      return;
+    }
+    const active = document.activeElement;
+    const leaving = e.shiftKey
+      ? active === first || active === e.currentTarget
+      : active === last;
+    if (leaving) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    }
+  };
+
   return (
     <div
       className="overlay"
-      onMouseDown={(e) => e.target === e.currentTarget && p.onClose()}
+      onMouseDown={(e) => {
+        if (e.target !== e.currentTarget) return;
+        // Without this the press would blur the opener right after focus returns to it.
+        e.preventDefault();
+        p.onClose();
+      }}
     >
       <div
+        ref={panel}
         className="dialog"
         role="dialog"
         aria-modal="true"
-        aria-label={p.title}
+        aria-labelledby={titleId}
+        aria-describedby={descId}
+        tabIndex={-1}
+        onKeyDown={keepTabInside}
       >
-        <h2>{p.title}</h2>
+        <h2 id={titleId} className="dialog-title">
+          {p.title}
+        </h2>
+        <p id={descId} className="dialog-desc">
+          {p.description}
+        </p>
         {p.children}
-        <div className="row">{p.actions}</div>
+        <div className="dialog-actions">{p.actions}</div>
       </div>
     </div>
   );
@@ -39,8 +112,8 @@ export function NewSubjectDialog(p: {
   const [title, setTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const input = useRef<HTMLInputElement>(null);
-  useEffect(() => input.current?.focus(), []);
+  const inputId = useId();
+  const errorId = useId();
   const submit = async () => {
     if (!title.trim() || busy) return;
     setBusy(true);
@@ -50,6 +123,7 @@ export function NewSubjectDialog(p: {
   return (
     <Dialog
       title="새 과목"
+      description="대화와 경험 카드는 과목별로 쌓여요."
       onClose={p.onClose}
       actions={
         <>
@@ -66,19 +140,30 @@ export function NewSubjectDialog(p: {
         </>
       }
     >
-      <p>대화와 경험 카드는 과목별로 쌓여요.</p>
-      <input
-        ref={input}
-        aria-label="과목 이름"
-        placeholder="예: SQLD, 운영체제"
-        maxLength={40}
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.nativeEvent.isComposing) void submit();
-        }}
-      />
-      {error && <p className="err-text">{error}</p>}
+      <div className="dialog-field">
+        <label className="dialog-label" htmlFor={inputId}>
+          과목 이름
+        </label>
+        <input
+          id={inputId}
+          className="input"
+          data-autofocus
+          placeholder="예: SQLD, 운영체제"
+          maxLength={40}
+          value={title}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.nativeEvent.isComposing) void submit();
+          }}
+        />
+      </div>
+      {error && (
+        <p id={errorId} className="err-text" role="alert">
+          {error}
+        </p>
+      )}
     </Dialog>
   );
 }
@@ -87,10 +172,12 @@ export function RegenerateDialog(p: { onConfirm(): void; onClose(): void }) {
   return (
     <Dialog
       title="카드를 다시 만들까요?"
+      // The no-break space keeps 이 with 대화가 so the first line never ends on it.
+      description="지금 카드를 새로 만든 카드로 덮어써요. 매긴 평가는 지워지고, 이&nbsp;대화가 과목의 최신 대화면 잠긴 추천 칸도 새로 바뀌어요."
       onClose={p.onClose}
       actions={
         <>
-          <button className="btn" onClick={p.onClose} autoFocus>
+          <button className="btn" onClick={p.onClose} data-autofocus>
             취소
           </button>
           <button className="btn primary" onClick={p.onConfirm}>
@@ -98,11 +185,6 @@ export function RegenerateDialog(p: { onConfirm(): void; onClose(): void }) {
           </button>
         </>
       }
-    >
-      <p>
-        지금 카드를 새로 만든 카드로 덮어써요. 매긴 평가는 지워지고, 이 대화가
-        과목의 최신 대화면 잠긴 추천 칸도 새로 바뀌어요.
-      </p>
-    </Dialog>
+    />
   );
 }

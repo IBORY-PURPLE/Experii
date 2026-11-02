@@ -47,7 +47,7 @@ export function TabBar(p: Props) {
     <div className="tabbar">
       <div className="tab-nav">
         <button
-          className="nav-btn"
+          className="icon-btn ghost"
           aria-label="뒤로"
           title="뒤로 (Alt+←)"
           disabled={!p.canBack}
@@ -56,7 +56,7 @@ export function TabBar(p: Props) {
           <ArrowLeft />
         </button>
         <button
-          className="nav-btn"
+          className="icon-btn ghost"
           aria-label="앞으로"
           title="앞으로 (Alt+→)"
           disabled={!p.canForward}
@@ -75,7 +75,7 @@ export function TabBar(p: Props) {
           <span className="tab-icon">
             <Road />
           </span>
-          <span className="tab-title">{p.subjectTitle}</span>
+          <span className="tab-title band-title">{p.subjectTitle}</span>
           <span className="tab-label">로드맵</span>
         </button>
       </div>
@@ -103,7 +103,7 @@ export function TabBar(p: Props) {
                 <span className="tab-icon">
                   <MiniKnob done={t.done} />
                 </span>
-                <span className="tab-title">{t.title}</span>
+                <span className="tab-title band-title">{t.title}</span>
                 <span className="tab-label">
                   필기 {t.notes}개 · {t.state}
                 </span>
@@ -121,7 +121,7 @@ export function TabBar(p: Props) {
         })}
       </div>
       <button
-        className="nav-btn tab-new"
+        className="icon-btn ghost tab-new"
         aria-label="새로운 대화 시작"
         title="새로운 대화 시작 (채팅 머리의 [새 대화]와 같아요)"
         onClick={p.onNew}

@@ -14,6 +14,7 @@ import { carriesNote, draggedPick, readDrop, type Pick } from './collect';
 import { rateLabel } from './format';
 import {
   ArrowRight,
+  Check,
   ChevronDown,
   Close,
   Hand,
@@ -70,8 +71,8 @@ type Props = {
 
 // Only selecting and moving the view for now: notes written by the user are outside the PRD (ai.md 3.6, 22:55).
 const TOOLS: Array<{ id: Tool; label: string; icon: ReactNode }> = [
-  { id: 'select', label: '선택', icon: <Pointer /> },
-  { id: 'hand', label: '손 (화면 이동)', icon: <Hand /> },
+  { id: 'select', label: '선택', icon: <Pointer size={20} /> },
+  { id: 'hand', label: '손 (화면 이동)', icon: <Hand size={20} /> },
 ];
 
 const typing = (t: EventTarget | null) =>
@@ -186,20 +187,24 @@ function Pin(p: {
       {card && !making && (
         <div className="pin-rate" role="group" aria-label="면접에 쓸 만한가요?">
           <p>면접에 쓸 만한가요?</p>
-          <button
-            className={`btn small${card.useful === true ? ' yes' : ''}`}
-            aria-pressed={card.useful === true}
-            onClick={() => p.onRate(true)}
-          >
-            쓸 만해요
-          </button>
-          <button
-            className={`btn small${card.useful === false ? ' no' : ''}`}
-            aria-pressed={card.useful === false}
-            onClick={() => p.onRate(false)}
-          >
-            아니에요
-          </button>
+          <div className="pin-rate-actions">
+            <button
+              className="btn small"
+              aria-pressed={card.useful === true}
+              onClick={() => p.onRate(true)}
+            >
+              {card.useful === true && <Check />}
+              쓸 만해요
+            </button>
+            <button
+              className="btn small"
+              aria-pressed={card.useful === false}
+              onClick={() => p.onRate(false)}
+            >
+              {card.useful === false && <Check />}
+              아니에요
+            </button>
+          </div>
         </div>
       )}
     </section>
@@ -218,7 +223,7 @@ function Next(p: {
       <header className="next-head">
         <h2 id="next-title">다음 공부 정하기</h2>
         <button
-          className="icon-ghost"
+          className="icon-btn ghost"
           aria-label="다음 공부 닫기"
           onClick={p.onClose}
         >
@@ -637,7 +642,7 @@ export function NotePage(p: Props) {
       </div>
       {p.notes?.length === 0 && (
         <div className="board-empty">
-          <Page />
+          <Page size={24} />
           {p.page.saved ? (
             <>
               <b>아직 필기가 없어요</b>
@@ -699,7 +704,7 @@ export function NotePage(p: Props) {
       </div>
       <div className="zoom" role="group" aria-label="확대와 축소">
         <button
-          className="icon-ghost"
+          className="icon-btn ghost"
           aria-label="축소"
           onClick={() => zoomBy(1 / 1.25)}
         >
@@ -713,7 +718,7 @@ export function NotePage(p: Props) {
           {Math.round(view.z * 100)}%
         </button>
         <button
-          className="icon-ghost"
+          className="icon-btn ghost"
           aria-label="확대"
           onClick={() => zoomBy(1.25)}
         >

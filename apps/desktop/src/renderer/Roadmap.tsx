@@ -4,8 +4,8 @@ import type {
   LockedNode,
   Roadmap as RoadmapData,
 } from '../shared/ipc';
-import { rateLabel } from './format';
-import { Check, Lock, Page } from './icons';
+import { rateChip, rateLabel } from './format';
+import { Check, Dots, Lock, Page } from './icons';
 
 type Props = {
   roadmap: RoadmapData;
@@ -20,11 +20,16 @@ type Props = {
 
 export function LockedBubble(p: { node: LockedNode; onStart(): void }) {
   return (
-    <div className="bubble" role="group" aria-label="GPT가 추천한 다음 공부">
-      <small>GPT가 추천한 다음 공부</small>
+    <div
+      className="bubble"
+      id={`bubble-${p.node.id}`}
+      role="group"
+      aria-label="GPT가 추천한 다음 공부"
+    >
       <b>{p.node.title}</b>
+      <small>GPT가 추천한 다음 공부</small>
       <p>{p.node.reason}</p>
-      <button className="btn small primary" onClick={p.onStart}>
+      <button className="btn small" onClick={p.onStart}>
         이걸로 시작
       </button>
     </div>
@@ -56,34 +61,47 @@ export function Roadmap(p: Props) {
   return (
     <>
       <header className="statbar">
-        <div className="subject-title">
-          <small>과목</small>
-          <b>{subject.title}</b>
-        </div>
-        <div className="stat">
-          <b>{stats.cards}</b>
-          <span>쌓인 경험</span>
-        </div>
-        <div className="stat">
-          <b>
-            {stats.useful}/{stats.rated}
-          </b>
-          <span>쓸 만해요</span>
-          <div className="bar" aria-label={`쓸 만해요 비율 ${pct}%`}>
-            <i style={{ width: `${pct}%` }} />
+        <div className="stats">
+          <div className="subject-title">
+            <small>과목</small>
+            <h1 className="band-title">{subject.title}</h1>
           </div>
-        </div>
-        <div className="stat">
-          <b>{stats.unrated}</b>
-          <span>평가 전</span>
+          <div className="stat">
+            <b className="band-title">{stats.cards}</b>
+            <span>쌓인 경험</span>
+          </div>
+          <div className="stat">
+            <b className="band-title">
+              {stats.useful}/{stats.rated}
+            </b>
+            <span>쓸 만해요</span>
+            <div
+              className="bar"
+              role="img"
+              aria-label={`쓸 만해요 비율 ${pct}%`}
+            >
+              <i style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+          <div className="stat">
+            <b className="band-title">{stats.unrated}</b>
+            <span>평가 전</span>
+          </div>
         </div>
       </header>
       {nodes.length === 0 ? (
         <div className="path-empty">
-          <h2>오른쪽에서 첫 대화를 시작해 보세요</h2>
-          <p>
-            대화를 마치고 “경험으로 남기기”를 누르면 이 길에 경험 칸이 생겨요.
-          </p>
+          <div className="ghost-path" aria-hidden>
+            <span />
+            <span />
+            <span />
+          </div>
+          <div>
+            <h2>오른쪽에서 첫 대화를 시작해 보세요</h2>
+            <p>
+              대화를 마치고 “경험으로 남기기”를 누르면 이 길에 경험 칸이 생겨요.
+            </p>
+          </div>
         </div>
       ) : (
         <ol className="path">
@@ -92,13 +110,19 @@ export function Roadmap(p: Props) {
               const making = n.conversationId === p.makingConversationId;
               const fill = making ? p.makingFields : null;
               return (
-                <li key={n.cardId} className="node" id={`node-${n.cardId}`}>
+                <li
+                  key={n.cardId}
+                  className="node"
+                  data-kind="done"
+                  id={`node-${n.cardId}`}
+                >
                   <button
                     className="knob"
+                    tabIndex={-1}
                     onClick={() => p.onOpenPage(n.conversationId)}
                     aria-label={`${n.title} 필기 페이지 열기`}
                   >
-                    <Check />
+                    <Check size={24} />
                   </button>
                   <button
                     className="tile"
@@ -106,16 +130,14 @@ export function Roadmap(p: Props) {
                     onClick={() => p.onOpenPage(n.conversationId)}
                   >
                     <div className="tile-head">
-                      <h3>{fill?.title ?? n.title}</h3>
+                      <h2>{fill?.title ?? n.title}</h2>
                       {making ? (
                         <span className="chip making">
                           <i className="spin" aria-hidden />
                           다시 만드는 중
                         </span>
                       ) : (
-                        <span
-                          className={`chip ${n.useful === true ? 'useful' : n.useful === null ? 'unrated' : ''}`}
-                        >
+                        <span className={`chip ${rateChip(n.useful)}`}>
                           {rateLabel(n.useful)}
                         </span>
                       )}
@@ -134,13 +156,15 @@ export function Roadmap(p: Props) {
               const making = n.conversationId === p.makingConversationId;
               const fill = making ? p.makingFields : null;
               return (
-                <li key={n.conversationId} className="node">
+                <li key={n.conversationId} className="node" data-kind="current">
+                  {/* The tile beside it does the same, so the keyboard stops there only. */}
                   <button
                     className="knob current"
+                    tabIndex={-1}
                     onClick={() => p.onOpenPage(n.conversationId)}
                     aria-label={`${n.title} 필기 페이지 열기`}
                   >
-                    …
+                    <Dots size={24} />
                   </button>
                   <button
                     className="tile"
@@ -148,7 +172,7 @@ export function Roadmap(p: Props) {
                     onClick={() => p.onOpenPage(n.conversationId)}
                   >
                     <div className="tile-head">
-                      <h3>{fill?.title ?? n.title}</h3>
+                      <h2>{fill?.title ?? n.title}</h2>
                       {making ? (
                         <span className="chip making">
                           <i className="spin" aria-hidden />
@@ -175,23 +199,31 @@ export function Roadmap(p: Props) {
             }
             const open = n.id === p.openLockedId;
             return (
-              <li key={n.id} className="node" id={`node-${n.id}`}>
+              <li
+                key={n.id}
+                className="node"
+                data-kind="locked"
+                id={`node-${n.id}`}
+              >
                 <button
                   className="knob locked"
+                  tabIndex={-1}
                   onClick={() => p.onOpenLocked(n)}
                   aria-label={`${n.title} 추천 보기`}
                   aria-expanded={open}
+                  aria-controls={open ? `bubble-${n.id}` : undefined}
                 >
-                  <Lock />
+                  <Lock size={20} />
                 </button>
                 <div>
                   <button
                     className="tile locked"
                     aria-expanded={open}
+                    aria-controls={open ? `bubble-${n.id}` : undefined}
                     onClick={() => p.onOpenLocked(n)}
                   >
                     <div className="tile-head">
-                      <h3>{n.title}</h3>
+                      <h2>{n.title}</h2>
                       <span className="chip">추천 · 잠김</span>
                     </div>
                   </button>

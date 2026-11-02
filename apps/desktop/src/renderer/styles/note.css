@@ -1,0 +1,628 @@
+/* A note page: a dot grid the user pans and zooms, the card's summary pinned over it, the next study panel, tools and
+   zoom floating at the edges. Nothing here is blue and nothing is filled with ink: the page holds what the user kept,
+   and the blue places stay on the path. */
+.board {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* The dots are a pattern on the ground, not depth. --dot, --px and --py follow the view (NotePage.tsx). */
+.canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--bg-main);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--line-2) 1px,
+    transparent 1.5px
+  );
+  background-size: var(--dot) var(--dot);
+  background-position: var(--px) var(--py);
+  touch-action: none;
+}
+
+/* The canvas takes keyboard focus for the notes on it and ends at the page's edge, so its ring sits inside. */
+.canvas:focus-visible {
+  outline-offset: -2px;
+}
+
+.canvas.tool-hand,
+.canvas.space {
+  cursor: grab;
+}
+
+.canvas.panning,
+.canvas.panning * {
+  cursor: grabbing !important;
+}
+
+.world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+
+.sticky {
+  position: absolute;
+  display: grid;
+  gap: var(--sp-2);
+  width: var(--w-note);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+  user-select: none;
+  touch-action: none;
+}
+
+.canvas.tool-select .sticky {
+  cursor: grab;
+}
+
+/* The note under the pointer is lifted above the rest; the inline z-index is its layer, hence !important. */
+.sticky.moving {
+  z-index: 10000 !important;
+  box-shadow: var(--sh-3);
+}
+
+.sticky-text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.sticky-src {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  height: var(--h-24);
+  margin: 0 0 0 calc(var(--sp-2) * -1);
+  padding: 0 var(--sp-2);
+  border: 0;
+  border-radius: var(--r-2);
+  background: none;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+
+.sticky-src:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+
+.sticky-del {
+  position: absolute;
+  top: calc(var(--sp-3) * -1);
+  right: calc(var(--sp-3) * -1);
+  display: grid;
+  place-items: center;
+  width: var(--h-24);
+  height: var(--h-24);
+  padding: 0;
+  border: 1px solid var(--ink-4);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-2);
+  box-shadow: var(--sh-1);
+  opacity: 0;
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out);
+}
+
+.sticky-del:hover {
+  background: var(--wash-3);
+  color: var(--ink);
+}
+
+.sticky:hover .sticky-del,
+.sticky:focus-within .sticky-del {
+  opacity: 1;
+}
+
+/* A note lands where it was dropped and settles out of grey. */
+.sticky.flash {
+  animation:
+    land var(--dur-land) var(--ease-out),
+    settle var(--dur-settle) var(--ease-out);
+}
+
+@keyframes land {
+  from {
+    opacity: 0;
+    transform: translateY(var(--sp-2)) scale(0.97);
+  }
+}
+
+@keyframes settle {
+  from {
+    border-color: var(--ink-4);
+    background: var(--wash-2);
+  }
+}
+
+.board-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-10);
+  color: var(--ink-3);
+  text-align: center;
+  pointer-events: none;
+}
+
+.board-empty svg {
+  margin-bottom: var(--sp-2);
+  color: var(--ink-4);
+}
+
+.board-empty b {
+  color: var(--ink);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  line-height: var(--lh-24);
+}
+
+.board-empty p {
+  max-width: calc(var(--sp-10) * 9);
+  margin: 0;
+}
+
+/* The card's summary, pinned to the top-left of the page: the experience at a glance, rated without opening it. */
+.pin {
+  position: absolute;
+  top: var(--sp-4);
+  left: var(--sp-4);
+  z-index: 5;
+  width: var(--w-pin);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+}
+
+.pin.fresh {
+  animation: fresh var(--dur-settle) var(--ease-out);
+}
+
+@keyframes fresh {
+  from {
+    border-color: var(--ink-4);
+    background: var(--wash-2);
+  }
+}
+
+/* Open, the pin is the whole card in the corner. The card scrolls by itself when the page is short, and its arrow,
+   which points at a knob on the path, has nothing to point at here. */
+.pin.expanded {
+  display: flex;
+  flex-direction: column;
+  width: var(--w-pin-open);
+  max-height: calc(100% - var(--sp-10) * 2 - var(--sp-4));
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* The scroll padding keeps a focused button, and its ring, off the card's cut edge when the keyboard scrolls to it. */
+.pin.expanded .card-view {
+  min-height: 0;
+  overflow-y: auto;
+  scroll-padding: var(--sp-2);
+}
+
+.pin.expanded .card-view::before {
+  display: none;
+}
+
+.pin-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-3) 0 var(--sp-4);
+}
+
+.pin-head h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  line-height: var(--lh-24);
+}
+
+.pin-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--h-24);
+  height: var(--h-24);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-2);
+  background: none;
+  color: var(--ink-2);
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+
+.pin-toggle:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+
+.pin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0 var(--sp-4);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+}
+
+.pin-count {
+  color: var(--ink-2);
+  font-weight: var(--fw-2);
+}
+
+.pin-body {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+}
+
+.pin-summary {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.pin-label {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-2);
+}
+
+.pin-said {
+  margin: 0;
+  font-weight: var(--fw-2);
+}
+
+/* Dashed: the card is not there yet. */
+.pin-empty {
+  margin: var(--sp-3) var(--sp-4) var(--sp-4);
+  padding: var(--sp-3);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-2);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.pin-rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--line);
+}
+
+.pin-rate p {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: var(--fs-13);
+  font-weight: var(--fw-2);
+}
+
+.pin-rate-actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+
+/* Top right: deciding the next study. */
+.board-top {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  z-index: 6;
+  display: grid;
+  justify-items: end;
+}
+
+.btn.float {
+  box-shadow: var(--sh-1);
+}
+
+.next {
+  width: min(var(--w-next), calc(100cqw - var(--w-pin-open)));
+  min-width: var(--w-next-min);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-3);
+}
+
+.next-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-3) 0 var(--sp-4);
+}
+
+.next-head h2 {
+  margin: 0;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  line-height: var(--lh-24);
+}
+
+.next-lead {
+  margin: 0;
+  padding: var(--sp-1) var(--sp-4) var(--sp-3);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.recs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rec {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--line);
+}
+
+.rec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.rec-head b {
+  min-width: 0;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+}
+
+.rec-why {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+}
+
+.rec-why span {
+  color: var(--ink-3);
+}
+
+.next-foot {
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  border-top: 1px solid var(--line);
+}
+
+.btn.block {
+  width: 100%;
+}
+
+/* From here a narrow page cannot hold the card and the panel side by side (100cqw is the page's width): the card
+   keeps its head and gives up the rest until the panel closes. */
+@container (max-width: 711px) {
+  .board:has(.next) .pin:not(.expanded) :is(.pin-body, .pin-rate, .pin-empty) {
+    display: none;
+  }
+
+  .board:has(.next) .pin:not(.expanded) {
+    width: clamp(
+      var(--w-pin-min),
+      calc(100cqw - var(--w-next-min) - var(--sp-10) - var(--sp-3)),
+      var(--w-pin)
+    );
+    padding-bottom: var(--sp-3);
+  }
+}
+
+/* Bottom: the tools. A segmented control on the sidebar's grey, with the chosen tool lifted like the sidebar's row. */
+.toolbar {
+  position: absolute;
+  bottom: var(--sp-4);
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--bg-side);
+  box-shadow: var(--sh-3);
+  transform: translateX(-50%);
+}
+
+.tool {
+  display: grid;
+  place-items: center;
+  width: var(--h-36);
+  height: var(--h-36);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-2);
+  background: none;
+  color: var(--ink-2);
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.tool:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+
+.tool[aria-pressed='true'] {
+  background: var(--surface);
+  box-shadow: var(--ring), var(--sh-1);
+  color: var(--ink);
+}
+
+@media (forced-colors: active) {
+  .tool[aria-pressed='true'] {
+    border: 1px solid;
+  }
+}
+
+.zoom {
+  position: absolute;
+  right: var(--sp-4);
+  bottom: var(--sp-4);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+}
+
+.zoom .icon-btn {
+  width: var(--h-32);
+  height: var(--h-32);
+}
+
+.zoom-pct {
+  min-width: calc(var(--sp-10) + var(--sp-4));
+  height: var(--h-32);
+  padding: 0 var(--sp-2);
+  border: 0;
+  border-radius: var(--r-2);
+  background: none;
+  font-size: var(--fs-13);
+  font-weight: var(--fw-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.zoom-pct:hover {
+  background: var(--wash);
+}
+
+.hint {
+  position: absolute;
+  bottom: var(--sp-6);
+  left: var(--sp-4);
+  z-index: 4;
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  pointer-events: none;
+}
+
+@container (max-width: 760px) {
+  .hint {
+    display: none;
+  }
+}
+
+/* While words are dragged in: a dashed frame at the edge, the note-to-be under the pointer, and what letting go does.
+   Dashed, because the note is not there yet. */
+.dropzone {
+  position: absolute;
+  inset: var(--sp-1);
+  z-index: 8;
+  border: 2px dashed var(--ink-4);
+  border-radius: var(--r-2);
+  pointer-events: none;
+}
+
+.landing {
+  position: absolute;
+  z-index: 8;
+  border: 2px dashed var(--ink-3);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.droptag {
+  position: absolute;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: var(--h-32);
+  margin: 0;
+  padding: 0 var(--sp-3) 0 var(--sp-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+  font-size: var(--fs-13);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.droptag svg {
+  color: var(--ink-3);
+}
+
+.droptag b {
+  font-weight: var(--fw-2);
+}
+
+.droptag span {
+  color: var(--ink-3);
+}
+
+/* A short line at the bottom of the middle that comes and goes. It clears the tools on a note page. */
+.toast {
+  position: absolute;
+  bottom: calc(var(--sp-4) + var(--h-44) + var(--sp-4));
+  left: 50%;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--h-44);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-3);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  animation: toast-in var(--dur-3) var(--ease-out);
+}
+
+.toast:not(:has(button)) {
+  padding-right: var(--sp-4);
+}
+
+.roadmap-view ~ .toast {
+  bottom: var(--sp-6);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, var(--sp-2));
+  }
+}

@@ -80,7 +80,7 @@ const sidebar = (making: Parameters<typeof Sidebar>[0]['making']) =>
 describe('the tile of a card being made', () => {
   it('shows the conversation until a field arrives', () => {
     const out = roadmap('c-now', {});
-    expect(out).toContain('<h3>LEFT JOIN이 헷갈려요</h3>');
+    expect(out).toContain('<h2>LEFT JOIN이 헷갈려요</h2>');
     expect(out).toContain(
       '2턴 대화 중 · 마치면 “경험으로 남기기”를 눌러 주세요',
     );
@@ -89,7 +89,7 @@ describe('the tile of a card being made', () => {
 
   it('fills in the title, then the summary and the interview line', () => {
     const titled = roadmap('c-now', { title: '조인 결과를 직접 비교했다' });
-    expect(titled).toContain('<h3>조인 결과를 직접 비교했다</h3>');
+    expect(titled).toContain('<h2>조인 결과를 직접 비교했다</h2>');
     expect(titled).toContain('2턴 대화 중');
 
     const full = roadmap('c-now', {
@@ -104,7 +104,7 @@ describe('the tile of a card being made', () => {
 
   it('rewrites a done tile in place while its card is made again', () => {
     const out = roadmap('c-done', { title: '새 제목' });
-    expect(out).toContain('<h3>새 제목</h3>');
+    expect(out).toContain('<h2>새 제목</h2>');
     expect(out).toContain('<p>예전 요약</p>');
     expect(out).toContain('다시 만드는 중');
   });
@@ -112,7 +112,7 @@ describe('the tile of a card being made', () => {
   it('leaves other tiles alone', () => {
     const out = roadmap(null, { title: '새 제목' });
     expect(out).not.toContain('새 제목');
-    expect(out).toContain('<h3>예전 제목</h3>');
+    expect(out).toContain('<h2>예전 제목</h2>');
   });
 });
 
@@ -137,7 +137,9 @@ describe('the sidebar item of a card being made', () => {
       conversationId: 'c-now',
       title: 'LEFT JOIN이 헷갈려요',
     });
-    expect(out).toContain('<span class="t">LEFT JOIN이 헷갈려요</span>');
+    expect(out).toContain(
+      '<span class="t" title="LEFT JOIN이 헷갈려요">LEFT JOIN이 헷갈려요</span>',
+    );
     expect(out).not.toContain('class="sum"');
   });
 

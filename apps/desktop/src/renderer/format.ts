@@ -10,4 +10,8 @@ export function rateLabel(useful: boolean | null): string {
   return useful ? '쓸 만해요' : '아니에요';
 }
 
-export const SUBJECT_COLORS = ['#3d5a99', '#2f6f5e', '#a3325c', '#9a5b13'];
+// The chip modifier class that goes with rateLabel, shared by the path tiles and the open card.
+export function rateChip(useful: boolean | null): string {
+  if (useful === null) return 'unrated';
+  return useful ? 'useful' : 'not';
+}

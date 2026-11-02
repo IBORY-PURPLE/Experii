@@ -20,11 +20,12 @@ import { Markdown } from './Markdown';
 import { PaneToggle } from './Panes';
 import { ToolLines, savedLinesBefore, type ToolLine } from './ToolLines';
 
+// Banner actions are all secondary buttons, so a banner never adds a second filled button to the screen.
 export type Banner = {
   tone: 'err' | 'info';
   title: string;
   body: string;
-  actions: Array<{ label: string; run(): void; primary?: boolean }>;
+  actions: Array<{ label: string; run(): void }>;
 };
 
 type Props = {
@@ -36,6 +37,8 @@ type Props = {
   input: string;
   inputRef: RefObject<HTMLTextAreaElement | null>;
   headAction: ReactNode;
+  // The open conversation's card is being made: the head gives 새 대화's room to the title until it lands.
+  makingCard: boolean;
   modelPicker: ReactNode;
   onInput(text: string): void;
   onSend(): void;
@@ -67,6 +70,7 @@ export function ChatPanel(p: Props) {
   });
   useNotedMarks(scroller, p.noted, p.conversation?.messages, p.onOpenNote);
 
+  // A banner shortens the list too, so its arrival also brings the latest message back into view.
   useEffect(() => {
     const el = scroller.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -75,6 +79,7 @@ export function ChatPanel(p: Props) {
     p.streamingText,
     p.streamingTools.length,
     p.conversation?.id,
+    p.banner,
   ]);
 
   // Korean IME: Enter that confirms a syllable must not send the message.
@@ -89,20 +94,24 @@ export function ChatPanel(p: Props) {
     <section className="chat" aria-label="GPT 대화" ref={panel}>
       <header className="chat-head">
         <div className="ttl">
-          <small>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</small>
-          <b>{p.conversation?.title ?? '과목을 먼저 만들어 주세요'}</b>
+          <h2 className="band-title" title={p.conversation?.title}>
+            {p.conversation?.title ?? '과목을 먼저 만들어 주세요'}
+          </h2>
+          <p>{p.subjectTitle ? `${p.subjectTitle} · 대화` : '대화'}</p>
         </div>
-        {p.conversation && (
-          <button
-            className="btn small"
-            onClick={p.onNewConversation}
-            disabled={streaming}
-          >
-            새 대화
-          </button>
-        )}
-        {p.headAction}
-        <PaneToggle panel="chat" onFold={p.onFold} />
+        <div className="actions">
+          {p.conversation && !p.makingCard && (
+            <button
+              className="btn small"
+              onClick={p.onNewConversation}
+              disabled={streaming}
+            >
+              새 대화
+            </button>
+          )}
+          {p.headAction}
+          <PaneToggle panel="chat" onFold={p.onFold} />
+        </div>
       </header>
       <div
         className="messages"
@@ -138,8 +147,11 @@ export function ChatPanel(p: Props) {
           <div className="msg-ai" aria-live="polite">
             <div className="who">ChatGPT</div>
             <ToolLines lines={p.streamingTools} />
-            {p.streamingText ? <Markdown text={p.streamingText} /> : null}
-            <span className="cursor" aria-hidden />
+            {p.streamingText ? (
+              <Markdown text={p.streamingText} caret />
+            ) : (
+              <span className="cursor" aria-hidden />
+            )}
           </div>
         )}
       </div>
@@ -147,21 +159,19 @@ export function ChatPanel(p: Props) {
       {p.banner && (
         <div
           className={`banner ${p.banner.tone === 'err' ? 'err' : ''}`}
-          role="alert"
+          role={p.banner.tone === 'err' ? 'alert' : 'status'}
         >
           <b>{p.banner.title}</b>
           <p>{p.banner.body}</p>
-          <div className="actions">
-            {p.banner.actions.map((a) => (
-              <button
-                key={a.label}
-                className={`btn small ${a.primary ? 'primary' : ''}`}
-                onClick={a.run}
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
+          {p.banner.actions.length > 0 && (
+            <div className="actions">
+              {p.banner.actions.map((a) => (
+                <button key={a.label} className="btn small" onClick={a.run}>
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
       <div className="composer">
@@ -182,12 +192,16 @@ export function ChatPanel(p: Props) {
             onCompositionEnd={() => setComposing(false)}
           />
           {streaming ? (
-            <button className="send" onClick={p.onStop} aria-label="멈추기">
+            <button
+              className="icon-btn send"
+              onClick={p.onStop}
+              aria-label="멈추기"
+            >
               <Stop />
             </button>
           ) : (
             <button
-              className="send"
+              className="icon-btn send"
               onClick={p.onSend}
               disabled={disabled || !p.input.trim()}
               aria-label="보내기"

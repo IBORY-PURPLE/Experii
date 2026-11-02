@@ -56,6 +56,7 @@ function panel(
       input: '',
       inputRef: { current: null },
       headAction: null,
+      makingCard: false,
       modelPicker: null,
       onInput: () => {},
       onSend: () => {},
