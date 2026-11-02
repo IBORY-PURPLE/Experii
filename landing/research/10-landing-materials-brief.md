@@ -2,7 +2,7 @@
 
 - **작성일**: 2026-10-26
 - **담당**: 랜딩 재료 종합 (리서치 01·02·03 → 디자인 에이전트 2개)
-- **기준 문서**: `landing/Experii_PRD_v0.1.md`(제품 기준), `landing/TSD.md`(구현 제약). 둘이 이 문서와 다르면 PRD → TSD → 이 문서 순서로 따른다.
+- **기준 문서**: `docs/archive/landing-prd-v0.1.md`(제품 기준), `landing/TSD.md`(구현 제약). 둘이 이 문서와 다르면 PRD → TSD → 이 문서 순서로 따른다.
 - **재료 출처**: `research/01-aside-byo-subscription.md`, `research/02-kr-competitors.md`, `research/03-loop-and-ai-tutor-patterns.md`, 레퍼런스 캡처 폴더 `C:\Users\chewo\AppData\Local\Temp\claude\C--Users-chewo--claude-spares-spare-daJauR\87a16178-8dad-4a28-afbc-172203d9c45e\scratchpad\refshots`(아래에서는 `refshots/`로 줄여 쓴다)
 - **표기**: `[확인필요]` 근거를 아직 확인하지 못함 / `[가설]` 검증 전 가정 / `[초안]` 이 문서가 처음 쓴 카피, 확정 아님 / `[선택]` 디자인 에이전트가 넣을지 정함 / `[창업자]` 창업자가 정해야 함
 

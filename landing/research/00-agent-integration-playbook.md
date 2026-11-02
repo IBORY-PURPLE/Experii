@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 작성일 | 2026-10-26 |
-| 기준 문서 | `landing/Experii_PRD_v0.1.md`(10장 랜딩 요구사항), `landing/TSD.md`(15장 검증, 16장 구현 순서) |
+| 기준 문서 | `docs/archive/landing-prd-v0.1.md`(10장 랜딩 요구사항), `landing/TSD.md`(15장 검증, 16장 구현 순서) |
 | 근거 리서치 | `landing/research/00a-cursor-claude-code.md`(Cursor × Claude Code), `landing/research/00b-grok-multimodel.md`(Grok·멀티모델) |
 | 이 문서의 역할 | 위 두 리서치를 이번 작업 하나에 맞춰 결정으로 줄인 것. 리서치 3개(01~03)는 이미 `landing/research/`에 있으므로, 이 문서는 디자인 2안 → 구현 → 검증 2개 단계에 무엇을 쓸지 정한다 |
 | 표기 | **[확인]** 이 PC에서 실행하거나 읽어서 확인함 / **[미실행]** 명령 형식은 `--help`나 공식 문서로 확인했지만 실제로 돌려 보지 않음 / **[사용자]** 로그인·키·설치·플랜 결정이 먼저 필요함 / **[2차]** 포럼·블로그 근거 |
@@ -63,7 +63,7 @@
 ### 3.1 Codex 공통 규칙
 
 - 모든 호출에 `--ignore-user-config -m gpt-5.6-sol`을 붙인다. 그러면 깨진 기본 모델(`gpt-6-sol`)과 인증되지 않은 Slack MCP 설정을 건너뛴다. 인증은 그대로 쓴다 [확인].
-- 루트 `AGENTS.md`는 존재하지 않는 `PRD.md`를 가리킨다. 그래서 프롬프트에 `landing/Experii_PRD_v0.1.md` 경로를 직접 쓴다.
+- 루트 `AGENTS.md`는 존재하지 않는 `PRD.md`를 가리킨다. 그래서 프롬프트에 `docs/archive/landing-prd-v0.1.md` 경로를 직접 쓴다.
 - 리뷰 결과는 `C:\Users\chewo\Experii\landing\reviews\`에 모은다. 이 폴더는 아직 없으니 처음 쓸 때 만든다.
 
 ### 3.2 교차 리뷰 (검증 A의 리뷰어 C, 검증 B)
@@ -73,7 +73,7 @@
 Set-Location C:\Users\chewo\Experii\.claude\worktrees\landing-loop
 codex exec review --ignore-user-config -m gpt-5.6-sol -c model_reasoning_effort=high --ephemeral --base main `
   -o C:\Users\chewo\Experii\landing\reviews\gpt-review-landing-loop.md `
-  "기준 문서: landing/Experii_PRD_v0.1.md, landing/TSD.md. Cursor 개발자 시각으로 인터랙션 성능(CLS, INP), 접근성, 모션 절제, 컴포넌트 구조, PRD 7장 금지 표현을 본다. 실제 버그와 회귀만 파일:줄과 재현 방법으로 보고하고 칭찬과 취향은 뺀다."
+  "기준 문서: docs/archive/landing-prd-v0.1.md, landing/TSD.md. Cursor 개발자 시각으로 인터랙션 성능(CLS, INP), 접근성, 모션 절제, 컴포넌트 구조, PRD 7장 금지 표현을 본다. 실제 버그와 회귀만 파일:줄과 재현 방법으로 보고하고 칭찬과 취향은 뺀다."
 git -C C:\Users\chewo\Experii\.claude\worktrees\landing-loop status --short   # 리뷰가 파일을 바꾸지 않았는지 확인
 ```
 
@@ -103,7 +103,7 @@ Get-Content landing\reviews\judge-brief.md -Raw | codex exec --ignore-user-confi
 New-Item -ItemType Directory -Force C:\Users\chewo\Experii\landing\prototypes\b | Out-Null
 codex exec --ignore-user-config -m gpt-5.6-sol -s workspace-write --ephemeral `
   -C C:\Users\chewo\Experii\landing\prototypes\b `
-  "C:/Users/chewo/Experii/landing/Experii_PRD_v0.1.md 와 landing/research/01~03 을 읽고, Apple·OpenAI 레퍼런스의 인터랙션 원리만 가져와 index.html 하나(vanilla HTML/CSS/JS)로 시안 B를 만들어라. 루프 한 컷과 Experii 앱 화면 속 GPT 학습 대화(스크립트 재생, 실제 API 호출 금지, '예시 화면' 표기)를 넣어라. PRD 7장 금지 표현을 쓰지 마라. 이 폴더 밖에는 쓰지 마라."
+  "C:/Users/chewo/Experii/docs/archive/landing-prd-v0.1.md 와 landing/research/01~03 을 읽고, Apple·OpenAI 레퍼런스의 인터랙션 원리만 가져와 index.html 하나(vanilla HTML/CSS/JS)로 시안 B를 만들어라. 루프 한 컷과 Experii 앱 화면 속 GPT 학습 대화(스크립트 재생, 실제 API 호출 금지, '예시 화면' 표기)를 넣어라. PRD 7장 금지 표현을 쓰지 마라. 이 폴더 밖에는 쓰지 마라."
 ```
 
 `--dangerously-bypass-approvals-and-sandbox`는 쓰지 않는다. 실행 뒤 `landing\prototypes\b` 밖에 바뀐 파일이 없는지 `git status`로 확인한다.
@@ -127,7 +127,7 @@ git -C C:\Users\chewo\Experii worktree list
 ### 3.6 검증 A: pstack 패널에 GPT 자리 넣기 (Claude Code 안에서 입력)
 
 ```text
-/pstack:interrogate landing-loop 브랜치를 회의적으로 리뷰해. 기준은 landing/Experii_PRD_v0.1.md, landing/TSD.md 이고 실제 버그나 회귀가 아니면 지적하지 마.
+/pstack:interrogate landing-loop 브랜치를 회의적으로 리뷰해. 기준은 docs/archive/landing-prd-v0.1.md, landing/TSD.md 이고 실제 버그나 회귀가 아니면 지적하지 마.
 추가 리뷰어 C: 서브에이전트 하나가 3.2의 codex exec review 명령을 실행하고 출력 전문을 그대로 돌려준다. A·B와 합치되, 두 계열이 따로 낸 지적을 가장 높게 쳐라.
 ```
 
