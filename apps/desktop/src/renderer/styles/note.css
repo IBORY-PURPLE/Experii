@@ -215,9 +215,11 @@
   box-shadow: none;
 }
 
+/* The scroll padding keeps a focused button, and its ring, off the card's cut edge when the keyboard scrolls to it. */
 .pin.expanded .card-view {
   min-height: 0;
   overflow-y: auto;
+  scroll-padding: var(--sp-2);
 }
 
 .pin.expanded .card-view::before {
