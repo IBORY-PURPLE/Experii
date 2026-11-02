@@ -1,11 +1,18 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// The scroll-in motion (components/motion: GSAP + ScrollTrigger, its own chunk) starts after the page has loaded
-// and the main thread is idle, and flags itself on <html data-motion>: "on" while it holds elements back, "done"
-// once every one is shown. Each [data-reveal] element is a candidate. It never hides anything before it runs.
+// The scroll-in motion (components/motion: GSAP + ScrollTrigger, its own chunk) is fetched after the visitor's first
+// scroll, key or click, and flags itself on <html data-motion>: "on" while it holds elements back, "done" once every
+// one is shown. Each [data-reveal] element is a candidate. It never hides anything before it runs.
 
+const wake = (page: Page) => page.keyboard.press('Shift');
+// A key pressed before hydration is lost, so it is pressed again until the motion answers.
 const started = (page: Page) =>
-  expect(page.locator('html')).toHaveAttribute('data-motion', /^(on|done)$/, { timeout: 15_000 });
+  expect
+    .poll(async () => {
+      await wake(page);
+      return page.locator('html').getAttribute('data-motion');
+    }, { timeout: 15_000, intervals: [150, 250, 500] })
+    .toMatch(/^(on|done)$/);
 const notShown = (page: Page) =>
   page.evaluate(() => [...document.querySelectorAll('[data-reveal]')].filter((el) => getComputedStyle(el).opacity !== '1').length);
 const jump = (page: Page, top: number) => page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), top);
@@ -57,10 +64,25 @@ test.describe('모션 줄이기', () => {
 test.describe('움직임 허용', () => {
   test.use({ reducedMotion: 'no-preference' });
 
-  test('히어로는 제목 → 설명 → 버튼 → 앱 창 순서로 등장하고, 버튼과 앱 창은 투명도만 바뀐다', async ({ page }) => {
+  test('히어로는 제목 → 설명 → 버튼 → 앱 창 순서로 등장하고, 글은 투명해지지 않고, 버튼과 앱 창은 움직이지 않는다', async ({ page }) => {
     await page.addInitScript(() => {
       const seen: string[] = [];
       (window as unknown as { __hero: string[] }).__hero = seen;
+      // The hero text must be visible from its first frame: text at opacity 0 is not painted, which pushed the LCP
+      // of a throttled phone from 1.3s to 3.4s when the entrance faded it in.
+      const text = { lowest: 1, frames: 0 };
+      (window as unknown as { __text: typeof text }).__text = text;
+      const t0 = performance.now();
+      const watch = () => {
+        for (const sel of ['.hero-kicker', '#hero-h', '.hero-sub']) {
+          const el = document.querySelector(sel);
+          if (!el) continue;
+          text.lowest = Math.min(text.lowest, +getComputedStyle(el).opacity);
+          text.frames++;
+        }
+        if (performance.now() - t0 < 1_500) requestAnimationFrame(watch);
+      };
+      requestAnimationFrame(watch);
       document.addEventListener(
         'animationstart',
         (e) => {
@@ -88,6 +110,9 @@ test.describe('움직임 허용', () => {
       await expect(page.locator(sel)).toHaveCSS('opacity', '1');
       await expect(page.locator(sel)).toHaveCSS('transform', 'none');
     }
+    const text = await page.evaluate(() => (window as unknown as { __text: { lowest: number; frames: number } }).__text);
+    expect(text.frames, 'the entrance was watched frame by frame').toBeGreaterThan(6);
+    expect(text.lowest, 'the hero text is never transparent, so it counts as painted from the first frame (LCP)').toBe(1);
   });
 
   test('스크롤하면 나타나고, 끝나면 인라인 스타일을 남기지 않는다', async ({ page }) => {
@@ -162,10 +187,27 @@ test.describe('움직임 허용', () => {
     expect(await overflow(page), 'the motion adds no sideways scroll').toBeLessThanOrEqual(before);
   });
 
-  test('깊은 링크 #signup으로 도착하면 사전 신청은 바로 보이고, 위쪽 요소는 숨어 있지 않다', async ({ page }) => {
+  test('깊은 링크 #signup으로 도착하면 사전 신청은 한 프레임도 숨지 않고, 위쪽 요소도 숨어 있지 않다', async ({ page }) => {
+    await page.addInitScript(() => {
+      const seen = { lowest: 1, frames: 0 };
+      (window as unknown as { __signup: typeof seen }).__signup = seen;
+      const t0 = performance.now();
+      const watch = () => {
+        for (const el of document.querySelectorAll('#signup [data-reveal]')) {
+          seen.lowest = Math.min(seen.lowest, +getComputedStyle(el).opacity);
+          seen.frames++;
+        }
+        if (performance.now() - t0 < 4_000) requestAnimationFrame(watch);
+      };
+      requestAnimationFrame(watch);
+    });
     await page.goto('/#signup');
     await started(page);
-    await expect.poll(() => notShown(page), { timeout: 5_000 }).toBe(0);
+    expect(await notShown(page), 'nothing is held back the moment the motion starts').toBe(0);
+    await page.waitForTimeout(1_500);
+    const seen = await page.evaluate(() => (window as unknown as { __signup: { lowest: number; frames: number } }).__signup);
+    expect(seen.frames, 'the sign-up elements were watched').toBeGreaterThan(5);
+    expect(seen.lowest, 'the sign-up elements were never transparent, not even for a frame').toBe(1);
     await expect(page.locator('#su-h')).toBeInViewport();
     await expect(page.locator('#signup .su-copy')).toHaveCSS('opacity', '1');
     await page.locator('#f-email').fill('motion@example.test');
@@ -177,7 +219,10 @@ test.describe('움직임 허용', () => {
   test('모션 코드를 받지 못해도 내용은 숨지 않는다', async ({ page }) => {
     await blockGsap(page);
     await page.goto('/');
-    await page.waitForTimeout(4_500); // past the idle wait
+    for (let i = 0; i < 6; i++) {
+      await wake(page);
+      await page.waitForTimeout(500);
+    }
     await expect(page.locator('html')).not.toHaveAttribute('data-motion', /.*/);
     expect(await notShown(page)).toBe(0);
     await jump(page, await bottom(page));
@@ -294,6 +339,74 @@ test.describe('움직임 허용', () => {
       return max;
     });
     expect(worst).toBeLessThanOrEqual(before);
+  });
+
+  test('아무것도 하지 않으면 모션 코드를 받지 않고, 첫 입력 뒤에 받는다', async ({ page }) => {
+    let gsap = false;
+    page.on('response', async (r) => {
+      if (r.url().endsWith('.js') && (await r.text().catch(() => '')).includes('ScrollTrigger')) gsap = true;
+    });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(3_500);
+    expect(gsap, 'nobody scrolled: no GSAP').toBe(false);
+    await expect(page.locator('html')).not.toHaveAttribute('data-motion', /.*/);
+    expect(await notShown(page)).toBe(0);
+    await started(page);
+    expect(gsap, 'the first key press fetched it').toBe(true);
+  });
+
+  test('키보드 포커스가 숨은 요소 안의 컨트롤에 닿으면 바로 나타난다', async ({ page }) => {
+    await page.goto('/');
+    await started(page);
+    const band = page.locator('.es-band');
+    await expect(band, 'held back below the fold').toHaveCSS('opacity', '0');
+    // the browser does not scroll when the control is already fully in view, so only the focus can show it
+    await page.locator('.es-band .btn').evaluate((el) => (el as HTMLElement).focus({ preventScroll: true }));
+    await expect(band).toHaveCSS('opacity', '1', { timeout: 500 });
+    await expect(band).toHaveCSS('transform', 'none');
+  });
+
+  test('첫 클릭의 부드러운 스크롤 도중에 GSAP가 켜져도 스크롤이 끊기지 않는다', async ({ page }) => {
+    await page.route('**/_next/static/**/*.js', async (route) => {
+      const res = await route.fetch();
+      const body = await res.text();
+      if (body.includes('ScrollTrigger')) await new Promise((r) => setTimeout(r, 150)); // lands while the glide runs
+      return route.fulfill({ response: res, body });
+    });
+    await page.addInitScript(() => {
+      const w = window as unknown as { __ys: number[]; __at: number[]; __motionAt: number };
+      w.__ys = [];
+      w.__at = [];
+      w.__motionAt = 0;
+      const tick = () => {
+        const y = Math.round(scrollY);
+        if (w.__ys[w.__ys.length - 1] !== y) {
+          w.__ys.push(y);
+          w.__at.push(performance.now());
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      document.addEventListener('DOMContentLoaded', () =>
+        new MutationObserver(() => (w.__motionAt ||= performance.now())).observe(document.documentElement, { attributes: true, attributeFilter: ['data-motion'] }),
+      );
+    });
+    await page.goto('/');
+    await expect.poll(() => page.evaluate(() => !!document.querySelector('#hero-cta')), { timeout: 5_000 }).toBe(true);
+    await page.waitForTimeout(800); // hydrated, so the click's pointerdown reaches the loader
+    await page.locator('#hero-cta a[href="#signup"]').click();
+    await expect(page.locator('html')).toHaveAttribute('data-motion', /^(on|done)$/, { timeout: 10_000 });
+    await expect(page.locator('#su-h')).toBeInViewport();
+    await page.waitForTimeout(1_500);
+    const { path, at, motionAt } = await page.evaluate(() => {
+      const w = window as unknown as { __ys: number[]; __at: number[]; __motionAt: number };
+      return { path: w.__ys, at: w.__at, motionAt: w.__motionAt };
+    });
+    expect(path.length, 'the click glided through many frames').toBeGreaterThan(8);
+    expect(motionAt, 'the motion started while the page was still gliding').toBeLessThan(at[at.length - 1]);
+    expect(motionAt).toBeGreaterThan(at[0]);
+    const back = path.filter((y, i) => i > 0 && y < path[i - 1] - 1);
+    expect(back, `the scroll never moves back: ${path.join(' ')}`).toEqual([]);
   });
 
   test('버튼은 hover하면 2px 뜨고, 누르면 눌리며, 벗어나면 돌아온다', async ({ page, hasTouch }) => {

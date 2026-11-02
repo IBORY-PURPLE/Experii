@@ -65,6 +65,20 @@ function valueSpecifiers(file: string): string[] {
 
 type Target = { kind: 'module'; file: string } | { kind: 'package'; name: string } | { kind: 'asset' };
 
+// import('...') calls with a string literal: they split into their own chunk but still ship to the browser.
+function dynamicSpecifiers(file: string): string[] {
+  const out: string[] = [];
+  const visit = (node: ts.Node) => {
+    if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword) {
+      const arg = node.arguments[0];
+      if (arg && ts.isStringLiteralLike(arg)) out.push(arg.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parse(file));
+  return out;
+}
+
 function resolveSpecifier(from: string, spec: string): Target {
   const base = spec.startsWith('@/') ? join(ROOT, spec.slice(2)) : spec.startsWith('.') ? resolve(dirname(from), spec) : null;
   if (!base) return { kind: 'package', name: spec };
@@ -83,7 +97,7 @@ function reach(entry: string) {
   const stack = [entry];
   while (stack.length) {
     const file = stack.pop()!;
-    for (const spec of valueSpecifiers(file)) {
+    for (const spec of [...valueSpecifiers(file), ...dynamicSpecifiers(file)]) {
       const t = resolveSpecifier(file, spec);
       if (t.kind === 'package' && !packages.has(t.name)) packages.set(t.name, file);
       if (t.kind !== 'module' || via.has(t.file)) continue;
@@ -113,6 +127,12 @@ describe('client bundle boundary (TSD 12)', () => {
 
   it('no client module reaches zod or content/loop.ts values', () => {
     expect(clientFiles.flatMap(leaks)).toEqual([]);
+  });
+
+  it('the walk follows dynamic import() into the lazily loaded motion module', () => {
+    const r = reach(join(ROOT, 'components/motion/ScrollReveal.tsx'));
+    expect(r.modules.map(rel)).toContain('components/motion/scroll-reveal.ts');
+    expect([...r.packages.keys()]).toContain('gsap');
   });
 
   it('the walk does see zod and content/loop.ts where the server uses them', () => {

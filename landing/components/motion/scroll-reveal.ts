@@ -1,23 +1,15 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// Scroll-in motion for every [data-reveal] element (DESIGN 3.4, "reveal"). ScrollReveal.tsx loads this module
-// after the page is interactive, so GSAP stays out of the first-load JS (TSD 12).
-//
-// Nothing is hidden until this code runs: a script that loads late, or never, leaves the page whole. Elements
-// that are already on screen or above it (a deep link, a restored scroll position) are never hidden. If anything
-// here throws, every element is shown at once.
-
-// The numbers to tune.
-export const REVEAL = {
-  y: 30, // px the element starts below its place
+// Loaded by ScrollReveal after the first scroll, key or click. Nothing is hidden before this runs, so a late or failed load leaves the page whole.
+const REVEAL = {
+  y: 30, // px
   duration: 0.8, // s
   ease: 'power4.out',
-  stagger: 0.07, // s between elements that appear together
-  spread: 0.35, // s: the most those gaps add up to, however many appear together
-  start: 'clamp(top 82%)', // plays once the element's top passes 82% of the screen height ("clamp": also at the page's end)
-  gather: 0.06, // s: elements that pass that line within this window appear together
-  stuck: 2000, // ms: safety net, an element past the line that is still hidden after this long is shown at once
+  stagger: 0.07, // s
+  start: 'clamp(top 82%)', // "clamp" also fires for elements at the very end of the page
+  gather: 0.06, // s: elements that pass the line within this window appear together
+  stuck: 2000, // ms: a held-back element in view this long is shown anyway
 } as const;
 
 const CLEAR = 'opacity,transform';
@@ -27,19 +19,20 @@ const onScreen = (el: Element) => {
   return r.bottom > 0 && r.top < innerHeight;
 };
 
-let registered = false;
-let disabled = false;
+let used = false;
 
 // Returns a function that stops everything and leaves all content shown.
 export function startScrollReveal(): () => void {
   const root = document.documentElement;
+  // what is already on screen or above is left alone
   const targets = [...document.querySelectorAll<HTMLElement>('[data-reveal]')].filter(
     (el) => el.getBoundingClientRect().top >= innerHeight,
   );
-  if (!targets.length) {
+  if (used || !targets.length) {
     root.dataset.motion = 'done';
     return () => {};
   }
+  used = true;
 
   const waiting = new Set<Element>(targets);
   const stuck = new Map<Element, number>();
@@ -48,25 +41,27 @@ export function startScrollReveal(): () => void {
   let ctx: gsap.Context | undefined;
   let net: IntersectionObserver | undefined;
 
-  // The last resort: the targets carry no inline style of their own, so removing it shows them as the page wrote them.
+  // the targets carry no inline style of their own
   const showNow = (els: Iterable<Element>) => [...els].forEach((el) => el.removeAttribute('style'));
 
   const stop = () => {
     if (over) return;
     over = true;
+    document.removeEventListener('focusin', onFocus);
     net?.disconnect();
     stuck.forEach((id) => clearTimeout(id));
     try {
       ctx?.revert();
       if (!ScrollTrigger.getAll().length) {
         ScrollTrigger.disable();
-        disabled = true;
-        // GSAP's ticker idles on for about 2s after its last tween; stop it now, unless something else is animating
+        // GSAP's ticker idles for about 2s after its last tween
         if (!gsap.globalTimeline.getChildren(false, true, true).length) gsap.ticker.sleep();
       }
     } catch {
       showNow(targets);
     }
+    // ScrollTrigger leaves its own scroll-behavior on <html>, which would outlive the stylesheet's reduced-motion guard
+    root.style.removeProperty('scroll-behavior');
     root.dataset.motion = 'done';
   };
 
@@ -90,7 +85,7 @@ export function startScrollReveal(): () => void {
           y: 0,
           duration: instant ? 0 : REVEAL.duration,
           ease: REVEAL.ease,
-          stagger: instant ? 0 : Math.min(REVEAL.stagger, REVEAL.spread / Math.max(1, fresh.length - 1)),
+          stagger: instant ? 0 : REVEAL.stagger,
           clearProps: CLEAR,
           onComplete: () => {
             running--;
@@ -105,17 +100,16 @@ export function startScrollReveal(): () => void {
     }
   };
 
-  try {
-    if (!registered) {
-      gsap.registerPlugin(ScrollTrigger);
-      registered = true;
-    } else if (disabled) {
-      ScrollTrigger.enable();
-    }
-    disabled = false;
+  // a control reached by keyboard must not stay invisible, even where the browser does not scroll to it
+  const onFocus = (e: FocusEvent) => {
+    const el = (e.target as Element).closest?.('[data-reveal]');
+    if (el) play([el], true);
+  };
 
-    // An element past the line that ScrollTrigger has not shown within `stuck` ms (stale positions, a trigger that
-    // never fired) is shown anyway, so a hidden element can never stay hidden in view.
+  try {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // safety net for stale trigger positions: an element in view that its trigger never showed
     net = new IntersectionObserver(
       (entries) => {
         for (const { target, isIntersecting } of entries) {
@@ -145,10 +139,9 @@ export function startScrollReveal(): () => void {
       });
     });
     targets.forEach((el) => net!.observe(el));
+    document.addEventListener('focusin', onFocus);
 
     root.dataset.motion = 'on';
-    // Text reflows once the web font arrives, which moves every trigger line a little.
-    document.fonts?.ready.then(() => over || ScrollTrigger.refresh());
   } catch {
     stop();
     showNow(targets);

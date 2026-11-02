@@ -150,7 +150,7 @@
     white-space: nowrap;
     transition: transform var(--dur-press) var(--ease-out-quint), opacity 0.2s;
   }
-  /* hover only lifts, and only where there is a pointer to hover with; it must stay above :active so a press still wins */
+  /* stays above .btn:active so a press still wins */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .btn:where(:not(:disabled)):hover { transform: translateY(-2px); }
   }
@@ -348,8 +348,7 @@
     .cta-row { margin-top: 18px; }
   }
 
-  /* hero entrance: CSS only, so the title (the LCP element) never waits for a script. The copy rises; the buttons
-     and the app window only fade, so nothing a visitor may press, or the demo measures, moves. */
+  /* hero entrance, CSS only so the LCP text never waits for a script */
   @media (prefers-reduced-motion: no-preference) {
     .hero-kicker,
     .hero h1,
@@ -359,7 +358,9 @@
     .hero-demo,
     .hero-demo-note { animation: hero-fade var(--dur-hero) var(--ease-out-quint) calc(var(--hero-step) * 3) backwards; }
   }
-  @keyframes hero-rise { from { opacity: 0; transform: translateY(24px); } }
+  /* text only rises: text at opacity 0 counts as unpainted, which moved LCP from 1.3s to 3.4s on a throttled phone */
+  @keyframes hero-rise { from { transform: translateY(24px); } }
+  /* buttons and the app window only fade, so nothing pressable moves */
   @keyframes hero-fade { from { opacity: 0; } }
 
   /* download fake door */

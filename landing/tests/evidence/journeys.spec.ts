@@ -144,8 +144,11 @@ test('섹션 4에서 직접 해 보기: 대화 → 과제 → 카드 → 알림'
 });
 
 // Web motion (2026-11-02): hero entrance, scroll-in, button hover, and the same page with motion off or without JS.
-// The scroll-in starts after load and idle and flags itself on <html data-motion>.
-const motionOn = (page: Page) => expect(page.locator('html')).toHaveAttribute('data-motion', /^(on|done)$/, { timeout: 30_000 });
+// The scroll-in is fetched after the first scroll, key or click and flags itself on <html data-motion>.
+const motionOn = async (page: Page) => {
+  await page.keyboard.press('Shift');
+  await expect(page.locator('html')).toHaveAttribute('data-motion', /^(on|done)$/, { timeout: 30_000 });
+};
 const hold = (page: Page, ms: number) =>
   page.evaluate(
     (t) => document.getAnimations().filter((a) => (a as CSSAnimation).animationName?.startsWith('hero-')).forEach((a) => { a.pause(); a.currentTime = t; }),
@@ -177,9 +180,11 @@ test('모션: 히어로는 제목 → 설명 → 버튼 → 앱 창 순서로 �
 test('모션: 히어로 등장과 버튼 hover를 실제 속도로 본다', async ({ page }) => {
   await open(page);
   await page.waitForTimeout(1_600);
-  await page.hover('#hero-cta .btn-soft');
+  const clip = { x: 440, y: 392, width: 560, height: 78 };
+  await shot(page, 'motion-hover-1440x900-1-idle', clip);
+  await page.hover('#hero-cta .btn-dl');
   await page.waitForTimeout(400);
-  await shot(page, 'motion-hover-1440x900-cta', { x: 400, y: 360, width: 640, height: 150 });
+  await shot(page, 'motion-hover-1440x900-2-hover', clip);
   await keepVideo(page, 'motion-hero-load-1440x900');
 });
 

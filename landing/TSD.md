@@ -504,11 +504,10 @@ CSV가 필요하면 대시보드 테이블 화면에서 내보낸다.
 
 **애니메이션** (2026-11-02 창업자 결정으로 "애니메이션 라이브러리는 넣지 않는다"를 바꿨다. 홈페이지 모션을 영상이 아니라 실제 웹 요소로 하려는 것이다):
 
-- GSAP(`gsap` 3.15.0)와 ScrollTrigger만 쓴다. 스크롤에 따른 제목·카드 등장과 여러 요소의 순차 연출에만 쓰고, 다른 애니메이션 라이브러리는 넣지 않는다.
-- GSAP는 첫 로드 JS에 넣지 않는다(본체만 약 28KB gzip이라 한도를 넘는다). `ScrollReveal`이 로드 뒤 idle에 `import()`로 별도 청크(ScrollTrigger 포함 약 45KB gzip)를 받는다. 숨김은 GSAP가 실행된 뒤에만 걸어서, 청크가 늦거나 실패하거나 JS가 없어도 내용은 숨지 않는다.
-- CSS keyframes·transition: 히어로 등장(LCP 요소인 제목이 스크립트를 기다리지 않는다), 버튼 hover, 반복 효과. `requestAnimationFrame`은 매 프레임 계산이 필요한 효과(히어로 데모)만. 영상은 실사나 복잡한 캐릭터 동작에만 쓰고 UI는 영상으로 만들지 않는다. Canvas는 꼭 필요할 때만.
+- GSAP(`gsap` 3.15.0)와 ScrollTrigger만 쓰고, 스크롤에 따른 제목·카드 등장에만 쓴다. 다른 애니메이션 라이브러리는 넣지 않는다. 히어로 등장과 버튼 hover는 CSS, 매 프레임 계산이 필요한 효과(히어로 데모)만 `requestAnimationFrame`이다.
+- GSAP는 첫 로드 JS에 넣지 않는다(본체만 약 28KB gzip이라 한도를 넘는다). `ScrollReveal`이 방문자의 첫 스크롤·키·클릭 뒤에 `import()`로 별도 청크(ScrollTrigger 포함 약 45KB gzip)를 받는다. 숨김은 GSAP가 실행된 뒤에만 걸어서, 청크가 늦거나 실패하거나 JS가 없어도 내용은 숨지 않는다.
 - `prefers-reduced-motion: reduce`이면 GSAP를 받지 않고 내용을 즉시 보인다. 움직이는 속성은 `transform`과 `opacity`뿐이다(DESIGN 3.4).
-- 라이선스: GSAP "Standard 'no charge' license"(Webflow 소유). 사용자에게 요금을 받지 않는 사이트·제품이면 상업 사용도 무료이고, Webflow의 시각 애니메이션 빌더와 경쟁하는 도구에는 쓸 수 없다. 랜딩에서만 쓰고 앱(`apps/desktop`)에는 넣지 않는다. 앱 이용료를 받게 되면 앱에 넣기 전에 조건을 다시 확인한다.
+- 라이선스: GSAP "Standard 'no charge' license"(Webflow). 상업 사용이 가능하고, 코드 없이 시각 애니메이션을 만드는 도구로 Webflow와 경쟁하는 사용만 금지다. 랜딩에서만 쓴다.
 
 가이드 페이지는 서버 컴포넌트만 쓴다. 모바일 목차는 `<details>`로 접어 JS 없이 동작한다.
 
