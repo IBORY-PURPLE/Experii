@@ -145,10 +145,16 @@ test('섹션 4에서 직접 해 보기: 대화 → 과제 → 카드 → 알림'
 
 // Web motion (2026-11-02): hero entrance, scroll-in, button hover, and the same page with motion off or without JS.
 // The scroll-in is fetched after the first scroll, key or click and flags itself on <html data-motion>.
-const motionOn = async (page: Page) => {
-  await page.keyboard.press('Shift');
-  await expect(page.locator('html')).toHaveAttribute('data-motion', /^(on|done)$/, { timeout: 30_000 });
-};
+const motionOn = (page: Page) =>
+  expect
+    .poll(
+      async () => {
+        await page.keyboard.press('Shift');
+        return page.locator('html').getAttribute('data-motion');
+      },
+      { timeout: 30_000, intervals: [150, 250, 500] },
+    )
+    .toMatch(/^(on|done)$/);
 const hold = (page: Page, ms: number) =>
   page.evaluate(
     (t) => document.getAnimations().filter((a) => (a as CSSAnimation).animationName?.startsWith('hero-')).forEach((a) => { a.pause(); a.currentTime = t; }),
