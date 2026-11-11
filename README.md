@@ -39,7 +39,7 @@ Experii는 공부한 과정을 면접에서 쓸 수 있는 경험으로 쌓아 �
 | `.agents/`, `scripts/agents/`, `.claude/`, `.github/` | 개발 하네스: 에이전트 운영 규칙, 게이트, CI |
 
 ## 실행
-
+fgff
 설치:
 
 ```bash
