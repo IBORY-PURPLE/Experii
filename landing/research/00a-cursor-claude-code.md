@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 작성일 | 2026-10-26 |
-| 기준 문서 | `landing/Experii_PRD_v0.1.md`(10장 랜딩페이지 요구사항), `landing/TSD.md`(16장 구현 순서) |
+| 기준 문서 | `docs/archive/landing-prd-v0.1.md`(10장 랜딩페이지 요구사항), `landing/TSD.md`(16장 구현 순서) |
 | 목적 | 취업 준비 대학생에게 Experii의 USP("공부가 경험으로 남는다", "쌓아 둔 걸 다시 꺼내 준다")를 전달하는 인터랙티브 랜딩페이지를 만들 때, Cursor와 Claude Code(그리고 GPT·Grok)를 어떻게 나눠 써야 결과물이 가장 좋아지는지 운영 레시피로 정리한다 |
 | 표기 | **[로컬]** 이 PC에서 직접 실행·확인함 / **[공식]** Cursor·Anthropic·xAI 공식 문서나 변경 이력 / **[2차]** 포럼·블로그 등 / **[미확인]** 확인하지 못함 / **[제안]** 이 문서의 제안 |
 
@@ -111,7 +111,7 @@ Codex는 루트 `AGENTS.md`를 읽는데, 그 파일이 없는 `PRD.md`를 가�
 ```bash
 # 1) 브랜치 diff 리뷰 (읽기 전용)
 cd /c/Users/chewo/Experii/.claude/worktrees/landing-loop && \
-codex exec review --base main "기준 문서는 landing/Experii_PRD_v0.1.md 와 landing/TSD.md 다. PRD 7장 금지 표현, 360px 모바일, 키보드 접근성, JS 꺼짐 상태의 루프 4단계 표시를 중심으로 실제 버그와 회귀만 보고해라. 칭찬과 사소한 취향은 빼라."
+codex exec review --base main "기준 문서는 docs/archive/landing-prd-v0.1.md 와 landing/TSD.md 다. PRD 7장 금지 표현, 360px 모바일, 키보드 접근성, JS 꺼짐 상태의 루프 4단계 표시를 중심으로 실제 버그와 회귀만 보고해라. 칭찬과 사소한 취향은 빼라."
 
 # 2) 특정 worktree를 읽기 전용으로 보고 결과를 파일로 남기기
 codex exec -s read-only -C "C:/Users/chewo/Experii/.claude/worktrees/landing-loop" \
@@ -148,7 +148,7 @@ codex exec -s workspace-write -C "C:/Users/chewo/Experii/.claude/worktrees/landi
 
 | 파일 | 내용 | 누가 읽나 |
 |---|---|---|
-| `landing/AGENTS.md` (신규) | 랜딩 범위 규칙의 단일 원본. 기준 PRD 경로(`landing/Experii_PRD_v0.1.md`), TSD 경로, PRD 7장 금지 표현, 파일 소유 표(TSD 16.2), 검증 명령(`npm run build`, Vitest, Playwright 360/1280, axe), "GPT·Claude 연동 문구는 '준비 중'" | Cursor 편집기(하위 폴더 AGENTS.md 지원) [공식], Codex |
+| `landing/AGENTS.md` (신규) | 랜딩 범위 규칙의 단일 원본. 기준 PRD 경로(`docs/archive/landing-prd-v0.1.md`), TSD 경로, PRD 7장 금지 표현, 파일 소유 표(TSD 16.2), 검증 명령(`npm run build`, Vitest, Playwright 360/1280, axe), "GPT·Claude 연동 문구는 '준비 중'" | Cursor 편집기(하위 폴더 AGENTS.md 지원) [공식], Codex |
 | `landing/CLAUDE.md` (신규) | 한 줄: `@AGENTS.md` | Claude Code. 루트에 `CLAUDE.md`가 있으면 Claude는 `AGENTS.md`를 직접 읽지 않으므로 import가 필요하다 [공식] |
 | 루트 `CLAUDE.md` | 공통 내용은 `@AGENTS.md`로 가져오고, Claude 전용 내용("병렬 에이전트 작업" 절)만 남긴다 | Claude Code |
 | 루트 `AGENTS.md` | "PRD.md를 먼저 읽어라"를 실제 경로로 고친다. 현재 루트에는 `PRD_MVP_V1.md`만 있고 `PRD.md`는 없다 | Cursor, Codex, Cursor CLI |
@@ -239,7 +239,7 @@ agent models                                          # 이 계정에서 쓸 수
 timeout 900 agent -p --trust --mode ask \
   --workspace "C:/Users/chewo/Experii/.claude/worktrees/landing-loop" \
   --model <agent models에서 확인한 grok 슬러그> --output-format json \
-  "기준: landing/Experii_PRD_v0.1.md, landing/TSD.md. 이 브랜치의 실제 버그와 회귀만 보고하라." \
+  "기준: docs/archive/landing-prd-v0.1.md, landing/TSD.md. 이 브랜치의 실제 버그와 회귀만 보고하라." \
   > /c/Users/chewo/AppData/Local/Temp/claude/cursor-review-loop.json
 
 # 빌더: Cursor가 자기 worktree를 만들어 작업. 변경을 실제로 쓰려면 --force

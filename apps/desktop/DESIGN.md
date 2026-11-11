@@ -242,7 +242,7 @@ components:
 
 # Design System: Experii Desktop
 
-요구사항과 범위의 기준은 `docs/desktop/prd.md`, 화면 배치·정보 순서·문구의 기준은 `docs/desktop/tsd.md`의 "D 화면 시안 결정"과 "디자인 통일 결정 (2026-10-30)"이다. 이 파일은 색·크기·부품 규칙의 기준이다. 값의 원본은 `src/renderer/styles/tokens.css` 하나이고, 위 머리말과 아래 괄호 속 숫자는 그 토큰을 옮겨 적은 것이다. 둘이 다르면 `tokens.css`를 고치고 이 파일을 맞춘다.
+요구사항과 범위의 기준은 루트 `PRD.md`, 화면 배치·정보 순서·문구의 기준은 `docs/desktop/tsd.md`의 "D 화면 시안 결정"과 "디자인 통일 결정 (2026-10-30)"이다. 이 파일은 색·크기·부품 규칙의 기준이다. 값의 원본은 `src/renderer/styles/tokens.css` 하나이고, 위 머리말과 아래 괄호 속 숫자는 그 토큰을 옮겨 적은 것이다. 둘이 다르면 `tokens.css`를 고치고 이 파일을 맞춘다.
 
 ## Overview
 

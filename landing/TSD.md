@@ -4,7 +4,7 @@
 |---|---|
 | 문서 | TSD · 랜딩페이지 v0.1 (초안) |
 | 작성일 | 2026-10-26 |
-| 기준 | [Experii_PRD_v0.1.md](Experii_PRD_v0.1.md) 10장(랜딩페이지 요구사항). 카피 근거는 1·3·5·6·7·11장 |
+| 기준 | 제품 기준은 루트 [PRD.md](../PRD.md) 13장(2026-11-02 통합). 지금 화면의 기준은 보관된 [랜딩 PRD v0.1](../docs/archive/landing-prd-v0.1.md) 10장이고 카피 근거는 1·3·5·6·7·11장이다. 이 문서의 "PRD n장"은 모두 보관된 랜딩 PRD의 장 번호다 |
 | 표기 | **(확인 필요)** = 구현 전에 공식 문서·법률 검토로 다시 확인할 항목. 17.3에 모아 두었다. `[제안]` = PRD에 없어 이 문서가 정한 초안 |
 | 결정 | 2026-10-26 D1~D3 확정 (17.1) |
 
@@ -46,9 +46,9 @@
 |---|---|---|
 | [PRD_MVP_V1.md](../docs/archive/PRD_MVP_V1.md) · [TSD_MVP_V1.md](../docs/archive/TSD_MVP_V1.md) (보관) | 웹 + 원격 MCP, Claude Code 중심, 세션 요약 누적 | 스택(Next.js·Vercel·Supabase)만 맞춘다. 기능은 가져오지 않는다 |
 | [Pre_MVP/](../docs/archive/Pre_MVP/) prd·tsd·plan (보관) | Claude Code Skill, 로컬 파일 | 무관. 랜딩 일정은 Pre-MVP와 독립이다 |
-| [Experii_PRD_v0.1.md](Experii_PRD_v0.1.md) | 모바일 앱, GPT·Claude 구독 연동, 면접 중심 학습 | 이 문서의 기준 |
+| [랜딩 PRD v0.1](../docs/archive/landing-prd-v0.1.md) (보관) | 모바일 앱, GPT·Claude 구독 연동, 면접 중심 학습 | 이 문서가 처음 따른 기준. 2026-11-02에 루트 [PRD.md](../PRD.md)로 합쳤다 |
 
-**충돌**: 랜딩 PRD는 모바일 앱과 ChatGPT 연동을 내세운다. 기존 개발 문서는 Claude Code·웹 기준이고 모바일 앱과 ChatGPT를 범위 밖에 둔다. 랜딩은 아직 없는 제품을 소개하므로 화면은 모두 "예시 화면"으로 표시하고, 약속하는 기능은 6.3의 근거 표를 따른다. 제품 문서를 어떻게 맞출지는 랜딩과 별개로 정한다(17.1 D8).
+**충돌**: 랜딩 PRD는 모바일 앱과 ChatGPT 연동을 내세운다. 기존 개발 문서는 Claude Code·웹 기준이고 모바일 앱과 ChatGPT를 범위 밖에 둔다. 랜딩은 아직 없는 제품을 소개하므로 화면은 모두 "예시 화면"으로 표시하고, 약속하는 기능은 6.3의 근거 표를 따른다. 제품 문서를 어떻게 맞출지는 랜딩과 별개로 정한다(17.1 D8, 2026-11-02에 루트 PRD.md로 합쳐 닫았다).
 
 **랜딩 PRD와 다른 점 (D1)**: 랜딩 PRD는 "GPT·Claude 연동"이라고 쓰지만 이 문서는 ChatGPT 계정 등록만 약속한다.
 - Claude: Free·Pro·Max 구독 인증은 약관상 Claude Code와 claude.ai에서만 쓸 수 있다(2026-02 문서로 명시, 2026-04부터 기술적으로 차단). 그래서 Experii 앱 안에서 Claude 구독으로 대화하게 만들 수 없다(17.3 C11).
@@ -115,12 +115,10 @@ flowchart LR
 
 ## 5. 디렉토리 구조
 
-Vercel 프로젝트의 Root Directory를 `landing`으로 둔다. PRD 파일은 지금 위치에 그대로 둔다.
+Vercel 프로젝트의 Root Directory를 `landing`으로 둔다. 랜딩 PRD는 2026-11-02에 `docs/archive/`로 옮겼다.
 
 ```
 landing/
-  Experii_PRD_v0.1.md          # 기준 PRD (기존)
-  Experii_PRD_v0.1.pdf
   TSD.md                       # 이 문서
   package.json
   next.config.ts               # 보안 헤더
@@ -640,7 +638,7 @@ L1이 끝난 뒤 아래 셋은 파일이 겹치지 않아 `.agents/briefs/`로 �
 | D5 | 확인 메일(더블 옵트인) | 넣지 않는다. 오타·가짜 이메일이 신청 수에 섞이는 한계를 감수한다 |
 | D6 | 분석 도구 | Umami Cloud |
 | D7 | 히어로 변형(6.4) 운영 | Q4에서 채널이 정해지면 켠다 |
-| D8 | 제품 개발 문서(PRD_MVP_V1, Pre_MVP)와 랜딩 PRD의 제품 형태 차이(모바일 앱·ChatGPT 연동) 정리 | 랜딩 공개와 별개로 결정 |
+| D8 | 제품 개발 문서(PRD_MVP_V1, Pre_MVP)와 랜딩 PRD의 제품 형태 차이(모바일 앱·ChatGPT 연동) 정리 | 닫음(2026-11-02). 루트 PRD.md로 합쳤다 |
 
 ### 17.2 리스크
 

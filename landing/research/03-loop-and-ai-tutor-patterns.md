@@ -1,7 +1,7 @@
 # 03. 학습 루프 · 리마인드 · AI 튜터 대화를 랜딩에서 보여 주는 방법
 
 - **작성**: 리서치 에이전트 3/3, 2026-10-26
-- **기준 문서**: `landing/Experii_PRD_v0.1.md` (6장 핵심 루프, 7장 금지 표현, 10장 섹션 4 "작동 방식"), `landing/TSD.md` (6.2 `LoopStepper`, 11장 접근성, 12장 성능 예산)
+- **기준 문서**: `docs/archive/landing-prd-v0.1.md` (6장 핵심 루프, 7장 금지 표현, 10장 섹션 4 "작동 방식"), `landing/TSD.md` (6.2 `LoopStepper`, 11장 접근성, 12장 성능 예산)
 - **보여 줄 한 컷**: SQLD 공부 대화 → 실제 현장 과제 풀기 → 푼 경험을 면접 답변 한 줄로 저장 → 1·7·30일 리마인드로 체화
 - **조사 방법**: WebFetch, curl로 받은 원본 HTML·CSS 읽기, 같은 세션에서 찍은 참고 스크린샷(`scratchpad/refshots`)을 직접 확인. openai.com과 chatgpt.com은 headless 캡처가 Cloudflare 인증 화면에 막혔다. 그래서 curl HTML과 내장 브라우저 관찰 메모(`openai-notes.md`, `openai-d00~02.jpg`)로 대신했다.
 

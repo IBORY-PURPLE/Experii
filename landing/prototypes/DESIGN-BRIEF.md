@@ -14,7 +14,7 @@ USP: SQLD를 공부하는 날마다 AI와 나눈 대화가 현장 과제가 되�
 
 ## 2. 먼저 읽을 것 (순서대로)
 
-1. `C:/Users/chewo/Experii/landing/Experii_PRD_v0.1.md` — 제품 기준. 7장 금지 표현, 10장 섹션 구성
+1. `C:/Users/chewo/Experii/docs/archive/landing-prd-v0.1.md` — 제품 기준(2026-11-02에 보관됨). 7장 금지 표현, 10장 섹션 구성
 2. `C:/Users/chewo/Experii/landing/TSD.md` — 6장(섹션·LoopStepper·카피 근거 표), 11장(디자인·반응형·접근성), 12장(성능 예산)
 3. `C:/Users/chewo/Experii/landing/research/10-landing-materials-brief.md` — **카피와 장면 대본의 원본.** 2장 섹션별 재료, 3장 S0~S13 대본·SQL·카드·알림 문구, 5장 금지 표현. 여기 있는 문구를 쓰고, 근거 없는 새 주장을 만들지 않는다
 4. `C:/Users/chewo/.claude/skills/frontend-design/SKILL.md` — Anthropic 공식 frontend-design 스킬. 생성형 디자인의 흔한 티(크림 배경+테라코타, 모든 제목 위 대문자 눈썹, 똑같은 둥근 카드 묶음, 장식용 그라데이션, 섹션마다 페이드업)를 피하는 기준

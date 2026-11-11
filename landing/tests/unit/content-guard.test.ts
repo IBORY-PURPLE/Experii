@@ -4,8 +4,8 @@ import * as loop from '@/content/loop';
 import * as docs from '@/content/docs';
 
 const BANNED = [
-  '면접 준비 끝', '합격 보장', '확연한 차이', // PRD 7장
-  '최고', '1위', '유일', // PRD 7장 단정·비교
+  '면접 준비 끝', '합격 보장', '확연한 차이', // PRD 12장
+  '최고', '1위', '유일', // PRD 12장 단정·비교
   '보장', '무조건', '100%', // [제안] 성과 보장으로 읽히는 표현
 ];
 

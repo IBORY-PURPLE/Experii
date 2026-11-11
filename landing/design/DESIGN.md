@@ -7,7 +7,7 @@
 | 기반 시안 | `landing/prototypes/a` (판정 라벨 design-2). 이식 원본은 `prototypes/a/index.html` |
 | 가져올 시안 | `landing/prototypes/b` (판정 라벨 design-1)의 히어로 질문 칩·세트 B/C, 1·7·30 큰 숫자 줄, 시대 변화의 꼬리질문 강조, 폰 속 `출시 예정 기능` 배지 |
 | 판정 자료 | 판정자 4명 결과, `scratchpad/judge-shots/INDEX.md`와 캡처, 두 시안의 `DESIGN.md` |
-| 우선순위 | PRD(`Experii_PRD_v0.1.md`) → TSD(`TSD.md`) → 재료 브리프(`research/10-landing-materials-brief.md`) → 이 문서. 이 문서가 앞의 셋과 다르면 2.5절에 이유를 적었다 |
+| 우선순위 | PRD(루트 `PRD.md`, 이 문서를 쓸 때의 기준은 보관된 `docs/archive/landing-prd-v0.1.md`) → TSD(`TSD.md`) → 재료 브리프(`research/10-landing-materials-brief.md`) → 이 문서. 이 문서가 앞의 셋과 다르면 2.5절에 이유를 적었다. 이 문서의 "PRD n장"은 보관된 랜딩 PRD의 장 번호다 |
 
 **카피 출처 표기**
 

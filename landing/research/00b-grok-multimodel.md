@@ -1,7 +1,7 @@
 # 00b. Grok 연동 경로와 멀티모델 역할 분담 리서치
 
 - 작성일: 2026-10-26
-- 범위: 사용자가 말한 "Cursor, Claude Code, 그록 봇을 연동해 최상의 결과물"을 이 PC에서 실제로 어떻게 묶을지 정리한다. 기준 문서는 `landing/Experii_PRD_v0.1.md`(v0.1, 랜딩페이지 제작용)다.
+- 범위: 사용자가 말한 "Cursor, Claude Code, 그록 봇을 연동해 최상의 결과물"을 이 PC에서 실제로 어떻게 묶을지 정리한다. 기준 문서는 `docs/archive/landing-prd-v0.1.md`(v0.1, 랜딩페이지 제작용)다.
 - 표기
   - `[로컬 확인]`: 이 PC에서 직접 실행하거나 읽어서 확인함
   - `[공식 문서]`: SpaceXSI(xAI), Cursor, OpenAI 공식 문서로 확인함

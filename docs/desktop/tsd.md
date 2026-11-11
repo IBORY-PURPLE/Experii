@@ -1,6 +1,8 @@
 # Experii 데스크톱 앱 TSD: 설계와 단계별 계획
 
-2026-10-29 창업자가 승인한 계획을 그대로 옮겼다. 요구사항은 [prd.md](prd.md)가 기준이고, 이 문서는 어떻게 만들지를 다룬다. 단계 1(M0)에서 확인한 사실은 맨 아래 "M0 확인된 사실" 표에 채운다. 본문의 `Pre_MVP/`, `PRD_MVP_V1.md`, `TSD_MVP_V1.md`는 이제 `docs/archive/` 아래에 있다.
+2026-10-29 창업자가 승인한 계획을 그대로 옮겼다. 요구사항은 루트 [PRD.md](../../PRD.md)가 기준이고, 이 문서는 어떻게 만들지를 다룬다. 단계 1(M0)에서 확인한 사실은 맨 아래 "M0 확인된 사실" 표에 채운다. 본문의 `Pre_MVP/`, `PRD_MVP_V1.md`, `TSD_MVP_V1.md`는 이제 `docs/archive/` 아래에 있다. 본문의 `prd.md`는 2026-11-02에 루트 PRD.md로 합쳤고, 원본은 [docs/archive/desktop-prd-v1.md](../archive/desktop-prd-v1.md)에 있다. FR 번호는 같고 FR-06·07·08·17은 뜻이 바뀌었다.
+
+2026-11-02 통합 PRD로 제품의 현재 단계가 PRD 5장의 단계 1(AI Board)로 바뀌었다. 위의 "단계 1(M0)"은 이 문서의 마일스톤 번호이고 PRD의 단계와 다르다. 이 문서의 화면 설명(로드맵 중심, 대화별 필기 페이지)은 main의 지금 구현을 적은 것이고, 새 기준으로 고치는 일은 PRD 단계 1 설계를 시작할 때 한다. 이 문서의 Phase B(릴레이 서버)는 2026-11-02 창업자 결정으로 공부 대화에 쓰지 않고 Phase C 승인을 기다린다. 서버는 PRD 단계 2의 음성 면접에만 둔다(PRD 8장, D3).
 
 2026-10-30 개정(루프 v2의 필기 페이지, 모델 선택, 앱 맥락과 앱 안 도구, 답 표시, 사이드바 접기, 카드 속도. prd.md FR-10~17)의 설계와 실행 계획은 [2026-10-30 밤 계획](../plans/2026-10-30-overnight-desktop/ai.md)에 있다. 그 작업이 main에 들어가면 이 문서의 해당 장으로 옮긴다.
 
@@ -67,7 +69,7 @@ Experii/
     landing/            # 구 landing/ 전체. 내부 파일, 랜딩 PRD·TSD는 그대로
     desktop/            # 신규 Electron 앱
   docs/
-    desktop/prd.md      # 신규 데스크톱 PRD (한국어, 2쪽 이내)
+    desktop/prd.md      # 신규 데스크톱 PRD (한국어, 2쪽 이내). 2026-11-02에 루트 PRD.md로 합침
     desktop/tsd.md      # 신규 TSD: 이 계획의 3~5장과 "M0 확인된 사실" 표
     archive/            # 이전 내용 전부. 보관만 하고 작업 기준으로 쓰지 않는다
       README.md         # "보관용, 따르지 않음"과 현재 기준 문서 링크
@@ -663,7 +665,7 @@ _electron.launch({args:['.'], env:{EXPERII_API_BASE_URL, EXPERII_TEST_ACCESS_TOK
   - 설치 파일 `Experii-1.0.0 Setup.exe`, Squirrel 패키지 ID `experii`, 실행 파일 `Experii.exe`
   - userData: 설치본 `%APPDATA%\Experii`, 개발 실행 `%APPDATA%\Experii-dev`
   - 앱 코드는 `appUserModelId`를 따로 정하지 않는다. 작업 표시줄 묶음과 고정은 창업자가 설치해서 확인한다.
-- **O13** 랜딩 PRD 6장의 "모바일" 문구 정리.
+- **O13** (닫음, 2026-11-02) 랜딩 PRD 6장의 "모바일" 문구 정리. 루트 PRD.md로 합치며 제품 형태를 Windows 앱으로 적었다.
 
 ### 이 계획 밖에서 따로 하는 일
 
