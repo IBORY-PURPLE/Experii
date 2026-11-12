@@ -207,3 +207,8 @@ apps/web/
 | 2026-11-13 03:28 | S2 | secret 키 꺼내기 거부됨(권한 규칙) → 설계 변경 | 도구 거부 |
 | 2026-11-13 03:30 | S2 | `config push` 미리보기가 첫 실행에 적용됨, 되돌리기 push는 권한 규칙에 거부 → 창업자 할 일 | 첫 diff, `/auth/v1/settings`(mailer_autoconfirm true, anonymous false) |
 | 2026-11-13 03:35 | S2 | `db/0002_visitor_policies.sql` 적용, 시험: A만 자기 행·이미지 접근, B 읽기·쓰기·위조 거부, 헤더 없음 빈 결과, 캡쳐 직접 insert 거부 | 시험 스크립트 출력 |
+| 2026-11-13 03:36 | S2 | `db/0003_quota.sql` 적용(전체 하루 캡쳐 300·대화 3000, 다시 시도도 한도에 셈) | `pg_proc` 목록: web_create_capture·web_take_chat·web_take_retry 모두 security definer, anon만 실행 |
+| 2026-11-13 03:37 | S0 | writer 에이전트가 앱 공통 PRD(10장 웹 v0, FR-W1~W13), `docs/web/tsd.md`, 색인·링크 수정. 이동만 따로 커밋 | 4057088 |
+| 2026-11-13 03:38 | S3~S5 | 라우트·보드·대화 패널 구현, 로컬 `next build` 통과, curl로 초대·업로드·제안 5개(약 2초)·대화 스트리밍·Origin 403 확인 | 571f26d |
+| 2026-11-13 03:41 | S6 | 단위 21개 통과(실 어댑터 요청 형식은 가짜 fetch로), 로컬 E2E 14개 통과(1440·1280·390) | 7b4ba98 |
+| 2026-11-13 03:44 | S7a | Vercel 프로젝트 `experii` 생성(CLI), 루트 `apps/web`·Next.js·Node 22는 Vercel MCP로 설정(CLI에 설정 명령이 없음), GitHub 연결, 루트 변경 없는 커밋은 배포 건너뛰기, env 4종 3환경(값 출력 없음). `vercel link`가 만든 루트 `.env.local`(OIDC 토큰)은 지우고 `.gitignore` 변경은 되돌림 | `vercel env ls` |
