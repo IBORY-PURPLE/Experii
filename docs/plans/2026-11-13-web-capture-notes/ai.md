@@ -212,3 +212,9 @@ apps/web/
 | 2026-11-13 03:38 | S3~S5 | 라우트·보드·대화 패널 구현, 로컬 `next build` 통과, curl로 초대·업로드·제안 5개(약 2초)·대화 스트리밍·Origin 403 확인 | 571f26d |
 | 2026-11-13 03:41 | S6 | 단위 21개 통과(실 어댑터 요청 형식은 가짜 fetch로), 로컬 E2E 14개 통과(1440·1280·390) | 7b4ba98 |
 | 2026-11-13 03:44 | S7a | Vercel 프로젝트 `experii` 생성(CLI), 루트 `apps/web`·Next.js·Node 22는 Vercel MCP로 설정(CLI에 설정 명령이 없음), GitHub 연결, 루트 변경 없는 커밋은 배포 건너뛰기, env 4종 3환경(값 출력 없음). `vercel link`가 만든 루트 `.env.local`(OIDC 토큰)은 지우고 `.gitignore` 변경은 되돌림 | `vercel env ls` |
+| 2026-11-13 03:50 | S7b | 미리보기(5d2cb0c) READY → `vercel promote`로 운영. 운영 별칭 https://experii.vercel.app 붙음. 운영 E2E 14개 통과. 미리보기 툴바 스크립트가 CSP에 막혀 콘솔 오류 → 프로젝트 설정에서 툴바 끔 | `vercel inspect`, Playwright |
+| 2026-11-13 03:55 | S7b | PR #23 열림, GitGuardian·Vercel 검사 통과 | https://github.com/IBORY-PURPLE/Experii/pull/23 |
+| 2026-11-13 04:05 | S5b·S6 | drag-from-chat 추가, 화면 검수(screen-reviewer) 반영: 390px 초대 카드, 폰에서 필기를 캡쳐 아래로·축소 하한 75%, 토스트 위로, 제안 목록 380px | c81b3d8, E2E 15개 |
+| 2026-11-13 04:25 | 리뷰 반영 | reviewer: P0 없음. P1 반영: 실 어댑터 거절·잘림·fallback 처리(create+직접 읽기), 시간 예산(캡쳐 120초·대화 300초, AI 100초 마감), 다시 시도 원자적+한도, 서버 키 `WEB_DB_KEY`(db/0004, 키 없으면 아무것도 못 함), 빌드 건너뛰기 조건. P2 대부분 반영 | 8854198, 단위 25·E2E 15 |
+| 2026-11-13 04:30 | S7b | 새 건너뛰기 조건이 같은 커밋 승격을 취소시킴(운영이 옛 코드+새 DB로 약 10분 DB 접근 불가, 사용자 없음). `ignoreCommand`를 빼고 affected projects만 남김 → 승격 성공 | b02d5a8, 운영 E2E 15개 통과 |
+| 2026-11-13 04:36 | 정리 | Redeploy가 빌드되는지 확인(아침 키 연결 절차). 테스트 데이터 정리: web_ 표 0건, 저장소 0개(랜딩 표 그대로) | `vercel redeploy`, SQL 집계 |
