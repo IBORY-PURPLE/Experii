@@ -1,0 +1,344 @@
+/* What the web app adds to the desktop design (apps/desktop/DESIGN.md): the capture tile, the AI note suggestions,
+   the first-visit intro and the practice-mode line. Same tokens, 1px lines, no blue, no second filled button. */
+
+.app-loading,
+.board-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  height: 100%;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.board-loading {
+  position: absolute;
+  inset: 0;
+}
+
+/* The middle's head holds the open page only. */
+.tabbar .tabs {
+  display: flex;
+  min-width: 0;
+}
+
+.tabbar .tab.page.active .tab-main {
+  cursor: default;
+}
+
+.tool-sep {
+  align-self: center;
+  width: 1px;
+  height: var(--h-24);
+  margin: 0 var(--sp-1);
+  background: var(--line-2);
+}
+
+/* A capture on the board: the image, a line saying what the AI is doing with it, and its suggestions below. */
+.cap {
+  position: absolute;
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+  user-select: none;
+  touch-action: none;
+}
+
+.canvas.tool-select .cap {
+  cursor: grab;
+}
+
+.cap.moving {
+  z-index: 10000 !important;
+  box-shadow: var(--sh-3);
+}
+
+.cap:hover .sticky-del,
+.cap:focus-within .sticky-del {
+  opacity: 1;
+}
+
+.cap.flash {
+  animation: land var(--dur-land) var(--ease-out);
+}
+
+.cap-img {
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--r-3) var(--r-3) 0 0;
+  background: var(--wash-3);
+}
+
+.cap-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.cap.uploading .cap-img img {
+  opacity: 0.6;
+}
+
+.cap-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+}
+
+.cap-status.muted {
+  color: var(--ink-3);
+}
+
+.cap-status.err {
+  justify-content: space-between;
+  color: var(--err);
+}
+
+.cap-status.err .btn {
+  color: var(--ink);
+}
+
+.suggest {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+  border-top: 1px solid var(--line);
+  cursor: default;
+  user-select: text;
+}
+
+.suggest-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+}
+
+.suggest-list {
+  display: grid;
+  gap: var(--sp-2);
+  max-height: 560px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.sug {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-main);
+}
+
+/* Low confidence: lighter words and a dashed edge, so it reads as "check this" before it goes on the board. */
+.sug.low {
+  border-style: dashed;
+  border-color: var(--line-2);
+}
+
+.sug.low .sug-text {
+  color: var(--ink-3);
+}
+
+.sug-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-13);
+}
+
+.sug-meta .kind {
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  color: var(--ink-2);
+  font-weight: var(--fw-2);
+  line-height: var(--lh-20);
+}
+
+.sug-meta .unsure {
+  color: var(--ink-3);
+}
+
+.sug-text {
+  margin: 0;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.sug-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-1);
+}
+
+.sug-actions .icon-btn {
+  width: var(--h-28);
+  height: var(--h-28);
+}
+
+/* The first-visit intro sits over the empty board until it is read. */
+.intro {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 11;
+  display: grid;
+  gap: var(--sp-4);
+  width: min(520px, calc(100% - var(--sp-8)));
+  max-height: calc(100% - var(--sp-8));
+  padding: var(--sp-8);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-4);
+  background: var(--surface);
+  box-shadow: var(--sh-4);
+  transform: translate(-50%, -50%);
+}
+
+.intro-eyebrow {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.intro h2 {
+  margin: 0;
+  font-size: var(--fs-20);
+  line-height: var(--lh-24);
+}
+
+.intro-lead {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-15);
+}
+
+.intro-steps {
+  display: grid;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  counter-reset: step;
+  list-style: none;
+}
+
+.intro-steps li {
+  display: grid;
+  grid-template-columns: var(--h-28) 1fr;
+  column-gap: var(--sp-3);
+  counter-increment: step;
+}
+
+.intro-steps li::before {
+  content: counter(step);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: var(--h-28);
+  height: var(--h-28);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-3);
+}
+
+.intro-steps b {
+  font-weight: var(--fw-3);
+}
+
+.intro-steps span {
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.intro kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 var(--sp-1);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-1);
+  background: var(--wash-3);
+  color: var(--ink-2);
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.intro-note {
+  margin: 0;
+  padding: var(--sp-3);
+  border-radius: var(--r-2);
+  background: var(--wash-3);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+}
+
+.intro .btn.primary {
+  justify-self: start;
+}
+
+/* Practice mode: the AI is the mock until the founder connects Claude. */
+.mock-strip {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  background: var(--wash-3);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+}
+
+.mock-strip b {
+  margin-right: var(--sp-2);
+  font-weight: var(--fw-3);
+}
+
+.chat-empty {
+  display: grid;
+  gap: var(--sp-1);
+  margin: var(--sp-6) var(--sp-4);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+
+.chat-empty b {
+  color: var(--ink);
+  font-size: var(--fs-15);
+}
+
+.chat-empty p {
+  margin: 0;
+}
+
+/* Long notices wrap instead of running past a narrow middle. */
+.toast {
+  max-width: calc(100% - var(--sp-8));
+  white-space: normal;
+}
+
+@media (max-width: 900px) {
+  .intro {
+    padding: var(--sp-6);
+  }
+}

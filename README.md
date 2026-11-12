@@ -2,7 +2,7 @@
 
 Experii는 공부한 과정을 면접에서 쓸 수 있는 경험으로 쌓아 주는 Windows 데스크톱 앱이다. 앱 안에서 GPT와 대화하며 공부하고, 대화가 끝나면 버튼 한 번으로 그 공부를 경험 카드로 남긴다. 카드는 과목별 로드맵에 칸으로 쌓이고, 칸을 누르면 그때의 대화를 다시 열어 이어서 공부할 수 있다.
 
-> 현재 단계: 데스크톱 MVP v1. 로그인, 대화, 경험 카드, 로드맵이 main에 있고 창업자 PC에서 써 보는 중이다. 2026-10-30에 핵심 루프를 v2(필기 페이지)로 넓혔다. 기준 문서는 [PRD.md](PRD.md) 색인과 [docs/desktop/](docs/desktop/prd.md)이다.
+> 현재 단계: 데스크톱 MVP v1. 로그인, 대화, 경험 카드, 로드맵이 main에 있고 창업자 PC에서 써 보는 중이다. 2026-10-30에 핵심 루프를 v2(필기 페이지)로 넓혔다. 기준 문서는 [PRD.md](PRD.md) 색인과 [앱 PRD](docs/app/prd.md)다. 2026-11-13부터 웹 공개 실험 v0(`apps/web/`, 초대 링크로 들어와 캡쳐를 붙이면 AI가 필기를 제안)을 함께 만든다.
 
 ## 핵심 루프 (v2)
 
@@ -33,8 +33,10 @@ Experii는 공부한 과정을 면접에서 쓸 수 있는 경험으로 쌓아 �
 | 경로 | 내용 |
 |---|---|
 | `apps/desktop/` | 데스크톱 앱 (Electron + React + TypeScript) |
+| `apps/web/` | 웹 앱 (Next.js). 웹 공개 실험 v0: 초대 링크, 캡쳐 → 자동 필기 |
 | `landing/` | 사전 신청 랜딩페이지 (Next.js). 곧 `apps/landing/`으로 옮긴다 |
-| `docs/desktop/` | 데스크톱 앱 PRD와 TSD(설계와 단계별 계획) |
+| `docs/app/` | 데스크톱·웹 공통 PRD |
+| `docs/desktop/`, `docs/web/` | 앱별 TSD(설계와 단계별 계획) |
 | `docs/archive/` | 이전 자료. 보관만 하고 따르지 않는다 |
 | `.agents/`, `scripts/agents/`, `.claude/`, `.github/` | 개발 하네스: 에이전트 운영 규칙, 게이트, CI |
 

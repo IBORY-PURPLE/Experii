@@ -1,0 +1,427 @@
+/* The stat bar is the middle third of the 64px header band: line 1 (24px) holds the subject and the values, line 2 (20px) their labels. Its row lines up with the path below. */
+.statbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: var(--band);
+  padding: var(--band-pad) var(--sp-6) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-main);
+}
+
+.statbar .stats {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-8);
+  max-width: var(--w-path);
+  margin: 0 auto;
+}
+
+.statbar .subject-title {
+  display: flex;
+  flex: 1;
+  flex-direction: column-reverse;
+  min-width: 0;
+}
+
+.statbar .subject-title h1 {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--fs-20);
+  font-weight: var(--fw-3);
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statbar small,
+.stat span {
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+  color: var(--ink-3);
+}
+
+.stat {
+  display: grid;
+  grid-template:
+    'value meter' var(--lh-24)
+    'label label' var(--lh-20) / auto auto;
+  column-gap: var(--sp-2);
+  align-items: center;
+}
+
+.stat b {
+  grid-area: value;
+  font-size: var(--fs-16);
+  font-weight: var(--fw-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat span {
+  grid-area: label;
+}
+
+/* The figures sit low in their 24px line, so the meter drops 1px from the centre to meet their middle. */
+.stat .bar {
+  grid-area: meter;
+  width: calc(var(--sp-10) + var(--sp-4));
+  height: var(--sp-1);
+  margin-top: calc(var(--sp-1) / 2);
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--line-2);
+}
+
+.stat .bar i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--ink-2);
+}
+
+.path {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  max-width: calc(var(--w-path) + var(--sp-6) * 2);
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-6) var(--sp-10);
+  list-style: none;
+}
+
+.node {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--knob) minmax(0, 1fr);
+  column-gap: var(--sp-5);
+  align-items: start;
+}
+
+/* The rail runs from each knob's centre to the next one. It is dotted grey where the way is not walked yet. */
+.node:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--knob) / 2);
+  left: calc((var(--knob) - var(--rail)) / 2);
+  width: var(--rail);
+  height: calc(100% + var(--sp-3));
+  border-left: var(--rail) dotted var(--line-2);
+}
+
+/* It is solid blue from a done knob to the next done knob or to the conversation in progress. Drawn as a border
+   rather than a fill, it also stays a solid line beside the dotted one in Windows high contrast. */
+.node[data-kind='done']:not(:last-child):not(
+    :has(+ .node[data-kind='locked'])
+  )::before {
+  border-left-style: solid;
+  border-left-color: var(--blue-rail);
+  border-radius: var(--r-pill);
+}
+
+/* Knobs are the one place the app keeps depth. */
+.knob {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--knob);
+  height: var(--knob);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: linear-gradient(
+    180deg,
+    var(--blue-hi) 0%,
+    var(--blue) 52%,
+    var(--blue-lo) 100%
+  );
+  box-shadow: var(--sh-knob-done);
+  color: var(--on-ink);
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out);
+}
+
+.knob:active {
+  transform: translateY(calc(var(--sp-1) / 2));
+  box-shadow: var(--sh-knob-pressed);
+}
+
+.knob.current {
+  border: 2px solid var(--blue);
+  background: linear-gradient(
+    180deg,
+    var(--knob-now-top),
+    var(--knob-now-bottom)
+  );
+  box-shadow: var(--sh-knob-now);
+  color: var(--blue);
+}
+
+.knob.locked {
+  background: linear-gradient(
+    180deg,
+    var(--knob-off-top),
+    var(--knob-off-bottom)
+  );
+  box-shadow: var(--sh-knob-off);
+  color: var(--ink-3);
+}
+
+.knob.current:active,
+.knob.locked:active {
+  box-shadow: var(--sh-1);
+}
+
+/* Windows high contrast drops the knobs' gradients and shadows, so every knob keeps its circle as a real edge and
+   an opaque face that hides the rail behind it. */
+@media (forced-colors: active) {
+  .knob,
+  .knob.current,
+  .knob.locked {
+    border: 2px solid;
+    background-color: var(--surface);
+  }
+}
+
+.tile {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-1);
+  text-align: left;
+  transition:
+    box-shadow var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out);
+}
+
+.tile:hover {
+  box-shadow: var(--sh-2);
+}
+
+.tile:active {
+  box-shadow: var(--sh-1);
+}
+
+/* Blue edge = now: the tile of the conversation open in the chat, so it marks one tile at most. */
+.tile[aria-current='true'] {
+  border-color: var(--blue-rail);
+}
+
+.node[data-kind='current'] .tile {
+  padding-block: var(--sp-3);
+}
+
+.tile-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.tile-head h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  line-height: var(--lh-24);
+}
+
+.tile p {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.tile .line-box {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  font-weight: var(--fw-2);
+}
+
+.tile .line-box small {
+  display: block;
+  font-weight: var(--fw-2);
+  line-height: var(--lh-20);
+}
+
+/* Every node that is a conversation leads to its note page: the footer counts the notes and says where the tile goes. */
+.tile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  line-height: var(--lh-20);
+}
+
+.tile-notes {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  color: var(--ink-2);
+  font-weight: var(--fw-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-go {
+  font-weight: var(--fw-2);
+  transition: color var(--dur-2) var(--ease-out);
+}
+
+.tile:hover .tile-go {
+  color: var(--ink);
+}
+
+.tile.locked {
+  display: flex;
+  align-items: center;
+  min-height: var(--knob);
+  padding-block: var(--sp-2);
+  border-style: dashed;
+  border-color: var(--line-2);
+  background: transparent;
+  box-shadow: none;
+}
+
+.tile.locked:hover,
+.tile.locked[aria-expanded='true'] {
+  background: var(--wash);
+}
+
+.tile.locked .tile-head {
+  flex: 1;
+  align-items: center;
+}
+
+.tile.locked h2 {
+  color: var(--ink-3);
+  font-weight: var(--fw-2);
+}
+
+.bubble {
+  position: relative;
+  margin-top: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-3);
+}
+
+/* The arrow points back up at the locked tile the bubble opened from. */
+.bubble::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--sp-3) / -2 - 1px);
+  left: var(--sp-6);
+  width: var(--sp-3);
+  height: var(--sp-3);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  transform: rotate(45deg);
+}
+
+.bubble b {
+  display: block;
+  font-size: var(--fs-15);
+  font-weight: var(--fw-3);
+  line-height: var(--lh-24);
+}
+
+.bubble small {
+  display: block;
+  line-height: var(--lh-20);
+}
+
+.bubble p {
+  margin: var(--sp-2) 0 var(--sp-4);
+  color: var(--ink-2);
+}
+
+/* Empty path: a faint ghost of the path beside the words, set a little above the middle. */
+.path-empty {
+  display: grid;
+  grid-template-columns: var(--knob) auto;
+  align-content: center;
+  align-items: start;
+  justify-content: center;
+  column-gap: var(--sp-5);
+  min-height: 100%;
+  padding: var(--sp-8) var(--sp-6) calc(var(--sp-10) * 3);
+}
+
+.statbar + .path-empty {
+  min-height: calc(100% - var(--band));
+}
+
+.path-empty h2 {
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-20);
+  font-weight: var(--fw-3);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.path-empty p {
+  margin: var(--sp-1) 0 0;
+  color: var(--ink-3);
+}
+
+.path-empty .btn {
+  margin-top: var(--sp-5);
+}
+
+.ghost-path {
+  position: relative;
+  display: grid;
+  gap: var(--sp-6);
+}
+
+.ghost-path::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--knob) / 2);
+  bottom: calc(var(--knob) / 2);
+  left: calc((var(--knob) - var(--rail)) / 2);
+  border-left: var(--rail) dotted var(--line-2);
+}
+
+.ghost-path span {
+  position: relative;
+  width: var(--knob);
+  height: var(--knob);
+  border-radius: var(--r-pill);
+  background: linear-gradient(
+    180deg,
+    var(--knob-off-top),
+    var(--knob-off-bottom)
+  );
+  box-shadow: var(--sh-knob-off);
+}
+
+.ghost-path span:first-child {
+  border: 2px dashed var(--ink-4);
+  background: linear-gradient(
+    180deg,
+    var(--knob-now-top),
+    var(--knob-now-bottom)
+  );
+  box-shadow: var(--sh-knob-slot);
+}
+
+.ghost-path span:nth-child(2) {
+  opacity: 0.7;
+}
+
+.ghost-path span:nth-child(3) {
+  opacity: 0.4;
+}

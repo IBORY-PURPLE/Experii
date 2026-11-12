@@ -1,0 +1,179 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  color: var(--ink);
+  caret-color: var(--ink);
+  background: var(--bg-main);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+small {
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+
+::selection {
+  background: var(--select);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: var(--sp-3);
+  height: var(--sp-3);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: var(--sp-1) solid transparent;
+  border-radius: var(--r-pill);
+  background-color: transparent;
+  background-clip: padding-box;
+}
+
+/* Chromium restyles scrollbar parts only when the scroller's own style changes, so hover and focus also flip this. */
+@property --scroll-shown {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+:hover,
+:focus-within {
+  --scroll-shown: 1;
+}
+
+:hover::-webkit-scrollbar-thumb,
+:focus-within::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar);
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  border-width: calc(var(--sp-1) / 2);
+  background-color: var(--ink-4);
+}
+
+/* A folded side panel gives its column up to a thin strip (panes.css), and the middle takes the room. */
+.app {
+  --side-w: var(--w-side);
+  --chat-w: var(--w-chat);
+
+  display: grid;
+  grid-template-columns: var(--side-w) minmax(0, 1fr) var(--chat-w);
+  height: 100%;
+  transition: grid-template-columns var(--dur-3) var(--ease-out);
+}
+
+.app[data-sidebar='folded'] {
+  --side-w: var(--w-fold);
+}
+
+.app[data-chat='folded'] {
+  --chat-w: var(--w-fold);
+}
+
+/* The tab head on top, then the view: the roadmap, or the note page of the tab in front. */
+.middle {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-main);
+}
+
+.view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  container-type: inline-size;
+}
+
+/* Scrolling to a node or to a focused control stops below the sticky stat bar and leaves room for the focus ring. */
+.roadmap-view {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  scroll-padding: calc(var(--band) + var(--sp-2)) 0 var(--sp-2);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes blink {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Nothing moves or fades: states change at once, and a spinner stands still beside the words that say what is running.
+   A near-zero duration instead would still start a transition on every property of every element. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

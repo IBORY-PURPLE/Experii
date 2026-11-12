@@ -1,0 +1,243 @@
+/* The open card takes its tile's place in the node's second column. */
+.card-view {
+  --cv-pad: var(--sp-5);
+  --cv-label: calc(var(--sp-6) * 3);
+
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+  animation: cv-open var(--dur-3) var(--ease-out);
+}
+
+/* Points at the knob's centre, which sits at the top of the node; the 1px offsets step back over the card's edge. */
+.card-view::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--knob) / 2 - var(--sp-3) / 2 - 1px);
+  left: calc(var(--sp-3) / -2 - 1px);
+  width: var(--sp-3);
+  height: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  transform: rotate(45deg);
+}
+
+/* Opening lifts the card off the path from the resting tile's height; its text never fades. */
+@keyframes cv-open {
+  from {
+    box-shadow: var(--sh-1);
+    transform: translateY(calc(var(--sp-1) / 2));
+  }
+}
+
+.cv-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: start;
+  column-gap: var(--sp-2);
+  padding: var(--sp-4) var(--cv-pad) 0;
+}
+
+/* A 24px first line keeps the title, chip and 접기 on the knob's centre line. */
+.cv-head h2 {
+  margin: 0;
+  font-size: var(--fs-18);
+  font-weight: var(--fw-3);
+  line-height: var(--lh-24);
+}
+
+/* 접기 is as tall as the title's line, so it sits on the knob's centre line with the chip. Like the footer's ghost
+   buttons it hangs into the padding, so its label lines up with the text edge. */
+.cv-head .btn.cv-fold {
+  height: var(--h-24);
+  margin-right: calc(var(--sp-2) * -1);
+}
+
+.cv-band,
+.cv-summary {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.cv-band {
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+.cv-summary {
+  margin-top: var(--sp-2);
+  color: var(--ink-2);
+}
+
+.cv-body {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--cv-pad) var(--sp-4);
+}
+
+.cv-redacted {
+  display: flex;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-2);
+  background: var(--wash-3);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-2);
+  line-height: var(--lh-20);
+}
+
+/* The 16px icon centres on the note's first 20px line. */
+.cv-redacted svg {
+  flex: none;
+  margin-top: calc(var(--sp-1) / 2);
+}
+
+/* The card's sections part by space alone; the interview line stands out by its size and weight. */
+.card-view .line-box {
+  margin: 0;
+}
+
+.card-view .line-box small {
+  display: block;
+  margin: 0 0 var(--sp-1);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-2);
+  color: var(--ink-3);
+}
+
+.card-view .line-box p {
+  margin: 0;
+  font-size: var(--fs-16);
+  font-weight: var(--fw-2);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+/* STAR and the facts share one label column, so every value starts on the same line. Each block sits a step further
+   from the one above than the body's gap, which keeps the label rows apart from the quote and from each other. */
+.card-view .star,
+.cv-facts {
+  display: grid;
+  gap: var(--sp-2);
+  margin: var(--sp-1) 0 0;
+}
+
+.card-view .star > div,
+.cv-facts > div {
+  display: grid;
+  grid-template-columns: var(--cv-label) minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--sp-3);
+}
+
+.card-view .star dt,
+.cv-facts dt {
+  font-size: var(--fs-13);
+  font-weight: var(--fw-2);
+  color: var(--ink-3);
+}
+
+.card-view .star dt {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.card-view .star dt b {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--sp-5);
+  height: var(--sp-5);
+  border-radius: var(--r-1);
+  background: var(--wash-2);
+  color: var(--ink-2);
+  font-weight: var(--fw-3);
+}
+
+.card-view dd {
+  margin: 0;
+}
+
+.card-view .star dd.missing {
+  color: var(--ink-3);
+}
+
+/* A secret the app masked, set apart from the user's words like inline code in an answer. */
+.card-view .redacted {
+  padding: calc(var(--sp-1) / 4) var(--sp-1);
+  border-radius: var(--r-1);
+  background: var(--wash-2);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+}
+
+.card-view .concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card-view .concepts li {
+  display: flex;
+  align-items: center;
+  min-height: var(--h-28);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--wash-2);
+  color: var(--ink-2);
+  font-size: var(--fs-13);
+}
+
+.card-view .rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) var(--cv-pad);
+  border-top: 1px solid var(--line);
+}
+
+.card-view .rate p {
+  flex: 1 1 auto;
+  margin: 0;
+  font-weight: var(--fw-2);
+}
+
+.cv-rate-actions,
+.cv-foot-actions {
+  display: flex;
+  margin-left: auto;
+}
+
+.cv-rate-actions {
+  gap: var(--sp-2);
+}
+
+.cv-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-1) var(--sp-3) var(--sp-1) var(--cv-pad);
+  border-top: 1px solid var(--line);
+}
+
+.cv-foot > span {
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+.cv-foot-actions {
+  gap: var(--sp-1);
+}
