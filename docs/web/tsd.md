@@ -291,7 +291,7 @@ interface ClaudeAdapter {
 - **2026-11-13 운영 배포:** 브랜치 `claude/web-capture-notes`의 Git 미리보기 배포를 `vercel promote`로 운영에 올렸다. 그래서 운영 코드는 main이 아니라 이 브랜치다. PR이 main에 병합되면 main push가 운영을 다시 배포한다.
 - **처음 생긴 배포:** 프로젝트의 첫 배포는 운영 대상이 된다(Vercel 동작). 그 배포는 빌드 건너뛰기로 취소돼 영향이 없었다.
 
-- **빌드 건너뛰기:** `vercel.json`의 `ignoreCommand`는 `[ -n "$VERCEL_GIT_PREVIOUS_SHA" ] && git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- .`다. 그 브랜치의 마지막 성공 배포 이후 `apps/web`이 바뀌지 않았을 때만 빌드하지 않는다(첫 배포나 비교할 수 없을 때는 빌드한다). 직전 커밋만 보던 처음 방식은 코드 커밋 뒤 문서 커밋을 함께 push하면 코드를 배포하지 않는 문제가 있었다(2026-11-13 리뷰). 프로젝트 설정 "루트가 안 바뀐 커밋은 배포 건너뛰기"(affected projects)도 켰다. `apps/web`이 없는 다른 브랜치 push가 실패 표시를 남기지 않게 하려는 것이다.
+- **빌드 건너뛰기:** 프로젝트 설정 "루트가 안 바뀐 커밋은 배포 건너뛰기"(affected projects)만 쓴다. `vercel.json`의 `ignoreCommand`는 두지 않는다. 2026-11-13에 두 가지를 써 봤다. 직전 커밋만 비교하면 코드 커밋 뒤 문서 커밋을 함께 push할 때 코드가 배포되지 않았다. 마지막 성공 배포와 비교하면 같은 커밋을 다시 빌드하는 운영 승격(promote)과 Redeploy까지 건너뛰었다(실제로 승격 한 번이 취소됨). env를 바꾼 뒤 Redeploy가 꼭 빌드되어야 하므로 둘 다 뺐다.
 - **env:** 값은 Vercel 대시보드나 `vercel env add`로 넣는다. 저장소, PR 본문, 로그에 값을 쓰지 않는다.
 
   | 이름 | 운영 값 | 비밀 여부 |
