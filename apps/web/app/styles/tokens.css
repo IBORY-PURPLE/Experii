@@ -1,0 +1,135 @@
+:root {
+  color-scheme: light;
+  /* Contrast in comments: white = --surface, side = --bg-side, main = --bg-main, hover = --wash over --bg-side. */
+  --ink: #1a2233; /* body text: white 15.90, side 14.57, main 15.08, wash-3 14.44, wash-2 13.69, hover 13.25 */
+  --ink-hover: #2d3544; /* filled button hover: --on-ink on it 12.32 */
+  --ink-2: #444b59; /* secondary text: white 8.76, side 8.03, main 8.31, wash-3 7.96, wash-2 7.54, hover 7.30 */
+  --ink-3: #5c626e; /* meta and placeholder text: white 6.13, side 5.61, main 5.81, wash-3 5.56, wash-2 5.27, hover 5.11; selected on white 5.04, side 4.63, main 4.79, wash-3 4.59 */
+  --ink-4: #7e828c; /* control edges and icons, never text: white 3.85, side 3.52, main 3.65, wash-3 3.49, wash-2 3.31, hover 3.21 */
+  --line: #e4e5e7; /* hairline, decorative only (not a control edge): white 1.26 */
+  --line-2: #d0d2d5; /* stronger or dashed hairline, decorative only: white 1.51 */
+  --wash: rgb(26 34 51 / 0.05);
+  --wash-2: #edeeef;
+  --wash-3: #f3f4f5;
+  --on-ink: #ffffff; /* text on --ink 15.90, on --blue 6.73 */
+  --select: rgb(26 34 51 / 0.1); /* text selection is ink, never blue */
+
+  --blue: #3d5a99; /* done knobs, the now ring and dots, the 진행 중 chip only: white 6.73, main 6.38, blue-wash 6.00 */
+  --blue-hi: #5c74a9;
+  --blue-lo: #324a7d;
+  --blue-rail: #b1bdd6; /* the rail between done knobs and the edge of the tile open in the chat only */
+  --blue-wash: #eff2f7;
+  --err: #b42318; /* error text only: white 6.57, main 6.23, wash-3 5.97 */
+
+  --bg-side: #f4f5f6;
+  --bg-main: #f8f9f9;
+  --surface: #ffffff;
+  --knob-now-top: #ffffff;
+  --knob-now-bottom: #f2f3f4;
+  --knob-off-top: #f7f7f7;
+  --knob-off-bottom: #e5e6e8;
+  --scrim: rgb(26 34 51 / 0.15);
+  --scrollbar: rgb(26 34 51 / 0.2);
+
+  --font:
+    'Pretendard Variable', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif;
+  --font-mono:
+    'Cascadia Mono', Consolas, ui-monospace, 'Pretendard Variable', monospace;
+  /* 13 meta, 14 body, 15 tile and chat titles, 16 values and quotes, 18 card, dialog and sign-in titles, 20 subject and empty-state titles */
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-20: 20px;
+  --fs-logo: 32px; /* the sign-in lockup's wordmark only: part of the logo, outside the six text sizes */
+  --fw-1: 400;
+  --fw-2: 500;
+  --fw-3: 600;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+
+  --h-24: 24px;
+  --h-28: 28px;
+  --h-32: 32px;
+  --h-36: 36px;
+  --h-44: 44px;
+  --knob: 56px;
+  --rail: 6px;
+
+  /* line boxes: 20 for 13px meta and labels, 24 for titles */
+  --lh-20: 20px;
+  --lh-24: 24px;
+
+  /* The header band across all three columns: line 1 (24px, titles) at 10–34px, line 2 (20px, labels) at 34–54px. */
+  --band: 64px;
+  --band-pad: calc((var(--band) - var(--lh-24) - var(--lh-20)) / 2);
+
+  /* layout widths: the sidebar, chat and path columns, the dialog and the sign-in card */
+  --w-side: 248px;
+  --w-chat: 380px;
+  --w-path: 640px;
+  --w-dialog: 440px;
+  --w-gate: 400px;
+  --w-fold: 20px; /* the strip a folded side panel leaves at the window edge, with its handle */
+  /* the middle's tabs: the roadmap's, a note page's smallest and largest */
+  --w-tab-road: 120px;
+  --w-tab: 176px;
+  --w-tab-max: 264px;
+  /* a note page: a note on the canvas (canvas.ts NOTE_W is the same number), the pinned card summary closed and open,
+     and the next study panel at its widest and narrowest */
+  --w-note: 264px;
+  --w-pin: 328px;
+  --w-pin-open: 380px;
+  --w-pin-min: 220px;
+  --w-next: 320px;
+  --w-next-min: 248px;
+
+  /* circles use --r-pill */
+  --r-1: 4px;
+  --r-2: 8px;
+  --r-3: 12px;
+  --r-4: 16px;
+  --r-pill: 999px;
+
+  /* ring, sh-1 card and lifted row, sh-2 open card, sh-3 popover, sh-4 dialog; the knob depths are for path knobs only */
+  --ring: 0 0 0 1px var(--line);
+  --sh-1: 0 1px 2px rgb(26 34 51 / 0.06);
+  --sh-2: 0 1px 2px rgb(26 34 51 / 0.05), 0 6px 18px -6px rgb(26 34 51 / 0.12);
+  --sh-3:
+    0 2px 6px rgb(26 34 51 / 0.07), 0 14px 32px -10px rgb(26 34 51 / 0.18);
+  --sh-4:
+    0 0 0 1px rgb(26 34 51 / 0.06), 0 4px 12px rgb(26 34 51 / 0.08),
+    0 28px 56px -16px rgb(26 34 51 / 0.3);
+  --sh-knob-done:
+    inset 0 1.5px 1px rgb(255 255 255 / 0.26),
+    inset 0 -5px 4px rgb(16 26 52 / 0.32),
+    0 3px 1.5px -0.5px rgb(38 58 99 / 0.5), 0 9px 16px -6px rgb(26 34 51 / 0.3);
+  --sh-knob-pressed:
+    inset 0 -2px 2px rgb(16 26 52 / 0.3), 0 1px 1px rgb(38 58 99 / 0.4);
+  --sh-knob-now:
+    inset 0 -4px 3px rgb(26 34 51 / 0.06), 0 3px 2px -1px rgb(26 34 51 / 0.14),
+    0 8px 14px -6px rgb(26 34 51 / 0.2);
+  --sh-knob-off:
+    inset 0 1.5px 1px rgb(255 255 255 / 0.9),
+    inset 0 -4px 3px rgb(26 34 51 / 0.07), 0 2px 2px -1px rgb(26 34 51 / 0.16),
+    0 6px 10px -6px rgb(26 34 51 / 0.2);
+  --sh-knob-slot:
+    0 3px 2px -1px rgb(26 34 51 / 0.1), 0 8px 14px -6px rgb(26 34 51 / 0.14);
+
+  /* dur-1 press and dialog fade, dur-2 hover and state colour, dur-3 card open, a panel folding and a toast coming in;
+     land is a dropped note settling in place, settle the grey it fades out of on arrival */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 100ms;
+  --dur-2: 160ms;
+  --dur-3: 240ms;
+  --dur-land: 560ms;
+  --dur-settle: 1600ms;
+}
