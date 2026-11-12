@@ -59,7 +59,7 @@ export function Sidebar(p: Props) {
         )}
       </div>
       <div className="account">
-        <span className="avatar">나</span>
+        <span className="avatar">게</span>
         <span className="who">
           <span className="name">게스트</span>
           <span className="state">초대 링크로 들어왔어요</span>

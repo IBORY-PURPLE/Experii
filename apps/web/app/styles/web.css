@@ -131,7 +131,7 @@
 .suggest-list {
   display: grid;
   gap: var(--sp-2);
-  max-height: 560px;
+  max-height: 380px;
   margin: 0;
   padding: 0;
   overflow-y: auto;
@@ -331,10 +331,46 @@
   margin: 0;
 }
 
-/* Long notices wrap instead of running past a narrow middle. */
-.toast {
+/* Notices sit at the top of the board, clear of the suggestion lists and the tools, and wrap on a narrow middle. */
+.view > .toast {
+  top: var(--sp-4);
+  bottom: auto;
   max-width: calc(100% - var(--sp-8));
   white-space: normal;
+}
+
+/* The sign-in card keeps inside a phone-width window. */
+.gate {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Words for a keyboard and a mouse, or for a phone. */
+.only-narrow {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .only-wide {
+    display: none;
+  }
+
+  .only-narrow {
+    display: revert;
+  }
+
+  .gate {
+    padding: var(--sp-4);
+  }
+
+  .gate-card {
+    padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  }
+
+  /* folded side panels: an easier handle to see and to press */
+  .pane-handle {
+    background: var(--wash-2);
+    color: var(--ink-2);
+  }
 }
 
 @media (max-width: 900px) {

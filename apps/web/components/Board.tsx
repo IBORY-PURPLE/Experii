@@ -15,6 +15,7 @@ import type { NoteKind } from '@/lib/claude/types';
 import type { Capture, Note } from '@/lib/types';
 import { imageUrl } from './api';
 import { NOTE_W, toWorld, zoomAt, type Point, type View } from './canvas';
+import { carriesNote, readDrop, type Pick } from './collect';
 import { Close, Hand, Minus, Page, Picture, Plus, Pointer, Retry } from './icons';
 import { imageFrom } from './image';
 
@@ -49,7 +50,10 @@ type Props = {
   intro: boolean;
   flash: string | null;
   reveal: { x: number; y: number; w: number; h: number; key: number } | null;
+  // words picked with [필기에 추가]: placed once, by key, in a free spot on screen
+  pick: (Pick & { key: number }) | null;
   onView(v: View): void;
+  onChatNote(pick: Pick, at: Point): void;
   onImage(file: File, at: Point): void;
   onPlace(items: Array<{ id: string; x: number; y: number }>): void;
   onDismiss(note: Note): void;
@@ -99,19 +103,24 @@ function Intro(p: { onClose(): void }) {
       <ol className="intro-steps">
         <li>
           <b>오른쪽 AI와 대화하며 공부해요</b>
-          <span>궁금한 걸 바로 물어보세요.</span>
+          <span className="only-wide">궁금한 걸 바로 물어보세요.</span>
+          <span className="only-narrow">화면 오른쪽 끝의 ‹ 를 누르면 대화가 열려요.</span>
         </li>
         <li>
           <b>남기고 싶은 화면을 캡쳐해요</b>
-          <span>
+          <span className="only-wide">
             Windows는 <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, Mac은 <kbd>Cmd</kbd>+
             <kbd>Shift</kbd>+<kbd>4</kbd>
           </span>
+          <span className="only-narrow">휴대폰 화면 캡쳐나 사진이면 돼요.</span>
         </li>
         <li>
           <b>이 보드에 붙여 넣어요</b>
-          <span>
+          <span className="only-wide">
             <kbd>Ctrl</kbd>+<kbd>V</kbd>를 누르면 AI가 필기를 제안하고, 고른 것만 보드에 남아요.
+          </span>
+          <span className="only-narrow">
+            아래 그림 버튼으로 올리면 AI가 필기를 제안하고, 고른 것만 보드에 남아요.
           </span>
         </li>
       </ol>
@@ -119,7 +128,7 @@ function Intro(p: { onClose(): void }) {
         캡쳐는 Experii 서버에 저장되고, 필기를 만들려고 AI로 보내요. 비밀번호나 개인정보가 보이는
         화면은 올리지 마세요.
       </p>
-      <button className="btn primary large" onClick={p.onClose} autoFocus>
+      <button className="btn primary large" onClick={p.onClose}>
         바로 공부 시작하기
       </button>
     </section>
@@ -166,11 +175,12 @@ export function Board(p: Props) {
   const [panning, setPanning] = useState(false);
   const [moved, setMoved] = useState<{ target: Target; id: string; at: Point } | null>(null);
   const [front, setFront] = useState<string | null>(null);
-  const [dropping, setDropping] = useState(false);
+  const [dropping, setDropping] = useState<'image' | 'words' | null>(null);
   const gesture = useRef<Gesture | null>(null);
   const over = useRef(false);
   const revealed = useRef<number | null>(null);
-  const settling = useRef<{ ids: string[]; y: number } | null>(null);
+  const settling = useRef<{ ids: string[]; y: number; capture: string; below: boolean } | null>(null);
+  const picked = useRef<number | null>(null);
   const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latest = useRef(p);
   latest.current = p;
@@ -199,7 +209,7 @@ export function Board(p: Props) {
     if (!c) return;
     let v = viewRef.current;
     const room = c.clientWidth - 32;
-    if (r.w * v.z > room) v = { ...v, z: Math.max(0.5, room / r.w) };
+    if (r.w * v.z > room) v = { ...v, z: Math.max(0.75, room / r.w) };
     const l = r.x * v.z + v.x;
     const t = r.y * v.z + v.y;
     const w = r.w * v.z;
@@ -230,12 +240,19 @@ export function Board(p: Props) {
     return { x, y };
   };
 
-  // A capture's notes go in a column at its right, each under the one before.
-  const spots = (c: Capture, texts: string[]): Point[] => {
-    const x = Math.round(c.x + TILE_W + GAP);
-    const column = placed.filter((n) => Math.abs(n.x - x) < NOTE_W / 2 && n.y >= c.y - 8);
+  // On a phone-width board the notes go under the capture card instead of beside it, so nothing has to shrink.
+  const narrow = () => (canvas.current?.clientWidth ?? 1000) < 560;
+  const columnX = (c: Capture, below: boolean) =>
+    Math.round(below ? c.x + (TILE_W - NOTE_W) / 2 : c.x + TILE_W + GAP);
+  const cardBottom = (c: Capture) => c.y + (drawn(c.id)?.offsetHeight ?? tileHeight(c) + 40) + 16;
+
+  // A capture's notes go in a column at its right (or under it on a phone), each under the one before.
+  const spots = (c: Capture, texts: string[], below: boolean): Point[] => {
+    const x = columnX(c, below);
+    const top = below ? cardBottom(c) : c.y;
+    const column = placed.filter((n) => Math.abs(n.x - x) < NOTE_W / 2 && n.y >= top - 8);
     let y = Math.max(
-      c.y,
+      top,
       ...column.map((n) => Math.round(n.y + (drawn(n.id)?.offsetHeight ?? estimate(n.text)) + 12)),
     );
     return texts.map((t) => {
@@ -246,14 +263,20 @@ export function Board(p: Props) {
   };
 
   const place = (c: Capture, list: Note[]) => {
+    const below = narrow();
     const at = spots(
       c,
       list.map((n) => n.text),
+      below,
     );
-    settling.current = { ids: list.map((n) => n.id), y: at[0].y };
+    settling.current = { ids: list.map((n) => n.id), y: at[0].y, capture: c.id, below };
     p.onPlace(list.map((n, i) => ({ id: n.id, ...at[i] })));
-    const top = Math.min(c.y, at[0].y);
     const last = at[at.length - 1];
+    if (below) {
+      bringIntoView({ x: at[0].x, y: at[0].y, w: NOTE_W, h: Math.min(320, last.y - at[0].y + 120) });
+      return;
+    }
+    const top = Math.min(c.y, at[0].y);
     const bottom = Math.max(c.y + tileHeight(c) + 48, last.y + estimate(list[list.length - 1].text));
     bringIntoView({ x: c.x, y: top, w: GROUP_W, h: bottom - top });
   };
@@ -265,12 +288,43 @@ export function Board(p: Props) {
     const list = s.ids.map((id) => p.notes.find((n) => n.id === id));
     if (list.some((n) => !n || n.state !== 'placed' || !drawn(n.id))) return;
     settling.current = null;
-    let y = s.y;
+    // under the card, the column starts below the card as it is drawn now (its suggestion list may have gone)
+    const cap = p.captures.find((c) => c.id === s.capture);
+    let y = s.below && cap ? Math.round(cardBottom(cap)) : s.y;
     for (const n of list as Note[]) {
       if (Math.abs(n.y - y) > 2) p.onMoveNote(n, { x: n.x, y });
       y += (drawn(n.id)?.offsetHeight ?? estimate(n.text)) + 12;
     }
   }, [p.notes]);
+
+  // A note from the chat goes in the middle of the screen, below any note already there.
+  const noteSpot = (): Point => {
+    const c = canvas.current;
+    const v = viewRef.current;
+    const at = toWorld(v, { x: (c?.clientWidth ?? 800) / 2, y: 64 });
+    const x = Math.round(at.x - NOTE_W / 2);
+    let y = Math.round(at.y);
+    for (let i = 0; i < 40; i += 1) {
+      const hit = placed.find(
+        (n) =>
+          Math.abs(n.x - x) < NOTE_W &&
+          y >= n.y - 8 &&
+          y < n.y + (drawn(n.id)?.offsetHeight ?? estimate(n.text)) + 12,
+      );
+      if (!hit) break;
+      y = Math.round(hit.y + (drawn(hit.id)?.offsetHeight ?? estimate(hit.text)) + 12);
+    }
+    return { x, y };
+  };
+
+  useEffect(() => {
+    const pick = p.pick;
+    if (!pick || picked.current === pick.key) return;
+    picked.current = pick.key;
+    const at = noteSpot();
+    p.onChatNote(pick, at);
+    bringIntoView({ x: at.x, y: at.y, w: NOTE_W, h: estimate(pick.text) });
+  }, [p.pick]);
 
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
@@ -464,19 +518,29 @@ export function Board(p: Props) {
 
   const carriesImage = (e: DragEvent) => Array.from(e.dataTransfer.types).includes('Files');
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
-    if (!carriesImage(e)) return;
+    const words = carriesNote(e.dataTransfer);
+    if (!words && !carriesImage(e)) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
-    setDropping(true);
+    setDropping(words ? 'words' : 'image');
   };
   const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
     const to = e.relatedTarget as Node | null;
-    if (!to || !board.current?.contains(to)) setDropping(false);
+    if (!to || !board.current?.contains(to)) setDropping(null);
   };
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
+    if (carriesNote(e.dataTransfer)) {
+      e.preventDefault();
+      setDropping(null);
+      const pick = readDrop(e.dataTransfer);
+      if (!pick) return;
+      const at = toWorld(viewRef.current, local(e));
+      p.onChatNote(pick, { x: Math.round(at.x - NOTE_W / 2), y: Math.round(at.y - 24) });
+      return;
+    }
     if (!carriesImage(e)) return;
     e.preventDefault();
-    setDropping(false);
+    setDropping(null);
     const file = imageFrom(e.dataTransfer);
     if (!file) return;
     const at = toWorld(viewRef.current, local(e));
@@ -649,9 +713,12 @@ export function Board(p: Props) {
         <div className="board-empty">
           <Page size={24} />
           <b>아직 필기가 없어요</b>
-          <p>
+          <p className="only-wide">
             AI와 대화하다 남기고 싶은 화면을 캡쳐해(Win+Shift+S) 여기에 붙여 넣으세요(Ctrl+V). 필기는
             자동으로 만들어 드려요.
+          </p>
+          <p className="only-narrow">
+            아래 그림 버튼으로 캡쳐나 사진을 올리세요. 필기는 자동으로 만들어 드려요.
           </p>
         </div>
       )}
@@ -709,8 +776,12 @@ export function Board(p: Props) {
         <>
           <div className="dropzone" aria-hidden />
           <p className="droptag" style={{ left: 16, top: 16 }} aria-hidden>
-            <Picture />
-            <b>놓으면 AI가 이 캡쳐로 필기를 만들어요</b>
+            {dropping === 'words' ? <Page /> : <Picture />}
+            <b>
+              {dropping === 'words'
+                ? '여기에 놓으면 고른 글이 그대로 필기가 돼요'
+                : '놓으면 AI가 이 캡쳐로 필기를 만들어요'}
+            </b>
           </p>
         </>
       )}

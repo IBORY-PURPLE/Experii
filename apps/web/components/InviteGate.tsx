@@ -18,7 +18,8 @@ export function InviteGate({ wrongCode }: { wrongCode: boolean }) {
           </p>
         )}
         <p className="gate-note">
-          AI와 대화하며 공부하다 화면을 캡쳐해 붙이면, AI가 필기를 만들어 주는 공부 보드예요.
+          AI와 대화하며 공부하다 화면을 캡쳐해 붙이면, AI가 필기를 만들어 주는 공부 보드예요. 초대
+          링크는 Experii 팀이 보내 드려요.
         </p>
       </div>
     </main>

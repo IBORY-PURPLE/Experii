@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from 'react';
 import type { Message } from '@/lib/types';
+import { useCollect, type Pick, type Refusal } from './collect';
 import { ArrowUp, Stop } from './icons';
 import { Markdown } from './Markdown';
 import { PaneToggle } from './Panes';
@@ -14,6 +15,7 @@ export type Banner = {
 };
 
 type Props = {
+  pageId: string | null;
   title: string | null;
   messages: Message[] | null;
   streamingText: string | null;
@@ -26,15 +28,32 @@ type Props = {
   onStop(): void;
   onNewPage(): void;
   onFold(): void;
+  onAddNote(pick: Pick): void;
+  onNoteRefused(why: Refusal): void;
+};
+
+// An answer's question number is how many questions came before it.
+const questionNumbers = (messages: Message[]) => {
+  let asked = 0;
+  return messages.map((m) => (m.role === 'user' ? ++asked : asked));
 };
 
 const WHO = 'Claude';
 
 export function ChatPanel(p: Props) {
+  const panel = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const [composing, setComposing] = useState(false);
   const streaming = p.streamingText !== null;
   const disabled = p.messages === null;
+  const asked = questionNumbers(p.messages ?? []);
+  const collect = useCollect({
+    panel,
+    root: scroller,
+    pageId: p.pageId,
+    onAdd: p.onAddNote,
+    onRefuse: p.onNoteRefused,
+  });
 
   useEffect(() => {
     const el = scroller.current;
@@ -50,7 +69,7 @@ export function ChatPanel(p: Props) {
   };
 
   return (
-    <section className="chat" aria-label="AI 대화">
+    <section className="chat" aria-label="AI 대화" ref={panel}>
       <header className="chat-head">
         <div className="ttl">
           <h2 className="band-title" title={p.title ?? undefined}>
@@ -70,20 +89,28 @@ export function ChatPanel(p: Props) {
           <b>연습 모드</b> 지금은 AI 연결 전이라 답과 필기가 예시로 나와요.
         </p>
       )}
-      <div className="messages" ref={scroller}>
+      <div
+        className="messages"
+        ref={scroller}
+        onDragStart={collect.onDragStart}
+        onDragEnd={collect.onDragEnd}
+      >
         {p.messages && p.messages.length === 0 && !streaming && (
           <div className="chat-empty">
             <b>무엇을 공부하고 있나요?</b>
-            <p>궁금한 걸 물어보세요. 답에서 남기고 싶은 부분은 캡쳐해서 왼쪽 보드에 붙이면 돼요.</p>
+            <p>
+              궁금한 걸 물어보세요. 답에서 남기고 싶은 부분은 캡쳐해서 왼쪽 보드에 붙이거나, 글을 골라
+              보드로 끌어 놓으면 돼요.
+            </p>
           </div>
         )}
-        {p.messages?.map((m) =>
+        {p.messages?.map((m, i) =>
           m.role === 'user' ? (
             <div key={m.id} className="msg-user">
               {m.content}
             </div>
           ) : (
-            <div key={m.id} className="msg-ai">
+            <div key={m.id} className="msg-ai" data-seq={m.seq} data-q={asked[i]}>
               <div className="who">{WHO}</div>
               <Markdown text={m.content} />
             </div>
@@ -96,6 +123,7 @@ export function ChatPanel(p: Props) {
           </div>
         )}
       </div>
+      {collect.button}
       {p.banner && (
         <div className={`banner ${p.banner.tone === 'err' ? 'err' : ''}`} role={p.banner.tone === 'err' ? 'alert' : 'status'}>
           <b>{p.banner.title}</b>

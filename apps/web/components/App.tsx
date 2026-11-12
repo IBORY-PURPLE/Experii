@@ -6,6 +6,7 @@ import { ApiError, api, errorText } from './api';
 import { Board, TILE_W, tileHeight, type Uploading } from './Board';
 import { DEFAULT_VIEW, type Point, type View } from './canvas';
 import { ChatPanel, type Banner } from './ChatPanel';
+import { REFUSALS, type Pick } from './collect';
 import { Page } from './icons';
 import { ImageError, prepareImage } from './image';
 import { Pane, useLayout } from './Panes';
@@ -66,6 +67,7 @@ function Shell({ mock }: { mock: boolean }) {
   const [flash, setFlash] = useState<string | null>(null);
   const [reveal, setReveal] = useState<{ x: number; y: number; w: number; h: number; key: number } | null>(null);
   const [views, setViews] = useState<Record<string, View>>(loadViews);
+  const [pick, setPick] = useState<(Pick & { key: number }) | null>(null);
   const abort = useRef<AbortController | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -238,6 +240,19 @@ function Shell({ mock }: { mock: boolean }) {
       failed(error, '필기를 보드에 넣지 못했어요.');
     } finally {
       for (const item of items) placing.current.delete(item.id);
+    }
+  };
+
+  // Words kept from an answer, as they are (drag-from-chat).
+  const addChatNote = async (picked: Pick, at: Point) => {
+    const page = detail?.page;
+    if (!page || picked.pageId !== page.id) return;
+    try {
+      const note = await api.chatNote(page.id, picked.text, picked.q, at.x, at.y);
+      setDetail((d) => (d && d.page.id === page.id ? { ...d, notes: [...d.notes, note] } : d));
+      setFlash(note.id);
+    } catch (error) {
+      failed(error, '필기에 남기지 못했어요.');
     }
   };
 
@@ -457,7 +472,9 @@ function Shell({ mock }: { mock: boolean }) {
               intro={intro}
               flash={flash}
               reveal={reveal}
+              pick={pick}
               onView={(v) => keepView(page.id, v)}
+              onChatNote={(picked, at) => void addChatNote(picked, at)}
               onImage={(file, at) => void addCapture(file, at)}
               onPlace={(items) => void placeNotes(items)}
               onDismiss={(note) => void removeNote(note, null)}
@@ -483,6 +500,7 @@ function Shell({ mock }: { mock: boolean }) {
       </main>
       <Pane panel="chat" open={layout.chat} onOpen={() => setOpen('chat', true)}>
         <ChatPanel
+          pageId={page?.id ?? null}
           title={pageTitle}
           messages={detail?.messages ?? null}
           streamingText={stream && stream.pageId === page?.id ? stream.text : null}
@@ -495,6 +513,8 @@ function Shell({ mock }: { mock: boolean }) {
           onStop={() => abort.current?.abort()}
           onNewPage={() => void newPage()}
           onFold={() => setOpen('chat', false)}
+          onAddNote={(picked) => setPick({ ...picked, key: Date.now() })}
+          onNoteRefused={(why) => showToast(REFUSALS[why])}
         />
       </Pane>
     </div>
