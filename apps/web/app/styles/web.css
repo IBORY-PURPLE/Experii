@@ -342,3 +342,17 @@
     padding: var(--sp-6);
   }
 }
+
+/* The hint needs room beside the centred tools; on a narrow middle the tools move left, clear of the zoom. */
+@container (max-width: 980px) {
+  .hint {
+    display: none;
+  }
+}
+
+@container (max-width: 560px) {
+  .toolbar {
+    left: var(--sp-4);
+    transform: none;
+  }
+}

@@ -72,9 +72,12 @@ const typing = (t: EventTarget | null) =>
 export const tileHeight = (c: { width: number | null; height: number | null }) =>
   c.width && c.height ? Math.max(120, Math.min(480, Math.round((TILE_W * c.height) / c.width))) : 240;
 
-// Rough height of a note before it is drawn: 19 Korean characters to a line at the note's width.
+// Rough height of a note before it is drawn (16 Korean characters to a line); placed notes settle after drawing.
 const estimate = (text: string) =>
-  32 + text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 19)), 0) * 21 + 32;
+  56 + text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 16)), 0) * 21;
+
+// A capture and the column its notes go into, side by side.
+const GROUP_W = TILE_W + GAP + NOTE_W;
 
 export function timeLabel(at: string, now = Date.now()): string {
   const d = new Date(at);
@@ -167,6 +170,7 @@ export function Board(p: Props) {
   const gesture = useRef<Gesture | null>(null);
   const over = useRef(false);
   const revealed = useRef<number | null>(null);
+  const settling = useRef<{ ids: string[]; y: number } | null>(null);
   const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latest = useRef(p);
   latest.current = p;
@@ -189,13 +193,32 @@ export function Board(p: Props) {
   const drawn = (id: string) =>
     board.current?.querySelector<HTMLElement>(`[data-id="${id}"]`) ?? null;
 
-  // Where a pasted capture goes: the middle of what is on screen, stepped aside from a capture already there.
+  // Moves (and on a narrow screen zooms out) the view so a box of the world is on screen.
+  const bringIntoView = (r: { x: number; y: number; w: number; h: number }) => {
+    const c = canvas.current;
+    if (!c) return;
+    let v = viewRef.current;
+    const room = c.clientWidth - 32;
+    if (r.w * v.z > room) v = { ...v, z: Math.max(0.5, room / r.w) };
+    const l = r.x * v.z + v.x;
+    const t = r.y * v.z + v.y;
+    const w = r.w * v.z;
+    const h = r.h * v.z;
+    const dx =
+      l < 16 ? 16 - l : l + w > c.clientWidth - 16 ? Math.max(16 - l, c.clientWidth - 16 - l - w) : 0;
+    const dy =
+      t < 16 ? 16 - t : t + h > c.clientHeight - 76 ? Math.max(16 - t, c.clientHeight - 76 - t - h) : 0;
+    if (dx || dy || v !== viewRef.current) keepView({ ...v, x: v.x + dx, y: v.y + dy });
+  };
+
+  // Where a pasted capture goes: the middle of what is on screen with room for its notes on the right, stepped
+  // aside from a capture already there.
   const freeSpot = (): Point => {
     const c = canvas.current;
     const v = viewRef.current;
     const w = c?.clientWidth ?? 800;
     const at = toWorld(v, { x: w / 2, y: 48 });
-    let x = Math.round(at.x - TILE_W / 2);
+    let x = Math.round(at.x - (w / v.z >= GROUP_W + 32 ? GROUP_W : TILE_W) / 2);
     let y = Math.round(at.y);
     const taken = (px: number, py: number) =>
       latest.current.captures.some((cap) => Math.abs(cap.x - px) < 40 && Math.abs(cap.y - py) < 40) ||
@@ -227,8 +250,27 @@ export function Board(p: Props) {
       c,
       list.map((n) => n.text),
     );
+    settling.current = { ids: list.map((n) => n.id), y: at[0].y };
     p.onPlace(list.map((n, i) => ({ id: n.id, ...at[i] })));
+    const top = Math.min(c.y, at[0].y);
+    const last = at[at.length - 1];
+    const bottom = Math.max(c.y + tileHeight(c) + 48, last.y + estimate(list[list.length - 1].text));
+    bringIntoView({ x: c.x, y: top, w: GROUP_W, h: bottom - top });
   };
+
+  // Notes just put on the board are stacked again by their drawn heights, so the column has even gaps.
+  useEffect(() => {
+    const s = settling.current;
+    if (!s) return;
+    const list = s.ids.map((id) => p.notes.find((n) => n.id === id));
+    if (list.some((n) => !n || n.state !== 'placed' || !drawn(n.id))) return;
+    settling.current = null;
+    let y = s.y;
+    for (const n of list as Note[]) {
+      if (Math.abs(n.y - y) > 2) p.onMoveNote(n, { x: n.x, y });
+      y += (drawn(n.id)?.offsetHeight ?? estimate(n.text)) + 12;
+    }
+  }, [p.notes]);
 
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
@@ -244,17 +286,9 @@ export function Board(p: Props) {
   // A new capture is brought into view once.
   useEffect(() => {
     const r = p.reveal;
-    const c = canvas.current;
-    if (!r || !c || revealed.current === r.key) return;
+    if (!r || revealed.current === r.key) return;
     revealed.current = r.key;
-    const v = viewRef.current;
-    const l = r.x * v.z + v.x;
-    const t = r.y * v.z + v.y;
-    const w = r.w * v.z;
-    const h = r.h * v.z;
-    const dx = l < 16 ? 16 - l : l + w > c.clientWidth - 16 ? Math.max(16 - l, c.clientWidth - 16 - l - w) : 0;
-    const dy = t < 16 ? 16 - t : t + h > c.clientHeight - 76 ? Math.max(16 - t, c.clientHeight - 76 - t - h) : 0;
-    if (dx || dy) keepView({ ...v, x: v.x + dx, y: v.y + dy });
+    bringIntoView(r);
   }, [p.reveal]);
 
   useEffect(() => {
@@ -669,7 +703,7 @@ export function Board(p: Props) {
         </button>
       </div>
       <p className="hint" aria-hidden>
-        Ctrl+V로 캡쳐 붙이기 · 스페이스+끌기로 이동 · Ctrl+휠로 확대
+        Ctrl+V로 캡쳐 붙이기 · 스페이스+끌기로 이동
       </p>
       {dropping && (
         <>

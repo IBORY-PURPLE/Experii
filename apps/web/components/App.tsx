@@ -69,6 +69,8 @@ function Shell({ mock }: { mock: boolean }) {
   const abort = useRef<AbortController | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // A note's move waits for its own placing to reach the server, so the two never land out of order.
+  const placing = useRef(new Map<string, Promise<unknown>>());
 
   const showToast = useCallback((text: string, ms = 4000) => {
     clearTimeout(toastTimer.current);
@@ -219,13 +221,23 @@ function Shell({ mock }: { mock: boolean }) {
       }),
     );
     if (items.length === 1) setFlash(items[0].id);
+    const request = api.placeNotes(items);
+    for (const item of items) placing.current.set(item.id, request.catch(() => undefined));
     try {
-      const placed = await api.placeNotes(items);
+      const placed = await request;
       const byId = new Map(placed.map((n) => [n.id, n]));
-      updateNotes((notes) => notes.map((n) => byId.get(n.id) ?? n));
+      // the board may have moved them since (settling the column), so the local spot wins
+      updateNotes((notes) =>
+        notes.map((n) => {
+          const saved = byId.get(n.id);
+          return saved ? { ...saved, x: n.x, y: n.y } : n;
+        }),
+      );
     } catch (error) {
       updateNotes(() => before);
       failed(error, '필기를 보드에 넣지 못했어요.');
+    } finally {
+      for (const item of items) placing.current.delete(item.id);
     }
   };
 
@@ -245,6 +257,7 @@ function Shell({ mock }: { mock: boolean }) {
       notes.map((n) => (n.id === note.id ? { ...n, ...at, updatedAt: new Date().toISOString() } : n)),
     );
     try {
+      await placing.current.get(note.id);
       await api.moveNote(note.id, at.x, at.y);
     } catch (error) {
       updateNotes((notes) => notes.map((n) => (n.id === note.id ? note : n)));

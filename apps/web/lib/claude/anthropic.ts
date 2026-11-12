@@ -43,8 +43,15 @@ export function createAnthropicAdapter(opts: {
   apiKey: string;
   model: string;
   effort?: Effort;
+  // tests only: answers requests without the network
+  fetch?: typeof globalThis.fetch;
 }): ClaudeAdapter {
-  const client = new Anthropic({ apiKey: opts.apiKey, maxRetries: 1, timeout: 55_000 });
+  const client = new Anthropic({
+    apiKey: opts.apiKey,
+    maxRetries: 1,
+    timeout: 55_000,
+    ...(opts.fetch ? { fetch: opts.fetch } : {}),
+  });
   const model = opts.model;
   const effort = opts.effort ? { effort: opts.effort } : {};
   const fallback = supportsFallback(model)
