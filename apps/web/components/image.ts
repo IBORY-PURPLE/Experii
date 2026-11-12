@@ -9,6 +9,8 @@ export class ImageError extends Error {
 }
 
 const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
+// Sent as base64 the image grows by a third; past this it is re-encoded to stay well inside Claude's image limit.
+const KEEP_AS_IS_BYTES = 3.5 * 1024 * 1024;
 
 const encode = (canvas: HTMLCanvasElement, type: string, quality: number) =>
   new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
@@ -26,7 +28,7 @@ export async function prepareImage(file: Blob): Promise<Prepared> {
   const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
   const height = Math.max(1, Math.round(bitmap.height * scale));
-  if (scale === 1 && file.size <= MAX_UPLOAD_BYTES) {
+  if (scale === 1 && file.size <= KEEP_AS_IS_BYTES) {
     bitmap.close();
     return { blob: file, width, height };
   }

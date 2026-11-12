@@ -1,3 +1,4 @@
+import { after } from 'next/server';
 import { getAdapter } from '@/lib/claude';
 import type { ChatTurn } from '@/lib/claude/types';
 import { HttpError, fail, readJson, requireId, requireVisitor } from '@/lib/server/http';
@@ -6,7 +7,7 @@ import { addMessage, assertPage, chatHistory, takeChat, touchPage } from '@/lib/
 import { DEFAULT_TITLE, MAX_MESSAGE_CHARS } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -26,7 +27,7 @@ export async function POST(request: Request, { params }: Ctx) {
     if (!text) throw new HttpError(400, 'empty_message');
     if (text.length > MAX_MESSAGE_CHARS) throw new HttpError(400, 'message_too_long');
     const page = await assertPage(visitor, id);
-    if (!(await takeChat(visitor, chatLimit()))) throw new HttpError(429, 'daily_limit');
+    await takeChat(visitor, chatLimit());
 
     const history = await chatHistory(visitor, id);
     const question = await addMessage(visitor, id, 'user', text);
@@ -36,6 +37,9 @@ export async function POST(request: Request, { params }: Ctx) {
     const turns: ChatTurn[] = [...history, { role: 'user', content: text }];
     const encoder = new TextEncoder();
     let answer = '';
+    let finished!: () => void;
+    // keeps the function alive until the answer is saved, also when the reader stopped it halfway
+    after(new Promise<void>((resolve) => (finished = resolve)));
 
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
@@ -56,12 +60,13 @@ export async function POST(request: Request, { params }: Ctx) {
             }
           }
         } finally {
-          if (answer.trim()) await addMessage(visitor, id, 'assistant', answer).catch(console.error);
           try {
             controller.close();
           } catch {
             // already closed by a cancelled reader
           }
+          if (answer.trim()) await addMessage(visitor, id, 'assistant', answer).catch(console.error);
+          finished();
         }
       },
     });

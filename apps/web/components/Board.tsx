@@ -33,7 +33,15 @@ export const KIND_LABEL: Record<NoteKind, string> = {
 };
 
 // A capture that is still on its way up: drawn at once from the local file, before the server knows it.
-export type Uploading = { key: string; x: number; y: number; url: string; width: number; height: number };
+export type Uploading = {
+  key: string;
+  pageId: string;
+  x: number;
+  y: number;
+  url: string;
+  width: number;
+  height: number;
+};
 
 type Tool = 'select' | 'hand';
 type Target = 'note' | 'capture';
@@ -45,6 +53,7 @@ type Props = {
   captures: Capture[];
   notes: Note[];
   uploading: Uploading[];
+  retrying: Set<string>;
   localImages: Record<string, string>;
   view: View;
   intro: boolean;
@@ -97,8 +106,7 @@ function Intro(p: { onClose(): void }) {
       <p className="intro-eyebrow">Experii 웹 · 처음 오셨네요</p>
       <h2 id="intro-title">지금까지 공부 어떻게 했어요?</h2>
       <p className="intro-lead">
-        여기서는 필기하느라 흐름을 끊지 않아도 돼요. AI와 대화한 뒤 남기고 싶은 화면을 캡쳐해서
-        붙여 넣기만 하세요. 필기는 자동으로 해 드려요.
+        여기서는 대화 후 캡쳐 → 붙여넣기만 하세요. 필기는 자동으로 해 드려요.
       </p>
       <ol className="intro-steps">
         <li>
@@ -135,7 +143,13 @@ function Intro(p: { onClose(): void }) {
   );
 }
 
-function CaptureStatus(p: { capture: Capture; suggested: number; placed: number; onRetry(): void }) {
+function CaptureStatus(p: {
+  capture: Capture;
+  suggested: number;
+  placed: number;
+  busy: boolean;
+  onRetry(): void;
+}) {
   const { capture: c } = p;
   if (c.status === 'pending')
     return (
@@ -148,7 +162,7 @@ function CaptureStatus(p: { capture: Capture; suggested: number; placed: number;
     return (
       <div className="cap-status err" role="alert">
         <span>{c.error ?? '필기를 만들지 못했어요.'}</span>
-        <button className="btn small" onClick={p.onRetry}>
+        <button className="btn small" onClick={p.onRetry} disabled={p.busy} aria-busy={p.busy}>
           <Retry />
           다시 시도
         </button>
@@ -330,6 +344,8 @@ export function Board(p: Props) {
     const onPaste = (e: ClipboardEvent) => {
       const file = imageFrom(e.clipboardData);
       if (!file) return;
+      // copying from Office puts a picture next to the words; pasted into the question box, the words win
+      if (typing(e.target) && e.clipboardData?.types.includes('text/plain')) return;
       e.preventDefault();
       latest.current.onImage(file, freeSpot());
     };
@@ -626,6 +642,7 @@ export function Board(p: Props) {
                   capture={c}
                   suggested={suggested.length}
                   placed={placedHere}
+                  busy={p.retrying.has(c.id)}
                   onRetry={() => p.onRetry(c)}
                 />
                 <button

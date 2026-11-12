@@ -79,6 +79,10 @@ export const ERRORS: Record<string, string> = {
   invite_required: '초대 링크로 다시 들어와 주세요.',
   too_many_attempts: '같은 캡쳐는 세 번까지 다시 시도할 수 있어요.',
   still_running: '아직 필기를 만드는 중이에요.',
+  cannot_retry: '지금은 이 캡쳐를 다시 시도할 수 없어요.',
+  capture_not_found: '이 캡쳐를 찾지 못했어요.',
+  too_many_pages: '공부 페이지는 200개까지 만들 수 있어요.',
+  too_many_notes: '이 페이지에는 대화 필기를 더 남길 수 없어요.',
   message_too_long: '질문이 너무 길어요. 4,000자 안으로 줄여 주세요.',
   page_not_found: '이 공부 페이지를 찾지 못했어요.',
 };

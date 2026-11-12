@@ -186,6 +186,55 @@ describe('anthropic adapter (no network)', () => {
     expect(String(req.body.system)).toContain('사실만 쓴다');
   });
 
+  function replying(content: unknown[], stop_reason: string) {
+    return (async () =>
+      new Response(
+        JSON.stringify({
+          id: 'msg_test',
+          type: 'message',
+          role: 'assistant',
+          model: 'claude-opus-5-5',
+          content,
+          stop_reason,
+          stop_sequence: null,
+          usage: { input_tokens: 10, output_tokens: 10 },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      )) as unknown as typeof fetch;
+  }
+  const adapterWith = (f: typeof fetch) =>
+    createAnthropicAdapter({ apiKey: 'test-key-not-real', model: 'claude-opus-5-5', fetch: f });
+
+  it('reports a refusal as refused, even with words before it', async () => {
+    const adapter = adapterWith(replying([{ type: 'text', text: '{"notes":[{"te' }], 'refusal'));
+    await expect(adapter.generateNotesFromCapture(image)).rejects.toMatchObject({ code: 'refused' });
+  });
+
+  it('reports a cut-off answer as invalid output', async () => {
+    const adapter = adapterWith(replying([{ type: 'text', text: '{"notes":[{"text":"조인' }], 'max_tokens'));
+    await expect(adapter.generateNotesFromCapture(image)).rejects.toMatchObject({ code: 'invalid_output' });
+  });
+
+  it('reads the notes the fallback model wrote', async () => {
+    const adapter = adapterWith(
+      replying(
+        [
+          { type: 'text', text: '{"notes":[' },
+          { type: 'fallback', from: { model: 'claude-opus-5-5' }, to: { model: 'claude-opus-4-8' } },
+          { type: 'text', text: JSON.stringify(answer) },
+        ],
+        'end_turn',
+      ),
+    );
+    const out = await adapter.generateNotesFromCapture(image);
+    expect(out.notes[0].text).toBe('조인은 두 테이블을 키로 잇는다.');
+  });
+
+  it('reports text that is not the notes shape as invalid output', async () => {
+    const adapter = adapterWith(replying([{ type: 'text', text: '{"notes":"없음"}' }], 'end_turn'));
+    await expect(adapter.generateNotesFromCapture(image)).rejects.toMatchObject({ code: 'invalid_output' });
+  });
+
   it('leaves out the fallback on models that do not take it', async () => {
     const seen: Array<{ url: string; body: Record<string, unknown>; headers: Headers }> = [];
     const adapter = createAnthropicAdapter({

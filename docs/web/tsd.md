@@ -102,11 +102,12 @@ SQL 원본은 `apps/web/db/`에 있다. 모든 표와 함수 이름은 `web_`으
 | 함수 | 하는 일 |
 |---|---|
 | `web_create_capture(p_page, p_path, p_media, p_bytes, p_width, p_height, p_x, p_y, p_limit)` | 캡쳐 행을 만드는 유일한 길이다. 방문자 헤더가 없으면 `no_visitor`, 남의 페이지면 `page_not_found`, 경로 첫 폴더가 방문자 ID가 아니면 `bad_path`로 거절한다. `web_usage`를 1 올리고, `least(p_limit 또는 30, 50)`을 넘으면 `daily_limit`로 거절한다. 거절하면 올린 수도 함께 되돌아간다 |
-| `web_take_retry()` | [다시 시도] 한 번을 하루 캡쳐 한도에서 뺀다(같은 이미지로 Claude를 다시 부르므로). 전체 한도를 넘었으면 false |
-| `web_take_chat(p_limit)` | 대화 메시지 한 번을 한 사람 한도(`least(p_limit 또는 100, 200)`)와 전체 한도에서 뺀다. 넘으면 false |
+| `web_retry_capture(p_capture, p_limit)` | [다시 시도]를 한 문장으로 차지한다(`failed`·`empty`이고 3번 미만일 때만 `pending`으로). 그래서 두 번 눌러도 한 번만 돈다. 남은 제안을 지우고, 새 캡쳐와 같은 한 사람·전체 하루 한도에서 뺀다. 거절 코드: `capture_not_found`, `too_many_attempts`, `cannot_retry`, `daily_limit`, `daily_total` (0004) |
+| `web_take_chat(p_limit)` | 대화 메시지 한 번을 한 사람 한도(`least(p_limit 또는 100, 200)`)와 전체 한도에서 뺀다. `ok`, `daily_limit`, `daily_total`, `no_visitor` 중 하나를 돌려준다 (0004) |
+| `web_take_retry()` | 0003에서 만들었다가 0004에서 지웠다 |
 | `web_take_capture` | 0001에서 만들었다가 0002에서 지웠다 |
 
-세 함수 모두 `security definer`이고 `anon`만 실행할 수 있다. Supabase 보안 점검이 이것을 경고(WARN)로 보여 주지만 의도한 것이다: 서버가 publishable 키로 부르고, 함수 안에서 `web_visitor()`로 방문자를 확인한다.
+한도 함수는 모두 `security definer`이고 `anon`만 실행할 수 있다. Supabase 보안 점검이 이것을 경고(WARN)로 보여 주지만 의도한 것이다: 서버가 publishable 키로 부르고, 함수 안에서 `web_visitor()`로 방문자를 확인한다.
 
 ### 4.4 전체 한도·대화 한도 (`0003_quota.sql`)
 
@@ -115,10 +116,17 @@ SQL 원본은 `apps/web/db/`에 있다. 모든 표와 함수 이름은 `web_`으
 - 한 사람 하루 한도: 캡쳐는 env `CAPTURE_DAILY_LIMIT`(기본 30, DB 상한 50), 대화는 `CHAT_DAILY_LIMIT`(기본 100, DB 상한 200).
 - `web_create_capture`는 0003에서 전체 한도 검사를 더해 다시 만들었다(넘으면 `daily_total`).
 
+### 4.5 서버 키 (`0004_server_key_and_retry.sql`)
+
+- 서버는 요청마다 `x-web-key` 헤더에 env `WEB_DB_KEY`를 실어 보낸다. `web_visitor()`(security definer)는 이 값이 `web_private.settings.web_key`와 같을 때만 방문자 ID를 돌려준다. 다르면 null이라 어떤 정책·함수·저장소 정책에도 맞지 않는다.
+- 그래서 publishable 키만 아는 사람은 행을 읽지도 쓰지도, 이미지를 올리지도, 한도를 쓰지도 못한다(2026-11-13 시험: 키 없음·틀린 키 모두 0건, 쓰기·업로드 거부, 한도 함수 `no_visitor`).
+- `web_private` 스키마는 API에 노출되지 않고 anon·authenticated 권한이 없다. 키 값은 SQL 파일에 없고 따로 넣는다: `insert into web_private.settings (web_key) values ('<WEB_DB_KEY>')`.
+- 키를 바꿀 때: 새 값으로 `update web_private.settings set web_key = '<새 값>'`과 Vercel env `WEB_DB_KEY`를 함께 바꾸고 다시 배포한다. 둘이 다른 동안은 앱이 DB에 닿지 못한다.
+
 ## 5. DB 적용 방법
 
 - **프로젝트:** Supabase 프로젝트 "Experii"(ref `swbkvwcznphawuredshr`, URL `https://swbkvwcznphawuredshr.supabase.co`). 랜딩 사전 신청과 같은 프로젝트를 쓴다. 그래서 웹 객체는 모두 `web_` 접두사를 붙인다.
-- **적용 명령:** 파일마다 한 번, 순서대로(0001 → 0002 → 0003) 적용한다.
+- **적용 명령:** 파일마다 한 번, 순서대로(0001 → 0002 → 0003 → 0004) 적용한다. 0004 뒤에 서버 키 한 줄을 따로 넣는다(4.5).
 
   ```bash
   supabase db query --linked --workdir <링크 정보를 둔 폴더> -f <SQL 파일 절대 경로>
@@ -152,14 +160,14 @@ SQL 원본은 `apps/web/db/`에 있다. 모든 표와 함수 이름은 `web_`으
 
 ### 6.2 DB 접근: publishable 키 + `x-visitor-id` + RLS
 
-- 서버는 publishable 키(공개해도 되는 Supabase 키)로 Supabase를 부르고, 요청마다 헤더 `x-visitor-id`에 쿠키의 방문자 ID를 넣는다(`lib/server/db.ts`의 `dbFor`).
+- 서버는 publishable 키(공개해도 되는 Supabase 키)로 Supabase를 부르고, 요청마다 헤더 `x-visitor-id`에 쿠키의 방문자 ID를, `x-web-key`에 서버 키를 넣는다(`lib/server/db.ts`의 `dbFor`, 4.5).
 - RLS가 그 방문자의 행과 이미지로만 접근을 제한한다(4.2). 격리를 앱 코드가 아니라 DB가 강제한다.
 - 서버에 secret 키(RLS를 건너뛰는 관리자 키)가 없다. 계획 초안은 secret 키를 썼지만, 키를 꺼내는 명령이 권한 규칙에 막혀 이 방식으로 바꿨다. 서버에 비밀이 하나 줄어든 셈이다.
 
 ### 6.3 남는 위험
 
-- publishable 키는 Vercel 서버 env에만 있고 브라우저로 나가지 않는다. 그래도 키와 URL을 아는 사람은 앱을 거치지 않고 Supabase에 바로 요청할 수 있다. 무작위 방문자 ID로 자기 행은 만들 수 있지만, 남의 방문자 ID를 모르면 남의 행과 이미지는 볼 수 없다.
-- 키를 아는 사람이 한도 함수를 마구 부르면 전체 하루 한도를 다 써서 그날 다른 사람이 못 쓰게 할 수 있다. 키가 새면 Supabase 대시보드에서 publishable 키를 새로 만들고 Vercel env를 바꾼다.
+- publishable 키만으로는 아무것도 못 한다(4.5). 서버 키 `WEB_DB_KEY`까지 새면 무작위 방문자 ID로 자기 행을 만들고 전체 하루 한도를 일부러 다 쓸 수 있다. 그때는 4.5의 순서로 서버 키를 바꾼다.
+- 남의 방문자 ID(무작위 UUID)를 모르면 남의 행과 이미지는 서버 키가 있어도 볼 수 없다.
 - 캡쳐 행은 RPC로만 만들어져 하루 한도를 건너뛸 수 없다. 반면 저장소 업로드에는 버킷의 크기·형식 제한만 있다. `web_pages`, `web_messages`, `web_notes` 직접 쓰기에도 한도가 없다.
 - AI 호출은 모두 우리 API를 거치므로, AI 비용은 앱의 한도(FR-W10)와 Anthropic 월 한도로 막는다.
 
@@ -216,12 +224,13 @@ interface ClaudeAdapter {
 
 코드만 있고 아직 한 번도 실제로 부르지 않았다.
 
-- **캡쳐 → 필기:** `client.beta.messages.parse`에 base64 이미지와 지시문(`prompt.ts`의 `CAPTURE_SYSTEM_PROMPT`)을 보낸다. 응답 형식은 구조화 출력(`output_config.format` + `betaZodOutputFormat(CaptureNotesSchema)`)으로 받는다.
+- **캡쳐 → 필기:** `client.beta.messages.create`에 base64 이미지와 지시문(`prompt.ts`의 `CAPTURE_SYSTEM_PROMPT`)을 보낸다. 응답 형식은 구조화 출력(`output_config.format` + `betaZodOutputFormat(CaptureNotesSchema)`)이다. `parse`를 쓰지 않는 이유: 거절·잘림 응답에서 종료 이유를 읽기 전에 예외를 던진다(2026-11-13 리뷰).
+  - 순서: `stop_reason`이 `refusal`이면 `refused`, `max_tokens`이면 `invalid_output`. 그다음 마지막 `fallback` 블록 뒤의 text를 JSON으로 읽고 zod로 검사한다(`readNotes`). `max_tokens` 16000.
   - 강제 도구 호출(`tool_choice`)을 쓰지 않는 이유: 현재 모델(Opus 5.5, Sonnet 5.5)에서 400 오류가 난다.
 - **fallbacks:** 5.x 모델이면 베타 `server-side-fallback-2026-07-01`과 `fallbacks: 'default'`를 붙인다. 서버 쪽에서 거절 시 다른 모델로 넘기는 기능이다.
 - **거절과 오류:** `stop_reason`이 `refusal`이면 `refused`, 파싱 결과가 없으면 `invalid_output`, 사용량 초과는 `rate_limited`, 그 밖 API 오류는 `upstream`이다. 화면에는 실패와 [다시 시도]로 보인다.
-- **설정:** 재시도 1번, 제한 시간 55초, `max_tokens` 8000.
-- **대화:** `client.messages.stream`의 `text_delta`를 흘려보낸다. 거절이면 답 끝에 안내 한 줄을 붙인다.
+- **설정:** 캡쳐는 재시도 없음(라우트 마감 안에서 한 번), 대화는 재시도 1번. 끊김·시간 초과는 "시간이 너무 오래 걸렸어요"로 보인다. 어댑터 오류는 코드와 메시지를 Vercel 로그에 남긴다(본문은 남기지 않음).
+- **대화:** `client.messages.stream`의 `text_delta`를 흘려보낸다. `max_tokens` 4000, 최상위 `cache_control: ephemeral`로 다시 보내는 대화 앞부분을 캐시한다. 거절이면 답 끝에 안내 한 줄을 붙인다.
 
 ### 7.5 목 어댑터 (`mock.ts`)
 
@@ -243,7 +252,7 @@ interface ClaudeAdapter {
    2. 저장소 `web-captures/{visitor}/{page}/{uuid}.{ext}`에 올린다.
    3. RPC `web_create_capture`가 페이지 소유, 경로, 하루 한도를 확인하고 `status=pending` 행을 만든다.
    4. 201로 바로 응답한다.
-   5. 응답을 보낸 뒤 `after()`로 필기 생성을 돌린다. 어댑터 호출은 58초에서 끊는다.
+   5. 응답을 보낸 뒤 `after()`로 필기 생성을 돌린다. 라우트는 `maxDuration` 120초이고, 어댑터 호출은 요청이 들어온 뒤 100초에 끊는다(결과를 쓸 시간을 남긴다). 실 어댑터는 재시도 없이 한 번만 부른다.
    6. 제안을 `web_notes`에 `state=suggested`로 저장하고 상태를 바꾼다.
 4. **상태:**
 
@@ -254,7 +263,8 @@ interface ClaudeAdapter {
    ```
 
    - 화면은 1.2초마다 `GET /api/captures/[id]`로 상태를 본다.
-   - 150초 넘게 `pending`이면 함수가 중간에 멈춘 것으로 보고, 읽을 때 `failed`로 바꾼다(`lib/server/store.ts`의 `STALE_MS`).
+   - 150초 넘게 `pending`이면 함수가 중간에 멈춘 것으로 보고, 읽을 때 `failed`로 바꾼다(`lib/server/store.ts`의 `STALE_MS`). 아직 `pending`이고 여전히 오래된 행만 바꿔, 방금 끝난 결과를 덮지 않는다.
+   - 대화 라우트는 `maxDuration` 300초, 답 `max_tokens` 4000이다. 답 저장은 `after()`로 붙잡아 두어, 읽는 쪽이 중간에 멈춰도 저장된다.
 5. **제안 넣기:** 제안마다 kind 이름표와 글이 보이고, 확신이 낮으면 흐리게 "확인해 보세요"가 붙는다. [넣기]·[모두 넣기]는 `POST /api/notes/place`로 `state=placed`로 바꾸고 캡쳐 오른쪽 열에 아래로 쌓는다. [빼기]는 제안을 지운다.
 6. **안내:** 첫 안내 카드에 "캡쳐는 Experii 서버에 저장되고, 필기를 만들려고 AI로 보내요. 비밀번호나 개인정보가 보이는 화면은 올리지 마세요."가 있고, 첫 업로드 때 같은 뜻의 알림을 한 번 더 띄운다. `redacted`가 1 이상이면 "비밀로 보이는 n곳을 가렸어요"를 띄운다.
 7. **배치:** 붙여 넣은 캡쳐는 화면 가운데에 놓이고, 넣은 필기는 그 오른쪽 열에 그린 높이대로 다시 쌓인다. 화면은 캡쳐와 필기 열이 보이게 따라가고, 좁은 화면에서는 축소한다.
@@ -281,13 +291,14 @@ interface ClaudeAdapter {
 - **2026-11-13 운영 배포:** 브랜치 `claude/web-capture-notes`의 Git 미리보기 배포를 `vercel promote`로 운영에 올렸다. 그래서 운영 코드는 main이 아니라 이 브랜치다. PR이 main에 병합되면 main push가 운영을 다시 배포한다.
 - **처음 생긴 배포:** 프로젝트의 첫 배포는 운영 대상이 된다(Vercel 동작). 그 배포는 빌드 건너뛰기로 취소돼 영향이 없었다.
 
-- **빌드 건너뛰기:** `vercel.json`의 `ignoreCommand`는 `git diff --quiet HEAD^ HEAD -- .`다. Root Directory가 `apps/web`이라 `.`은 `apps/web`이고, 직전 커밋에서 이 폴더가 바뀌지 않았으면 빌드하지 않는다. 프로젝트 설정 "루트가 안 바뀐 커밋은 배포 건너뛰기"(affected projects)도 켰다. `apps/web`이 없는 다른 브랜치 push가 실패 표시를 남기지 않게 하려는 것이다.
+- **빌드 건너뛰기:** `vercel.json`의 `ignoreCommand`는 `[ -n "$VERCEL_GIT_PREVIOUS_SHA" ] && git diff --quiet "$VERCEL_GIT_PREVIOUS_SHA" HEAD -- .`다. 그 브랜치의 마지막 성공 배포 이후 `apps/web`이 바뀌지 않았을 때만 빌드하지 않는다(첫 배포나 비교할 수 없을 때는 빌드한다). 직전 커밋만 보던 처음 방식은 코드 커밋 뒤 문서 커밋을 함께 push하면 코드를 배포하지 않는 문제가 있었다(2026-11-13 리뷰). 프로젝트 설정 "루트가 안 바뀐 커밋은 배포 건너뛰기"(affected projects)도 켰다. `apps/web`이 없는 다른 브랜치 push가 실패 표시를 남기지 않게 하려는 것이다.
 - **env:** 값은 Vercel 대시보드나 `vercel env add`로 넣는다. 저장소, PR 본문, 로그에 값을 쓰지 않는다.
 
   | 이름 | 운영 값 | 비밀 여부 |
   |---|---|---|
   | `SUPABASE_URL` | `https://swbkvwcznphawuredshr.supabase.co` | 아님 |
   | `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable 키 | 공개 키지만 저장소에는 넣지 않는다 |
+  | `WEB_DB_KEY` | 서버 키(64자 무작위, DB `web_private.settings`와 같은 값) | **비밀.** 저장소·로그에 쓰지 않는다 |
   | `INVITE_CODES` | 초대 코드(쉼표 구분) | 반비밀. 저장소에 넣지 않는다 |
   | `CLAUDE_ADAPTER` | `mock`(실연동 뒤 `anthropic`) | 아님 |
   | `CAPTURE_DAILY_LIMIT`, `CHAT_DAILY_LIMIT` | 30, 100(코드 기본값과 같음) | 아님 |

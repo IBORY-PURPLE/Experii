@@ -7,7 +7,7 @@ import { sniffImage } from '@/lib/sniff';
 import { MAX_UPLOAD_BYTES } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -19,6 +19,8 @@ const dimension = (value: FormDataEntryValue | null) => {
 // The upload answers at once with a pending capture; the notes are made after the response (after()), and the
 // browser asks GET /api/captures/[id] until they are there.
 export async function POST(request: Request, { params }: Ctx) {
+  // the AI call gives up 100 s after the request came in, leaving time to write the result
+  const deadline = Date.now() + 100_000;
   try {
     const visitor = await requireVisitor();
     const id = requireId((await params).id);
@@ -40,7 +42,7 @@ export async function POST(request: Request, { params }: Ctx) {
       captureLimit(),
     );
     const scenario = mockScenario(request.headers.get('x-experii-mock'));
-    after(() => runCapture(visitor, capture.id, scenario));
+    after(() => runCapture(visitor, capture.id, deadline, scenario));
     return NextResponse.json({ capture, adapter: adapterMode() }, { status: 201 });
   } catch (error) {
     return fail(error);

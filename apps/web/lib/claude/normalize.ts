@@ -12,7 +12,11 @@ const MAX_TEXT = 400;
 const MAX_EXCERPT = 800;
 const MAX_REASON = 200;
 
-const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+// by code points, so an emoji is never cut in half
+const clip = (s: string, n: number) => {
+  const chars = Array.from(s);
+  return chars.length > n ? `${chars.slice(0, n - 1).join('')}…` : s;
+};
 
 // Whatever an adapter returns passes through here before it is stored: the schema is checked, limits applied,
 // secrets masked once more, and an empty result always carries a reason (prompt.md 5.2 rule 5).

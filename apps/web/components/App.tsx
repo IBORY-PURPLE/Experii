@@ -68,6 +68,7 @@ function Shell({ mock }: { mock: boolean }) {
   const [reveal, setReveal] = useState<{ x: number; y: number; w: number; h: number; key: number } | null>(null);
   const [views, setViews] = useState<Record<string, View>>(loadViews);
   const [pick, setPick] = useState<(Pick & { key: number }) | null>(null);
+  const [retrying, setRetrying] = useState<Set<string>>(() => new Set());
   const abort = useRef<AbortController | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -146,7 +147,20 @@ function Shell({ mock }: { mock: boolean }) {
     [showToast],
   );
 
-  // Captures being read are asked about until their notes arrive.
+  const dropCapture = useCallback((id: string) => {
+    setDetail((d) =>
+      d
+        ? {
+            ...d,
+            captures: d.captures.filter((c) => c.id !== id),
+            notes: d.notes.filter((n) => !(n.captureId === id && n.state === 'suggested')),
+          }
+        : d,
+    );
+  }, []);
+
+  // Captures being read are asked about until their notes arrive; each on its own, so one gone capture (404) does
+  // not hold up the rest, and a lost invite (401) stops the asking and says so.
   const pendingIds =
     detail?.captures
       .filter((c) => c.status === 'pending')
@@ -161,20 +175,34 @@ function Shell({ mock }: { mock: boolean }) {
       busy = true;
       try {
         for (const id of ids) {
-          const { capture, notes } = await api.getCapture(id);
-          if (capture.status !== 'pending') applyCapture(capture, notes);
+          try {
+            const { capture, notes } = await api.getCapture(id);
+            if (capture.status !== 'pending') applyCapture(capture, notes);
+          } catch (error) {
+            if (error instanceof ApiError && error.status === 404) dropCapture(id);
+            if (error instanceof ApiError && error.status === 401) {
+              clearInterval(timer);
+              failed(error, '');
+              return;
+            }
+            // anything else: the next tick asks again
+          }
         }
-      } catch {
-        // the next tick asks again
       } finally {
         busy = false;
       }
     }, 1200);
     return () => clearInterval(timer);
-  }, [pendingIds, applyCapture]);
+  }, [pendingIds, applyCapture, dropCapture, failed]);
 
-  const updateNotes = (fn: (notes: Note[]) => Note[]) =>
-    setDetail((d) => (d ? { ...d, notes: fn(d.notes) } : d));
+  // Changes and their undoing touch only the page they were made on, and only the items they changed.
+  const updateNotes = (pageId: string, fn: (notes: Note[]) => Note[]) =>
+    setDetail((d) => (d && d.page.id === pageId ? { ...d, notes: fn(d.notes) } : d));
+
+  // object URLs of just-uploaded images are let go when the app goes
+  const images = useRef(localImages);
+  images.current = localImages;
+  useEffect(() => () => Object.values(images.current).forEach((url) => URL.revokeObjectURL(url)), []);
 
   const addCapture = async (file: File, at: Point) => {
     const page = detail?.page;
@@ -188,11 +216,17 @@ function Shell({ mock }: { mock: boolean }) {
     }
     const key = crypto.randomUUID();
     const url = URL.createObjectURL(prepared.blob);
-    setUploading((u) => [...u, { key, ...at, url, width: prepared.width, height: prepared.height }]);
+    setUploading((u) => [
+      ...u,
+      { key, pageId: page.id, ...at, url, width: prepared.width, height: prepared.height },
+    ]);
     setReveal({ ...at, w: TILE_W, h: tileHeight(prepared) + 48, key: Date.now() });
     if (!read(KEYS.sent)) {
       write(KEYS.sent, '1');
-      showToast('캡쳐는 Experii 서버에 저장되고, 필기를 만들려고 AI로 보내요.', 7000);
+      showToast(
+        '캡쳐는 Experii 서버에 저장되고, 필기를 만들려고 AI로 보내요. 비밀번호나 개인정보가 보이는 화면은 올리지 마세요.',
+        8000,
+      );
     }
     const form = new FormData();
     form.append('file', prepared.blob, 'capture');
@@ -214,9 +248,11 @@ function Shell({ mock }: { mock: boolean }) {
   };
 
   const placeNotes = async (items: Array<{ id: string; x: number; y: number }>) => {
+    const pageId = detail?.page.id;
+    if (!pageId) return;
     const at = new Map(items.map((i) => [i.id, i]));
-    const before = detail?.notes ?? [];
-    updateNotes((notes) =>
+    const before = new Map((detail?.notes ?? []).filter((n) => at.has(n.id)).map((n) => [n.id, n]));
+    updateNotes(pageId, (notes) =>
       notes.map((n) => {
         const spot = at.get(n.id);
         return spot ? { ...n, state: 'placed', x: spot.x, y: spot.y, updatedAt: new Date().toISOString() } : n;
@@ -229,14 +265,14 @@ function Shell({ mock }: { mock: boolean }) {
       const placed = await request;
       const byId = new Map(placed.map((n) => [n.id, n]));
       // the board may have moved them since (settling the column), so the local spot wins
-      updateNotes((notes) =>
+      updateNotes(pageId, (notes) =>
         notes.map((n) => {
           const saved = byId.get(n.id);
           return saved ? { ...saved, x: n.x, y: n.y } : n;
         }),
       );
     } catch (error) {
-      updateNotes(() => before);
+      updateNotes(pageId, (notes) => notes.map((n) => before.get(n.id) ?? n));
       failed(error, '필기를 보드에 넣지 못했어요.');
     } finally {
       for (const item of items) placing.current.delete(item.id);
@@ -257,47 +293,53 @@ function Shell({ mock }: { mock: boolean }) {
   };
 
   const removeNote = async (note: Note, done: string | null) => {
-    updateNotes((notes) => notes.filter((n) => n.id !== note.id));
+    updateNotes(note.pageId, (notes) => notes.filter((n) => n.id !== note.id));
     try {
       await api.deleteNote(note.id);
       if (done) showToast(done);
     } catch (error) {
-      updateNotes((notes) => [...notes, note]);
+      updateNotes(note.pageId, (notes) => (notes.some((n) => n.id === note.id) ? notes : [...notes, note]));
       failed(error, '지우지 못했어요.');
     }
   };
 
   const moveNote = async (note: Note, at: Point) => {
-    updateNotes((notes) =>
+    updateNotes(note.pageId, (notes) =>
       notes.map((n) => (n.id === note.id ? { ...n, ...at, updatedAt: new Date().toISOString() } : n)),
     );
     try {
       await placing.current.get(note.id);
       await api.moveNote(note.id, at.x, at.y);
     } catch (error) {
-      updateNotes((notes) => notes.map((n) => (n.id === note.id ? note : n)));
+      updateNotes(note.pageId, (notes) =>
+        notes.map((n) => (n.id === note.id ? { ...n, x: note.x, y: note.y } : n)),
+      );
       failed(error, '필기를 옮기지 못했어요.');
     }
   };
 
   const moveCapture = async (capture: Capture, at: Point) => {
-    setDetail((d) =>
-      d ? { ...d, captures: d.captures.map((c) => (c.id === capture.id ? { ...c, ...at } : c)) } : d,
-    );
+    const onPage = (fn: (c: Capture) => Capture) =>
+      setDetail((d) =>
+        d && d.page.id === capture.pageId
+          ? { ...d, captures: d.captures.map((c) => (c.id === capture.id ? fn(c) : c)) }
+          : d,
+      );
+    onPage((c) => ({ ...c, ...at }));
     try {
       await api.moveCapture(capture.id, at.x, at.y);
     } catch (error) {
-      setDetail((d) =>
-        d ? { ...d, captures: d.captures.map((c) => (c.id === capture.id ? capture : c)) } : d,
-      );
+      onPage((c) => ({ ...c, x: capture.x, y: capture.y }));
       failed(error, '캡쳐를 옮기지 못했어요.');
     }
   };
 
   const deleteCapture = async (capture: Capture) => {
-    const before = detail;
+    const notes = detail?.notes ?? [];
+    const dropped = notes.filter((n) => n.captureId === capture.id && n.state === 'suggested');
+    const kept = new Set(notes.filter((n) => n.captureId === capture.id && n.state === 'placed').map((n) => n.id));
     setDetail((d) =>
-      d
+      d && d.page.id === capture.pageId
         ? {
             ...d,
             captures: d.captures.filter((c) => c.id !== capture.id),
@@ -309,18 +351,33 @@ function Shell({ mock }: { mock: boolean }) {
     );
     try {
       await api.deleteCapture(capture.id);
+      const url = localImages[capture.id];
+      if (url) URL.revokeObjectURL(url);
       showToast('캡쳐를 지웠어요. 보드에 넣은 필기는 남아 있어요.');
     } catch (error) {
-      setDetail(before);
+      setDetail((d) =>
+        d && d.page.id === capture.pageId
+          ? {
+              ...d,
+              captures: [...d.captures, capture],
+              notes: [
+                ...d.notes.map((n) => (kept.has(n.id) ? { ...n, captureId: capture.id } : n)),
+                ...dropped,
+              ],
+            }
+          : d,
+      );
       failed(error, '캡쳐를 지우지 못했어요.');
     }
   };
 
   const retry = async (capture: Capture) => {
+    if (retrying.has(capture.id)) return;
+    setRetrying((s) => new Set(s).add(capture.id));
     try {
       const fresh = await api.retryCapture(capture.id);
       setDetail((d) =>
-        d
+        d && d.page.id === fresh.pageId
           ? {
               ...d,
               captures: d.captures.map((c) => (c.id === fresh.id ? fresh : c)),
@@ -330,6 +387,12 @@ function Shell({ mock }: { mock: boolean }) {
       );
     } catch (error) {
       failed(error, '다시 시도하지 못했어요.');
+    } finally {
+      setRetrying((s) => {
+        const next = new Set(s);
+        next.delete(capture.id);
+        return next;
+      });
     }
   };
 
@@ -466,7 +529,8 @@ function Shell({ mock }: { mock: boolean }) {
               key={page.id}
               captures={detail.captures}
               notes={detail.notes}
-              uploading={uploading}
+              uploading={uploading.filter((u) => u.pageId === page.id)}
+              retrying={retrying}
               localImages={localImages}
               view={views[page.id] ?? DEFAULT_VIEW}
               intro={intro}
