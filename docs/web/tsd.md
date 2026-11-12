@@ -121,12 +121,13 @@ SQL 원본은 `apps/web/db/`에 있다. 모든 표와 함수 이름은 `web_`으
 - 서버는 요청마다 `x-web-key` 헤더에 env `WEB_DB_KEY`를 실어 보낸다. `web_visitor()`(security definer)는 이 값이 `web_private.settings.web_key`와 같을 때만 방문자 ID를 돌려준다. 다르면 null이라 어떤 정책·함수·저장소 정책에도 맞지 않는다.
 - 그래서 publishable 키만 아는 사람은 행을 읽지도 쓰지도, 이미지를 올리지도, 한도를 쓰지도 못한다(2026-11-13 시험: 키 없음·틀린 키 모두 0건, 쓰기·업로드 거부, 한도 함수 `no_visitor`).
 - `web_private` 스키마는 API에 노출되지 않고 anon·authenticated 권한이 없다. 키 값은 SQL 파일에 없고 따로 넣는다: `insert into web_private.settings (web_key) values ('<WEB_DB_KEY>')`.
+- `web_visitor()` 실행 권한은 `anon`에만 둔다(0005). RLS 검사가 anon 역할로 돌기 때문이다.
 - 키를 바꿀 때: 새 값으로 `update web_private.settings set web_key = '<새 값>'`과 Vercel env `WEB_DB_KEY`를 함께 바꾸고 다시 배포한다. 둘이 다른 동안은 앱이 DB에 닿지 못한다.
 
 ## 5. DB 적용 방법
 
 - **프로젝트:** Supabase 프로젝트 "Experii"(ref `swbkvwcznphawuredshr`, URL `https://swbkvwcznphawuredshr.supabase.co`). 랜딩 사전 신청과 같은 프로젝트를 쓴다. 그래서 웹 객체는 모두 `web_` 접두사를 붙인다.
-- **적용 명령:** 파일마다 한 번, 순서대로(0001 → 0002 → 0003 → 0004) 적용한다. 0004 뒤에 서버 키 한 줄을 따로 넣는다(4.5).
+- **적용 명령:** 파일마다 한 번, 순서대로(0001 → 0002 → 0003 → 0004 → 0005) 적용한다. 0004 뒤에 서버 키 한 줄을 따로 넣는다(4.5).
 
   ```bash
   supabase db query --linked --workdir <링크 정보를 둔 폴더> -f <SQL 파일 절대 경로>
